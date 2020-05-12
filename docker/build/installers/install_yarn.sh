@@ -21,9 +21,9 @@ set -e
 
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-apt update -y
-apt install -y yarn
+apt-get update -y
+apt-get install -y yarn
 
 # Clean up.
-apt clean
+apt-get clean && rm -rf /var/lib/apt/lists/*
 rm -fr /etc/apt/sources.list.d/yarn.list

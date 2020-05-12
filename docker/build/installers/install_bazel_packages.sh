@@ -22,8 +22,8 @@ set -e
 mkdir -p /home/tmp
 cd /home/tmp
 
-wget -O opencv-2.4.13.2.zip \
-    https://github.com/opencv/opencv/archive/2.4.13.2.zip
+# wget -O opencv-2.4.13.2.zip \
+    # https://github.com/opencv/opencv/archive/2.4.13.2.zip
 wget -O googletest-release-1.8.0.tar.gz \
     https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 wget -O gflags-2.2.0.tar.gz \
@@ -48,5 +48,3 @@ wget -O protobuf-3.3.0.tar.gz \
     https://github.com/google/protobuf/releases/download/v3.3.0/protobuf-cpp-3.3.0.tar.gz
 wget -O v1.14.2.tar.gz \
     https://github.com/grpc/grpc/archive/v1.14.2.tar.gz
-wget -O v1.11.tar.gz \
-    https://github.com/civetweb/civetweb/archive/v1.11.tar.gz

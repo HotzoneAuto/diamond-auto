@@ -1,7 +1,8 @@
 <cyber>
-    <module>
-        <name>monitor</name>
-        <dag_conf>/apollo/modules/monitor/dag/monitor.dag</dag_conf>
-        <process_name>monitor</process_name>
-    </module>
+  <module>
+    <name>monitor_component</name>
+    <dag_conf>../modules/monitor/dag/monitor.dag</dag_conf>
+    <process_name>monitor_component</process_name>
+    <exception_handler>respawn</exception_handler>
+  </module>
 </cyber>

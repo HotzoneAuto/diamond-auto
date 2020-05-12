@@ -3,31 +3,71 @@ load("//tools:cpplint.bzl", "cpplint")
 package(default_visibility = ["//visibility:public"])
 
 cc_binary(
-    name = "control_tester",
-    srcs = ["control_tester.cc"],
+    name = "pose_reader",
+    srcs = [
+        "pose_reader.cc",
+    ],
+    copts = [
+        "-DMODULE_NAME=\\\"control\\\"",
+    ],
     deps = [
         "//cyber",
-        "//modules/canbus/proto:canbus_proto",
-        "//modules/common/adapters:adapter_gflags",
-        "//modules/common/util",
-        "//modules/control/common:control_gflags",
-        "//modules/control/proto:control_proto",
-        "//modules/localization/proto:localization_proto",
-        "//modules/planning/proto:planning_proto",
     ],
 )
 
 cc_binary(
-    name = "pad_terminal",
-    srcs = ["pad_terminal.cc"],
+    name = "pose_listener",
+    srcs = ["pose_listener.cc"],
+    copts = [
+        "-DMODULE_NAME=\\\"control\\\"",
+    ],
     deps = [
         "//cyber",
-        "//modules/canbus/proto:canbus_proto",
-        "//modules/common/adapters:adapter_gflags",
-        "//modules/common/util:message_util",
-        "//modules/control/common",
-        "//modules/control/proto:control_proto",
+        "//modules/common:global_gflags",
+        "//modules/sensors/proto:sensors_cc_proto",
+    ],
+)
+
+cc_binary(
+    name = "teleop",
+    srcs = ["teleop.cc"],
+    copts = [
+        "-DMODULE_NAME=\\\"control\\\"",
+    ],
+    deps = [
+        "//cyber",
+        "//modules/control/proto:control_cc_proto",
         "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+cc_binary(
+    name = "libcalibration_component.so",
+    copts = [
+        "-DMODULE_NAME=\\\"control\\\"",
+    ],
+    linkshared = True,
+    linkstatic = False,
+    deps = [
+        ":lib_control_calibration",
+    ],
+)
+
+cc_library(
+    name = "lib_control_calibration",
+    srcs = [
+        "control_calibration.cc",
+    ],
+    hdrs = [
+        "control_calibration.h",
+    ],
+    copts = [
+        "-DMODULE_NAME=\\\"control\\\"",
+    ],
+    deps = [
+        "//cyber",
+        "//modules/control/proto:control_cc_proto",
+        "//modules/sensors/proto:sensors_cc_proto",
     ],
 )
 

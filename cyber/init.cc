@@ -69,7 +69,9 @@ void InitLogger(const char* binary_name) {
 }
 
 void StopLogger() {
-  delete async_logger;
+  if (async_logger != nullptr) {
+    async_logger->Stop();
+  }
 }
 
 }  // namespace

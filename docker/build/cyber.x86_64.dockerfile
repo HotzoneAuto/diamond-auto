@@ -1,6 +1,4 @@
-ARG BASE_IMAGE=nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
-# ARG BASE_IMAGE=ubuntu:18.04
-FROM ${BASE_IMAGE}
+FROM ubuntu:18.04
 
 LABEL version="1.0"
 
@@ -9,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt clean
 RUN apt update -y && \
     apt install -y \
+    --no-install-recommends apt-utils \
     build-essential \
     gcc-4.8 \
     g++-4.8 \
@@ -25,19 +24,18 @@ RUN apt update -y && \
     python-dev \
     python3 \
     python3-dev \
-    qt5-default \
     libasio-dev \
     libtinyxml2-6 \
     libtinyxml2-dev \
     libncurses5-dev \
     libavcodec57 \
     libavcodec-dev \
-    libconsole-bridge-dev \
     libswscale4 \
     libswscale-dev \
     libcurl4-nss-dev \
     libpoco-dev \
     libeigen3-dev \
+    libconsole-bridge-dev \
     libflann-dev \
     libqhull-dev \
     libpcap0.8 \
@@ -66,18 +64,15 @@ RUN bash /tmp/installers/install_protobuf.sh
 RUN bash /tmp/installers/install_bazel_packages.sh
 RUN bash /tmp/installers/install_google_styleguide.sh
 RUN bash /tmp/installers/install_osqp.sh
-RUN bash /tmp/installers/install_python_modules.sh
+RUN bash /tmp/installers/install_apriltag.sh
+RUN bash /tmp/installers/install_realsense.sh
 
 # Add Bionic source
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic main restricted" > /etc/apt/sources.list
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic-updates main restricted" >> /etc/apt/sources.list
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic universe" >> /etc/apt/sources.list
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic-updates universe" >> /etc/apt/sources.list
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic multiverse" >> /etc/apt/sources.list
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic-updates multiverse" >> /etc/apt/sources.list
-RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse" >> /etc/apt/sources.list
-RUN echo "deb http://security.ubuntu.com/ubuntu bionic-security main restricted" >> /etc/apt/sources.list
-RUN echo "deb http://security.ubuntu.com/ubuntu bionic-security multiverse" >> /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse" > /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse" >> /etc/apt/sources.list
 
 #add Trusty universe into apt source for Poco foundation 9
 RUN echo "deb http://dk.archive.ubuntu.com/ubuntu/ trusty main" >> /etc/apt/sources.list
@@ -93,9 +88,17 @@ RUN apt install -y --allow-downgrades \
     libboost1.54-dev \
     libboost-dev=1.54.0.1ubuntu1 \
     libkml-dev \
-    libopencv-core-dev=2.4.8+dfsg1-2ubuntu1 \
-    libopencv-imgproc-dev=2.4.8+dfsg1-2ubuntu1 \
-    libopencv-highgui-dev=2.4.8+dfsg1-2ubuntu1 \
+    libopencv-core-dev \
+    libopencv-imgproc-dev \
+    libopencv-highgui-dev \
+    libopencv-flann-dev \
+    libopencv-photo-dev \
+    libopencv-video-dev \
+    libopencv-features2d-dev \
+    libopencv-objdetect-dev \
+    libopencv-calib3d-dev \
+    libopencv-ml-dev \
+    libopencv-contrib-dev \
     libgdal-dev \
     libvtk6-dev \
     libvtk6.3 \
@@ -116,7 +119,7 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.54.0 /usr/lib/x86_64-li
 RUN ln -s /usr/lib/python2.7/dist-packages/vtk/libvtkRenderingPythonTkWidgets.x86_64-linux-gnu.so /usr/lib/x86_64-linux-gnu/libvtkRenderingPythonTkWidgets.so
 
 RUN bash /tmp/installers/install_fast-rtps.sh
-RUN bash /tmp/installers/install_pcl.sh
+RUN bash /tmp/installers/install_pcl.sh ${INSTALL_MODE}
 
 WORKDIR /apollo
-#USER apollo
+# USER apollo

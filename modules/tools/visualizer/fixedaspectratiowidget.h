@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 #include "modules/tools/visualizer/video_image_viewer.h"
 

@@ -16,9 +16,9 @@
 
 #include "modules/tools/visualizer/scene_viewer.h"
 
-#include <QtCore/QTimer>
-#include <QtGui/QWheelEvent>
-#include <QtWidgets/QMessageBox>
+#include <QMessageBox>
+#include <QTimer>
+#include <QWheelEvent>
 
 #include "modules/tools/visualizer/scene_camera_dialog.h"
 
@@ -221,9 +221,8 @@ void SceneViewer::paintGL() {
 }
 
 void SceneViewer::ChangeCameraType(int index) {
-  if (index < TARGET || index > FREE) {
-    return;
-  }
+  if (index < TARGET || index > FREE) return;
+
   if (index == FREE) {
     current_cameraPtr_ = &free_camera_;
   } else {

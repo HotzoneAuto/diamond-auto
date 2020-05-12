@@ -1,10 +1,3 @@
-# bazelrc file
-# https://docs.bazel.build/versions/master/user-manual.html
-
-# bazel >= 0.18 looks for %workspace%/.bazelrc (which redirects here)
-# Older bazel versions look for %workspace%/tools/bazel.rc (this file)
-# See https://github.com/bazelbuild/bazel/issues/6319
-
 # +------------------------------------------------------------+
 # | Startup Options                                            |
 # +------------------------------------------------------------+
@@ -69,24 +62,18 @@ build --proto_toolchain_for_cc="@com_google_protobuf//:cc_toolchain"
 # build with profiling
 build:cpu_prof --linkopt=-lprofiler
 
-build --copt="-Werror=sign-compare"
-build --copt="-Werror=return-type"
-build --copt="-Werror=reorder"
-build --copt="-Werror=unused-variable"
-build --copt="-Werror=unused-but-set-variable"
-build --copt="-Werror=switch"
+#build --copt="-Werror=sign-compare"
+#build --copt="-Werror=return-type"
+#build --copt="-Werror=reorder"
+#build --copt="-Werror=unused-variable"
+#build --copt="-Werror=unused-but-set-variable"
+#build --copt="-Werror=switch"
 
 # Strict check on type conversion.
-# absl/strings/str_cat.h breaks the rule.
-# build --per_file_copt=^modules/.*\.cc,-modules/tools/visualizer/.*\.cc,^cyber/.*\.cc@-Werror=conversion
+build --per_file_copt=^modules/.*\.cc,^cyber/.*\.cc@-Werror=conversion
 
 
 # Enable C++14
 build --cxxopt="-std=c++1y"
 # Enable colorful output of GCC
 # build --cxxopt="-fdiagnostics-color=always"
-
-# +------------------------------------------------------------+
-# | Python Configurations                                      |
-# +------------------------------------------------------------+
-run --python_path=/usr/bin/python3

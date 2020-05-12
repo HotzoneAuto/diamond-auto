@@ -17,11 +17,9 @@
 ###############################################################################
 
 # Usage:
-#   ./build_dev.sh ./dev.x86_64.dockerfile [options]
-# Options:
-#   -l/--local   also tag the newly built image as apolloauto/apollo:local_dev
-#
+#   ./build_dev.sh ./dev.x86_64.dockerfile
 DOCKERFILE=$1
+
 
 CONTEXT="$(dirname "${BASH_SOURCE[0]}")"
 
@@ -29,19 +27,9 @@ REPO=apolloauto/apollo
 ARCH=$(uname -m)
 TIME=$(date +%Y%m%d_%H%M)
 
-TAG="${REPO}:dev-18.04-${ARCH}-${TIME}"
+TAG="${REPO}:dev-${ARCH}-${TIME}"
 
 # Fail on first error.
 set -e
-docker build -t "${TAG}" -f "${DOCKERFILE}" "${CONTEXT}"
-
+docker build -t ${TAG} -f ${DOCKERFILE} ${CONTEXT}
 echo "Built new image ${TAG}"
-
-if [[ ! -z "$2" ]]; then
-    if [[ "$2" == "-l" ]] || [[ "$2" == "--local" ]]; then
-        LOCAL_DEV_TAG="apolloauto/apollo:local_dev"
-        docker image tag "${TAG}" "${LOCAL_DEV_TAG}"
-        echo "Also tagged as ${LOCAL_DEV_TAG}"
-    fi
-fi
-

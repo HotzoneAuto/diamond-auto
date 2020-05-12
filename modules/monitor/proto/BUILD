@@ -1,26 +1,15 @@
-load("//tools:py_proto.bzl", "py_proto")
-
 package(default_visibility = ["//visibility:public"])
 
 cc_proto_library(
-    name = "system_status_proto",
+    name = "status_cc_proto",
     deps = [
-        ":system_status_proto_lib",
+        ":status_proto",
     ],
 )
 
 proto_library(
-    name = "system_status_proto_lib",
-    srcs = ["system_status.proto"],
-    deps = [
-        "//modules/common/proto:header_proto_lib",
-    ],
-)
-
-py_proto(
-    name = "system_status_pb2",
-    src = "system_status.proto",
-    deps = [
-        "//modules/common/proto:header_pb2",
+    name = "status_proto",
+    srcs = [
+        "status.proto",
     ],
 )

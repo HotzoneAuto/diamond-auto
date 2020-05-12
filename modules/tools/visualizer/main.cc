@@ -14,9 +14,9 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include <QtGui/QOffscreenSurface>
-#include <QtGui/QOpenGLFunctions>
-#include <QtWidgets/QApplication>
+#include <QApplication>
+#include <QOffscreenSurface>
+#include <QOpenGLFunctions>
 
 #include "modules/tools/visualizer/main_window.h"
 

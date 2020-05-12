@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <QtWidgets/QDialog>
+#include <QDialog>
 
 namespace Ui {
 class SceneCameraDialog;

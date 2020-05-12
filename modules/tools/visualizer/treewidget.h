@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <QtWidgets/QTreeWidget>
+#include <QTreeWidget>
 
 class TreeWidget : public QTreeWidget {
   Q_OBJECT

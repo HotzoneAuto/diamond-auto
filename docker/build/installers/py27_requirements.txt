@@ -24,9 +24,5 @@ PyYAML
 pyproj
 shapely
 
-# Data format
-h5py
-utm
-
-# Audio
-pyalsaaudio
+keyboard
+opencv-python

@@ -11,9 +11,11 @@ cc_library(
         "src/static_cache.cpp",
         "src/time.cpp",
     ],
-    hdrs = glob(["include/**/*.h"]),
-    includes = ["include"],
-    deps = [
-        "//third_party:boost",
+    hdrs = glob([
+        "include/**/*.h",
+    ]),
+    includes = [
+        "include",
     ],
+    linkopts = ["-lboost_signals -lboost_system -lboost_thread"],
 )

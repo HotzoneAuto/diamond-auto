@@ -2,13 +2,23 @@ licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
 
-# This assumes you have pcl 1.7 pre-installed in your system.
 cc_library(
     name = "pcl",
     defines = ["PCL_NO_PRECOMPILE"],
-    includes = ["."],
-    linkopts = [
-        "-L/usr/local/lib",
+    includes = [
+        ".",
+    ],
+    linkopts = select(
+        {
+            ":x86_mode": [
+                "-L/usr/local/lib/",
+            ],
+            ":arm_mode": [
+                "-L/usr/lib/aarch64-linux-gnu/",
+            ],
+        },
+        no_match_error = "Please Build with an ARM or Linux x86_64 platform",
+    ) + [
         "-lboost_system",
         "-lpcl_common",
         "-lpcl_features",
@@ -17,6 +27,7 @@ cc_library(
         "-lpcl_io",
         "-lpcl_kdtree",
         "-lpcl_keypoints",
+        "-lpcl_ml",
         "-lpcl_octree",
         "-lpcl_outofcore",
         "-lpcl_people",
@@ -25,8 +36,19 @@ cc_library(
         "-lpcl_sample_consensus",
         "-lpcl_search",
         "-lpcl_segmentation",
+        "-lpcl_stereo",
         "-lpcl_surface",
         "-lpcl_tracking",
         "-lpcl_visualization",
     ],
+)
+
+config_setting(
+    name = "x86_mode",
+    values = {"cpu": "k8"},
+)
+
+config_setting(
+    name = "arm_mode",
+    values = {"cpu": "arm"},
 )

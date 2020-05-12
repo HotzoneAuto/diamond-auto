@@ -2,35 +2,49 @@ load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
 
+cc_binary(
+    name = "libmonitor_component.so",
+    copts = [
+        "-DMODULE_NAME=\\\"monitor\\\"",
+    ],
+    linkshared = True,
+    linkstatic = False,
+    deps = [
+        ":monitor_component_lib",
+    ],
+)
+
 cc_library(
-    name = "monitor_lib",
-    srcs = ["monitor.cc"],
-    hdrs = ["monitor.h"],
-    copts = ['-DMODULE_NAME=\\"monitor\\"'],
+    name = "monitor_component_lib",
+    srcs = ["monitor_component.cc"],
+    hdrs = [
+        "monitor_component.h",
+    ],
+    copts = [
+        "-DMODULE_NAME=\\\"monitor\\\"",
+    ],
+    linkopts = [
+        "-lrealsense2",
+    ],
     deps = [
         "//cyber",
-        "//modules/common/util:message_util",
-        "//modules/monitor/common:recurrent_runner",
-        "//modules/monitor/hardware:esdcan_monitor",
-        "//modules/monitor/hardware:gps_monitor",
-        "//modules/monitor/hardware:resource_monitor",
-        "//modules/monitor/hardware:socket_can_monitor",
-        "//modules/monitor/software:channel_monitor",
-        "//modules/monitor/software:functional_safety_monitor",
-        "//modules/monitor/software:latency_monitor",
-        "//modules/monitor/software:localization_monitor",
-        "//modules/monitor/software:process_monitor",
-        "//modules/monitor/software:recorder_monitor",
-        "//modules/monitor/software:summary_monitor",
+        "//modules/common:global_gflags",
+        "//modules/monitor/proto:status_cc_proto",
+        "//modules/sensors:realsense_api",
+        "//modules/sensors/proto:sensors_cc_proto",
     ],
 )
 
 cc_binary(
-    name = "libmonitor.so",
-    linkshared = True,
-    linkstatic = False,
+    name = "realsense_monitor",
+    srcs = ["realsense_monitor.cc"],
+    copts = [
+        "-DMODULE_NAME=\\\"monitor\\\"",
+    ],
     deps = [
-        ":monitor_lib",
+        "//cyber",
+        "//modules/common:global_gflags",
+        "//modules/sensors/proto:sensors_cc_proto",
     ],
 )
 

@@ -81,42 +81,28 @@ function check_in_docker() {
 }
 
 function set_lib_path() {
-  export LD_LIBRARY_PATH=/usr/lib:/usr/lib/x86_64-linux-gnu
-
-  if [ "$RELEASE_DOCKER" == 1 ]; then
-    local CYBER_SETUP="/apollo/cyber/setup.bash"
+  local CYBER_SETUP="/apollo/cyber/setup.bash"
     if [ -e "${CYBER_SETUP}" ]; then
       source "${CYBER_SETUP}"
     fi
+  if [ "$RELEASE_DOCKER" == 1 ];then
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/apollo/lib:/usr/local/apollo/local_integ/lib
+    export LD_LIBRARY_PATH=/usr/local/adolc/lib64:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/local/Qt5.9.8/5.9/gcc_64/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/local/fast-rtps/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/local/apollo/libtorch/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/local/apollo/libtorch_gpu/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
     PY_LIB_PATH=/apollo/lib
     PY_TOOLS_PATH=/apollo/modules/tools
   else
-    local CYBER_SETUP="/apollo/cyber/setup.bash"
-    if [ -e "${CYBER_SETUP}" ]; then
-      source "${CYBER_SETUP}"
-    fi
     PY_LIB_PATH=${APOLLO_ROOT_DIR}/py_proto
     PY_TOOLS_PATH=${APOLLO_ROOT_DIR}/modules/tools
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/apollo/lib:/apollo/bazel-genfiles/external/caffe/lib
+    export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
   fi
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/apollo/lib:/usr/local/apollo/local_integ/lib
-  export LD_LIBRARY_PATH=/usr/local/adolc/lib64:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=/usr/local/Qt5.12.2/5.12.2/gcc_64/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=/usr/local/fast-rtps/lib:$LD_LIBRARY_PATH
-  if [ "$USE_GPU" != "1" ];then
-    export LD_LIBRARY_PATH=/usr/local/apollo/libtorch/lib:$LD_LIBRARY_PATH
-  else
-    export LD_LIBRARY_PATH=/usr/local/apollo/libtorch_gpu/lib:$LD_LIBRARY_PATH
-  fi
-  export LD_LIBRARY_PATH=/usr/local/apollo/boost/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=/usr/local/apollo/paddlepaddle_dep/mkldnn/lib/:$LD_LIBRARY_PATH
-  export PYTHONPATH=${PY_LIB_PATH}:${PY_TOOLS_PATH}:${PYTHONPATH}
-
-  # Set teleop paths
-  export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-  export PYTHONPATH=/apollo/modules/teleop/common:${PYTHONPATH}
-  export PATH=/apollo/modules/teleop/common/scripts:${PATH}
-
+  export PYTHONPATH=/usr/local/lib/python2.7/dist-packages:${PY_LIB_PATH}:${PY_TOOLS_PATH}:${PYTHONPATH}
   if [ -e /usr/local/cuda/ ];then
     export PATH=/usr/local/cuda/bin:$PATH
     export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
@@ -136,6 +122,7 @@ function create_data_dir() {
   mkdir -p "${DATA_DIR}/log"
   mkdir -p "${DATA_DIR}/bag"
   mkdir -p "${DATA_DIR}/core"
+  mkdir -p "${DATA_DIR}/images"
 }
 
 function determine_bin_prefix() {
@@ -450,17 +437,16 @@ function run() {
   run_customized_path $module $module "$@"
 }
 
+
 check_in_docker
-unset OMP_NUM_THREADS
-if [ $APOLLO_IN_DOCKER = "true" ]; then
-  CYBER_SETUP="/apollo/cyber/setup.bash"
-  if [ -e "${CYBER_SETUP}" ]; then
-    source "${CYBER_SETUP}"
-  fi
-  create_data_dir
-  set_lib_path $1
-  if [ -z $APOLLO_BASE_SOURCED ]; then
-    determine_bin_prefix
-    export APOLLO_BASE_SOURCED=1
-  fi
+create_data_dir
+
+if [ ! -d /apollo ];then
+  sudo ln -s $APOLLO_ROOT_DIR /apollo
+fi
+
+set_lib_path
+if [ -z $APOLLO_BASE_SOURCED ]; then
+  determine_bin_prefix
+  export APOLLO_BASE_SOURCED=1
 fi

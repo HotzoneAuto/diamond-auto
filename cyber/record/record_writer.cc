@@ -177,15 +177,17 @@ bool RecordWriter::IsNewChannel(const std::string& channel_name) const {
 void RecordWriter::OnNewChannel(const std::string& channel_name,
                                 const std::string& message_type,
                                 const std::string& proto_desc) {
-  channel_message_number_map_[channel_name] = 0;
-  channel_message_type_map_[channel_name] = message_type;
-  channel_proto_desc_map_[channel_name] = proto_desc;
+  if (IsNewChannel(channel_name)) {
+    channel_message_number_map_[channel_name] = 0;
+    channel_message_type_map_[channel_name] = message_type;
+    channel_proto_desc_map_[channel_name] = proto_desc;
+  }
 }
 
 void RecordWriter::OnNewMessage(const std::string& channel_name) {
-  auto iter = channel_message_number_map_.find(channel_name);
-  if (iter != channel_message_number_map_.end()) {
-    iter->second++;
+  if (channel_message_number_map_.find(channel_name) !=
+      channel_message_number_map_.end()) {
+    channel_message_number_map_[channel_name]++;
   }
 }
 
@@ -203,7 +205,7 @@ const std::string& RecordWriter::GetMessageType(
   if (search != channel_message_type_map_.end()) {
     return search->second;
   }
-  return kEmptyString;
+  return null_type_;
 }
 
 const std::string& RecordWriter::GetProtoDesc(
@@ -212,12 +214,12 @@ const std::string& RecordWriter::GetProtoDesc(
   if (search != channel_proto_desc_map_.end()) {
     return search->second;
   }
-  return kEmptyString;
+  return null_type_;
 }
 
 std::set<std::string> RecordWriter::GetChannelList() const {
   std::set<std::string> channel_list;
-  for (const auto& item : channel_message_number_map_) {
+  for (auto& item : channel_message_number_map_) {
     channel_list.insert(item.first);
   }
   return channel_list;

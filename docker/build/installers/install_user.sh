@@ -19,15 +19,11 @@
 # Fail on first error.
 set -e
 
-apt-get -y update && \
-    apt-get -y install sudo
-
 USER_NAME=apollo
 
 adduser --disabled-password --gecos '' ${USER_NAME}
 usermod -aG sudo ${USER_NAME}
-
-sed -i /etc/sudoers -re 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g'
+echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 echo """
 ulimit -c unlimited

@@ -27,8 +27,6 @@ namespace apollo {
 namespace cyber {
 namespace record {
 
-static const std::string& kEmptyString = "";
-
 /**
  * @brief Base class for record reader and writer.
  */
@@ -91,6 +89,7 @@ class RecordBase {
 
  protected:
   std::string file_;
+  std::string null_type_;
   proto::Header header_;
   bool is_opened_ = false;
 };

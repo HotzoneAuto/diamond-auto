@@ -40,9 +40,7 @@ class TargetCamera : public AbstractCamera {
 
   float distance(void) const { return distance_; }
   void set_distance(float distance) {
-    if (distance < 0.0f) {
-      distance = 0.0f;
-    }
+    if (distance < 0.0f) distance = 0.0f;
     distance_ = distance;
   }
 
