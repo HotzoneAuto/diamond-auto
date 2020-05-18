@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include <memory>
-#include <thread>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+#include <memory>
+#include <thread>
 
 #include "cyber/base/concurrent_object_pool.h"
 #include "cyber/node/node.h"

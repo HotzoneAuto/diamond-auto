@@ -63,7 +63,7 @@ class RealsenseComponent : public Component<> {
 
  private:
   // realsense device
-  rs2::device device_;  
+  rs2::device device_;
 
   // device object like T265\D435I\D435
   DeviceBase *device_object_;

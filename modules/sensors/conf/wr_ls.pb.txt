@@ -1,0 +1,10 @@
+laser_config{
+    frame_id : "laser"
+    min_ang : -0.75 * pi
+    max_ang: 0.75 * pi
+    intensity:false
+    skip:0
+    time_offset:-0.001
+    auto_reboot:false
+    debug_mode:false
+}
