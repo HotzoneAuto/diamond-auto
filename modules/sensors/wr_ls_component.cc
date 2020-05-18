@@ -5,30 +5,27 @@
 #include "cyber/common/log.h"
 #include "cyber/cyber.h"
 
-#include "modules/sensors/wr_ls/wr_ls1207de_parser.h"
-#include "modules/sensors/wr_ls/wr_ls_common_tcp.h" 
-
 namespace apollo {
 namespace sensors {
 
 bool WRLSComponent::Init() {
-  InitDeviceAndSensor();
+  // TODO (fengzongbao) configuration
+  std::string strHostName = "192.168.0.10";
+  std::string strPort = "2112";
+  /*Get configured time limit*/
+  int iTimeLimit = 5;
+  /*Create and initialize parser*/
+  pParser = new wr_ls::CWrLs1207DEParser();
+
+  Run();
+
   return true;
 }
 
-void WRLSComponent::InitDeviceAndSensor() {
-  # TODO configuration
-  std::string strHostName = "192.168.0.10";
-	std::string strPort = "2112";
-  /*Get configured time limit*/
-	int iTimeLimit = 5;
-  /*Create and initialize parser*/
-	wr_ls::CWrLs1207DEParser *pParser = new wr_ls::CWrLs1207DEParser();
+int WRLSComponent::Run() {
 
-  /*Setup TCP connection and attempt to connect/reconnect*/
-  wr_ls::CWrLsCommon *pWrLs = NULL;
   int result = wr_ls::ExitError;
-  if (pWrLs != NULL) {
+  if (pWrLs != nullptr) {
     delete pWrLs;
   }
 
@@ -37,7 +34,7 @@ void WRLSComponent::InitDeviceAndSensor() {
 
   /*Device has been initliazed successfully*/
   while (!cyber::IsShutdown() && (result == wr_ls::ExitSuccess)) {
-    ros::spinOnce();
+    // ros::spinOnce();
     result = pWrLs->LoopOnce();
   }
 
@@ -46,7 +43,15 @@ void WRLSComponent::InitDeviceAndSensor() {
   }
 }
 
-WRLSComponent::~RealsenseComponent() {}
+WRLSComponent::~WRLSComponent() {
+  if (pWrLs != nullptr) {
+    delete pWrLs;
+  }
+
+  if (pParser != nullptr) {
+    delete pParser;
+  }
+}
 
 }  // namespace sensors
 }  // namespace apollo
