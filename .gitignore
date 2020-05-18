@@ -9,7 +9,6 @@ WORKSPACE
 *.swo
 .DS_Store
 # generated files
-generated_data_warehouse.conf
 modules/common/data/ssl_keys
 
 # Eclipse IDE files
