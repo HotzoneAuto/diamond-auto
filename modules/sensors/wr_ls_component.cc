@@ -9,6 +9,11 @@ namespace apollo {
 namespace sensors {
 
 bool WRLSComponent::Init() {
+
+  ACHECK(apollo::cyber::common::GetProtoFromFile(FLAGS_wr_ls_config_file,
+                                                 &config_))
+      << "failed to load planning config file " << FLAGS_wr_ls_config_file;
+  
   // TODO (fengzongbao) configuration
   std::string strHostName = "192.168.0.10";
   std::string strPort = "2112";
@@ -29,7 +34,7 @@ int WRLSComponent::Run() {
     delete pWrLs;
   }
 
-  pWrLs = new wr_ls::CWrLsCommonTcp(strHostName, strPort, iTimeLimit, pParser);
+  pWrLs = new wr_ls::CWrLsCommonTcp(strHostName, strPort, iTimeLimit, pParser, node_);
   result = pWrLs->Init();
 
   /*Device has been initliazed successfully*/

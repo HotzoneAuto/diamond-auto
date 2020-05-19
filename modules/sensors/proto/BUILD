@@ -17,6 +17,8 @@ proto_library(
         "sensor_image.proto",
         "sensors.proto",
         "ultrasonic_radar.proto",
+        "laser_config.proto",
+        "laser_scan.proto",
     ],
     deps = [
         "//modules/common/proto:error_code_proto_lib",

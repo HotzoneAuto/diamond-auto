@@ -7,8 +7,8 @@ namespace apollo {
 namespace sensors {
 namespace wr_ls {
 
-CWrLsCommon::CWrLsCommon(CParserBase *parser)
-    : mDiagPublisher(NULL),
+CWrLsCommon::CWrLsCommon(CParserBase *parser, std::shared_ptr<Node> node)
+    :node_(node),
       dExpectedFreq(15.0), /* Default frequency */
       mParser(parser) {
   /*Initialize receive buffer*/
@@ -21,15 +21,17 @@ CWrLsCommon::CWrLsCommon(CParserBase *parser)
   //   mDynaReconfigServer.setCallback(f);
 
   /*Set data publisher (used for debug)*/
-  ros::NodeHandle ndHomePublisher("~");  // for config parameter...
-  ndHomePublisher.param<bool>("publish_datagram", mPublishData, false);
+  // ros::NodeHandle ndHomePublisher("~");  // for config parameter...
+  // ndHomePublisher.param<bool>("publish_datagram", mPublishData, false);
   if (mPublishData) {
     /*datagram publish is enabled*/
-    mDataPublisher = mNodeHandler.advertise<std_msgs::String>("datagram", 1000);
+    // mDataPublisher = mNodeHandler.advertise<std_msgs::String>("datagram", 1000);
+    datagram_writer_ = node_->CreateWriter<apollo::sensors::DataGram>("/apollo/sensors/wr_ls/datagram");
   }
 
   /*Set scan publisher*/
-  mScanPublisher = mNodeHandler.advertise<LaserScan>("scan", 1000);
+  // mScanPublisher = mNodeHandler.advertise<LaserScan>("scan", 1000);
+  scan_writer_ = node_->CreateWriter<LaserScan>("/apollo/sensors/wr_ls/laser_scan");
 
 //   mDiagUpdater.setHardwareID("none");
 //   mDiagPublisher = new diagnostic_updater::DiagnosedPublisher<LaserScan>(
@@ -76,8 +78,8 @@ bool CWrLsCommon::RebootDevice() {
 
   std::string strAccessResp = StringResp(respAccess);
   if (strAccessResp != "sAN SetAccessMode 1") {
-    ROS_ERROR_STREAM("WR_LS - Error setting access mode, unexpected response : "
-                     << strAccessResp);
+    AERROR << "WR_LS - Error setting access mode, unexpected response : "
+                     << strAccessResp;
     // mDiagUpdater.broadcast(diagnostic_msgs::DiagnosticStatus::ERROR,
     //                        "WR_LS - Error setting access mode.");
 
@@ -97,8 +99,8 @@ bool CWrLsCommon::RebootDevice() {
 
   std::string strRebootResp = StringResp(respReboot);
   if (strRebootResp != "sAN mSCreboot") {
-    ROS_ERROR_STREAM("WR_LS - Error setting access mode, unexpected response : "
-                     << strRebootResp);
+    AERROR << "WR_LS - Error setting access mode, unexpected response : "
+                     << strRebootResp;
     // mDiagUpdater.broadcast(diagnostic_msgs::DiagnosticStatus::ERROR,
     //                        "WR_LS - Error rebooting device");
 
@@ -183,7 +185,7 @@ int CWrLsCommon::InitScanner() {
   } else if (strDeviceState == "sRA SCdevicestate 1") {
     ADEBUG << "Laser scanner is ready.";
   } else if (strDeviceState == "sRA SCdevicedstate 2") {
-    ROS_ERROR_STREAM("Laser scanner error state: " << strDeviceState);
+    AERROR << "Laser scanner error state: " << strDeviceState;
     if (mConfig.auto_reboot) {
       rebootDevice();
     }
@@ -263,9 +265,10 @@ int CWrLsCommon::LoopOnce() {
 
   /*One full frame received. Start Data processing...*/
   if (mPublishData) {
-    std_msgs::String data_msg;
+    apollo::sensors::DataGram data_msg;
     data_msg.data = std::string(reinterpret_cast<char *>(mRecvBuffer));
-    mDataPublisher.publish(data_msg);
+    // mDataPublisher.publish(data_msg);
+    datagram_writer_->Write(data_msg);
   }
 
   LaserScan msg;
@@ -289,7 +292,7 @@ int CWrLsCommon::LoopOnce() {
       if (mConfig.debug_mode) {
         DumpLaserMessage(msg);
       }
-      mDiagPublisher->publish(msg);
+      // mDiagPublisher->publish(msg);
     }
 
     posBuffer = end + 1;
@@ -329,8 +332,8 @@ void CWrLsCommon::DumpLaserMessage(LaserScan &msg) {
   ADEBUG << "range_max: " << msg.range_max;
 }
 CWrLsCommon::~CWrLsCommon() {
-  delete mDiagPublisher;
-  printf("wr_ls drvier exiting.\n");
+  // delete mDiagPublisher;
+  AINFO << "wr_ls drvier exiting.";
 }
 }  // namespace wr_ls
 }  // namespace sensors

@@ -4,6 +4,10 @@ package apollo.sensors;
 
 import "modules/common/proto/header.proto";
 
+message DataGram {
+    optional string data = 1;
+}
+
 message Ranges {
     optional float range = 1;
 }

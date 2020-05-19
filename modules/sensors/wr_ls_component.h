@@ -9,6 +9,7 @@
 #include "cyber/node/node.h"
 
 #include "modules/common/global_gflags.h"
+#include "modules/sensors/proto/laser_config.pb.h"
 #include "modules/sensors/proto/laser_scan.pb.h"
 
 #include "modules/sensors/wr_ls/wr_ls1207de_parser.h"
@@ -20,6 +21,7 @@ namespace sensors {
 
 using apollo::control::Chassis;
 using apollo::cyber::Component;
+using apollo::sensors::WrLsConfig;
 using apollo::sensors::LaserScan;
 using apollo::sensors::wr_ls;
 
@@ -30,9 +32,12 @@ class WRLSComponent : public Component<> {
   ~WRLSComponent();
 
  private:
+  WrLsConfig config_;
    /*Setup TCP connection and attempt to connect/reconnect*/
   wr_ls::CWrLsCommon *pWrLs = nullptr;
   wr_ls::CWrLs1207DEParser *pParser = nullptr;
+
+
 };
 
 CYBER_REGISTER_COMPONENT(WRLSComponent)

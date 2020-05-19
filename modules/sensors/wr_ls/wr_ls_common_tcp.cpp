@@ -14,11 +14,12 @@ namespace wr_ls {
 using boost::asio::ip::tcp;
 using boost::lambda::_1;
 using boost::lambda::var;
+using apollo::cyber::Node;
 
 CWrLsCommonTcp::CWrLsCommonTcp(const std::string &hostname,
                                const std::string &port, int &timelimit,
                                CParserBase *parser)
-    : CWrLsCommon(parser),
+    : CWrLsCommon(parser, std::shared_ptr<Node> node),
       mSocket(mIOService),
       mDeadLine(mIOService),
       mHostName(hostname),
@@ -143,8 +144,8 @@ int CWrLsCommonTcp::ReadWithTimeout(size_t timeout_ms, char *buffer,
       AERROR << "SendDeviceReq: failed attempt to read from socket: "
              << mErrorCode.value() << ": " << mErrorCode.message().c_str();
 
-    //   mDiagUpdater.broadcast(diagnostic_msgs::DiagnosticStatus::ERROR,
-    //                          "WR_LS - Could not connect to host!");
+      //   mDiagUpdater.broadcast(diagnostic_msgs::DiagnosticStatus::ERROR,
+      //                          "WR_LS - Could not connect to host!");
 
       if (error != NULL) {
         *error = true;
@@ -246,8 +247,8 @@ int CWrLsCommonTcp::GetDataGram(unsigned char *receiveBuffer, int bufferSize,
 
   if (ReadWithTimeout(timeout, buffer, bufferSize, length, &error) !=
       ExitSuccess) {
-    ROS_ERROR_THROTTLE(
-        1.0, "GetDataGram: No full reply available for read after 1s");
+    AERROR_EVERY(1.0)
+        << "GetDataGram: No full reply available for read after 1s";
     // mDiagUpdater.broadcast(
     //     diagnostic_msgs::DiagnosticStatus::ERROR,
     //     "WR_LS - GetDataGram: No full response for read after 5s.");

@@ -6,8 +6,10 @@
 #include <string>
 #include <vector>
 
-#include <ros/ros.h>
-#include <std_msgs/String.h>
+// #include <ros/ros.h>
+// #include <std_msgs/String.h>
+
+#include "cyber/node/node.h"
 
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <diagnostic_updater/publisher.h>
@@ -26,12 +28,14 @@ namespace apollo {
 namespace sensors {
 namespace wr_ls {
 
+using apollo::cyber::Node;
+using apollo::cyber::Writer;
 using apollo::sensors::LaserScan;
 using apollo::sensors::WrLsConfig;
 
 class CWrLsCommon {
  public:
-  CWrLsCommon(CParserBase *parser);
+  CWrLsCommon(CParserBase *parser, std::shared_ptr<Node> node_);
   virtual ~CWrLsCommon();
   virtual int Init();
   int LoopOnce();
@@ -86,25 +90,31 @@ class CWrLsCommon {
   // diagnostic_updater::Updater mDiagUpdater;
 
  private:
-  ros::NodeHandle mNodeHandler;
-  ros::Publisher mScanPublisher;
-  ros::Publisher mDataPublisher;
+  // ros::NodeHandle mNodeHandler;
+  
+  // ros::Publisher mDataPublisher;
+  // ros::Publisher mScanPublisher;
+
+  std::shared_ptr<Node> node_ = nullptr;
+  std::shared_ptr<Writer<apollo::sensors::String>> datagram_writer_ = nullptr;
+  std::shared_ptr<Writer<LaserScan>> scan_writer_ = nullptr;
+
 
   // Parser
-  CParserBase *mParser;
+  CParserBase *mParser = nullptr;
 
-  bool mPublishData;
+  bool mPublishData = false;
   double dExpectedFreq;
 
   unsigned char mRecvBuffer[RECV_BUFFER_SIZE];
   int mDataLength;
 
   // Diagnostics
-  diagnostic_updater::DiagnosedPublisher<LaserScan> *mDiagPublisher;
+  // diagnostic_updater::DiagnosedPublisher<LaserScan> *mDiagPublisher;
 
   // Dynamic Reconfigure
   WrLsConfig mConfig;
-  dynamic_reconfigure::Server<WrLsConfig> mDynaReconfigServer;
+  // dynamic_reconfigure::Server<WrLsConfig> mDynaReconfigServer;
 };
 }  // namespace wr_ls
 }  // namespace sensors

@@ -69,22 +69,22 @@ cc_library(
 )
 
 cc_binary(
-    name = "libnooploop_component.so",
+    name = "libwr_ls_component.so",
     copts = [
         "-DMODULE_NAME=\\\"sensors\\\"",
     ],
     linkshared = True,
     linkstatic = False,
     deps = [
-        ":nooploop_component_lib",
+        ":wr_ls_component_lib",
     ],
 )
 
 cc_library(
-    name = "nooploop_component_lib",
-    srcs = ["nooploop_component.cc"],
+    name = "wr_ls_component_lib",
+    srcs = ["wr_ls_component.cc"],
     hdrs = [
-        "nooploop_component.h",
+        "wr_ls_component.h",
     ],
     copts = [
         "-DMODULE_NAME=\\\"sensors\\\"",
@@ -92,10 +92,8 @@ cc_library(
     deps = [
         "//cyber",
         "//modules/common:global_gflags",
-        "//modules/common:uart",
-        "//modules/sensors/nooploop:linktrack_tag_frame0",
-        "//modules/sensors/nooploop:ncommon",
         "//modules/sensors/proto:sensors_cc_proto",
+        # "//modules/sensors/wr_ls:",
     ],
 )
 
