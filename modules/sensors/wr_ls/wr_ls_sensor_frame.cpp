@@ -42,7 +42,7 @@ uint16_t CWrLsSensFrame::GetSensDataOfIndex(int index) {
 bool CWrLsSensFrame::CheckFrame(char *buff, int length, uint8_t value) {
   int i = 0;
   uint8_t result = 0;
-  bool checkframe;
+  bool checkframe = true;
 
   /* Get configure form launch script */
   // ros::param::get("~checkframe", checkframe);

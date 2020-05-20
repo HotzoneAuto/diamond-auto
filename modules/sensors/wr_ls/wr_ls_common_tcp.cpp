@@ -102,6 +102,7 @@ int CWrLsCommonTcp::CloseDevice() {
              << e.code().value() << ":" << e.code().message().c_str();
     }
   }
+  return 1;
 }
 
 void CWrLsCommonTcp::CheckDeadLine() {
@@ -158,8 +159,7 @@ int CWrLsCommonTcp::ReadWithTimeout(size_t timeout_ms, char *buffer,
 
   /*Avoid a buffer overflow by limiting the data we read*/
   size_t bytes_to_read =
-      mBytesReceived > buffer_size - 1 ? buffer_size - 1 : mBytesReceived;
-  size_t i = 0;
+      mBytesReceived > (size_t)buffer_size - 1 ? (size_t)buffer_size - 1 : mBytesReceived;
   std::istream is(&mInputBuffer);
   if (buffer != 0) {
     is.read(buffer, bytes_to_read);
