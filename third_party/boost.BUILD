@@ -13,6 +13,5 @@ cc_library(
         "-lboost_program_options",
         "-lboost_thread",
         "-lboost_signals",
-        "-lboost_asio",
     ],
 )
