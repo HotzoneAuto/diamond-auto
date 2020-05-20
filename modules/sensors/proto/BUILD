@@ -11,7 +11,6 @@ proto_library(
     name = "sensors_proto",
     srcs = [
         "mobileye.proto",
-        "nooploop.proto",
         "pointcloud.proto",
         "radar.proto",
         "sensor_image.proto",

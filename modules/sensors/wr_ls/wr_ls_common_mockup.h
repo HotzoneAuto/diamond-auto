@@ -4,13 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO replace
 #include <std_msgs/String.h>
+#include "modules/sensors/proto/laser_scan.pb.h"
 
 #include "modules/sensors/wr_ls/wr_ls_common.h"
 namespace apollo {
 namespace sensors {
 namespace wr_ls {
+
+using apollo::sensors::DataGram;
+
 class CWrLsCommonMockup : public CWrLsCommon {
  public:
   CWrLsCommonMockup(CParserBase *pParser);

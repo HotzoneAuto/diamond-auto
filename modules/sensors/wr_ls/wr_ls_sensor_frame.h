@@ -3,10 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <ros/ros.h>
+// #include <ros/ros.h>
+#include "cyber/common/log.h"
+#include "cyber/cyber.h"
+
 namespace apollo {
 namespace sensors {
 namespace wr_ls {
+
 class CWrLsSensFrame {
   struct SensData {
     uint8_t header;

@@ -1,8 +1,13 @@
 #include "modules/sensors/wr_ls/wr_ls_sensor_frame.h"
+
+#include <memory>
+
 #include "modules/sensors/wr_ls/wr_ls_constants.h"
+
 namespace apollo {
 namespace sensors {
 namespace wr_ls {
+
 CWrLsSensFrame::CWrLsSensFrame() {
   mSensDataLength = 0;
   m_pSensData = NULL;
@@ -40,7 +45,7 @@ bool CWrLsSensFrame::CheckFrame(char *buff, int length, uint8_t value) {
   bool checkframe;
 
   /* Get configure form launch script */
-  ros::param::get("~checkframe", checkframe);
+  // ros::param::get("~checkframe", checkframe);
   if (checkframe == false) {
     /* Disable check frame function, default check true*/
     return true;

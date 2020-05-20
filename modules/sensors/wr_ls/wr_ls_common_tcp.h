@@ -14,7 +14,7 @@ namespace wr_ls {
 class CWrLsCommonTcp : public CWrLsCommon {
  public:
   CWrLsCommonTcp(const std::string &hostname, const std::string &port,
-                 int &timelimit, CParserBase *parser);
+                 int &timelimit, CParserBase *parser, std::shared_ptr<Node> node);
   virtual ~CWrLsCommonTcp();
 
  protected:

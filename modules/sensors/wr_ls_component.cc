@@ -13,12 +13,9 @@ bool WRLSComponent::Init() {
   ACHECK(apollo::cyber::common::GetProtoFromFile(FLAGS_wr_ls_config_file,
                                                  &config_))
       << "failed to load planning config file " << FLAGS_wr_ls_config_file;
+
+  AINFO << config_.frame_id();
   
-  // TODO (fengzongbao) configuration
-  std::string strHostName = "192.168.0.10";
-  std::string strPort = "2112";
-  /*Get configured time limit*/
-  int iTimeLimit = 5;
   /*Create and initialize parser*/
   pParser = new wr_ls::CWrLs1207DEParser();
 
@@ -27,13 +24,19 @@ bool WRLSComponent::Init() {
   return true;
 }
 
-int WRLSComponent::Run() {
+void WRLSComponent::Run() {
 
   int result = wr_ls::ExitError;
   if (pWrLs != nullptr) {
     delete pWrLs;
   }
 
+  // TODO (fengzongbao) configuration
+  std::string strHostName = "192.168.0.10";
+  std::string strPort = "2112";
+
+  /*Get configured time limit*/
+  int iTimeLimit = 5;
   pWrLs = new wr_ls::CWrLsCommonTcp(strHostName, strPort, iTimeLimit, pParser, node_);
   result = pWrLs->Init();
 
@@ -44,7 +47,8 @@ int WRLSComponent::Run() {
   }
 
   if (result == wr_ls::ExitFatal) {
-    return result;
+    AFATAL << "FATAL FOR SENSOR" << result;
+    // return result;
   }
 }
 

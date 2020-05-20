@@ -19,16 +19,15 @@
 namespace apollo {
 namespace sensors {
 
-using apollo::control::Chassis;
 using apollo::cyber::Component;
 using apollo::sensors::WrLsConfig;
 using apollo::sensors::LaserScan;
-using apollo::sensors::wr_ls;
+// using apollo::sensors::wr_ls;
 
 class WRLSComponent : public Component<> {
  public:
   bool Init() override;
-  int Run();
+  void Run();
   ~WRLSComponent();
 
  private:

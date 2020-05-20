@@ -41,7 +41,7 @@ CWrLsCommon::CWrLsCommon(CParserBase *parser, std::shared_ptr<Node> node)
 //                                                0.1, 10),
 //       /*timestamp delta can be from 1.1 to 1.3x what it ideally is*/
 //       diagnostic_updater::TimeStampStatusParam(
-//           -1, 1.3 * 1.0 / dExpectedFreq - mConfig.time_offset));
+//           -1, 1.3 * 1.0 / dExpectedFreq - mConfig.time_offset()));
 
 //   ROS_ASSERT(mDiagPublisher);
 }
@@ -186,7 +186,7 @@ int CWrLsCommon::InitScanner() {
     ADEBUG << "Laser scanner is ready.";
   } else if (strDeviceState == "sRA SCdevicedstate 2") {
     AERROR << "Laser scanner error state: " << strDeviceState;
-    if (mConfig.auto_reboot) {
+    if (mConfig.auto_reboot()) {
       rebootDevice();
     }
   } else {
@@ -258,7 +258,7 @@ int CWrLsCommon::LoopOnce() {
   }
 
   /*Data requested, skip frames*/
-  if (iteration_count++ % (mConfig.skip + 1) != 0) {
+  if (iteration_count++ % (mConfig.skip() + 1) != 0) {
     AINFO << "WR_LS - Skip frame";
     return ExitSuccess;
   }
@@ -266,7 +266,7 @@ int CWrLsCommon::LoopOnce() {
   /*One full frame received. Start Data processing...*/
   if (mPublishData) {
     apollo::sensors::DataGram data_msg;
-    data_msg.data = std::string(reinterpret_cast<char *>(mRecvBuffer));
+    data_msg.set_data(std::string(reinterpret_cast<char *>(mRecvBuffer)));
     // mDataPublisher.publish(data_msg);
     datagram_writer_->Write(data_msg);
   }
@@ -289,7 +289,7 @@ int CWrLsCommon::LoopOnce() {
 
     int success = mParser->Parse(start, length, mConfig, msg);
     if (ExitSuccess == success) {
-      if (mConfig.debug_mode) {
+      if (mConfig.debug_mode()) {
         DumpLaserMessage(msg);
       }
       // mDiagPublisher->publish(msg);
@@ -307,10 +307,10 @@ int CWrLsCommon::LoopOnce() {
 }
 
 void CWrLsCommon::CheckAngleRange(wr_ls::WrLsConfig &config) {
-  if (config.min_ang > config.max_ang) {
+  if (config.min_ang() > config.max_ang()) {
     AWARN
         << "Minimum angle must be greater than maxmum angle. Adjusting min_ang";
-    config.min_ang = config.max_ang;
+    config.set_min_ang(config.max_ang());
   }
 }
 
@@ -321,15 +321,15 @@ void CWrLsCommon::UpdateConfig(wr_ls::WrLsConfig &newConfig, uint32_t level) {
 
 void CWrLsCommon::DumpLaserMessage(LaserScan &msg) {
   ADEBUG << "Laser Message to send:";
-  ADEBUG << "Header frame_id: " << msg.header.frame_id.c_str();
-  ADEBUG << "Header timestamp: " << msg.header.timestamp_sec;
-  ADEBUG << "angle_min: " << msg.angle_min;
-  ADEBUG << "angle_max: " << msg.angle_max;
-  ADEBUG << "angle_increment: " << msg.angle_increment;
-  ADEBUG << "time_increment: " << msg.time_increment;
-  ADEBUG << "scan_time: " << msg.scan_time;
-  ADEBUG << "range_min: " << msg.range_min;
-  ADEBUG << "range_max: " << msg.range_max;
+  ADEBUG << "Header frame_id: " << msg.header().frame_id();
+  ADEBUG << "Header timestamp: " << msg.header().timestamp_sec();
+  ADEBUG << "angle_min: " << msg.angle_min();
+  ADEBUG << "angle_max: " << msg.angle_max();
+  ADEBUG << "angle_increment: " << msg.angle_increment();
+  ADEBUG << "time_increment: " << msg.time_increment();
+  ADEBUG << "scan_time: " << msg.scan_time();
+  ADEBUG << "range_min: " << msg.range_min();
+  ADEBUG << "range_max: " << msg.range_max();
 }
 CWrLsCommon::~CWrLsCommon() {
   // delete mDiagPublisher;

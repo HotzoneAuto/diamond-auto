@@ -11,10 +11,10 @@
 
 #include "cyber/node/node.h"
 
-#include <diagnostic_updater/diagnostic_updater.h>
-#include <diagnostic_updater/publisher.h>
+// #include <diagnostic_updater/diagnostic_updater.h>
+// #include <diagnostic_updater/publisher.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 
 #include "modules/sensors/proto/laser_config.pb.h"
 #include "modules/sensors/proto/laser_scan.pb.h"
@@ -32,6 +32,7 @@ using apollo::cyber::Node;
 using apollo::cyber::Writer;
 using apollo::sensors::LaserScan;
 using apollo::sensors::WrLsConfig;
+using apollo::sensors::DataGram;
 
 class CWrLsCommon {
  public:
@@ -96,7 +97,7 @@ class CWrLsCommon {
   // ros::Publisher mScanPublisher;
 
   std::shared_ptr<Node> node_ = nullptr;
-  std::shared_ptr<Writer<apollo::sensors::String>> datagram_writer_ = nullptr;
+  std::shared_ptr<Writer<apollo::sensors::DataGram>> datagram_writer_ = nullptr;
   std::shared_ptr<Writer<LaserScan>> scan_writer_ = nullptr;
 
 

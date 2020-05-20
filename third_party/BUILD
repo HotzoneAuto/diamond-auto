@@ -14,10 +14,10 @@ cc_library(
 # better leverage things like https://github.com/nelhage/rules_boost
 # However, another library, libpcl-dev depends on libboost-dev. So we decide to
 # reuse it instead of making duplication.
-cc_library(
-    name = "boost",
-    deps = ["@boost"],
-)
+# cc_library(
+#     name = "boost",
+#     deps = ["@boost"],
+# )
 
 cc_library(
     name = "ipopt",

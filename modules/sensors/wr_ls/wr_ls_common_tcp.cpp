@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 
 namespace apollo {
 namespace sensors {
@@ -18,8 +19,8 @@ using apollo::cyber::Node;
 
 CWrLsCommonTcp::CWrLsCommonTcp(const std::string &hostname,
                                const std::string &port, int &timelimit,
-                               CParserBase *parser)
-    : CWrLsCommon(parser, std::shared_ptr<Node> node),
+                               CParserBase *parser, std::shared_ptr<Node> node)
+    : CWrLsCommon(parser, node),
       mSocket(mIOService),
       mDeadLine(mIOService),
       mHostName(hostname),
@@ -111,7 +112,7 @@ void CWrLsCommonTcp::CheckDeadLine() {
   }
 
   /*Nothing bad happened, go back to sleep*/
-  mDeadLine.async_wait(boost::bind(&CWrLsCommonTcp::CheckDeadLine, this));
+  mDeadLine.async_wait(std::bind(&CWrLsCommonTcp::CheckDeadLine, this));
 }
 
 int CWrLsCommonTcp::ReadWithTimeout(size_t timeout_ms, char *buffer,
@@ -198,7 +199,7 @@ int CWrLsCommonTcp::SendDeviceReq(const char *req,
   try {
     boost::asio::write(mSocket, boost::asio::buffer(req, strlen(req)));
   } catch (boost::system::system_error &e) {
-    AERROR << "Write error for command: %s", req;
+    AERROR << "Write error for command: " << req;
     // mDiagUpdater.broadcast(diagnostic_msgs::DiagnosticStatus::ERROR,
     //                        "WR_LS - SendDeviceReq: Write command failed!");
 
