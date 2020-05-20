@@ -167,7 +167,7 @@ int CWrLsCommonTcp::ReadWithTimeout(size_t timeout_ms, char *buffer,
 
     /*Consume the reset of message if necessary*/
     if (bytes_to_read < mBytesReceived) {
-      AWARN << "Dropping %zu bytes to avoid buffer overflow"
+      AWARN << "Dropping %zu bytes to avoid buffer overflow: "
             << mBytesReceived - bytes_to_read;
       mInputBuffer.consume(mBytesReceived - bytes_to_read);
     }

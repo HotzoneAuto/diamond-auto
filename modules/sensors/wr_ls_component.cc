@@ -10,11 +10,11 @@ namespace sensors {
 
 bool WRLSComponent::Init() {
 
-  ACHECK(apollo::cyber::common::GetProtoFromFile(FLAGS_wr_ls_config_file,
-                                                 &config_))
-      << "failed to load planning config file " << FLAGS_wr_ls_config_file;
+  // ACHECK(apollo::cyber::common::GetProtoFromFile(FLAGS_wr_ls_config_file,
+  //                                                &config_))
+  //     << "failed to load planning config file " << FLAGS_wr_ls_config_file;
 
-  AINFO << config_.frame_id();
+  // AINFO << config_.laser_config().frame_id();
   
   /*Create and initialize parser*/
   pParser = new wr_ls::CWrLs1207DEParser();
@@ -36,7 +36,7 @@ void WRLSComponent::Run() {
   std::string strPort = "2112";
 
   /*Get configured time limit*/
-  int iTimeLimit = 5;
+  int iTimeLimit = 30;
   pWrLs = new wr_ls::CWrLsCommonTcp(strHostName, strPort, iTimeLimit, pParser, node_);
   result = pWrLs->Init();
 

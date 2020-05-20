@@ -267,9 +267,11 @@ function main(){
     fi
 
     if [ ${ARCH} == "x86_64" ]; then
-        if [ "${USER}" != "root" ]; then
-            docker exec $APOLLO_CYBER bash -c '/apollo/scripts/docker_adduser.sh'
-        fi
+        if [[ "${USER}" != "root" ]] && [[ "${USER}" != "apollo" ]] \
+        && [[ $USER_ID -ne 1000 ]]; then
+        # docker exec -u root $APOLLO_DEV bash -c "deluser --remove-home ${USER}"
+        docker exec -u root $APOLLO_DEV bash -c '/apollo/scripts/docker_adduser.sh'
+    fi
     else
         warning "!!! Due to the problem with 'docker exec' on Drive PX platform, please run '/apollo/scripts/docker_adduser.sh' for the first time when you get into the docker !!!"
     fi

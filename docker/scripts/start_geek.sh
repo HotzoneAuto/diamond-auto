@@ -42,6 +42,7 @@ done
 }
 
 APOLLO_ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd -P )"
+CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
 
 if [ "$(readlink -f /apollo)" != "${APOLLO_ROOT_DIR}" ]; then
     sudo ln -snf ${APOLLO_ROOT_DIR} /apollo
@@ -130,8 +131,8 @@ IMG=${DOCKER_REPO}:$VERSION
 
 function local_volumes() {
     # Apollo root and bazel cache dirs are required.
-    volumes="-v $APOLLO_ROOT_DIR:/apollo \
-             -v $HOME/.cache:${DOCKER_HOME}/.cache"
+    volumes="-v $APOLLO_ROOT_DIR:/apollo"
+            #  -v $HOME/.cache:${DOCKER_HOME}/.cache"
     case "$(uname -s)" in
         Linux)
             volumes="${volumes} -v /dev:/dev \
@@ -187,8 +188,8 @@ function main(){
     if [ "$USER" == "root" ];then
         DOCKER_HOME="/root"
     fi
-    if [ ! -d "$HOME/.cache" ];then
-        mkdir "$HOME/.cache"
+    if [ ! -d "${CACHE_ROOT_DIR}" ]; then
+        mkdir "${CACHE_ROOT_DIR}"
     fi
 
     info "Starting docker container \"${APOLLO_DEV}\" ..."
@@ -231,9 +232,15 @@ function main(){
         exit 1
     fi
 
-    if [ "${USER}" != "root" ]; then
-        docker exec $APOLLO_DEV bash -c '/apollo/scripts/docker_adduser.sh'
-        ok "Add user $USER"
+    # if [ "${USER}" != "root" ]; then
+    #     docker exec $APOLLO_DEV bash -c '/apollo/scripts/docker_adduser.sh'
+    #     ok "Add user $USER"
+    # fi
+    # User with uid=1000 or username=apollo excluded
+    if [[ "${USER}" != "root" ]] && [[ "${USER}" != "apollo" ]]; then
+        docker exec -u root $APOLLO_DEV bash -c "deluser --remove-home apollo"
+        # docker exec -u root $APOLLO_DEV bash -c "deluser --remove-home ${USER}"
+        docker exec -u root $APOLLO_DEV bash -c '/apollo/scripts/docker_adduser.sh'
     fi
 
     ok "Finished setting up Apollo docker environment. Now you can enter with: \nbash docker/scripts/into_geek.sh"

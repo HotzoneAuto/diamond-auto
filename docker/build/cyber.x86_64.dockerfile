@@ -63,7 +63,7 @@ RUN bash /tmp/installers/install_gflags_glog.sh
 RUN bash /tmp/installers/install_protobuf.sh
 RUN bash /tmp/installers/install_bazel_packages.sh
 RUN bash /tmp/installers/install_google_styleguide.sh
-RUN bash /tmp/installers/install_osqp.sh
+# RUN bash /tmp/installers/install_osqp.sh
 RUN bash /tmp/installers/install_apriltag.sh
 RUN bash /tmp/installers/install_realsense.sh
 
@@ -120,6 +120,9 @@ RUN ln -s /usr/lib/python2.7/dist-packages/vtk/libvtkRenderingPythonTkWidgets.x8
 
 RUN bash /tmp/installers/install_fast-rtps.sh
 RUN bash /tmp/installers/install_pcl.sh ${INSTALL_MODE}
+
+# RUN useradd -r -u 1000 apollo
+# USER apollo
 
 WORKDIR /apollo
 # USER apollo

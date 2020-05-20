@@ -12,3 +12,7 @@ message WrLsConfig {
     optional bool auto_reboot = 7 [default = false];
     optional bool debug_mode = 8 [default = false];
 }
+
+message LaserConfig {
+    optional WrLsConfig laser_config = 1;
+}

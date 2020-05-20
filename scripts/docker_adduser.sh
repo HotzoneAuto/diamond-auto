@@ -16,10 +16,12 @@
 # limitations under the License.
 ###############################################################################
 
+# groupdel "$DOCKER_GRP"
 
 addgroup --gid "$DOCKER_GRP_ID" "$DOCKER_GRP"
-adduser --disabled-password --force-badname --gecos '' "$DOCKER_USER" \
-    --uid "$DOCKER_USER_ID" --gid "$DOCKER_GRP_ID" 2>/dev/null
+useradd -r -u 1000 "$DOCKER_USER_ID"
+# adduser --disabled-password --force-badname --gecos '' "$DOCKER_USER" \
+#     --uid "$DOCKER_USER_ID" --gid "$DOCKER_GRP_ID" 2>/dev/null
 usermod -aG sudo "$DOCKER_USER"
 
 cp -r /etc/skel/. /home/${DOCKER_USER}
@@ -39,3 +41,6 @@ lcov_branch_coverage = 1
 # Set user files ownership to current user, such as .bashrc, .profile, etc.
 chown ${DOCKER_USER}:${DOCKER_GRP} /home/${DOCKER_USER}
 ls -ad /home/${DOCKER_USER}/.??* | xargs chown -R ${DOCKER_USER}:${DOCKER_GRP}
+
+chown ${DOCKER_USER}:${DOCKER_GRP} /apollo
+# ls -ad /apollo/??* | xargs chown -R ${DOCKER_USER}:${DOCKER_GRP}

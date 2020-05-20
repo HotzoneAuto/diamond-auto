@@ -23,11 +23,18 @@ APOLLO_ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 
 source ${APOLLO_ROOT_DIR}/scripts/apollo_base.sh CYBER_ONLY
 
+USER_ID=$(id -u)
+DOCKER_USER=apollo
+
+if [[ "$USER" != "apollo" ]] && [[ $USER_ID -ne 1000 ]]; then
+    DOCKER_USER=$USER
+fi
+
 xhost +local:root 1>/dev/null 2>&1
 
 if [ ${ARCH} == "x86_64" ]; then
     docker exec \
-        -u $USER \
+        -u $DOCKER_USER \
         -it apollo_cyber_$USER \
         /bin/bash
 elif [ ${ARCH} == "aarch64" ]; then

@@ -20,7 +20,7 @@ namespace apollo {
 namespace sensors {
 
 using apollo::cyber::Component;
-using apollo::sensors::WrLsConfig;
+using apollo::sensors::LaserConfig;
 using apollo::sensors::LaserScan;
 // using apollo::sensors::wr_ls;
 
@@ -31,7 +31,7 @@ class WRLSComponent : public Component<> {
   ~WRLSComponent();
 
  private:
-  WrLsConfig config_;
+  LaserConfig config_;
    /*Setup TCP connection and attempt to connect/reconnect*/
   wr_ls::CWrLsCommon *pWrLs = nullptr;
   wr_ls::CWrLs1207DEParser *pParser = nullptr;
