@@ -56,34 +56,5 @@ package(default_visibility = ["//visibility:public"])
 #     ],
 # )
 
-cc_binary(
-    name = "libwr_ls_component.so",
-    copts = [
-        "-DMODULE_NAME=\\\"sensors\\\"",
-    ],
-    linkshared = True,
-    linkstatic = False,
-    deps = [
-        ":wr_ls_component_lib",
-    ],
-)
-
-cc_library(
-    name = "wr_ls_component_lib",
-    srcs = ["wr_ls_component.cc"],
-    hdrs = [
-        "wr_ls_component.h",
-    ],
-    copts = [
-        "-DMODULE_NAME=\\\"sensors\\\"",
-    ],
-    deps = [
-        "//cyber",
-        "//modules/common:global_gflags",
-        "//modules/sensors/proto:sensors_cc_proto",
-        "//modules/sensors/wr_ls:wr_ls_common_tcp",
-        "//modules/sensors/wr_ls:wr_ls1207de_parser",
-    ],
-)
 
 cpplint()
