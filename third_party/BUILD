@@ -14,10 +14,10 @@ cc_library(
 # better leverage things like https://github.com/nelhage/rules_boost
 # However, another library, libpcl-dev depends on libboost-dev. So we decide to
 # reuse it instead of making duplication.
-# cc_library(
-#     name = "boost",
-#     deps = ["@boost"],
-# )
+cc_library(
+    name = "boost",
+    deps = ["@boost"],
+)
 
 cc_library(
     name = "ipopt",
@@ -29,11 +29,11 @@ cc_library(
 cc_library(
     name = "libtorch",
     deps = select({
-        "//tools/platforms:use_gpu": [
-            "@pytorch_gpu",
+        "//tools/platform:use_gpu": [
+            "@libtorch_gpu",
         ],
         "//conditions:default": [
-            "@pytorch",
+            "@libtorch_cpu",
         ],
     }),
 )
@@ -42,12 +42,6 @@ cc_library(
 cc_library(
     name = "ncurses",
     linkopts = ["-lncurses"],
-)
-
-# libpoco-dev
-cc_library(
-    name = "PocoFoundation",
-    linkopts = ["-lPocoFoundation"],
 )
 
 cc_library(

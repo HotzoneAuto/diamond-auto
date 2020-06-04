@@ -20,14 +20,25 @@ set -e
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-git clone https://github.com/eProsima/Fast-RTPS.git
-pushd Fast-RTPS
-git checkout origin/release/1.5.0
-git submodule init
-git submodule update
-patch -p1 < ../FastRTPS_1.5.0.patch
-mkdir -p build && cd build
-cmake -DEPROSIMA_BUILD=ON -DCMAKE_INSTALL_PREFIX=/usr/local/fast-rtps ../
-make -j 8
-make install
-popd
+apt-get -y update && \
+    apt-get -y install --no-install-recommends \
+    libasio-dev \
+    libtinyxml2-dev
+
+. /tmp/installers/installer_base.sh
+
+PKG_NAME="fast-rtps-1.5.0.prebuilt.x86_64.tar.gz"
+CHECKSUM="ca0534db4f757cb41a9feaebac07a13dd4b63af0a217b2cb456e20b0836bc797"
+DOWNLOAD_LINK="https://apollo-platform-system.bj.bcebos.com/archive/6.0/${PKG_NAME}"
+
+download_if_not_cached "${PKG_NAME}" "${CHECKSUM}" "${DOWNLOAD_LINK}"
+
+tar xzf ${PKG_NAME}
+mv fast-rtps-1.5.0 /usr/local/fast-rtps
+
+# TODO(storypku)
+# As FastRTPS installer in other branches don't work well, we provided a prebuilt version
+# here.
+# Maybe the `cyber/transport/rtps` section needs a rewrite using a more recent FastRTPS impl.
+
+rm -rf ${PKG_NAME}

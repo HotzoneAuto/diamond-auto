@@ -5,11 +5,11 @@
 # Commit 
 # docker commit 5a69f1c7051c geekstyle/geek_lite:geek_lite-${ARCH}-18.04-${TIME}
 
-REPO=geekstyle/geek_lite
+REPO=hotzoneauto2020/diamond-auto
 ARCH=$(uname -m)
 TIME=$(date +%Y%m%d_%H%M)
 
-TAG="${REPO}:geek_lite-${ARCH}-18.04-${TIME}"
+TAG="${REPO}:diamond-auto-${ARCH}-18.04-${TIME}"
 
 CONTAINER_ID=$(docker ps | grep geek_dev_${USER}| awk '{print $1}')
 

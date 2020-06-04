@@ -1,3 +1,4 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
@@ -43,6 +44,7 @@ cc_library(
 
 cc_test(
     name = "py_cyber_test",
+    size = "small",
     srcs = ["py_cyber_test.cc"],
     deps = [
         ":py3_cyber",
@@ -92,6 +94,7 @@ cc_library(
 
 cc_test(
     name = "py_record_test",
+    size = "small",
     srcs = ["py_record_test.cc"],
     deps = [
         ":py3_record",

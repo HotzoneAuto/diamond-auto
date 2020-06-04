@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ###############################################################################
-# Copyright 2018 The Apollo Authors. All Rights Reserved.
+# Copyright 2020 The Apollo Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,48 @@ set -e
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+. /tmp/installers/installer_base.sh
+
 ARCH=$(uname -m)
 
 if [ "$ARCH" == "x86_64" ]; then
-  apt-get update -y
-  apt-get install -y openjdk-8-jdk
-  wget https://github.com/bazelbuild/bazel/releases/download/0.5.3/bazel-0.5.3-installer-linux-x86_64.sh
-  bash bazel-0.5.3-installer-linux-x86_64.sh
+  # https://docs.bazel.build/versions/master/install-ubuntu.html
+  VERSION="3.2.0"
+  PKG_NAME="bazel_${VERSION}-linux-x86_64.deb"
+  DOWNLOAD_LINK=https://github.com/bazelbuild/bazel/releases/download/${VERSION}/${PKG_NAME}
+  SHA256SUM="215b160b363fb88dd8b73035bf842819f147c6a7d81e4f0bde89310328712973"
+  download_if_not_cached $PKG_NAME $SHA256SUM $DOWNLOAD_LINK
+
+  apt-get -y update && \
+    apt-get -y install \
+    zlib1g-dev
+
+  # https://docs.bazel.build/versions/master/install-ubuntu.html#step-3-install-a-jdk-optional
+  # openjdk-11-jdk
+
+  dpkg -i $PKG_NAME
+
+  ## buildifier ##
+  PKG_NAME="buildifier"
+  CHECKSUM="0c5df005e2b65060c715a7c5764c2a04f7fac199bd73442e004e0bf29381a55a"
+  DOWNLOAD_LINK="https://github.com/bazelbuild/buildtools/releases/download/${VERSION}/buildifier"
+  download_if_not_cached "${PKG_NAME}" "${CHECKSUM}" "${DOWNLOAD_LINK}"
+
+  chmod a+x ${PKG_NAME}
+  cp ${PKG_NAME} /usr/local/bin/
+  rm -rf ${PKG_NAME}
+
+  ## buildozer
+  PKG_NAME="buildozer"
+  CHECKSUM="6618c2a4473ddc35a5341cf9a651609209bd5362e0ffa54413be256fe8a4081a"
+  DOWNLOAD_LINK="https://github.com/bazelbuild/buildtools/releases/download/${VERSION}/buildozer"
+  download_if_not_cached "${PKG_NAME}" "${CHECKSUM}" "${DOWNLOAD_LINK}"
+
+  chmod a+x ${PKG_NAME}
+  cp ${PKG_NAME} /usr/local/bin/
+  rm -rf ${PKG_NAME}
+  info "Done installing bazel ${VERSION} with buildifier and buildozer"
+
 elif [ "$ARCH" == "aarch64" ]; then
   BUILD=$1
   shift

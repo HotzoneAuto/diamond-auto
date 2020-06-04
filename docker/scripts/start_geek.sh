@@ -140,7 +140,6 @@ function local_volumes() {
                                 -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
                                 -v /etc/localtime:/etc/localtime:ro \
                                 -v /usr/src:/usr/src \
-                                -v /home/edu002/playground:/apollo/modules/exercises \
                                 -v /lib/modules:/lib/modules"
             ;;
         Darwin)
@@ -232,15 +231,9 @@ function main(){
         exit 1
     fi
 
-    # if [ "${USER}" != "root" ]; then
-    #     docker exec $APOLLO_DEV bash -c '/apollo/scripts/docker_adduser.sh'
-    #     ok "Add user $USER"
-    # fi
-    # User with uid=1000 or username=apollo excluded
-    if [[ "${USER}" != "root" ]] && [[ "${USER}" != "apollo" ]]; then
-        docker exec -u root $APOLLO_DEV bash -c "deluser --remove-home apollo"
-        # docker exec -u root $APOLLO_DEV bash -c "deluser --remove-home ${USER}"
-        docker exec -u root $APOLLO_DEV bash -c '/apollo/scripts/docker_adduser.sh'
+    if [[ "${USER}" != "root" ]]; then
+        # docker exec -u root $APOLLO_DEV bash -c 'deluser --remove-home ${USER}'
+        docker exec -u root $APOLLO_DEV bash -c '/apollo/scripts/docker_start_user.sh'
     fi
 
     ok "Finished setting up Apollo docker environment. Now you can enter with: \nbash docker/scripts/into_geek.sh"

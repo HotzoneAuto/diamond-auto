@@ -71,19 +71,20 @@ void TimingWheel::AddTask(const std::shared_ptr<TimerTask>& task,
   if (!running_) {
     Start();
   }
-
   auto work_wheel_index = current_work_wheel_index +
-                          task->next_fire_duration_ms / TIMER_RESOLUTION_MS;
+                          static_cast<uint64_t>(std::ceil(
+                              static_cast<double>(task->next_fire_duration_ms) /
+                              TIMER_RESOLUTION_MS));
   if (work_wheel_index >= WORK_WHEEL_SIZE) {
     auto real_work_wheel_index = GetWorkWheelIndex(work_wheel_index);
     task->remainder_interval_ms = real_work_wheel_index;
     auto assistant_ticks = work_wheel_index / WORK_WHEEL_SIZE;
     if (assistant_ticks == 1 &&
-        real_work_wheel_index != current_work_wheel_index_) {
+        real_work_wheel_index < current_work_wheel_index_) {
       work_wheel_[real_work_wheel_index].AddTask(task);
       ADEBUG << "add task to work wheel. index :" << real_work_wheel_index;
     } else {
-      uint64_t assistant_wheel_index = 0;
+      auto assistant_wheel_index = 0;
       {
         std::lock_guard<std::mutex> lock(current_assistant_wheel_index_mutex_);
         assistant_wheel_index = GetAssistantWheelIndex(

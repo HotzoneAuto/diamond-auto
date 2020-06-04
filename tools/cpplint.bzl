@@ -42,7 +42,7 @@ def _add_linter_rules(source_labels, source_filenames, name, data=None):
   cpplint_cfg = ["//:CPPLINT.cfg"] + native.glob(['CPPLINT.cfg'])
   native.py_test(
     name = name + "_cpplint",
-    srcs = ["@google_styleguide//:cpplint"],
+    srcs = ["@cpplint//:cpplint"],
     data = data + cpplint_cfg + source_labels,
     args = _EXTENSIONS_ARGS + source_filenames,
     main = "cpplint.py",
@@ -73,7 +73,7 @@ def cpplint(data=None, extra_srcs=None):
     source_filenames = ["$(location %s)" % x for x in source_labels]
 
     # Run the cpplint checker as a unit test.
-    if len(source_filenames) > 0:    
+    if len(source_filenames) > 0:
       _add_linter_rules(source_labels, source_filenames, rule["name"], data)
 
   # Lint all of the extra_srcs separately in a single rule.

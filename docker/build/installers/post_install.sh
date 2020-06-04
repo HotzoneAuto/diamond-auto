@@ -18,10 +18,21 @@
 
 # Fail on first error.
 set -e
+build_stage="$1"; shift
 
-# Create required soft links.
-ln -rs /usr/lib/libprofiler.so.0 /usr/lib/libprofiler.so
-ln -rs /usr/lib/libtcmalloc_and_profiler.so.4 /usr/lib/libtcmalloc_and_profiler.so
+[ -d /tmp/archive ] && rm -rf /tmp/archive
+[ -d /tmp/installers ] && rm -rf /tmp/installers
+
+
+if [[ "${build_stage}" == "cyber" ]]; then
+    # Create required soft links.
+    ln -rs /usr/lib/x86_64-linux-gnu/libprofiler.so.0 /usr/lib/libprofiler.so
+    ln -rs /usr/lib/x86_64-linux-gnu/libtcmalloc_and_profiler.so.4 /usr/lib/libtcmalloc_and_profiler.so
+
 # https://stackoverflow.com/questions/25193161/chfn-pam-system-error-intermittently-in-docker-hub-builds
-ln -s -f /bin/true /usr/bin/chfn
+    ln -s -f /bin/true /usr/bin/chfn
+
+else
+    echo "Nothing else need to be done in stage ${build_stage}"
+fi
 

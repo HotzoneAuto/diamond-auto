@@ -10,7 +10,7 @@ launch_path="${CYBER_PATH}/tools/cyber_launch"
 channel_path="${CYBER_PATH}/tools/cyber_channel"
 node_path="${CYBER_PATH}/tools/cyber_node"
 service_path="${CYBER_PATH}/tools/cyber_service"
-qt_path=/usr/local/Qt5.5.1/5.5/gcc_64
+qt_path=/usr/local/qt5
 rosbag_to_record_path="/apollo/bazel-bin/modules/data/tools/rosbag_to_record"
 
 export LD_LIBRARY_PATH=${qt_path}/lib:$LD_LIBRARY_PATH
@@ -22,7 +22,7 @@ export CYBER_DOMAIN_ID=80
 export CYBER_IP=127.0.0.1
 
 export GLOG_log_dir=/apollo/data/log
-export GLOG_alsologtostderr=0
+export GLOG_alsologtostderr=1
 export GLOG_colorlogtostderr=1
 export GLOG_minloglevel=0
 
