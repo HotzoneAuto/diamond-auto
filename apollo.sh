@@ -89,7 +89,7 @@ function generate_build_targets() {
   COMMON_TARGETS="//cyber/... union //modules/common/kv_db/... union //modules/dreamview/... $DISABLED_CYBER_MODULES"
   case $BUILD_FILTER in
   cyber)
-    BUILD_TARGETS=`bazel query //cyber/... union //modules/tools/visualizer/...`
+    BUILD_TARGETS=`bazel query //cyber/...`
     ;;
   drivers)
     BUILD_TARGETS=`bazel query //cyber/... union //modules/tools/visualizer/... union //modules/drivers/... except //modules/drivers/tools/... except //modules/drivers/canbus/... except //modules/drivers/video/...`
@@ -111,8 +111,7 @@ function generate_build_targets() {
     ;;
   *)
 #    BUILD_TARGETS=`bazel query //modules/... union //cyber/...`
-    # FIXME(all): temporarily disable modules doesn't compile in 18.04
-    BUILD_TARGETS=`bazel query //modules/... union //cyber/... except //modules/v2x/... except //modules/map/tools/map_datachecker/... $DISABLE_CYBER_MODULES`
+    BUILD_TARGETS=`bazel query  //modules/... except //modules/tools/visualizer/... union //cyber/...   $DISABLE_CYBER_MODULES`
   esac
 
   if [ $? -ne 0 ]; then

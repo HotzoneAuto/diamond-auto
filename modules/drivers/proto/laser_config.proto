@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package apollo.drivers;
+
+message WrLsConfig {
+    optional string frame_id = 1 [default = "laser"];
+    optional double min_ang = 2;
+    optional double max_ang = 3;
+    optional bool intensity = 4 [default = false];
+    optional int32 skip = 5;
+    optional double time_offset = 6;
+    optional bool auto_reboot = 7 [default = false];
+    optional bool debug_mode = 8 [default = false];
+}
+
+message LaserConfig {
+    optional WrLsConfig laser_config = 1;
+}

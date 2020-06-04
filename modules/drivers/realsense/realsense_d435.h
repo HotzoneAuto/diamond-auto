@@ -1,0 +1,91 @@
+/******************************************************************************
+ * MIT License
+
+ * Copyright (c) 2019 Geekstyle
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+******************************************************************************/
+
+#pragma once
+
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <memory>
+#include <thread>
+
+#include "cyber/base/concurrent_object_pool.h"
+#include "cyber/node/node.h"
+#include "cyber/node/writer.h"
+
+#include "modules/drivers/proto/sensor_image.pb.h"
+#include "modules/drivers/proto/drivers.pb.h"
+#include "modules/drivers/realsense.h"
+#include "modules/drivers/realsense/device_base.h"
+
+namespace apollo {
+namespace drivers {
+namespace realsense {
+
+using apollo::cyber::Node;
+using apollo::cyber::Time;
+using apollo::cyber::Writer;
+using apollo::cyber::base::CCObjectPool;
+using apollo::drivers::Acc;
+using apollo::drivers::CompressedImage;
+using apollo::drivers::Gyro;
+using apollo::drivers::Image;
+using apollo::drivers::PointCloud;
+using apollo::drivers::realsense::DeviceBase;
+
+class D435 : public DeviceBase {
+ public:
+  D435(){};
+  ~D435();
+
+  bool Init(std::shared_ptr<Node> node_) override;
+  void DeviceConfig() override;
+  void InitChannelWriter(std::shared_ptr<Node> node_) override;
+
+ private:
+  void Run();
+  void OnColorImage(const rs2::frame &f);
+  void OnDepthImage(const rs2::frame &f);
+  void OnPointCloud(rs2::frame depth_frame);
+  void PublishPointCloud();
+  std::shared_ptr<Writer<Image>> color_image_writer_ = nullptr;
+  std::shared_ptr<Writer<Image>> depth_image_writer_ = nullptr;
+  std::shared_ptr<Writer<PointCloud>> point_cloud_writer_ = nullptr;
+
+  std::shared_ptr<CCObjectPool<PointCloud>> point_cloud_pool_ = nullptr;
+
+  // filtered point cloud frame
+  rs2::frame_queue filtered_data_;
+
+  const int pool_size_ = 8;
+  const int point_size_ = 10000;
+
+  std::thread realsense_t1;
+  std::thread realsense_t2;
+
+  std::atomic<bool> stop_ = {false};
+};
+}  // namespace realsense
+}  // namespace drivers
+}  // namespace apollo
