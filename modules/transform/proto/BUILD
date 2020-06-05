@@ -6,46 +6,43 @@ load("@com_github_grpc_grpc//bazel:python_rules.bzl", "py_proto_library")
 package(default_visibility = ["//visibility:public"])
 
 cc_proto_library(
-    name = "sensor_image_cc_proto",
+    name = "static_transform_conf_cc_proto",
     deps = [
-        ":sensor_image_proto",
+        ":static_transform_conf_proto",
     ],
 )
 
 proto_library(
-    name = "sensor_image_proto",
-    srcs = ["sensor_image.proto"],
-    deps = [
-        "//modules/common/proto:header_proto",
-    ],
+    name = "static_transform_conf_proto",
+    srcs = ["static_transform_conf.proto"],
 )
 
 py_proto_library(
-    name = "sensor_image_py_pb2",
+    name = "static_transform_conf_py_pb2",
     deps = [
-        ":sensor_image_proto",
+        ":static_transform_conf_proto",
     ],
 )
-
 
 cc_proto_library(
-    name = "pointcloud_cc_proto",
+    name = "transform_cc_proto",
     deps = [
-        ":pointcloud_proto",
+        ":transform_proto",
     ],
 )
 
 proto_library(
-    name = "pointcloud_proto",
-    srcs = ["pointcloud.proto"],
+    name = "transform_proto",
+    srcs = ["transform.proto"],
     deps = [
+        "//modules/common/proto:geometry_proto",
         "//modules/common/proto:header_proto",
     ],
 )
 
 py_proto_library(
-    name = "pointcloud_py_pb2",
+    name = "transform_py_pb2",
     deps = [
-        ":pointcloud_proto",
+        ":transform_proto",
     ],
 )

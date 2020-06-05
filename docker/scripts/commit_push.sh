@@ -11,7 +11,7 @@ TIME=$(date +%Y%m%d_%H%M)
 
 TAG="${REPO}:diamond-auto-${ARCH}-18.04-${TIME}"
 
-CONTAINER_ID=$(docker ps | grep geek_dev_${USER}| awk '{print $1}')
+CONTAINER_ID=$(docker ps | grep apollo_cyber_${USER}| awk '{print $1}')
 
 docker commit "$CONTAINER_ID" "$TAG"
 # docker tag "$TAG" "$RELEASE_NAME"

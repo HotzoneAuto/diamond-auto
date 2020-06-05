@@ -83,30 +83,6 @@ py_proto_library(
         ":vehicle_signal_proto",
     ],
 )
-
-cc_proto_library(
-    name = "drive_event_cc_proto",
-    deps = [
-        ":drive_event_proto",
-    ],
-)
-
-proto_library(
-    name = "drive_event_proto",
-    srcs = ["drive_event.proto"],
-    deps = [
-        ":header_proto",
-        "//modules/localization/proto:pose_proto",
-    ],
-)
-
-py_proto_library(
-    name = "drive_event_py_pb2",
-    deps = [
-        ":drive_event_proto",
-    ],
-)
-
 cc_proto_library(
     name = "drive_state_cc_proto",
     deps = [

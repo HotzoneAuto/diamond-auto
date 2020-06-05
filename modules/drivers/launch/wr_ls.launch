@@ -1,7 +1,0 @@
-<cyber>
-  <module>
-    <name>wr_ls_component</name>
-    <dag_conf>/apollo/modules/drivers/dag/wr_ls.dag</dag_conf>
-    <process_name>wr_ls_component</process_name>
-  </module>
-</cyber>

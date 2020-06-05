@@ -111,7 +111,7 @@ function generate_build_targets() {
     ;;
   *)
 #    BUILD_TARGETS=`bazel query //modules/... union //cyber/...`
-    BUILD_TARGETS=`bazel query  //modules/... except //modules/tools/visualizer/... union //cyber/...   $DISABLE_CYBER_MODULES`
+    BUILD_TARGETS=`bazel query  //modules/... union //cyber/... $DISABLE_CYBER_MODULES except //modules/tools/visualizer/... except //modules/drivers/camera/... except //modules/drivers/canbus/... except //modules/control/...`
   esac
 
   if [ $? -ne 0 ]; then
