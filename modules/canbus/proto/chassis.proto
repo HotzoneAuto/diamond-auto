@@ -1,0 +1,130 @@
+syntax = "proto2";
+
+package apollo.canbus;
+
+import "modules/common/proto/header.proto";
+import "modules/common/proto/vehicle_signal.proto";
+import "modules/common/proto/drive_state.proto";
+import "modules/common/proto/geometry.proto";
+import "modules/common/configs/proto/vehicle_config.proto";
+
+message Chassis {
+  enum DrivingMode {
+    COMPLETE_MANUAL = 0;  // human drive
+    COMPLETE_AUTO_DRIVE = 1;
+    AUTO_STEER_ONLY = 2;  // only steer
+    AUTO_SPEED_ONLY = 3;  // include throttle and brake
+
+    // security mode when manual intervention happens, only response status
+    EMERGENCY_MODE = 4;
+  }
+
+  enum ErrorCode {
+    NO_ERROR = 0;
+
+    CMD_NOT_IN_PERIOD = 1;  // control cmd not in period
+
+    // car chassis report error, like steer, brake, throttle, gear fault
+    CHASSIS_ERROR = 2;
+
+    // classify the types of the car chassis errors
+    CHASSIS_ERROR_ON_STEER = 6;
+    CHASSIS_ERROR_ON_BRAKE = 7;
+    CHASSIS_ERROR_ON_THROTTLE = 8;
+    CHASSIS_ERROR_ON_GEAR = 9;
+
+    MANUAL_INTERVENTION = 3;  // human manual intervention
+
+    // receive car chassis can frame not in period
+    CHASSIS_CAN_NOT_IN_PERIOD = 4;
+
+    UNKNOWN_ERROR = 5;
+  }
+
+  enum GearPosition {
+    GEAR_NEUTRAL = 0;
+    GEAR_DRIVE = 1;
+    GEAR_REVERSE = 2;
+    GEAR_PARKING = 3;
+    GEAR_LOW = 4;
+    GEAR_INVALID = 5;
+    GEAR_NONE = 6;
+  }
+
+  optional bool engine_started = 3;
+
+  // Engine speed in RPM.
+  optional float engine_rpm = 4 [default = nan];
+
+  // Vehicle Speed in meters per second.
+  optional float speed_mps = 5 [default = nan];
+
+  // Vehicle odometer in meters.
+  optional float odometer_m = 6 [default = nan];
+
+  // Fuel range in meters.
+  optional int32 fuel_range_m = 7;
+
+  // Real throttle location in [%], ranging from 0 to 100.
+  optional float throttle_percentage = 8 [default = nan];
+
+  // Real brake location in [%], ranging from 0 to 100.
+  optional float brake_percentage = 9 [default = nan];
+
+  // Real steering location in [%], ranging from -100 to 100.
+  // steering_angle / max_steering_angle
+  // Clockwise: negative
+  // CountClockwise: positive
+  optional float steering_percentage = 11 [default = nan];
+
+  // Applied steering torque in [Nm].
+  optional float steering_torque_nm = 12 [default = nan];
+
+  // Parking brake status.
+  optional bool parking_brake = 13;
+
+  optional bool wiper = 19;
+  optional DrivingMode driving_mode = 21 [default = COMPLETE_MANUAL];
+  optional ErrorCode error_code = 22 [default = NO_ERROR];
+  optional GearPosition gear_location = 23;
+
+  // timestamp for steering module
+  optional double steering_timestamp = 24;  // In seconds, with 1e-6 accuracy
+
+  // chassis also needs it own sending timestamp
+  optional apollo.common.Header header = 25;
+
+  optional int32 chassis_error_mask = 26 [default = 0];
+
+  optional apollo.common.VehicleSignal signal = 27;
+
+  optional apollo.common.EngageAdvice engage_advice = 29;
+
+  optional WheelSpeed wheel_speed = 30;
+
+  optional Surround surround = 31;
+
+  optional apollo.common.VehicleID vehicle_id = 33;
+}
+
+message WheelSpeed {
+  enum WheelSpeedType {
+    FORWARD = 0;
+    BACKWARD = 1;
+    STANDSTILL = 2;
+    INVALID = 3;
+  }
+  optional bool is_wheel_spd_rr_valid = 1 [default = false];
+  optional WheelSpeedType wheel_direction_rr = 2 [default = INVALID];
+  optional double wheel_spd_rr = 3 [default = 0.0];
+  optional bool is_wheel_spd_rl_valid = 4 [default = false];
+  optional WheelSpeedType wheel_direction_rl = 5 [default = INVALID];
+  optional double wheel_spd_rl = 6 [default = 0.0];
+  optional bool is_wheel_spd_fr_valid = 7 [default = false];
+  optional WheelSpeedType wheel_direction_fr = 8 [default = INVALID];
+  optional double wheel_spd_fr = 9 [default = 0.0];
+  optional bool is_wheel_spd_fl_valid = 10 [default = false];
+  optional WheelSpeedType wheel_direction_fl = 11 [default = INVALID];
+  optional double wheel_spd_fl = 12 [default = 0.0];
+}
+
