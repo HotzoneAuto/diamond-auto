@@ -3,7 +3,7 @@ syntax = "proto2";
 package apollo.localization;
 
 import "modules/common/proto/header.proto";
-import "modules/localization/proto/pose.proto";
+import "modules/navigation/proto/pose.proto";
 import "modules/common/proto/geometry.proto";
 import "modules/common/proto/pnc_point.proto";
 

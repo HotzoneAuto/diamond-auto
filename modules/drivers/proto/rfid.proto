@@ -7,5 +7,5 @@ import "modules/common/proto/geometry.proto";
 message RFID {
   optional apollo.common.Header header = 1;
   optional uint32 id = 2;
-  optional Point2D location = 3;
+  optional apollo.common.Point2D location = 3;
 }

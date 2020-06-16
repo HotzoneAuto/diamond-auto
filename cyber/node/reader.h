@@ -68,8 +68,7 @@ class Reader : public ReaderBase {
  public:
   using BlockerPtr = std::unique_ptr<blocker::Blocker<MessageT>>;
   using ReceiverPtr = std::shared_ptr<transport::Receiver<MessageT>>;
-  using ChangeConnection =
-      typename service_discovery::Manager::ChangeConnection;
+  using ChangeConnection = service_discovery::Manager::ChangeConnection;
   using Iterator =
       typename std::list<std::shared_ptr<MessageT>>::const_iterator;
 

@@ -20,7 +20,7 @@ message Matrix {
   repeated double element = 3;
 }
 
-message Pose {
+message TagPose {
   optional Matrix r = 1;
   optional Matrix t = 2;
   optional double error = 3;
@@ -41,7 +41,7 @@ message Tag {
   // bit cell and still gotten a good detection.)
   optional float margin = 3;
   optional Family family = 4;
-  optional Pose pose = 5;
+  optional TagPose pose = 5;
 }
 
 message Tags {

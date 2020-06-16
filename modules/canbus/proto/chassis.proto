@@ -5,7 +5,6 @@ package apollo.canbus;
 import "modules/common/proto/header.proto";
 import "modules/common/proto/vehicle_signal.proto";
 import "modules/common/proto/drive_state.proto";
-import "modules/common/proto/geometry.proto";
 import "modules/common/configs/proto/vehicle_config.proto";
 
 message Chassis {
@@ -101,8 +100,6 @@ message Chassis {
   optional apollo.common.EngageAdvice engage_advice = 29;
 
   optional WheelSpeed wheel_speed = 30;
-
-  optional Surround surround = 31;
 
   optional apollo.common.VehicleID vehicle_id = 33;
 }
