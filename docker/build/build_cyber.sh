@@ -24,7 +24,8 @@
 set -euo pipefail
 
 SUPPORTED_ARCHS=" x86_64 aarch64 "
-REPO=apolloauto/apollo
+# REPO=apolloauto/apollo
+REPO=hotzoneauto2020/diamond-auto
 UBT_LTS="18.04"
 LOCAL_DEV_TAG="${REPO}:local_cyber_dev"
 
