@@ -1,0 +1,198 @@
+VERSION ""
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_:
+
+
+BO_ 2365584295 ID_0x0CFFF3A7: 8 Vector__XXX
+ SG_ byBatRlyOffCmd : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ byBatRlyCmd : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 2551763187 ID_0x1818D0F3: 8 Vector__XXX
+ SG_ fBatVolt : 0|16@1+ (0.1,-1000) [-1000|5553.5] "V" Vector__XXX
+ SG_ fBatCur : 16|16@1+ (0.1,1000) [1000|7553.5] "A" Vector__XXX
+ SG_ fBatSOC : 32|8@1+ (0.4,0) [0|102] "%" Vector__XXX
+ SG_ byBatCellVoltHigh : 40|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatCellVoltLow : 41|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatSocHigh : 42|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatSocLow : 43|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatInnerCommErr : 44|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatVoltLow : 45|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatVoltHigh : 46|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatImbalance : 47|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatHeatUpRateErr : 48|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatSmokeErr : 49|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatInsRErr : 50|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatDsgCurHigh : 51|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatChrgCurHigh : 52|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatTempHigh : 53|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatTempDiffHigh : 55|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatCoolRun : 56|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatNegRlySts : 57|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byHasLargeResCell : 58|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byHasSmallCapCell : 59|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byHasBatChargerComm : 60|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatChrgCC : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatInChrg : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatFuseSts : 63|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2551828723 ID_0x1819D0F3: 8 Vector__XXX
+ SG_ fBatMaxChrgCur : 0|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
+ SG_ fBatMaxDsgCur : 16|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
+ SG_ byBatErrLevel : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 2551894259 ID_0x181AD0F3: 8 Vector__XXX
+ SG_ fPosInsRValue : 0|16@1+ (1,0) [0|65535] "k¦¸" Vector__XXX
+ SG_ fNegInsRValue : 16|16@1+ (1,0) [0|65535] "k¦¸" Vector__XXX
+
+BO_ 2551959795 ID_0x181BD0F3: 8 Vector__XXX
+ SG_ byVINRcvFlg : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byFireExtinguiErr : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgSeatTempHigh : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byWirelessChrgCC : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byMSDSts : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byMainRlyNotOpenErr : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatReqPowerOff : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byRemainRlyNotOpenErr : 14|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byFireAlrm : 15|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ fChrgSeatTemp1 : 16|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ fChrgSeatTemp2 : 24|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ fChrgSeatTemp3 : 32|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ fChrgSeatTemp4 : 40|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ byBatErrNum : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ bySocJmpErr : 56|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatOverChrgErr : 57|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatMissChrger : 58|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byHVNotClose : 59|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatHeatNotClose : 60|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChargeCompleted : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byPantographRly : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byInsRCommErr : 63|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2552025331 ID_0x181CD0F3: 8 Vector__XXX
+ SG_ fBatRatedCap : 0|16@1+ (1,0) [0|65535] "AH" Vector__XXX
+ SG_ fBatRatedVolt : 16|16@1+ (0.1,0) [0|6553.5] "V" Vector__XXX
+
+BO_ 2552090867 ID_0x181DD0F3: 8 Vector__XXX
+ SG_ fBatMaxCellTemp : 0|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ fBatMinCellTemp : 24|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+
+BO_ 2552156403 ID_0x181ED0F3: 8 Vector__XXX
+ SG_ byFuelBatCloseCmd : 32|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byParkChrgDisable : 33|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byVehTMSDcdcSts : 34|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byVehTMSDcdcErr : 35|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byVehTMSErr : 36|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byInsRJump : 37|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatDcdcErr : 38|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatTempLow : 39|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatHeatCircuitErr : 40|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatSelfProtectErr : 41|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byCANACommErr : 42|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatBranchBreakErr : 43|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatInMsdErr : 44|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byTMSRlyNotCloseErr : 45|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byTMSRlyNotOpenErr : 46|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatNegRlyNotCloseErr : 47|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgAPosRlyNotOpenErr : 48|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgAPosRlyNotCloseErr : 49|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgANegRlyNotCloseErr : 50|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgANegRlyNotOpenErr : 51|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgBPosRlyNotCloseErr : 52|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgBPosRlyNotOpenErr : 53|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgBNegRlyNotCloseErr : 54|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgBNegRlyNotOpenErr : 55|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byDsgCurHghWhenChrg : 56|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byChrgSeatNTCErr : 57|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatOverDsg : 58|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatCurSensorErr : 59|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBmsLowVoltErr : 60|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBatChrgSignalErr : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byBMSMode : 62|2@1+ (1,0) [0|3] "" Vector__XXX
+
+BO_ 2552221939 ID_0x181FD0F3: 8 Vector__XXX
+ SG_ byBatInsRChkErr : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ byChrgerErr : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 2552287475 ID_0x1820D0F3  : 8 Vector__XXX
+
+BO_ 2552353011 ID_0x1821D0F3: 8 Vector__XXX
+
+BO_ 2552418547 ID_0x1822D0F3: 8 Vector__XXX
+
+BO_ 2552484083 ID_0x1823D0F3: 8 Vector__XXX
+
+BO_ 2552549619 ID_0x1824D0F3 : 8 Vector__XXX
+
+BO_ 2552615155 ID_0x1825D0F3: 8 Vector__XXX
+ SG_ fBatMaxCellVolt : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ fBatMinCellVolt : 16|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ fBatAvrCellVolt : 32|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+
+BO_ 2552680691 ID_0x1826D0F3: 8 Vector__XXX
+
+BO_ 2552746227 ID_0x1827D0F3: 8 Vector__XXX
+
+BO_ 2552811763 ID_0x1828D0F3: 8 Vector__XXX
+
+BO_ 2553336051 ID_0x1830D0F3 : 8 Vector__XXX
+
+BO_ 2550147315 ID_0x180028F3: 8 Vector__XXX
+
+BO_ 2550212851 ID_0x180128F3: 8 Vector__XXX
+
+BO_ 2550278387 ID_0x180228F3: 8 Vector__XXX
+
+BO_ 2550343923 ID_0x180328F3: 8 Vector__XXX
+
+BO_ 2550409459 ID_0x180428F3: 8 Vector__XXX
+
+BO_ 2550474995 ID_0x180528F3: 8 Vector__XXX
+
+BO_ 2550147316 ID_0x180028F4: 8 Vector__XXX
+
+BO_ 2550212852 ID_0x180128F4: 8 Vector__XXX
+
+BO_ 2550278388 ID_0x180228F4: 8 Vector__XXX
+
+BO_ 2550343924 ID_0x180328F4: 8 Vector__XXX
+
+BO_ 2565579173 ID_0x18EBA1A5: 8 Vector__XXX
+ SG_ byFireAlarmLevel : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ byFireExtinguiVehErr : 18|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2565579174 ID_0x18EBA1A6: 8 Vector__XXX
+
+BO_ 2565841317 ID_0x18EFA1A5: 8 Vector__XXX
