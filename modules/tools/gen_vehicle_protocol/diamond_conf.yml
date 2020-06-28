@@ -2,7 +2,7 @@ dbc_file: CAN1.dbc
 protocol_conf: diamond.yml
 car_type: diamond
 sender_list: []
-sender: MAB
+sender: Vector__XXX
 black_list: []
 
 output_dir: output/

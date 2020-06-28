@@ -52,8 +52,8 @@ BO_ 2349377520 ID_0x0C08A7F0: 8 Vector__XXX
 
 BO_ 2349443056 ID_0x0C09A7F0: 8 Vector__XXX
  SG_ fMotVolt : 0|16@1+ (0.1,-1000) [-1000|5553.5] "V" Vector__XXX
- SG_ fMotTemp : 16|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
- SG_ fMCUTemp : 24|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ fMotTemp : 16|8@1+ (1,-40) [-40|215] "TMP" Vector__XXX
+ SG_ fMCUTemp : 24|8@1+ (1,-40) [-40|215] "TMP" Vector__XXX
  SG_ fMotRectCur : 32|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
  SG_ byMotSpdDir : 50|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byMotErrCode : 56|8@1+ (1,0) [0|255] "" Vector__XXX
