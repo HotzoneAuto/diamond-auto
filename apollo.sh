@@ -80,7 +80,6 @@ function check_esd_files() {
       USE_ESD_CAN=true
       CAN_CARD="esd_can"
   else
-      warning "ESD CAN library supplied by ESD Electronics does not exist. If you need ESD CAN, please refer to third_party/can_card_library/esd_can/README.md."
       USE_ESD_CAN=false
   fi
 }
@@ -164,19 +163,8 @@ function build() {
     if [ ${PIPESTATUS[0]} -ne 0 ]; then
       fail 'Build failed!'
     fi
-    rm -fr data/kv_db*
-    REVISION=$(get_revision)
-    ./bazel-bin/modules/common/kv_db/kv_db_tool --op=put \
-        --key="apollo:data:commit_id" --value="$REVISION"
   fi
 
-  # TODO(ALL): check whether still in public use.
-  if [ -d /apollo-simulator ] && [ -e /apollo-simulator/build.sh ]; then
-    cd /apollo-simulator && bash build.sh build
-    if [ $? -ne 0 ]; then
-      fail 'Build failed!'
-    fi
-  fi
   if [ $? -eq 0 ]; then
     success 'Build passed!'
   else

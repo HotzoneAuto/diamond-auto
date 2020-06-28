@@ -74,6 +74,10 @@ apt-get -y update && \
     unzip \
     zip
 
+add-apt-repository ppa:openjdk-r/ppa
+apt-get update 
+apt-get install -y openjdk-11-jdk
+
 ##----------------##
 ##    SUDO        ##
 ##----------------##

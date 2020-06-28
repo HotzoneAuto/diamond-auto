@@ -71,10 +71,11 @@ elif [ "$ARCH" == "aarch64" ]; then
     pushd bazel
     wget https://github.com/bazelbuild/bazel/releases/download/0.5.3/bazel-0.5.3-dist.zip
     unzip bazel-0.5.3-dist.zip
-    chmod a+w src/java_tools/buildjar/java/com/google/devtools/build/buildjar/javac/plugins/errorprone/ErrorPronePlugin.java
-    wget https://apollocache.blob.core.windows.net/apollo-cache/ErrorPronePlugin.java.patch
-    patch -p0 < ./ErrorPronePlugin.java.patch
-    env EXTRA_BAZEL_ARGS="--host_javabase=@local_jdk//:jdk" bash ./compile.sh
+    # chmod a+w src/java_tools/buildjar/java/com/google/devtools/build/buildjar/javac/plugins/errorprone/ErrorPronePlugin.java
+    # wget https://apollocache.blob.core.windows.net/apollo-cache/ErrorPronePlugin.java.patch
+    # patch -p0 < ./ErrorPronePlugin.java.patch
+    env EXTRA_BAZEL_ARGS="--host_javabase=@local_jdk//:jdk"
+    bash ./compile.sh
     mv /tmp/installers/bazel/output/bazel /usr/local/bin/
     popd
   else

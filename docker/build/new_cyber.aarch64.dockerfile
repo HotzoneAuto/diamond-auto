@@ -15,7 +15,7 @@ COPY rcfiles /opt/apollo/rcfiles
 COPY archive /tmp/archive
 
 RUN bash /tmp/installers/install_minimal_environment.sh ${GEOLOC}
-RUN bash /tmp/installers/install_bazel.sh
+# RUN bash /tmp/installers/install_bazel.sh
 RUN bash /tmp/installers/install_cmake.sh ${INSTALL_MODE}
 RUN bash /tmp/installers/install_llvm_clang.sh
 

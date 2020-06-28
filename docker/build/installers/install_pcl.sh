@@ -25,7 +25,7 @@ apt-get -y update && \
     apt-get -y install \
     libeigen3-dev \
     libflann-dev \
-    libvtk6-dev
+    libvtk7-dev
 
 . /tmp/installers/installer_base.sh
 
