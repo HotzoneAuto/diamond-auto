@@ -20,6 +20,16 @@ bash docker/scripts/cyber_into.sh
 
 ## Build
 
+build  cyber
+
+
+```bash
+bash apollo.sh build_cyber
+```
+
+build all modules
+
+
 ```bash
 bash apollo.sh build
 ```
