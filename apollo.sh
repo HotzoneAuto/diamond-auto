@@ -15,11 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-
-#=================================================
-#                   Utils
-#=================================================
-
 APOLLO_ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${APOLLO_ROOT_DIR}/scripts/apollo_base.sh
 
@@ -37,23 +32,23 @@ function apollo_check_system_config() {
   fi
 
   # check operating system
-  OP_SYSTEM=$(uname -s)
-  case $OP_SYSTEM in
+  HOST_OS=$(uname -s)
+  case $HOST_OS in
     "Linux")
       echo "System check passed. Build continue ..."
       # check system configuration
       DEFAULT_MEM_SIZE="2.0"
-      MEM_SIZE=$(free -m | grep Mem | awk '{printf("%0.2f", $2 / 1024.0)}')
+      MEM_SIZE=$(free -m | awk '/Mem:/ {printf("%0.2f", $2 / 1024.0)}')
       if (( $(echo "$MEM_SIZE < $DEFAULT_MEM_SIZE" | bc -l) )); then
          warning "System memory [${MEM_SIZE}G] is lower than minimum required memory size [2.0G]. Apollo build could fail."
       fi
       ;;
     "Darwin")
-      warning "Mac OS is not officially supported in the current version. Build could fail. We recommend using Ubuntu 14.04."
+      warning "MacOS is UNSUPPORTED currently."
+      exit 1
       ;;
     *)
-      error "Unsupported system: ${OP_SYSTEM}."
-      error "Please use Linux, we recommend Ubuntu 18.04."
+      error "Apollo is UNTESTED on ${HOST_OS} systems. Linux systems expected."
       exit 1
       ;;
   esac
@@ -64,22 +59,15 @@ function check_machine_arch() {
     fail "Machine architecture $MACHINE_ARCH currently not supported yet."
     exit 1
   fi
-
-  #TODO(ALL): checks whether still in use
-  #setup vtk folder name for different systems.
-  VTK_VERSION=$(find /usr/include/ -type d  -name "vtk-*" | tail -n1 | cut -d '-' -f 2)
-  sed "s/VTK_VERSION/${VTK_VERSION}/g" WORKSPACE.in > WORKSPACE
 }
 
 function check_esd_files() {
-  CAN_CARD="fake_can"
-
   if [ -f ./third_party/can_card_library/esd_can/include/ntcan.h \
       -a -f ./third_party/can_card_library/esd_can/lib/libntcan.so.4 \
       -a -f ./third_party/can_card_library/esd_can/lib/libntcan.so.4.0.1 ]; then
       USE_ESD_CAN=true
-      CAN_CARD="esd_can"
   else
+      warning "ESD CAN library supplied by ESD Electronics does not exist. If you need ESD CAN, please refer to third_party/can_card_library/esd_can/README.md."
       USE_ESD_CAN=false
   fi
 }
@@ -88,7 +76,7 @@ function generate_build_targets() {
   COMMON_TARGETS="//cyber/... union //modules/common/kv_db/... union //modules/dreamview/... $DISABLED_CYBER_MODULES"
   case $BUILD_FILTER in
   cyber)
-    BUILD_TARGETS=`bazel query //cyber/...`
+    BUILD_TARGETS=`bazel query //cyber/... union //modules/tools/visualizer/...`
     ;;
   drivers)
     BUILD_TARGETS=`bazel query //cyber/... union //modules/tools/visualizer/... union //modules/drivers/... except //modules/drivers/tools/... except //modules/drivers/canbus/... except //modules/drivers/video/...`
@@ -110,7 +98,8 @@ function generate_build_targets() {
     ;;
   *)
 #    BUILD_TARGETS=`bazel query //modules/... union //cyber/...`
-    BUILD_TARGETS=`bazel query  //modules/... union //cyber/... $DISABLE_CYBER_MODULES except //modules/tools/visualizer/... except //modules/drivers/camera/... except //modules/drivers/canbus/... except //modules/control/...`
+    # FIXME(all): temporarily disable modules doesn't compile in 18.04
+    BUILD_TARGETS=`bazel query //modules/... union //cyber/... except //modules/v2x/... except //modules/map/tools/map_datachecker/... $DISABLE_CYBER_MODULES`
   esac
 
   if [ $? -ne 0 ]; then
@@ -152,9 +141,6 @@ function build() {
     fail 'Build failed!'
   fi
 
-  # Build python proto
-  build_py_proto
-
   # Clear KV DB and update commit_id after compiling.
   if [ "$BUILD_FILTER" == 'cyber' ] || [ "$BUILD_FILTER" == 'drivers' ]; then
     info "Skipping revision recording"
@@ -163,8 +149,16 @@ function build() {
     if [ ${PIPESTATUS[0]} -ne 0 ]; then
       fail 'Build failed!'
     fi
+    rm -fr data/kv_db*
   fi
 
+  # TODO(ALL): check whether still in public use.
+  if [ -d /apollo-simulator ] && [ -e /apollo-simulator/build.sh ]; then
+    cd /apollo-simulator && bash build.sh build
+    if [ $? -ne 0 ]; then
+      fail 'Build failed!'
+    fi
+  fi
   if [ $? -eq 0 ]; then
     success 'Build passed!'
   else
@@ -252,21 +246,6 @@ function apollo_build_dbg() {
 
 function apollo_build_opt() {
   build "opt" $@
-}
-
-function build_py_proto() {
-  # TODO(xiaoxq): Retire this as we are using bazel to compile protos into bazel-genfiles.
-  if [ -d "./py_proto" ];then
-    rm -rf py_proto
-  fi
-  mkdir py_proto
-  find modules/ cyber/ -name "*.proto" \
-      | grep -v node_modules \
-      | xargs protoc --python_out=py_proto
-  find modules/ cyber/ -name "*_service.proto" \
-      | grep -v node_modules \
-      | xargs python -m grpc_tools.protoc --proto_path=. --python_out=py_proto --grpc_python_out=py_proto
-  find py_proto/* -type d -exec touch "{}/__init__.py" \;
 }
 
 function check() {
@@ -466,7 +445,7 @@ function clean() {
 }
 
 function buildify() {
-  find . -name '*BUILD' -or -name '*.bzl' -type f -exec buildifier -showlog -mode=fix {} +
+  find . -name '*BUILD' -or -name '*.bzl' -type f -exec buildifier -mode=fix {} +
   if [ $? -eq 0 ]; then
     success 'Buildify worked!'
   else
@@ -518,10 +497,6 @@ function get_branch() {
   echo "$BRANCH"
 }
 
-function config() {
-  ${APOLLO_ROOT_DIR}/scripts/configurator.sh
-}
-
 function set_use_gpu() {
   if [ "${USE_GPU}" = "1" ] ; then
     DEFINES="${DEFINES} --define USE_GPU=true"
@@ -557,7 +532,6 @@ function print_usage() {
   ${BLUE}buildify${NONE}: fix style of BUILD files
   ${BLUE}check${NONE}: run build/lint/test, please make sure it passes before checking in new code
   ${BLUE}clean${NONE}: run Bazel clean
-  ${BLUE}config${NONE}: run configurator tool
   ${BLUE}coverage${NONE}: generate test coverage report
   ${BLUE}doc${NONE}: generate doxygen document
   ${BLUE}lint${NONE}: run code style check
@@ -591,7 +565,7 @@ function main() {
 
   check_esd_files
 
-  DEFINES="--define ARCH=${MACHINE_ARCH} --define CAN_CARD=${CAN_CARD} --cxxopt=-DUSE_ESD_CAN=${USE_ESD_CAN}"
+  DEFINES="--define ARCH=${MACHINE_ARCH} --define USE_ESD_CAN=${USE_ESD_CAN} --cxxopt=-DUSE_ESD_CAN=${USE_ESD_CAN}"
   # Enable bazel's feature to compute md5 checksums in parallel
   DEFINES="${DEFINES} --experimental_multi_threaded_digest"
 
@@ -704,12 +678,6 @@ function main() {
       ;;
     buildify)
       buildify
-      ;;
-    build_py)
-      build_py_proto
-      ;;
-    config)
-      config
       ;;
     doc)
       gen_doc

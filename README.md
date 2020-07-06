@@ -1,7 +1,5 @@
 # Diamond Auto: An Autonomous Application Based On Cyber RT
 
-![Action Status](https://github.com/HotzoneAuto/diamond-auto/workflows/Geek%20Style/badge.svg)
-
 ## Environment Setup
 
 ### Code Clone
@@ -24,7 +22,7 @@ build  cyber
 
 
 ```bash
-bash apollo.sh build_cyber
+bazel build //cyber/...
 ```
 
 build all modules
