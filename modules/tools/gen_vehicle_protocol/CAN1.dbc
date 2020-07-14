@@ -35,8 +35,14 @@ BS_:
 
 BU_:
 
+BO_ 2350510247 ID_0x0C19F0A7: 8 Vector__XXX
+ SG_ fMot1TargetTq : 0|16@1+ (1,0) [0|65535] "" Vector__XXX
+ SG_ fMot1LmtVolt : 16|16@1+ (0.1,-1000) [-1000|5553.5] "V" Vector__XXX
+ SG_ fMot1LmtCur : 32|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
+ SG_ byMot1WorkMode : 48|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ byLife : 56|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 2349377520 ID_0x0C08A7F0: 8 Vector__XXX
+BO_ 2349377520 ID_0x0C08A7F0: 8 Vector__XX
  SG_ fMotTq : 0|16@1+ (1,-32000) [-32000|33535] "NM" Vector__XXX
  SG_ fMotSpd : 16|16@1+ (0.5,0) [0|32767.5] "RPM" Vector__XXX
  SG_ fMotCur : 32|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
@@ -50,7 +56,7 @@ BO_ 2349377520 ID_0x0C08A7F0: 8 Vector__XXX
  SG_ byMCUSts : 55|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byMCU1MsgLife1 : 56|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 2349443056 ID_0x0C09A7F0: 8 Vector__XXX
+BO_ 2349443056 ID_0x0C09A7F0: 8 Vector__XX
  SG_ fMotVolt : 0|16@1+ (0.1,-1000) [-1000|5553.5] "V" Vector__XXX
  SG_ fMotTemp : 16|8@1+ (1,-40) [-40|215] "TMP" Vector__XXX
  SG_ fMCUTemp : 24|8@1+ (1,-40) [-40|215] "TMP" Vector__XXX
@@ -58,9 +64,7 @@ BO_ 2349443056 ID_0x0C09A7F0: 8 Vector__XXX
  SG_ byMotSpdDir : 50|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byMotErrCode : 56|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 2349508592 ID_0x0C0AA7F0: 8 Vector__XXX
-
-BO_ 2349574128 ID_0x0C0BA7F0: 8 Vector__XXX
+BO_ 2349574128 ID_0x0C0BA7F0: 8 Vector__XX
  SG_ fMotMaxPower : 0|8@1+ (1,0) [0|255] "kw" Vector__XXX
  SG_ fMotMaxSpd : 8|8@1+ (100,0) [0|25500] "rpm" Vector__XXX
  SG_ fMotMaxTq : 16|16@1+ (1,0) [0|65535] "NM" Vector__XXX
@@ -76,7 +80,7 @@ BO_ 2349574128 ID_0x0C0BA7F0: 8 Vector__XXX
  SG_ dwMCUErrFlg : 41|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ dwMCUErrFlg : 42|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ dwMCUErrFlg : 43|1@1+ (1,0) [0|1] "" Vector__XXX
- SG_ dwMCUErrFlg : 44|20@1+ (1,0) [0|1048575] "" Vector__XXX
+ SG_ dwMCUErrFlg : 44|20@1+ (1,0) [0|1048575] "" Vector__XX
 
 BO_ 2349308583 ID_0x0C079AA7: 8 Vector__XXX
  SG_ byDcdcCmd : 0|8@1+ (1,0) [0|255] "" Vector__XXX
@@ -92,15 +96,10 @@ BO_ 2349374119 ID_0x0C089AA7: 8 Vector__XXX
  SG_ fDcAc2TargSpd : 24|16@1+ (1,0) [0|65535] "rpm" Vector__XXX
  SG_ byDcAc2Dir : 40|8@1+ (1,0) [0|255] "" Vector__XXX
 
+BO_ 2349508592 ID_0x0C0AA7F0: 8 Vector__XXX
+
 BO_ 2349442971 ID_0x0C09A79B: 8 Vector__XXX
 
 BO_ 2349508507 ID_0x0C0AA79B: 8 Vector__XXX
 
 BO_ 2349508594 ID_0x0C0AA7F2: 8 Vector__XXX
-
-BO_ 2350510247 ID_0x0C19F0A7: 8 Vector__XXX
- SG_ fMot1TargetTq : 0|16@1+ (1,0) [0|65535] "" Vector__XXX
- SG_ fMot1LmtVolt : 16|16@1+ (0.1,-1000) [-1000|5553.5] "V" Vector__XXX
- SG_ fMot1LmtCur : 32|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
- SG_ byMot1WorkMode : 48|1@1+ (1,0) [0|1] "" Vector__XXX
- SG_ byLife : 56|8@1+ (1,0) [0|255] "" Vector__XXX

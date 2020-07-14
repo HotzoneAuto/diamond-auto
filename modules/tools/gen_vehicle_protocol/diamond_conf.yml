@@ -5,5 +5,5 @@ sender_list: []
 sender: Vector__XXX
 black_list: []
 
-output_dir: output/
+output_dir: output_default/
 
