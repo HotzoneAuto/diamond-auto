@@ -3,7 +3,7 @@ syntax = "proto2";
 package apollo.canbus;
 
 message Id_0x0c079aa7_8c079aa7 {
-// Control Message
+// Receive Message
   // [] [0|255]
   optional int32 bydcdccmd = 1;
   // [] [0|255]
@@ -19,7 +19,7 @@ message Id_0x0c079aa7_8c079aa7 {
 }
 
 message Id_0x0c089aa7_8c089aa7 {
-// Control Message
+// Receive Message
   // [rpm] [0|65535]
   optional int32 fdcactargspd = 1;
   // [] [0|255]
@@ -31,56 +31,58 @@ message Id_0x0c089aa7_8c089aa7 {
 }
 
 message Id_0x0c08a7f0_8c08a7f0 {
-// Control Message
-  // [NM] [-32000|33535]
+// Receive Message
+  // [NM] [-32000|33535] 驱动电机转矩请求
   optional int32 fmottq = 1;
-  // [RPM] [0|32767.5]
+  // [RPM] [0|32767.5] 驱动电机转速请求
   optional double fmotspd = 2;
-  // [A] [-1000|5553.5]
+  // [A] [-1000|5553.5] 动力总成控制器输入电流 
   optional double fmotcur = 3;
-  // [] [0|1]
+  // [] [0|1] 0 无效 1 停机
   optional bool bymcusts = 4;
-  // [] [0|1]
+  // [] [0|1] 0 无效 1 驱动 
   optional bool bymcusts = 5;
-  // [] [0|1]
+  // [] [0|1] 0 无效 1 制动
   optional bool bymcusts = 6;
-  // [] [0|1]
+  // [] [0|1] 0 无效 1 向后
   optional bool bymcusts = 7;
-  // [] [0|1]
+  // [] [0|1] 0 无效 1 向前
   optional bool bymcusts = 8;
-  // [] [0|1]
+  // [] [0|1] 0 转矩模式 1 转速模式  大部分都用转矩模式 
   optional bool bymcusts = 9;
-  // [] [0|1]
+  // [] [0|1] 0 无效(default) 1 允许下电
   optional bool bymcusts = 10;
-  // [] [0|1]
+  // [] [0|1] 0 无效 1 Ready  准备接受转矩命令
   optional bool bymcusts = 11;
-  // [] [0|255]
+  // [] [0|255] 电机控制器寿命
   optional int32 bymcu1msglife1 = 12;
 }
 
 message Id_0x0c09a7f0_8c09a7f0 {
-// Control Message
-  // [V] [-1000|5553.5]
+// Receive Message
+  // [V] [-1000|5553.5] 电机电压
   optional double fmotvolt = 1;
-  // [TMP] [-40|215]
+  // [TMP] [-40|215] 电机温度
   optional int32 fmottemp = 2;
-  // [TMP] [-40|215]
+  // [TMP] [-40|215] 电机控制器温度
   optional int32 fmcutemp = 3;
-  // [A] [-1000|5553.5]
+  // [A] [-1000|5553.5] 电机整流电流
   optional double fmotrectcur = 4;
-  // [] [0|1]
+  // [] [0|1]  包含 0 表示电机正转, 1 电机反转反馈
   optional bool bymotspddir = 5;
-  // [] [0|255]
+  // [] [0|255] 故障代码
   optional int32 bymoterrcode = 6;
 }
 
+// 
 message Id_0x0c0ba7f0_8c0ba7f0 {
-// Control Message
-  // [kw] [0|255]
+// Receive Message
+// 电机峰值信息与故障代码
+  // [kw] [0|255] 电机峰值功率
   optional int32 fmotmaxpower = 1;
-  // [rpm] [0|25500]
+  // [rpm] [0|25500] 电机最高转速
   optional double fmotmaxspd = 2;
-  // [NM] [0|65535]
+  // [NM] [0|65535]  驱动电机转矩请求
   optional int32 fmotmaxtq = 3;
   // [] [0|1]
   optional bool dwmcuerrflg = 4;
@@ -117,3 +119,8 @@ message Diamond {
   optional Id_0x0c09a7f0_8c09a7f0 id_0x0c09a7f0_8c09a7f0 = 4; // control message
   optional Id_0x0c0ba7f0_8c0ba7f0 id_0x0c0ba7f0_8c0ba7f0 = 5; // control message
 }
+
+
+
+// 0C19F0A7 
+// vcu to mcu 
