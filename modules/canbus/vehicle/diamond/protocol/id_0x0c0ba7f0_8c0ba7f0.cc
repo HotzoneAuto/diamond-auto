@@ -16,7 +16,10 @@
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c0ba7f0_8c0ba7f0.h"
 
+#include "glog/logging.h"
+
 #include "modules/drivers/canbus/common/byte.h"
+#include "modules/drivers/canbus/common/canbus_consts.h"
 
 namespace apollo {
 namespace canbus {
@@ -24,334 +27,187 @@ namespace diamond {
 
 using ::apollo::drivers::canbus::Byte;
 
+Id0x0c0ba7f08c0ba7f0::Id0x0c0ba7f08c0ba7f0() {}
 const int32_t Id0x0c0ba7f08c0ba7f0::ID = 0x2c0ba7f0;
 
-// public
-Id0x0c0ba7f08c0ba7f0::Id0x0c0ba7f08c0ba7f0() { Reset(); }
-
-uint32_t Id0x0c0ba7f08c0ba7f0::GetPeriod() const {
-  // TODO(All) :  modify every protocol's period manually
-  static const uint32_t PERIOD = 20 * 1000;
-  return PERIOD;
+void Id0x0c0ba7f08c0ba7f0::Parse(const std::uint8_t* bytes, int32_t length,
+                         ChassisDetail* chassis) const {
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_fmotmaxpower(fmotmaxpower(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_fmotmaxspd(fmotmaxspd(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_fmotmaxtq(fmotmaxtq(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c0ba7f0_8c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
 }
 
-void Id0x0c0ba7f08c0ba7f0::UpdateData(uint8_t* data) {
-  set_p_fmotmaxpower(data, fmotmaxpower_);
-  set_p_fmotmaxspd(data, fmotmaxspd_);
-  set_p_fmotmaxtq(data, fmotmaxtq_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
-  set_p_dwmcuerrflg(data, dwmcuerrflg_);
+// config detail: {'name': 'fmotmaxpower', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 0, 'type': 'int', 'order': 'intel', 'physical_unit': 'kw'}
+int Id0x0c0ba7f08c0ba7f0::fmotmaxpower(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 0);
+  int32_t x = t0.get_byte(0, 8);
+
+  int ret = x;
+  return ret;
 }
 
-void Id0x0c0ba7f08c0ba7f0::Reset() {
-  // TODO(All) :  you should check this manually
-  fmotmaxpower_ = 0;
-  fmotmaxspd_ = 0.0;
-  fmotmaxtq_ = 0;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = false;
-  dwmcuerrflg_ = 0;
+// config detail: {'name': 'fmotmaxspd', 'offset': 0.0, 'precision': 100.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|25500]', 'bit': 8, 'type': 'double', 'order': 'intel', 'physical_unit': 'rpm'}
+double Id0x0c0ba7f08c0ba7f0::fmotmaxspd(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 1);
+  int32_t x = t0.get_byte(0, 8);
+
+  double ret = x * 100.000000;
+  return ret;
 }
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_fmotmaxpower(
-    int fmotmaxpower) {
-  fmotmaxpower_ = fmotmaxpower;
-  return this;
- }
+// config detail: {'name': 'fmotmaxtq', 'offset': 0.0, 'precision': 1.0, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|65535]', 'bit': 16, 'type': 'int', 'order': 'intel', 'physical_unit': 'NM'}
+int Id0x0c0ba7f08c0ba7f0::fmotmaxtq(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 3);
+  int32_t x = t0.get_byte(0, 8);
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'fMotMaxPower', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': 'kw', 'precision': 1.0, 'type': 'int'}
-void Id0x0c0ba7f08c0ba7f0::set_p_fmotmaxpower(uint8_t* data,
-    int fmotmaxpower) {
-  fmotmaxpower = ProtocolData::BoundedValue(0, 255, fmotmaxpower);
-  int x = fmotmaxpower;
+  Byte t1(bytes + 2);
+  int32_t t = t1.get_byte(0, 8);
+  x <<= 8;
+  x |= t;
 
-  Byte to_set(data + 0);
-  to_set.set_value(x, 0, 8);
+  int ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 32, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(0, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_fmotmaxspd(
-    double fmotmaxspd) {
-  fmotmaxspd_ = fmotmaxspd;
-  return this;
- }
-
-// config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name': 'fMotMaxSpd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|25500]', 'physical_unit': 'rpm', 'precision': 100.0, 'type': 'double'}
-void Id0x0c0ba7f08c0ba7f0::set_p_fmotmaxspd(uint8_t* data,
-    double fmotmaxspd) {
-  fmotmaxspd = ProtocolData::BoundedValue(0.0, 25500.0, fmotmaxspd);
-  int x = fmotmaxspd / 100.000000;
-
-  Byte to_set(data + 1);
-  to_set.set_value(x, 0, 8);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 33, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(1, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_fmotmaxtq(
-    int fmotmaxtq) {
-  fmotmaxtq_ = fmotmaxtq;
-  return this;
- }
-
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name': 'fMotMaxTq', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'NM', 'precision': 1.0, 'type': 'int'}
-void Id0x0c0ba7f08c0ba7f0::set_p_fmotmaxtq(uint8_t* data,
-    int fmotmaxtq) {
-  fmotmaxtq = ProtocolData::BoundedValue(0, 65535, fmotmaxtq);
-  int x = fmotmaxtq;
-  uint8_t t = 0;
-
-  t = x & 0xFF;
-  Byte to_set0(data + 2);
-  to_set0.set_value(t, 0, 8);
-  x >>= 8;
-
-  t = x & 0xFF;
-  Byte to_set1(data + 3);
-  to_set1.set_value(t, 0, 8);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 34, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(2, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 0, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 35, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(3, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 33, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 1, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 36, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(4, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 34, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 2, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 37, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(5, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 35, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 3, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 38, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(6, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 36, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 4, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 39, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 4);
+  int32_t x = t0.get_byte(7, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 37, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 5, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 40, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 5);
+  int32_t x = t0.get_byte(0, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 38, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 6, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 41, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 5);
+  int32_t x = t0.get_byte(1, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 39, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 4);
-  to_set.set_value(x, 7, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 42, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 5);
+  int32_t x = t0.get_byte(2, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 40, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 5);
-  to_set.set_value(x, 0, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 43, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 5);
+  int32_t x = t0.get_byte(3, 1);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 41, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 5);
-  to_set.set_value(x, 1, 1);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'dwmcuerrflg', 'offset': 0.0, 'precision': 1.0, 'len': 20, 'is_signed_var': False, 'physical_range': '[0|1048575]', 'bit': 44, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
+int Id0x0c0ba7f08c0ba7f0::dwmcuerrflg(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 7);
+  int32_t x = t0.get_byte(0, 8);
 
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
+  Byte t1(bytes + 6);
+  int32_t t = t1.get_byte(0, 8);
+  x <<= 8;
+  x |= t;
 
-// config detail: {'bit': 42, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
+  Byte t2(bytes + 5);
+  t = t2.get_byte(4, 4);
+  x <<= 4;
+  x |= t;
 
-  Byte to_set(data + 5);
-  to_set.set_value(x, 2, 1);
+  int ret = x;
+  return ret;
 }
-
-
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    bool dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 43, 'is_signed_var': False, 'len': 1, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    bool dwmcuerrflg) {
-  int x = dwmcuerrflg;
-
-  Byte to_set(data + 5);
-  to_set.set_value(x, 3, 1);
-}
-
-
-Id0x0c0ba7f08c0ba7f0* Id0x0c0ba7f08c0ba7f0::set_dwmcuerrflg(
-    int dwmcuerrflg) {
-  dwmcuerrflg_ = dwmcuerrflg;
-  return this;
- }
-
-// config detail: {'bit': 44, 'is_signed_var': False, 'len': 20, 'name': 'dwMCUErrFlg', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1048575]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c0ba7f08c0ba7f0::set_p_dwmcuerrflg(uint8_t* data,
-    int dwmcuerrflg) {
-  dwmcuerrflg = ProtocolData::BoundedValue(0, 1048575, dwmcuerrflg);
-  int x = dwmcuerrflg;
-  uint8_t t = 0;
-
-  t = x & 0xF;
-  Byte to_set0(data + 5);
-  to_set0.set_value(t, 4, 4);
-  x >>= 4;
-
-  t = x & 0xFF;
-  Byte to_set1(data + 6);
-  to_set1.set_value(t, 0, 8);
-  x >>= 8;
-
-  t = x & 0xFF;
-  Byte to_set2(data + 7);
-  to_set2.set_value(t, 0, 8);
-}
-
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo

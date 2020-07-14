@@ -29,9 +29,7 @@
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7_8c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c089aa7_8c089aa7.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0c08a7f0_8c08a7f0.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0c09a7f0_8c09a7f0.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0c0ba7f0_8c0ba7f0.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7_8c19f0a7.h"
 
 namespace apollo {
 namespace canbus {
@@ -117,9 +115,7 @@ class DiamondController final : public VehicleController {
   // control protocol
   Id0x0c079aa78c079aa7* id_0x0c079aa7_8c079aa7_ = nullptr;
   Id0x0c089aa78c089aa7* id_0x0c089aa7_8c089aa7_ = nullptr;
-  Id0x0c08a7f08c08a7f0* id_0x0c08a7f0_8c08a7f0_ = nullptr;
-  Id0x0c09a7f08c09a7f0* id_0x0c09a7f0_8c09a7f0_ = nullptr;
-  Id0x0c0ba7f08c0ba7f0* id_0x0c0ba7f0_8c0ba7f0_ = nullptr;
+  Id0x0c19f0a78c19f0a7* id_0x0c19f0a7_8c19f0a7_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;

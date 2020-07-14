@@ -36,30 +36,30 @@ class Id0x0c089aa78c089aa7 : public ::apollo::drivers::canbus::ProtocolData<
 
   void Reset() override;
 
-  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fDcAcTargSpd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'rpm', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'fDcAcTargSpd', 'offset': 0.0, 'precision': 1.0, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|65535]', 'bit': 0, 'type': 'int', 'order': 'intel', 'physical_unit': 'rpm'}
   Id0x0c089aa78c089aa7* set_fdcactargspd(int fdcactargspd);
 
-  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'byDcAcDir', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'byDcAcDir', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 16, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
   Id0x0c089aa78c089aa7* set_bydcacdir(int bydcacdir);
 
-  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 16, 'name': 'fDcAc2TargSpd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'rpm', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'fDcAc2TargSpd', 'offset': 0.0, 'precision': 1.0, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|65535]', 'bit': 24, 'type': 'int', 'order': 'intel', 'physical_unit': 'rpm'}
   Id0x0c089aa78c089aa7* set_fdcac2targspd(int fdcac2targspd);
 
-  // config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name': 'byDcAc2Dir', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'byDcAc2Dir', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 40, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
   Id0x0c089aa78c089aa7* set_bydcac2dir(int bydcac2dir);
 
  private:
 
-  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fDcAcTargSpd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'rpm', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'fDcAcTargSpd', 'offset': 0.0, 'precision': 1.0, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|65535]', 'bit': 0, 'type': 'int', 'order': 'intel', 'physical_unit': 'rpm'}
   void set_p_fdcactargspd(uint8_t* data, int fdcactargspd);
 
-  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'byDcAcDir', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'byDcAcDir', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 16, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
   void set_p_bydcacdir(uint8_t* data, int bydcacdir);
 
-  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 16, 'name': 'fDcAc2TargSpd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'rpm', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'fDcAc2TargSpd', 'offset': 0.0, 'precision': 1.0, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|65535]', 'bit': 24, 'type': 'int', 'order': 'intel', 'physical_unit': 'rpm'}
   void set_p_fdcac2targspd(uint8_t* data, int fdcac2targspd);
 
-  // config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name': 'byDcAc2Dir', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'name': 'byDcAc2Dir', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 40, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
   void set_p_bydcac2dir(uint8_t* data, int bydcac2dir);
 
  private:

@@ -81,32 +81,16 @@ ErrorCode DiamondController::Init(
      return ErrorCode::CANBUS_ERROR;
   }
 
-  id_0x0c08a7f0_8c08a7f0_ = dynamic_cast<Id0x0c08a7f08c08a7f0*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c08a7f08c08a7f0::ID));
-  if (id_0x0c08a7f0_8c08a7f0_ == nullptr) {
-     AERROR << "Id0x0c08a7f08c08a7f0 does not exist in the DiamondMessageManager!";
-     return ErrorCode::CANBUS_ERROR;
-  }
-
-  id_0x0c09a7f0_8c09a7f0_ = dynamic_cast<Id0x0c09a7f08c09a7f0*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c09a7f08c09a7f0::ID));
-  if (id_0x0c09a7f0_8c09a7f0_ == nullptr) {
-     AERROR << "Id0x0c09a7f08c09a7f0 does not exist in the DiamondMessageManager!";
-     return ErrorCode::CANBUS_ERROR;
-  }
-
-  id_0x0c0ba7f0_8c0ba7f0_ = dynamic_cast<Id0x0c0ba7f08c0ba7f0*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c0ba7f08c0ba7f0::ID));
-  if (id_0x0c0ba7f0_8c0ba7f0_ == nullptr) {
-     AERROR << "Id0x0c0ba7f08c0ba7f0 does not exist in the DiamondMessageManager!";
+  id_0x0c19f0a7_8c19f0a7_ = dynamic_cast<Id0x0c19f0a78c19f0a7*>
+          (message_manager_->GetMutableProtocolDataById(Id0x0c19f0a78c19f0a7::ID));
+  if (id_0x0c19f0a7_8c19f0a7_ == nullptr) {
+     AERROR << "Id0x0c19f0a78c19f0a7 does not exist in the DiamondMessageManager!";
      return ErrorCode::CANBUS_ERROR;
   }
 
   can_sender_->AddMessage(Id0x0c079aa78c079aa7::ID, id_0x0c079aa7_8c079aa7_, false);
   can_sender_->AddMessage(Id0x0c089aa78c089aa7::ID, id_0x0c089aa7_8c089aa7_, false);
-  can_sender_->AddMessage(Id0x0c08a7f08c08a7f0::ID, id_0x0c08a7f0_8c08a7f0_, false);
-  can_sender_->AddMessage(Id0x0c09a7f08c09a7f0::ID, id_0x0c09a7f0_8c09a7f0_, false);
-  can_sender_->AddMessage(Id0x0c0ba7f08c0ba7f0::ID, id_0x0c0ba7f0_8c0ba7f0_, false);
+  can_sender_->AddMessage(Id0x0c19f0a78c19f0a7::ID, id_0x0c19f0a7_8c19f0a7_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";

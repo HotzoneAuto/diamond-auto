@@ -2,24 +2,66 @@ syntax = "proto2";
 
 package apollo.canbus;
 
-message Id_0x0c079aa7_8c079aa7 {
-// Receive Message
+message Id_0x0c09a7f0_8c09a7f0 {
+// Report Message
+  // [V] [-1000|5553.5]
+  optional double fmotvolt = 1;
+  // [TMP] [-40|215]
+  optional int32 fmottemp = 2;
+  // [TMP] [-40|215]
+  optional int32 fmcutemp = 3;
+  // [A] [-1000|5553.5]
+  optional double fmotrectcur = 4;
+  // [] [0|1]
+  optional bool bymotspddir = 5;
   // [] [0|255]
-  optional int32 bydcdccmd = 1;
+  optional int32 bymoterrcode = 6;
+}
+
+message Id_0x0c08a7f0_8c08a7f0 {
+// Report Message
+  // [NM] [-32000|33535]
+  optional int32 fmottq = 1;
+  // [RPM] [0|32767.5]
+  optional double fmotspd = 2;
+  // [A] [-1000|5553.5]
+  optional double fmotcur = 3;
+  // [] [0|1]
+  optional bool bymcusts = 4;
+  // [] [0|1]
+  optional bool bymcusts = 5;
+  // [] [0|1]
+  optional bool bymcusts = 6;
+  // [] [0|1]
+  optional bool bymcusts = 7;
+  // [] [0|1]
+  optional bool bymcusts = 8;
+  // [] [0|1]
+  optional bool bymcusts = 9;
+  // [] [0|1]
+  optional bool bymcusts = 10;
+  // [] [0|1]
+  optional bool bymcusts = 11;
   // [] [0|255]
-  optional int32 bydcaccmd = 2;
+  optional int32 bymcu1msglife1 = 12;
+}
+
+message Id_0x0c19f0a7_8c19f0a7 {
+// Control Message
+  // [] [0|65535]
+  optional int32 fmot1targettq = 1;
+  // [V] [-1000|5553.5]
+  optional double fmot1lmtvolt = 2;
+  // [A] [-1000|5553.5]
+  optional double fmot1lmtcur = 3;
+  // [] [0|1]
+  optional bool bymot1workmode = 4;
   // [] [0|255]
-  optional int32 bydcacwkst = 3;
-  // [] [0|255]
-  optional int32 byeapcmd = 4;
-  // [] [0|255]
-  optional int32 bydcac2cmd = 5;
-  // [] [0|255]
-  optional int32 bydcac2wkst = 6;
+  optional int32 bylife = 5;
 }
 
 message Id_0x0c089aa7_8c089aa7 {
-// Receive Message
+// Control Message
   // [rpm] [0|65535]
   optional int32 fdcactargspd = 1;
   // [] [0|255]
@@ -30,59 +72,13 @@ message Id_0x0c089aa7_8c089aa7 {
   optional int32 bydcac2dir = 4;
 }
 
-message Id_0x0c08a7f0_8c08a7f0 {
-// Receive Message
-  // [NM] [-32000|33535] 驱动电机转矩请求
-  optional int32 fmottq = 1;
-  // [RPM] [0|32767.5] 驱动电机转速请求
-  optional double fmotspd = 2;
-  // [A] [-1000|5553.5] 动力总成控制器输入电流 
-  optional double fmotcur = 3;
-  // [] [0|1] 0 无效 1 停机
-  optional bool bymcusts = 4;
-  // [] [0|1] 0 无效 1 驱动 
-  optional bool bymcusts = 5;
-  // [] [0|1] 0 无效 1 制动
-  optional bool bymcusts = 6;
-  // [] [0|1] 0 无效 1 向后
-  optional bool bymcusts = 7;
-  // [] [0|1] 0 无效 1 向前
-  optional bool bymcusts = 8;
-  // [] [0|1] 0 转矩模式 1 转速模式  大部分都用转矩模式 
-  optional bool bymcusts = 9;
-  // [] [0|1] 0 无效(default) 1 允许下电
-  optional bool bymcusts = 10;
-  // [] [0|1] 0 无效 1 Ready  准备接受转矩命令
-  optional bool bymcusts = 11;
-  // [] [0|255] 电机控制器寿命
-  optional int32 bymcu1msglife1 = 12;
-}
-
-message Id_0x0c09a7f0_8c09a7f0 {
-// Receive Message
-  // [V] [-1000|5553.5] 电机电压
-  optional double fmotvolt = 1;
-  // [TMP] [-40|215] 电机温度
-  optional int32 fmottemp = 2;
-  // [TMP] [-40|215] 电机控制器温度
-  optional int32 fmcutemp = 3;
-  // [A] [-1000|5553.5] 电机整流电流
-  optional double fmotrectcur = 4;
-  // [] [0|1]  包含 0 表示电机正转, 1 电机反转反馈
-  optional bool bymotspddir = 5;
-  // [] [0|255] 故障代码
-  optional int32 bymoterrcode = 6;
-}
-
-// 
 message Id_0x0c0ba7f0_8c0ba7f0 {
-// Receive Message
-// 电机峰值信息与故障代码
-  // [kw] [0|255] 电机峰值功率
+// Report Message
+  // [kw] [0|255]
   optional int32 fmotmaxpower = 1;
-  // [rpm] [0|25500] 电机最高转速
+  // [rpm] [0|25500]
   optional double fmotmaxspd = 2;
-  // [NM] [0|65535]  驱动电机转矩请求
+  // [NM] [0|65535]
   optional int32 fmotmaxtq = 3;
   // [] [0|1]
   optional bool dwmcuerrflg = 4;
@@ -112,15 +108,27 @@ message Id_0x0c0ba7f0_8c0ba7f0 {
   optional int32 dwmcuerrflg = 16;
 }
 
-message Diamond {
-  optional Id_0x0c079aa7_8c079aa7 id_0x0c079aa7_8c079aa7 = 1; // control message
-  optional Id_0x0c089aa7_8c089aa7 id_0x0c089aa7_8c089aa7 = 2; // control message
-  optional Id_0x0c08a7f0_8c08a7f0 id_0x0c08a7f0_8c08a7f0 = 3; // control message
-  optional Id_0x0c09a7f0_8c09a7f0 id_0x0c09a7f0_8c09a7f0 = 4; // control message
-  optional Id_0x0c0ba7f0_8c0ba7f0 id_0x0c0ba7f0_8c0ba7f0 = 5; // control message
+message Id_0x0c079aa7_8c079aa7 {
+// Control Message
+  // [] [0|255]
+  optional int32 bydcdccmd = 1;
+  // [] [0|255]
+  optional int32 bydcaccmd = 2;
+  // [] [0|255]
+  optional int32 bydcacwkst = 3;
+  // [] [0|255]
+  optional int32 byeapcmd = 4;
+  // [] [0|255]
+  optional int32 bydcac2cmd = 5;
+  // [] [0|255]
+  optional int32 bydcac2wkst = 6;
 }
 
-
-
-// 0C19F0A7 
-// vcu to mcu 
+message Diamond {
+  optional Id_0x0c09a7f0_8c09a7f0 id_0x0c09a7f0_8c09a7f0 = 1; // report message
+  optional Id_0x0c08a7f0_8c08a7f0 id_0x0c08a7f0_8c08a7f0 = 2; // report message
+  optional Id_0x0c19f0a7_8c19f0a7 id_0x0c19f0a7_8c19f0a7 = 3; // control message
+  optional Id_0x0c089aa7_8c089aa7 id_0x0c089aa7_8c089aa7 = 4; // control message
+  optional Id_0x0c0ba7f0_8c0ba7f0 id_0x0c0ba7f0_8c0ba7f0 = 5; // report message
+  optional Id_0x0c079aa7_8c079aa7 id_0x0c079aa7_8c079aa7 = 6; // control message
+}

@@ -16,7 +16,10 @@
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c09a7f0_8c09a7f0.h"
 
+#include "glog/logging.h"
+
 #include "modules/drivers/canbus/common/byte.h"
+#include "modules/drivers/canbus/common/canbus_consts.h"
 
 namespace apollo {
 namespace canbus {
@@ -24,150 +27,82 @@ namespace diamond {
 
 using ::apollo::drivers::canbus::Byte;
 
+Id0x0c09a7f08c09a7f0::Id0x0c09a7f08c09a7f0() {}
 const int32_t Id0x0c09a7f08c09a7f0::ID = 0x2c09a7f0;
 
-// public
-Id0x0c09a7f08c09a7f0::Id0x0c09a7f08c09a7f0() { Reset(); }
-
-uint32_t Id0x0c09a7f08c09a7f0::GetPeriod() const {
-  // TODO(All) :  modify every protocol's period manually
-  static const uint32_t PERIOD = 20 * 1000;
-  return PERIOD;
+void Id0x0c09a7f08c09a7f0::Parse(const std::uint8_t* bytes, int32_t length,
+                         ChassisDetail* chassis) const {
+  chassis->mutable_diamond()->mutable_id_0x0c09a7f0_8c09a7f0()->set_fmotvolt(fmotvolt(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c09a7f0_8c09a7f0()->set_fmottemp(fmottemp(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c09a7f0_8c09a7f0()->set_fmcutemp(fmcutemp(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c09a7f0_8c09a7f0()->set_fmotrectcur(fmotrectcur(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c09a7f0_8c09a7f0()->set_bymotspddir(bymotspddir(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c09a7f0_8c09a7f0()->set_bymoterrcode(bymoterrcode(bytes, length));
 }
 
-void Id0x0c09a7f08c09a7f0::UpdateData(uint8_t* data) {
-  set_p_fmotvolt(data, fmotvolt_);
-  set_p_fmottemp(data, fmottemp_);
-  set_p_fmcutemp(data, fmcutemp_);
-  set_p_fmotrectcur(data, fmotrectcur_);
-  set_p_bymotspddir(data, bymotspddir_);
-  set_p_bymoterrcode(data, bymoterrcode_);
+// config detail: {'name': 'fmotvolt', 'offset': -1000.0, 'precision': 0.1, 'len': 16, 'is_signed_var': False, 'physical_range': '[-1000|5553.5]', 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'V'}
+double Id0x0c09a7f08c09a7f0::fmotvolt(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 1);
+  int32_t x = t0.get_byte(0, 8);
+
+  Byte t1(bytes + 0);
+  int32_t t = t1.get_byte(0, 8);
+  x <<= 8;
+  x |= t;
+
+  double ret = x * 0.100000 + -1000.000000;
+  return ret;
 }
 
-void Id0x0c09a7f08c09a7f0::Reset() {
-  // TODO(All) :  you should check this manually
-  fmotvolt_ = 0.0;
-  fmottemp_ = 0;
-  fmcutemp_ = 0;
-  fmotrectcur_ = 0.0;
-  bymotspddir_ = false;
-  bymoterrcode_ = 0;
+// config detail: {'name': 'fmottemp', 'offset': -40.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[-40|215]', 'bit': 16, 'type': 'int', 'order': 'intel', 'physical_unit': 'TMP'}
+int Id0x0c09a7f08c09a7f0::fmottemp(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 2);
+  int32_t x = t0.get_byte(0, 8);
+
+  int ret = x + -40.000000;
+  return ret;
 }
 
-Id0x0c09a7f08c09a7f0* Id0x0c09a7f08c09a7f0::set_fmotvolt(
-    double fmotvolt) {
-  fmotvolt_ = fmotvolt;
-  return this;
- }
+// config detail: {'name': 'fmcutemp', 'offset': -40.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[-40|215]', 'bit': 24, 'type': 'int', 'order': 'intel', 'physical_unit': 'TMP'}
+int Id0x0c09a7f08c09a7f0::fmcutemp(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 3);
+  int32_t x = t0.get_byte(0, 8);
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fMotVolt', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'V', 'precision': 0.1, 'type': 'double'}
-void Id0x0c09a7f08c09a7f0::set_p_fmotvolt(uint8_t* data,
-    double fmotvolt) {
-  fmotvolt = ProtocolData::BoundedValue(-1000.0, 5553.5, fmotvolt);
-  int x = (fmotvolt - -1000.000000) / 0.100000;
-  uint8_t t = 0;
-
-  t = x & 0xFF;
-  Byte to_set0(data + 0);
-  to_set0.set_value(t, 0, 8);
-  x >>= 8;
-
-  t = x & 0xFF;
-  Byte to_set1(data + 1);
-  to_set1.set_value(t, 0, 8);
+  int ret = x + -40.000000;
+  return ret;
 }
 
+// config detail: {'name': 'fmotrectcur', 'offset': -1000.0, 'precision': 0.1, 'len': 16, 'is_signed_var': False, 'physical_range': '[-1000|5553.5]', 'bit': 32, 'type': 'double', 'order': 'intel', 'physical_unit': 'A'}
+double Id0x0c09a7f08c09a7f0::fmotrectcur(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 5);
+  int32_t x = t0.get_byte(0, 8);
 
-Id0x0c09a7f08c09a7f0* Id0x0c09a7f08c09a7f0::set_fmottemp(
-    int fmottemp) {
-  fmottemp_ = fmottemp;
-  return this;
- }
+  Byte t1(bytes + 4);
+  int32_t t = t1.get_byte(0, 8);
+  x <<= 8;
+  x |= t;
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'fMotTemp', 'offset': -40.0, 'order': 'intel', 'physical_range': '[-40|215]', 'physical_unit': 'TMP', 'precision': 1.0, 'type': 'int'}
-void Id0x0c09a7f08c09a7f0::set_p_fmottemp(uint8_t* data,
-    int fmottemp) {
-  fmottemp = ProtocolData::BoundedValue(-40, 215, fmottemp);
-  int x = (fmottemp - -40.000000);
-
-  Byte to_set(data + 2);
-  to_set.set_value(x, 0, 8);
+  double ret = x * 0.100000 + -1000.000000;
+  return ret;
 }
 
+// config detail: {'name': 'bymotspddir', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 50, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+bool Id0x0c09a7f08c09a7f0::bymotspddir(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 6);
+  int32_t x = t0.get_byte(2, 1);
 
-Id0x0c09a7f08c09a7f0* Id0x0c09a7f08c09a7f0::set_fmcutemp(
-    int fmcutemp) {
-  fmcutemp_ = fmcutemp;
-  return this;
- }
-
-// config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name': 'fMCUTemp', 'offset': -40.0, 'order': 'intel', 'physical_range': '[-40|215]', 'physical_unit': 'TMP', 'precision': 1.0, 'type': 'int'}
-void Id0x0c09a7f08c09a7f0::set_p_fmcutemp(uint8_t* data,
-    int fmcutemp) {
-  fmcutemp = ProtocolData::BoundedValue(-40, 215, fmcutemp);
-  int x = (fmcutemp - -40.000000);
-
-  Byte to_set(data + 3);
-  to_set.set_value(x, 0, 8);
+  bool ret = x;
+  return ret;
 }
 
+// config detail: {'name': 'bymoterrcode', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 56, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
+int Id0x0c09a7f08c09a7f0::bymoterrcode(const std::uint8_t* bytes, int32_t length) const {
+  Byte t0(bytes + 7);
+  int32_t x = t0.get_byte(0, 8);
 
-Id0x0c09a7f08c09a7f0* Id0x0c09a7f08c09a7f0::set_fmotrectcur(
-    double fmotrectcur) {
-  fmotrectcur_ = fmotrectcur;
-  return this;
- }
-
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 16, 'name': 'fMotRectCur', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
-void Id0x0c09a7f08c09a7f0::set_p_fmotrectcur(uint8_t* data,
-    double fmotrectcur) {
-  fmotrectcur = ProtocolData::BoundedValue(-1000.0, 5553.5, fmotrectcur);
-  int x = (fmotrectcur - -1000.000000) / 0.100000;
-  uint8_t t = 0;
-
-  t = x & 0xFF;
-  Byte to_set0(data + 4);
-  to_set0.set_value(t, 0, 8);
-  x >>= 8;
-
-  t = x & 0xFF;
-  Byte to_set1(data + 5);
-  to_set1.set_value(t, 0, 8);
+  int ret = x;
+  return ret;
 }
-
-
-Id0x0c09a7f08c09a7f0* Id0x0c09a7f08c09a7f0::set_bymotspddir(
-    bool bymotspddir) {
-  bymotspddir_ = bymotspddir;
-  return this;
- }
-
-// config detail: {'bit': 50, 'is_signed_var': False, 'len': 1, 'name': 'byMotSpdDir', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
-void Id0x0c09a7f08c09a7f0::set_p_bymotspddir(uint8_t* data,
-    bool bymotspddir) {
-  int x = bymotspddir;
-
-  Byte to_set(data + 6);
-  to_set.set_value(x, 2, 1);
-}
-
-
-Id0x0c09a7f08c09a7f0* Id0x0c09a7f08c09a7f0::set_bymoterrcode(
-    int bymoterrcode) {
-  bymoterrcode_ = bymoterrcode;
-  return this;
- }
-
-// config detail: {'bit': 56, 'is_signed_var': False, 'len': 8, 'name': 'byMotErrCode', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c09a7f08c09a7f0::set_p_bymoterrcode(uint8_t* data,
-    int bymoterrcode) {
-  bymoterrcode = ProtocolData::BoundedValue(0, 255, bymoterrcode);
-  int x = bymoterrcode;
-
-  Byte to_set(data + 7);
-  to_set.set_value(x, 0, 8);
-}
-
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
