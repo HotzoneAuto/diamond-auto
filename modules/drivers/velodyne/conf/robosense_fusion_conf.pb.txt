@@ -1,0 +1,12 @@
+max_interval_ms: 100
+drop_expired_data : false
+fusion_channel: "/apollo/sensor/robosense/fusion/PointCloud2"
+input_channel: [
+    "/apollo/sensor/robosense16_left/PointCloud2",
+    "/apollo/sensor/robosense16_right/PointCloud2"  
+    #"/apollo/sensor/lidar16/rear/left/PointCloud2",
+    #"/apollo/sensor/lidar16/rear/right/PointCloud2",
+    #"/apollo/sensor/lidar16/front/center/PointCloud2"
+]
+# wait time after main channel receive msg, unit second
+wait_time_s: 0.2

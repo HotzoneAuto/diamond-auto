@@ -29,6 +29,12 @@ message Config {
   optional bool use_gps_time = 23;
   optional bool use_poll_sync = 24;
   optional bool is_main_frame = 25;
+  optional string dev_ip = 26; //rs
+  optional int32 msop_port = 27; //rs
+  optional int32 difop_port = 28; //rs
+  optional string difop_channel = 29; //rs
+  
+  
 }
 
 message FusionConfig {
@@ -46,3 +52,4 @@ message CompensatorConfig {
   optional string target_frame_id = 4;
   optional uint32 point_cloud_size = 5;
 }
+

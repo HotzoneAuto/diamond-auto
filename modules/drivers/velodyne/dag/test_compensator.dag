@@ -1,0 +1,17 @@
+
+##################################################
+#                compensation                    #
+##################################################
+
+module_config {
+    module_library : "/apollo/bazel-bin/modules/drivers/velodyne/compensator/libvelodyne_compensator_component.so"
+
+    components {
+      class_name : "CompensatorComponent"
+      config {
+        name : "robosense_fusion_compensator"
+        config_file_path : "/apollo/modules/drivers/velodyne/conf/robosense_fusion_compensator.pb.txt"
+        readers {channel: "/apollo/sensor/velodyne64/compensator/PointCloud2"}
+      }
+    }
+}

@@ -1,0 +1,13 @@
+frame_id: "robosense32"
+convert_channel_name: "/apollo/sensor/robosense32/PointCloud2"
+scan_channel: "/apollo/sensor/robosense32/scan"
+rpm: 600.0
+model: RS32
+mode: STRONGEST
+max_range: 200.0
+min_range: 2.0
+max_angle: 360
+min_angle: 0
+dev_ip: "192.168.1.204"
+msop_port: 6694
+difop_port: 7784

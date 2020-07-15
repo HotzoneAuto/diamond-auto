@@ -28,18 +28,28 @@ cc_library(
         "driver.cc",
         "driver64.cc",
         "input.cc",
+	    "rsinput.cc",
         "socket_input.cc",
+        "driverRS.cc",
+        "rslidar_decoder.cc",
     ],
     hdrs = [
         "driver.h",
         "input.h",
         "socket_input.h",
+	    "rslidar_packet.h",
+	    "rsinput.h",
+	    "rslidar_decoder.h",
     ],
     copts = ['-DMODULE_NAME=\\"velodyne\\"'],
+    # linkopts = [
+        # "-lpcap",
+    # ],
     deps = [
         "//cyber",
         "//modules/common/util",
         "//modules/drivers/velodyne/proto:config_cc_proto",
+        "//modules/drivers/proto:pointcloud_cc_proto",
     ],
 )
 

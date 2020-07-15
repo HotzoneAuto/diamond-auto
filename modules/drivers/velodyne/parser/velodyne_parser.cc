@@ -213,7 +213,8 @@ VelodyneParser *VelodyneParserFactory::CreateParser(Config source_config) {
     return new Velodyne64Parser(config);
   } else if (config.model() == VLS128) {
     return new Velodyne128Parser(config);
-  } else {
+  } 
+  else {
     AERROR << "invalid model, must be 64E_S2|64E_S3S"
            << "|64E_S3D_STRONGEST|64E_S3D_LAST|64E_S3D_DUAL|HDL32E|VLP16";
     return nullptr;

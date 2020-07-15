@@ -19,9 +19,10 @@
 #include <cmath>
 #include <ctime>
 #include <string>
-#include <thread>
 
 #include "cyber/cyber.h"
+
+#include "modules/drivers/velodyne/driver/driver.h"
 #include "modules/drivers/velodyne/proto/config.pb.h"
 #include "modules/drivers/velodyne/proto/velodyne.pb.h"
 
@@ -102,8 +103,7 @@ bool VelodyneDriver::SetBaseTime() {
 bool VelodyneDriver::Poll(const std::shared_ptr<VelodyneScan>& scan) {
   // Allocate a new shared pointer for zero-copy sharing with other nodelets.
   if (basetime_ == 0) {
-    // waiting for positioning data
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    usleep(100);  // waiting for positioning data
     AWARN << "basetime is zero";
     return false;
   }
@@ -114,13 +114,13 @@ bool VelodyneDriver::Poll(const std::shared_ptr<VelodyneScan>& scan) {
     return false;  // poll again
   }
 
-  if (scan->firing_pkts().empty()) {
+  if (scan->firing_pkts_size() <= 0) {
     AINFO << "Get an empty scan from port: " << config_.firing_data_port();
     return false;
   }
 
   // publish message using time of last packet read
-  ADEBUG << "Publishing a full Velodyne scan.";
+  AINFO << "Publishing a full Velodyne scan.";
   scan->mutable_header()->set_timestamp_sec(cyber::Time().Now().ToSecond());
   scan->mutable_header()->set_frame_id(config_.frame_id());
   scan->set_model(config_.model());
@@ -149,7 +149,8 @@ int VelodyneDriver::PollStandard(std::shared_ptr<VelodyneScan> scan) {
       // keep reading until full packet received
       VelodynePacket* packet = scan->add_firing_pkts();
       int rc = input_->get_firing_data_packet(packet);
-
+//      AINFO<<"sync_count "<<sync_counter<<"last count "<<last_count_<<"rc "<<rc;
+//      AINFO<<"NPACKETS "<<config_.npackets()<<"firing packets "<<scan->firing_pkts_size();
       if (rc == 0) {
         break;  // got a full packet?
       } else if (rc < 0) {
@@ -181,10 +182,10 @@ void VelodyneDriver::PollPositioningPacket(void) {
       nmea_time->hour = static_cast<uint16_t>(current_time.tm_hour);
       nmea_time->min = static_cast<uint16_t>(current_time.tm_min);
       nmea_time->sec = static_cast<uint16_t>(current_time.tm_sec);
-      AINFO << "Get NMEA Time from local time :"
-            << "year:" << nmea_time->year << "mon:" << nmea_time->mon
-            << "day:" << nmea_time->day << "hour:" << nmea_time->hour
-            << "min:" << nmea_time->min << "sec:" << nmea_time->sec;
+//      AINFO << "Get NMEA Time from local time :"
+//            << "year:" << nmea_time->year << "mon:" << nmea_time->mon
+//            << "day:" << nmea_time->day << "hour:" << nmea_time->hour
+ //           << "min:" << nmea_time->min << "sec:" << nmea_time->sec;
     } else {
       while (!cyber::IsShutdown()) {
         int rc = positioning_input_->get_positioning_data_packet(nmea_time);
@@ -200,7 +201,7 @@ void VelodyneDriver::PollPositioningPacket(void) {
     if (basetime_ == 0 && ret) {
       SetBaseTimeFromNmeaTime(nmea_time, &basetime_);
     } else {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      usleep(1000);
     }
   }
 }
@@ -272,6 +273,16 @@ VelodyneDriver* VelodyneDriverFactory::CreateDriver(const Config& config) {
       driver->SetPacketRate(PACKET_RATE_VLS128);
       break;
     }
+    case RS32: {
+      driver = new RSDriver(config);
+      driver->SetPacketRate(PACKET_RATE_VLS128);
+      break;
+    }
+    case RS16: {
+      driver = new RSDriver(config);
+      driver->SetPacketRate(PACKET_RATE_VLS128);
+      break;
+    }
     default:
       AERROR << "invalid model, must be 64E_S2|64E_S3S"
              << "|64E_S3D|VLP16|HDL32E|VLS128";
@@ -279,7 +290,7 @@ VelodyneDriver* VelodyneDriverFactory::CreateDriver(const Config& config) {
   }
   return driver;
 }
-
+ bool VelodyneDriver::RSPoll(const std::shared_ptr<PointCloud> &pc) {return true;}
 }  // namespace velodyne
 }  // namespace drivers
 }  // namespace apollo

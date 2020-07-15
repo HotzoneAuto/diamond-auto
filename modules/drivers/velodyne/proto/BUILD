@@ -6,6 +6,28 @@ load("@com_github_grpc_grpc//bazel:python_rules.bzl", "py_proto_library")
 package(default_visibility = ["//visibility:public"])
 
 cc_proto_library(
+    name = "velodyne_cc_proto",
+    deps = [
+        ":velodyne_proto",
+    ],
+)
+
+proto_library(
+    name = "velodyne_proto",
+    srcs = ["velodyne.proto"],
+    deps = [
+        "//modules/common/proto:header_proto",
+    ],
+)
+
+py_proto_library(
+    name = "velodyne_py_pb2",
+    deps = [
+        ":velodyne_proto",
+    ],
+)
+
+cc_proto_library(
     name = "config_cc_proto",
     deps = [
         ":config_proto",
@@ -27,24 +49,3 @@ py_proto_library(
     ],
 )
 
-cc_proto_library(
-    name = "velodyne_cc_proto",
-    deps = [
-        ":velodyne_proto",
-    ],
-)
-
-proto_library(
-    name = "velodyne_proto",
-    srcs = ["velodyne.proto"],
-    deps = [
-        "//modules/common/proto:header_proto",
-    ],
-)
-
-py_proto_library(
-    name = "velodyne_py_pb2",
-    deps = [
-        ":velodyne_proto",
-    ],
-)

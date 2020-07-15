@@ -1,0 +1,17 @@
+child_frame_id: robosense32
+transform:
+  rotation:
+    x: -0.000177505
+    y: -0.000796614
+    z: -0.00471662
+    w: 0.999957
+  translation:
+    x: 0
+    y: 0
+    z: -0.756992
+header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: novatel

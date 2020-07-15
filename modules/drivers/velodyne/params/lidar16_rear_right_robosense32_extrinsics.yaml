@@ -1,0 +1,18 @@
+header:
+    stamp:
+      secs: 0
+      nsecs: 0
+    seq: 0
+    frame_id: robosense32
+child_frame_id: velodyne16_rear_left
+transform:
+    rotation:
+      x: 0.0186167
+      y: 0.00910491
+      z: 0.99967
+      w: -0.0151496
+    translation:
+      x: -2.08538
+      y: -0.70441
+      z: -1.33749
+  

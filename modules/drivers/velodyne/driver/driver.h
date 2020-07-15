@@ -22,7 +22,8 @@
 #include "modules/drivers/velodyne/driver/socket_input.h"
 #include "modules/drivers/velodyne/proto/config.pb.h"
 #include "modules/drivers/velodyne/proto/velodyne.pb.h"
-
+#include "modules/drivers/velodyne/driver/rslidar_decoder.h"
+#include "modules/drivers/velodyne/driver/rsinput.h"
 namespace apollo {
 namespace drivers {
 namespace velodyne {
@@ -45,6 +46,7 @@ class VelodyneDriver {
 
   virtual bool Poll(const std::shared_ptr<VelodyneScan> &scan);
   virtual void Init();
+  virtual bool RSPoll(const std::shared_ptr<PointCloud> &pc);
   virtual void PollPositioningPacket();
   void SetPacketRate(const double packet_rate) { packet_rate_ = packet_rate; }
 
@@ -79,6 +81,20 @@ class Velodyne64Driver : public VelodyneDriver {
  private:
   bool CheckAngle(const VelodynePacket &packet);
   int PollStandardSync(std::shared_ptr<VelodyneScan> scan);
+};
+class RSDriver : public VelodyneDriver {
+ public:
+  explicit RSDriver(const Config &config) : VelodyneDriver(config) {}
+  ~RSDriver() {}
+
+  void Init() override;
+  bool RSPoll(const std::shared_ptr<PointCloud> &pc);
+private:
+  std::unique_ptr<rslidar_driver::Input> rsinput_ = nullptr;
+  robosense::rslidar::ST_Param param_;
+  int GeneratePointCloud(rslidar_driver::rslidarPacket pkt,
+                                 const std::shared_ptr<PointCloud>& pc);
+  std::shared_ptr<robosense::rslidar::RSLidarDecoder> decoder_=nullptr;
 };
 
 class VelodyneDriverFactory {

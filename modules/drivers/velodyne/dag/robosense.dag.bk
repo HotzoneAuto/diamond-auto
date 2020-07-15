@@ -1,0 +1,48 @@
+# Define all coms in DAG streaming.
+module_config {
+    module_library : "/apollo/bazel-bin/modules/drivers/velodyne/driver/libvelodyne_driver_component.so"
+
+    components {
+      class_name : "VelodyneDriverComponent"
+      config {
+        name : "robosense32_driver"
+         config_file_path : "/apollo/modules/drivers/velodyne/conf/robosense32_conf.pb.txt"
+      }
+    }
+
+    components {
+      class_name : "VelodyneDriverComponent"
+      config {
+        name : "robosense16_left_driver"
+         config_file_path : "/apollo/modules/drivers/velodyne/conf/robosense16_left_conf.pb.txt"
+      }
+    }
+    
+    components {
+      class_name : "VelodyneDriverComponent"
+      config {
+        name : "robosense16_right_driver"
+         config_file_path : "/apollo/modules/drivers/velodyne/conf/robosense16_right_conf.pb.txt"
+      }
+    }
+}
+
+##################################################
+#                    fusion                      #
+##################################################
+
+module_config {
+    module_library : "/apollo/bazel-bin/modules/drivers/velodyne/fusion/libvelodyne_fusion_component.so"
+
+    components {
+      class_name : "PriSecFusionComponent"
+      config {
+        name : "robosense_fusion"
+        config_file_path : "/apollo/modules/drivers/velodyne/conf/robosense_fusion_conf.pb.txt"
+        readers {channel: "/apollo/sensor/robosense32/PointCloud2"}
+      }
+    }
+}
+
+
+

@@ -1,0 +1,17 @@
+
+##################################################
+#                    fusion                      #
+##################################################
+
+module_config {
+    module_library : "/apollo/bazel-bin/modules/drivers/velodyne/fusion/libvelodyne_fusion_component.so"
+
+    components {
+      class_name : "PriSecFusionComponent"
+      config {
+        name : "velodyne_fusion"
+        config_file_path : "/apollo/modules/drivers/velodyne/conf/velodyne_fusion_conf.pb.txt"
+        readers {channel: "/apollo/sensor/lidar16/front/center/PointCloud2"}
+      }
+    }
+}

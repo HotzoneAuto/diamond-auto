@@ -1,0 +1,4 @@
+world_frame_id: "novatel"
+target_frame_id: "novatel"
+transform_query_timeout: 0.02
+output_channel: "/apollo/sensor/robosense/compensator/PointCloud2"

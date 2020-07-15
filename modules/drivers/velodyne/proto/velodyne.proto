@@ -13,6 +13,8 @@ enum Model {
   VLP16 = 5;
   VLP32C = 6;
   VLS128 = 7;
+  RS32 = 8;
+  RS16 = 9;
 }
 
 enum Mode {

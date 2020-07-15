@@ -43,7 +43,7 @@ void Velodyne16Parser::GeneratePointcloud(
     ADEBUG << "stamp: " << std::fixed << last_time_stamp_;
   }
 
-  if (out_msg->point().empty()) {
+  if (out_msg->point_size() == 0) {
     // we discard this pointcloud if empty
     AERROR << "All points is NAN!Please check velodyne:" << config_.model();
   }
@@ -119,7 +119,7 @@ void Velodyne16Parser::Unpack(const VelodynePacket& pkt,
             firing == VLP16_FIRINGS_PER_BLOCK - 1 &&
             dsr == VLP16_SCANS_PER_FIRING - 1) {
           // set header stamp before organize the point cloud
-          pc->set_measurement_time(static_cast<double>(timestamp) / 1e9);
+          pc->set_measurement_time(cyber::Time().Now().ToSecond());
         }
 
         float real_distance = raw_distance.raw_distance * DISTANCE_RESOLUTION;

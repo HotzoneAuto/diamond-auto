@@ -16,11 +16,11 @@ cc_library(
     hdrs = ["compensator_component.h"],
     copts = ['-DMODULE_NAME=\\"velodyne\\"'],
     deps = [
+        ":compensator_lib",
         "//cyber",
         "//modules/common/adapters:adapter_gflags",
         "//modules/common/latency_recorder",
         "//modules/common/time",
-        "//modules/drivers/velodyne/compensator:compensator_lib",
         "//modules/drivers/velodyne/proto:velodyne_cc_proto",
     ],
 )

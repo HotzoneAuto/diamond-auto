@@ -36,6 +36,7 @@ namespace drivers {
 namespace velodyne {
 
 using apollo::drivers::PointCloud;
+using apollo::transform::Buffer;
 
 class Compensator {
  public:
@@ -71,7 +72,7 @@ class Compensator {
 
   bool IsValid(const Eigen::Vector3d& point);
 
-  transform::Buffer* tf2_buffer_ptr_ = transform::Buffer::Instance();
+  Buffer* tf2_buffer_ptr_ = transform::Buffer::Instance();
   CompensatorConfig config_;
 };
 

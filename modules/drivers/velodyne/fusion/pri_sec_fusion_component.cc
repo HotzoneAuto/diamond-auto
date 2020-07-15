@@ -15,14 +15,14 @@
  *****************************************************************************/
 
 #include "modules/drivers/velodyne/fusion/pri_sec_fusion_component.h"
-
+#include <limits>
 #include <memory>
 #include <thread>
 
 namespace apollo {
 namespace drivers {
 namespace velodyne {
-
+static const float nan = std::numeric_limits<float>::signaling_NaN();
 using apollo::cyber::Time;
 
 bool PriSecFusionComponent::Init() {
@@ -63,6 +63,22 @@ bool PriSecFusionComponent::Proc(
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  }
+  if (target->header().frame_id()=="robosense32")  //delete point in vehicle front
+  {
+    //AINFO<<"GET ROBOSENSE32 SIZE"<<target->point_size();
+    for (int i=0;i< target->point_size();i++ ) {
+      auto point= target->mutable_point(i);
+      if (point->x()<2.5 && point->x()>0 && point->y()<1 && point->y()>-1)
+      {
+       // AINFO<<"point "<<point->x()<<" "<<point->y()<<" "<<point->z();
+        point->set_x(nan);
+        point->set_y(nan);
+        point->set_z(nan);
+        point->set_intensity(nan);
+        
+      }
+    }
   }
   auto diff = Time::Now().ToNanosecond() - target->header().lidar_timestamp();
   AINFO << "Pointcloud fusion diff: " << diff / 1000000 << "ms";
@@ -123,6 +139,7 @@ void PriSecFusionComponent::AppendPointCloud(
   } else {
     for (auto& point : point_cloud_add->point()) {
       if (std::isnan(point.x())) {
+        continue;
         PointXYZIT* point_new = point_cloud->add_point();
         point_new->set_intensity(point.intensity());
         point_new->set_timestamp(point.timestamp());

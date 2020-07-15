@@ -1,0 +1,18 @@
+header:
+    stamp:
+      secs: 0
+      nsecs: 0
+    seq: 0
+    frame_id: robosense32
+child_frame_id: robosense16_left
+transform:
+    rotation:
+      x: -0.3292
+      y: -0.00177196
+      z: -0.00250261
+      w: 0.944255
+    translation:
+      x: 0.00692873
+      y: 0.522341
+      z: -0.250158
+  

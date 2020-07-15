@@ -19,7 +19,6 @@
 #include <string>
 
 #include "modules/drivers/velodyne/driver/driver.h"
-// #include "ros/ros.h"
 
 namespace apollo {
 namespace drivers {
@@ -50,7 +49,7 @@ bool Velodyne64Driver::Poll(const std::shared_ptr<VelodyneScan>& scan) {
     return false;  // poll again
   }
 
-  if (scan->firing_pkts().empty()) {
+  if (scan->firing_pkts_size() <= 0) {
     AINFO << "Get an empty scan from port: " << config_.firing_data_port();
     return false;
   }
