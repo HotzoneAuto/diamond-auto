@@ -1,6 +1,5 @@
 # Bazel
 bazel-*
-WORKSPACE
 
 # Temporary files
 *.pyc
@@ -46,10 +45,6 @@ modules/localization/msf/local_map/test_data/ndt_map/map_data/
 docs/doxygen
 cyber/doxy-docs/build/
 cyber/doxy-docs/xml/
-
-# Esd can lib
-third_party/can_card_library/esd_can/include
-third_party/can_card_library/esd_can/lib
 
 # Map data files
 modules/map/data

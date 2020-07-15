@@ -31,3 +31,19 @@ build all modules
 ```bash
 bash apollo.sh build
 ```
+
+
+## ToolChain 
+
+C++ Code format:
+
+```bash
+bash scripts/clang-format.sh
+```
+
+Protobuf file generation :
+
+```bash
+python3 scripts/proto_build_generator.py modules/canbus/proto/BUILD
+
+```
