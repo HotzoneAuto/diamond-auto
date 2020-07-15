@@ -18,19 +18,6 @@
 TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P)"
 source ${TOP_DIR}/scripts/apollo.bashrc
 
-APOLLO_CACHE_DIR="${APOLLO_ROOT_DIR}/.cache"
-
-function check_in_docker() {
-  if [ -f /.dockerenv ]; then
-    APOLLO_IN_DOCKER=true
-    APOLLO_ROOT_DIR="/apollo"
-  else
-    APOLLO_IN_DOCKER=false
-  fi
-  export APOLLO_IN_DOCKER
-  APOLLO_CACHE_DIR="${APOLLO_ROOT_DIR}/.cache"
-}
-
 function set_lib_path() {
   local CYBER_SETUP="${APOLLO_ROOT_DIR}/cyber/setup.bash"
   [[ -e "${CYBER_SETUP}" ]] && . "${CYBER_SETUP}"
@@ -45,7 +32,7 @@ function set_lib_path() {
   export LD_LIBRARY_PATH=/usr/local/adolc/lib64:$LD_LIBRARY_PATH
 
   if [ -e /usr/local/cuda/ ];then
-    export PATH=/usr/local/cuda/bin:$PATH
+    add_to_path "/usr/local/cuda/bin"
     export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
     export C_INCLUDE_PATH=/usr/local/cuda/include:$C_INCLUDE_PATH
     export CPLUS_INCLUDE_PATH=/usr/local/cuda/include:$CPLUS_INCLUDE_PATH
@@ -57,7 +44,6 @@ function set_lib_path() {
   else
     export LD_LIBRARY_PATH=/usr/local/libtorch_gpu/lib:$LD_LIBRARY_PATH
   fi
-  export LD_LIBRARY_PATH=/usr/local/apollo/paddlepaddle_dep/mkldnn/lib/:$LD_LIBRARY_PATH
 
   local PY_LIB_PATH="${APOLLO_ROOT_DIR}/py_proto"
   local PY_TOOLS_PATH="${APOLLO_ROOT_DIR}/modules/tools"
@@ -65,7 +51,7 @@ function set_lib_path() {
 
   # Set teleop paths
   export PYTHONPATH="${APOLLO_ROOT_DIR}/modules/teleop/common:${PYTHONPATH}"
-  export PATH="${APOLLO_ROOT_DIR}/modules/teleop/common/scripts:${PATH}"
+  add_to_path "/apollo/modules/teleop/common/scripts"
 }
 
 function create_data_dir() {
@@ -133,10 +119,6 @@ function setup_device() {
   if [ ! -e /dev/nvidia-uvm ];then
     sudo mknod -m 666 /dev/nvidia-uvm c 243 0
   fi
-  if [ ! -e /dev/nvidia-uvm-tools ];then
-    sudo mknod -m 666 /dev/nvidia-uvm-tools c 243 1
-  fi
-
   if [ ! -e /dev/nvidia-uvm-tools ];then
     sudo mknod -m 666 /dev/nvidia-uvm-tools c 243 1
   fi
@@ -386,7 +368,6 @@ function run() {
   run_customized_path $module $module "$@"
 }
 
-check_in_docker
 unset OMP_NUM_THREADS
 
 if [ $APOLLO_IN_DOCKER = "true" ]; then
