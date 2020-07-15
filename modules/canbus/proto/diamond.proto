@@ -27,21 +27,21 @@ message Id_0x0c08a7f0_8c08a7f0 {
   // [A] [-1000|5553.5]
   optional double fmotcur = 3;
   // [] [0|1]
-  optional bool bymcusts = 4;
+  optional bool bymcusts1 = 4;
   // [] [0|1]
-  optional bool bymcusts = 5;
+  optional bool bymcusts2 = 5;
   // [] [0|1]
-  optional bool bymcusts = 6;
+  optional bool bymcusts3 = 6;
   // [] [0|1]
-  optional bool bymcusts = 7;
+  optional bool bymcusts4 = 7;
   // [] [0|1]
-  optional bool bymcusts = 8;
+  optional bool bymcusts5 = 8;
   // [] [0|1]
-  optional bool bymcusts = 9;
+  optional bool bymcusts6 = 9;
   // [] [0|1]
-  optional bool bymcusts = 10;
+  optional bool bymcusts7 = 10;
   // [] [0|1]
-  optional bool bymcusts = 11;
+  optional bool bymcusts8 = 11;
   // [] [0|255]
   optional int32 bymcu1msglife1 = 12;
 }
@@ -81,31 +81,31 @@ message Id_0x0c0ba7f0_8c0ba7f0 {
   // [NM] [0|65535]
   optional int32 fmotmaxtq = 3;
   // [] [0|1]
-  optional bool dwmcuerrflg = 4;
+  optional bool dwmcuerrflg1 = 4;
   // [] [0|1]
-  optional bool dwmcuerrflg = 5;
+  optional bool dwmcuerrflg2 = 5;
   // [] [0|1]
-  optional bool dwmcuerrflg = 6;
+  optional bool dwmcuerrflg3 = 6;
   // [] [0|1]
-  optional bool dwmcuerrflg = 7;
+  optional bool dwmcuerrflg4 = 7;
   // [] [0|1]
-  optional bool dwmcuerrflg = 8;
+  optional bool dwmcuerrflg5 = 8;
   // [] [0|1]
-  optional bool dwmcuerrflg = 9;
+  optional bool dwmcuerrflg6 = 9;
   // [] [0|1]
-  optional bool dwmcuerrflg = 10;
+  optional bool dwmcuerrflg7 = 10;
   // [] [0|1]
-  optional bool dwmcuerrflg = 11;
+  optional bool dwmcuerrflg8 = 11;
   // [] [0|1]
-  optional bool dwmcuerrflg = 12;
+  optional bool dwmcuerrflg9 = 12;
   // [] [0|1]
-  optional bool dwmcuerrflg = 13;
+  optional bool dwmcuerrflg10 = 13;
   // [] [0|1]
-  optional bool dwmcuerrflg = 14;
+  optional bool dwmcuerrflg11 = 14;
   // [] [0|1]
-  optional bool dwmcuerrflg = 15;
+  optional bool dwmcuerrflg12 = 15;
   // [] [0|1048575]
-  optional int32 dwmcuerrflg = 16;
+  optional int32 dwmcuerrflg13 = 16;
 }
 
 message Id_0x0c079aa7_8c079aa7 {

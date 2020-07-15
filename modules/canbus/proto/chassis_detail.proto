@@ -4,12 +4,7 @@ package apollo.canbus;
 
 import "modules/common/configs/proto/vehicle_config.proto";
 import "modules/canbus/proto/chassis.proto";
-import "modules/canbus/proto/ge3.proto";
-import "modules/canbus/proto/lexus.proto";
-import "modules/canbus/proto/transit.proto";
-import "modules/canbus/proto/wey.proto";
-import "modules/canbus/proto/zhongyun.proto";
-import "modules/canbus/proto/ch.proto";
+import "modules/canbus/proto/diamond.proto";
 
 message ChassisDetail {
   enum Type {
@@ -31,15 +26,8 @@ message ChassisDetail {
   optional Light light = 13;                // Light
   optional Battery battery = 14;            // Battery info
   optional CheckResponseSignal check_response = 15;
-  optional License license = 16 [deprecated = true];  // License info
-  optional Surround surround = 17;                    // Surround information
   optional Gem gem = 18;
-  optional Lexus lexus = 19;
-  optional Transit transit = 20;
-  optional Ge3 ge3 = 21;
-  optional Wey wey = 22;
-  optional Zhongyun zhongyun = 23;
-  optional Ch ch = 24;
+  optional Diamond diamond = 19;
   // Reserve fields for other vehicles
   optional apollo.common.VehicleID vehicle_id = 101;
 }
@@ -504,7 +492,6 @@ message BasicInfo {
   optional double heading = 34;
   optional double hdop = 35;
   optional double vdop = 36;
-  optional GpsQuality quality = 37;
   optional int32 num_satellites = 38;
   optional double gps_speed = 39;
 }
