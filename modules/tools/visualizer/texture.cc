@@ -53,7 +53,7 @@ bool Texture::UpdateData(const QImage& img) {
 }
 
 bool Texture::UpdateData(
-    const std::shared_ptr<const apollo::sensors::Image>& imgData) {
+    const std::shared_ptr<const apollo::drivers::Image>& imgData) {
   std::size_t imgSize = imgData->width() * imgData->height() * 3;
 
   if (static_cast<std::size_t>(data_size_) < imgSize) {
@@ -100,7 +100,7 @@ bool Texture::UpdateData(
     }
   } else if (imgData->encoding() == std::string("rgb8")) {
     memcpy(data_, imgData->data().c_str(), imgSize);
-  } else if (imgData->encoding() == std::string("bgr8") || imgData->encoding() == std::string("BGR8")) {
+  } else if (imgData->encoding() == std::string("bgr8")) {
     memcpy(data_, imgData->data().c_str(), imgSize);
     texture_format_ = GL_BGR;
   } else {

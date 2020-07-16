@@ -14,9 +14,9 @@
  * limitations under the License.
  *****************************************************************************/
 
-#version 130
+#version 330 core
 
-in vec2 vertPos;
+layout(location = 0) in vec2 vertPos;
 uniform mat4 mvp;
 uniform vec3 color;
 out vec3 Color;

@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include <QImage>
-#include <QOpenGLBuffer>
+#include <QtGui/QImage>
+#include <QtGui/QOpenGLBuffer>
+#include <memory>
 
-#include "modules/sensors/proto/sensor_image.pb.h"
-#include "modules/sensors/proto/sensors.pb.h"
+#include "modules/drivers/proto/sensor_image.pb.h"
 
 class Texture {
  public:
@@ -44,7 +44,7 @@ class Texture {
   GLsizei data_size(void) const { return data_size_; }
 
   bool UpdateData(const QImage& img);
-  bool UpdateData(const std::shared_ptr<const apollo::sensors::Image>&);
+  bool UpdateData(const std::shared_ptr<const apollo::drivers::Image>&);
   const GLubyte* data(void) const { return data_; }
 
  private:

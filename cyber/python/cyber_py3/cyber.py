@@ -25,7 +25,7 @@ import sys
 import threading
 import time
 
-from google.protobuf.descriptor_py_pb2 import FileDescriptorProto
+from google.protobuf.descriptor_pb2 import FileDescriptorProto
 
 
 PY_CALLBACK_TYPE = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p)
@@ -42,7 +42,7 @@ sys.path.append(CYBER_PATH + "/lib/python/")
 sys.path.append(CYBER_DIR + "/python/")
 sys.path.append(CYBER_DIR + "/cyber/")
 
-_CYBER = importlib.import_module('_cyber_py3')
+_CYBER = importlib.import_module('_cyber_wrapper')
 
 
 ##

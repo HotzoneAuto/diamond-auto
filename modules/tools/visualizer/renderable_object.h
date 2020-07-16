@@ -16,17 +16,17 @@
 
 #pragma once
 
-#include <QOpenGLBuffer>
-#include <QOpenGLFunctions>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLVertexArrayObject>
+#include <QtGui/QOpenGLBuffer>
+#include <QtGui/QOpenGLFunctions>
+#include <QtGui/QOpenGLShaderProgram>
+#include <QtGui/QOpenGLVertexArrayObject>
 #include <memory>
 
 class RenderableObject : protected QOpenGLFunctions {
  public:
   static std::shared_ptr<QOpenGLShaderProgram> NullRenderableObj;
   static std::shared_ptr<QOpenGLShaderProgram> CreateShaderProgram(
-      const char *vertexShaderSource, const char *fragmentShaderSource);
+      const QString& vertexShaderFileName, const QString& fragShaderFileName);
 
   explicit RenderableObject(int vertex_count = 1, int vertex_element_count = 3,
                             const std::shared_ptr<QOpenGLShaderProgram>&

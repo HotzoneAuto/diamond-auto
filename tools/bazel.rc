@@ -5,7 +5,9 @@
 # +------------------------------------------------------------+
 startup --batch_cpu_scheduling
 startup --host_jvm_args="-XX:-UseParallelGC"
-startup --output_user_root="/apollo/.cache/bazel"
+
+fetch --experimental_multi_threaded_digest=true
+query --experimental_multi_threaded_digest=true
 
 # +------------------------------------------------------------+
 # | Common Options                                             |
@@ -29,64 +31,73 @@ build --cxxopt="-fdiagnostics-color=always"
 # Do not show warnings from external dependencies.
 # build --output_filter="^//"
 
-# TODO(storypku): disable the following line temporarily as
-# external/upb/upb/decode.c:164 can't compile
-#build --copt="-Werror=sign-compare"
+build --config=dbg
+
+build --per_file_copt=external/upb/.*@-Wno-sign-compare
+build --copt="-Werror=sign-compare"
 build --copt="-Werror=return-type"
 build --copt="-Werror=unused-variable"
 build --copt="-Werror=unused-but-set-variable"
 build --copt="-Werror=switch"
 build --cxxopt="-Werror=reorder"
+build --cxxopt="-Wno-sign-compare"
 
 # Default paths for SYSTEM LIBRARIES
 build --define=PREFIX=/usr
 build --define=LIBDIR=$(PREFIX)/lib
 build --define=INCLUDEDIR=$(PREFIX)/include
 
-# build --enable_platform_specific_config
-
-# dbg config, as a shorthand for '--config=opt -c dbg'
-build:dbg --config=opt -c dbg
-
-## build -c opt
-build:opt --copt=-march=native
-build:opt --host_copt=-march=native
-build:opt --define with_default_optimizations=true
+# dbg config, as a shorthand for '--config=optimize -c dbg'
+build:dbg --config=optimize -c dbg
+build:opt --config=optimize -c opt
 
 # Instruction set optimizations
-build:native_arch_linux --copt=-march=native
+build:optimize --copt=-march=native
+build:optimize --host_copt=-march=native
+build:optimize --define with_default_optimizations=true
+
+build:cpu --define USE_GPU=false
+build:gpu --define USE_GPU=true
+build:opt_gpu --config=opt --config=gpu
+
+# Build with profiling
+build:cpu_prof --config=cpu
+build:cpu_prof --linkopt=-lprofiler
 
 # Build Apollo with C++ 17 features.
 build:c++17 --cxxopt=-std=c++1z
-build:c++17 --cxxopt=-stdlib=libc++
+# build:c++17 --cxxopt=-stdlib=libc++
 build:c++1z --config=c++17
 
 # Enable C++14 (aka c++1y) by default
 build --cxxopt="-std=c++14"
 build --host_cxxopt="-std=c++14"
 
-# build with profiling
-build:cpu_prof --linkopt=-lprofiler
-
-startup --output_user_root=/apollo/.cache/bazel
 # +------------------------------------------------------------+
 # | Test Configurations                                        |
 # +------------------------------------------------------------+
 test --flaky_test_attempts=3
 test --test_size_filters=small,medium
 test --test_env=LD_LIBRARY_PATH
+test --test_env=PYTHONPATH
 
 # By default prints output only from failed tests.
 test --test_output=errors
 
-test:coverage --copt=--coverage
-test:coverage --cxxopt=--coverage
-test:coverage --cxxopt=-fprofile-arcs
-test:coverage --cxxopt=-ftest-coverage
-test:coverage --linkopt=-coverage
-test:coverage --linkopt=-lgcov
-test:coverage --linkopt=-lgcc
-test:coverage --linkopt=-lc
+test:unit_test --test_verbose_timeout_warnings
+
+coverage --javabase="@bazel_tools//tools/jdk:remote_jdk11"
+# coverage --host_javabase="@bazel_tools//tools/jdk:remote_jdk11"
+coverage --instrument_test_targets
+coverage --combined_report=lcov
+coverage --nocache_test_results
+# coverage --coverage_report_generator="@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main"
+
+coverage --cxxopt=--coverage
+coverage --cxxopt=-fprofile-arcs
+coverage --cxxopt=-ftest-coverage
+coverage --linkopt=-lgcov
+
 
 # +------------------------------------------------------------+
 # | CPP Lint Tests & Unit Tests                                |
@@ -103,9 +114,9 @@ test:cpplint --build_tests_only
 # Regular unit tests.
 test:unit_test --test_tag_filters=-cpplint
 # Coverage tests
-test:coverage --test_tag_filters=-cpplint
+coverage --test_tag_filters=-cpplint
 
 # +------------------------------------------------------------+
 # | Python Configurations                                      |
 # +------------------------------------------------------------+
-# build --copt="-I/usr/include/python3.6m"
+# Python support was configured by third_party/py .

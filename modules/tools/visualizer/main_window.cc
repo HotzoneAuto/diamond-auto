@@ -14,12 +14,12 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include <QCheckBox>
-#include <QColorDialog>
-#include <QComboBox>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QSpinBox>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QColorDialog>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpinBox>
 
 #include "modules/tools/visualizer/fixedaspectratiowidget.h"
 #include "modules/tools/visualizer/grid.h"
@@ -58,14 +58,14 @@ const char* licenseMessage =
     "limitations under the License.\n";
 
 const char* pcTempObjGroupName = "pointcloud";
-// const char* pcVertexPath = ":/shaders/pointcloud.vert";
-// const char* pcFragPath = ":/shaders/grid_pointcloud.frag";
-// const char* gridVertexPath = ":/shaders/grid.vert";
-// const char* gridFragPath = ":/shaders/grid_pointcloud.frag";
+const char* pcVertexPath = ":/shaders/pointcloud.vert";
+const char* pcFragPath = ":/shaders/grid_pointcloud.frag";
+const char* gridVertexPath = ":/shaders/grid.vert";
+const char* gridFragPath = ":/shaders/grid_pointcloud.frag";
 const char* radarVertexPath = ":/shaders/radarpoints.vert";
 const char* radarFragPath = ":/shaders/radarpoints.frag";
 
-const std::string CompressedImageType("apollo.sensors.CompressedImage");
+const std::string CompressedImageType("apollo.drivers.CompressedImage");
 
 }  // namespace
 
@@ -90,8 +90,8 @@ struct MainWindow::VideoImgProxy {
   std::shared_ptr<Texture> dynamic_texture_;
   bool isCompressedImage_;
   union {
-    CyberChannReader<apollo::sensors::Image>* image_reader_;
-    CyberChannReader<apollo::sensors::CompressedImage>*
+    CyberChannReader<apollo::drivers::Image>* image_reader_;
+    CyberChannReader<apollo::drivers::CompressedImage>*
         compressed_image_reader_;
   };
 
@@ -144,7 +144,7 @@ struct MainWindow::RadarData {
 
   QMutex reader_mutex_;
 
-  CyberChannReader<apollo::sensors::RadarObstacles>* channel_reader_;
+  CyberChannReader<apollo::drivers::RadarObstacles>* channel_reader_;
 
   RadarData(void)
       : root_item_(),
@@ -373,26 +373,8 @@ void MainWindow::EnableGrid(bool b) { grid_->set_is_renderable(b); }
 
 void MainWindow::ActionAddGrid(void) {
   if (grid_shader_ == nullptr) {
-        static const char *vertexShaderSource =
-        "#version 130\n"
-        "in vec2 vertPos;\n"
-        "uniform mat4 mvp;\n"
-        "uniform vec3 color;\n"
-        "out vec3 Color;\n"
-        "void main() {\n"
-        "   gl_Position = vec4(vertPos.x, vertPos.y, 0.0, 1.0);\n"
-        "   Color = color;\n"
-        "}\n";
-
-        static const char *fragmentShaderSource =
-        "#version 130\n"
-        "in vec3 Color;\n"
-        "out vec4 FragColor;\n"
-        "void main() {\n"
-        "   FragColor = vec4(Color, 1.0);\n"
-        "}\n";
-    grid_shader_ = RenderableObject::CreateShaderProgram(vertexShaderSource,
-                                                         fragmentShaderSource);
+    grid_shader_ = RenderableObject::CreateShaderProgram(tr(gridVertexPath),
+                                                         tr(gridFragPath));
     if (grid_shader_ != nullptr) {
       ui_->sceneWidget->AddNewShaderProg("grid", grid_shader_);
     }
@@ -528,7 +510,7 @@ void MainWindow::EnableRadarPoints(bool b) {
 void MainWindow::ActionOpenRadarChannel(void) {
   if (radar_points_shader_ == nullptr) {
     radar_points_shader_ = RenderableObject::CreateShaderProgram(
-        radarVertexPath, radarFragPath);
+        tr(radarVertexPath), tr(radarFragPath));
     if (radar_points_shader_ != nullptr) {
       ui_->sceneWidget->AddNewShaderProg("radarpoints", radar_points_shader_);
     } else {
@@ -608,7 +590,7 @@ void MainWindow::DoOpenRadarChannel(bool b, RadarData* radarProxy) {
 
     if (!radarProxy->channel_reader_) {
       radarProxy->channel_reader_ =
-          new CyberChannReader<apollo::sensors::RadarObstacles>();
+          new CyberChannReader<apollo::drivers::RadarObstacles>();
 
       if (!radarProxy->channel_reader_) {
         QMessageBox::warning(this, tr("Create cyber Channel Reader"),
@@ -620,7 +602,7 @@ void MainWindow::DoOpenRadarChannel(bool b, RadarData* radarProxy) {
 
       auto radarcallback =
           [this, radarProxy](
-              const std::shared_ptr<apollo::sensors::RadarObstacles>& pdata) {
+              const std::shared_ptr<apollo::drivers::RadarObstacles>& pdata) {
             this->RadarRenderCallback(pdata, radarProxy);
           };
 
@@ -662,7 +644,7 @@ void MainWindow::DoOpenRadarChannel(bool b, RadarData* radarProxy) {
 }
 
 void MainWindow::RadarRenderCallback(
-    const std::shared_ptr<const apollo::sensors::RadarObstacles>& rawData,
+    const std::shared_ptr<const apollo::drivers::RadarObstacles>& rawData,
     RadarData* radar) {
   radar->reader_mutex_.lock();
   radar->reader_mutex_.unlock();
@@ -685,42 +667,8 @@ void MainWindow::RadarRenderCallback(
 
 void MainWindow::ActionOpenPointCloud(void) {
   if (pointcloud_shader_ == nullptr) {
-        static const char *vertexShaderSource =
-            "#version 130\n"
-            "in vec4 vertPos;\n"
-            "uniform mat4 mvp;\n"
-            "out vec3 Color;\n"
-            "void main(void){\n"
-            "    gl_Position = mvp * vec4(vertPos.xyz, 1.0);\n"
-            "    float g = smoothstep(0.0, 256, vertPos.w);\n"
-            "    float r = 0.0;\n"
-            "    float b = 0.0;\n"
-            "    if(g <= 0.25)\n"
-            "    {\n"
-            "        r = g * 4.0;\n"
-            "        g = 0.0;\n"
-            "    }\n"
-            "    if(g > 0.75)\n"
-            "    {\n"
-            "        g = 0.0;\n"
-            "        b = g * 4.0 - 3.0;\n"
-            "    }\n"
-            "    else\n"
-            "    {\n"
-            "        g = g + 0.35;\n"
-            "    }\n"
-            "    Color = vec3(r,g,b);\n"
-            "}\n";
-
-        static const char *fragmentShaderSource =
-        "#version 130\n"
-        "in vec3 Color;\n"
-        "out vec4 FragColor;\n"
-        "void main() {\n"
-        "   FragColor = vec4(Color, 1.0);\n"
-        "}\n";
     pointcloud_shader_ =
-        RenderableObject::CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
+        RenderableObject::CreateShaderProgram(tr(pcVertexPath), tr(pcFragPath));
     if (pointcloud_shader_ != nullptr) {
       ui_->sceneWidget->AddNewShaderProg("pointcloud", pointcloud_shader_);
     } else {
@@ -818,7 +766,7 @@ void MainWindow::ActionOpenImage(void) {
     for (int i = 0; i < all_channel_root_->childCount(); ++i) {
       QTreeWidgetItem* child = all_channel_root_->child(i);
       QString channel = child->text(0);
-      if (channel.contains("camera") || channel.contains("image")) {
+      if (channel.contains("camera")) {
         videoImgProxy->channel_name_combobox_.addItem(channel);
       }
     }
@@ -907,7 +855,7 @@ void MainWindow::UpdateActions(void) {
 }
 
 void MainWindow::PointCloudReaderCallback(
-    const std::shared_ptr<const apollo::sensors::PointCloud>& pdata) {
+    const std::shared_ptr<const apollo::drivers::PointCloud>& pdata) {
   pointcloud_reader_mutex_.lock();
   pointcloud_reader_mutex_.unlock();
   PointCloud* pc = new PointCloud(pdata->point_size(), 4, pointcloud_shader_);
@@ -934,7 +882,7 @@ void MainWindow::PlayRenderableObject(bool b) {
 
     if (!pointcloud_channel_Reader_) {
       pointcloud_channel_Reader_ =
-          new CyberChannReader<apollo::sensors::PointCloud>();
+          new CyberChannReader<apollo::drivers::PointCloud>();
 
       if (!pointcloud_channel_Reader_) {
         QMessageBox::warning(this, tr("Create Cyber Channel Reader"),
@@ -946,7 +894,7 @@ void MainWindow::PlayRenderableObject(bool b) {
       }
 
       auto pointCallback =
-          [this](const std::shared_ptr<apollo::sensors::PointCloud>& pdata) {
+          [this](const std::shared_ptr<apollo::drivers::PointCloud>& pdata) {
             this->PointCloudReaderCallback(pdata);
           };
       std::string nodeName("Visualizer-");
@@ -985,7 +933,7 @@ void MainWindow::PlayRenderableObject(bool b) {
 }
 
 void MainWindow::ImageReaderCallback(
-    const std::shared_ptr<const apollo::sensors::Image>& imgData,
+    const std::shared_ptr<const apollo::drivers::Image>& imgData,
     VideoImgProxy* theVideoImgProxy) {
   theVideoImgProxy->reader_mutex_.lock();
   if (theVideoImgProxy->dynamic_texture_ != nullptr && imgData != nullptr) {
@@ -998,14 +946,14 @@ void MainWindow::ImageReaderCallback(
     }
   } else {
     std::cerr
-        << "----Dynamic Texture is nullptr or apollo.sensors.Image is nullptr"
+        << "----Dynamic Texture is nullptr or apollo.drivers.Image is nullptr"
         << std::endl;
   }
   theVideoImgProxy->reader_mutex_.unlock();
 }
 
 void MainWindow::ImageReaderCallback(
-    const std::shared_ptr<const apollo::sensors::CompressedImage>& imgData,
+    const std::shared_ptr<const apollo::drivers::CompressedImage>& imgData,
     VideoImgProxy* theVideoImgProxy) {
   theVideoImgProxy->reader_mutex_.lock();
   if (theVideoImgProxy->dynamic_texture_ != nullptr && imgData != nullptr) {
@@ -1027,7 +975,7 @@ void MainWindow::ImageReaderCallback(
     }
   } else {
     std::cerr
-        << "----Dynamic Texture is nullptr or apollo.sensors.Image is nullptr"
+        << "----Dynamic Texture is nullptr or apollo.drivers.Image is nullptr"
         << std::endl;
   }
   theVideoImgProxy->reader_mutex_.unlock();
@@ -1059,10 +1007,10 @@ void MainWindow::DoPlayVideoImage(bool b, VideoImgProxy* theVideoImg) {
     if (!theVideoImg->image_reader_) {
       if (theVideoImg->isCompressedImage_) {
         theVideoImg->compressed_image_reader_ =
-            new CyberChannReader<apollo::sensors::CompressedImage>();
+            new CyberChannReader<apollo::drivers::CompressedImage>();
       } else {
         theVideoImg->image_reader_ =
-            new CyberChannReader<apollo::sensors::Image>();
+            new CyberChannReader<apollo::drivers::Image>();
       }
 
       if (!theVideoImg->image_reader_) {
@@ -1081,7 +1029,7 @@ void MainWindow::DoPlayVideoImage(bool b, VideoImgProxy* theVideoImg) {
       if (theVideoImg->isCompressedImage_) {
         auto videoCallback =
             [this, theVideoImg](
-                const std::shared_ptr<apollo::sensors::CompressedImage>&
+                const std::shared_ptr<apollo::drivers::CompressedImage>&
                     pdata) { this->ImageReaderCallback(pdata, theVideoImg); };
 
         ret = theVideoImg->compressed_image_reader_->InstallCallbackAndOpen(
@@ -1089,7 +1037,7 @@ void MainWindow::DoPlayVideoImage(bool b, VideoImgProxy* theVideoImg) {
       } else {
         auto videoCallback =
             [this, theVideoImg](
-                const std::shared_ptr<apollo::sensors::Image>& pdata) {
+                const std::shared_ptr<apollo::drivers::Image>& pdata) {
               this->ImageReaderCallback(pdata, theVideoImg);
             };
         ret = theVideoImg->image_reader_->InstallCallbackAndOpen(
@@ -1247,8 +1195,9 @@ void MainWindow::AddNewWriter(
 void MainWindow::PlayPause(void) {
   QObject* obj = QObject::sender();
   bool b = true;
-  if (obj == ui_->actionPause) b = false;
-
+  if (obj == ui_->actionPause) {
+    b = false;
+  }
   if (pointcloud_top_item_) {
     pointcloud_button_->setChecked(b);
     PlayRenderableObject(b);

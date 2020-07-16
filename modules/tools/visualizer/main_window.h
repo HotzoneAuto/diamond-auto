@@ -16,14 +16,16 @@
 
 #pragma once
 
-#include <QMainWindow>
-#include <QMenu>
-#include <QMutex>
+#include <QtCore/QMutex>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
+#include <map>
+#include <memory>
+#include <string>
 
-#include "modules/sensors/proto/pointcloud.pb.h"
-#include "modules/sensors/proto/radar.pb.h"
-#include "modules/sensors/proto/sensor_image.pb.h"
-#include "modules/sensors/proto/sensors.pb.h"
+#include "modules/drivers/proto/pointcloud.pb.h"
+#include "modules/drivers/proto/radar.pb.h"
+#include "modules/drivers/proto/sensor_image.pb.h"
 #include "modules/tools/visualizer/channel_reader.h"
 #include "modules/tools/visualizer/msg_dialog.h"
 
@@ -55,7 +57,7 @@ class MainWindow : public QMainWindow {
  protected:
   void resizeEvent(QResizeEvent*) override;
 
- private slots:
+ private slots:  // NOLINT
   void ActionAddGrid(void);
 
   void ActionOpenPointCloud(void);
@@ -94,12 +96,12 @@ class MainWindow : public QMainWindow {
   struct RadarData;
 
   void PointCloudReaderCallback(
-      const std::shared_ptr<const apollo::sensors::PointCloud>& pdata);
+      const std::shared_ptr<const apollo::drivers::PointCloud>& pdata);
   void ImageReaderCallback(
-      const std::shared_ptr<const apollo::sensors::Image>& imgData,
+      const std::shared_ptr<const apollo::drivers::Image>& imgData,
       VideoImgProxy* proxy);
   void ImageReaderCallback(
-      const std::shared_ptr<const apollo::sensors::CompressedImage>& imgData,
+      const std::shared_ptr<const apollo::drivers::CompressedImage>& imgData,
       VideoImgProxy* proxy);
 
   void InsertAllChannelNames(void);
@@ -111,7 +113,7 @@ class MainWindow : public QMainWindow {
   RadarData* createRadarData(void);
   void DoOpenRadarChannel(bool b, RadarData* radarProxy);
   void RadarRenderCallback(
-      const std::shared_ptr<const apollo::sensors::RadarObstacles>& rawData,
+      const std::shared_ptr<const apollo::drivers::RadarObstacles>& rawData,
       RadarData* radar);
 
   Ui::MainWindow* ui_;
@@ -127,7 +129,7 @@ class MainWindow : public QMainWindow {
   QTreeWidgetItem* pointcloud_top_item_;
   QComboBox* pointcloud_comboBox_;
   QPushButton* pointcloud_button_;
-  CyberChannReader<apollo::sensors::PointCloud>* pointcloud_channel_Reader_;
+  CyberChannReader<apollo::drivers::PointCloud>* pointcloud_channel_Reader_;
 
   QMutex pointcloud_reader_mutex_;
 

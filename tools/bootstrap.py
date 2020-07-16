@@ -42,11 +42,12 @@ _DEFAULT_CUDA_COMPUTE_CAPABILITIES = '6.0,6.1,7.0,7.2,7.5'
 
 _DEFAULT_PROMPT_ASK_ATTEMPTS = 10
 
-_TF_WORKSPACE_ROOT = ''
-_TF_BAZELRC = ''
-_TF_CURRENT_BAZEL_VERSION = None
-_TF_MIN_BAZEL_VERSION = '2.0.0'
-_TF_MAX_BAZEL_VERSION = '3.99.0'
+_APOLLO_ROOT_DIR = ''
+_APOLLO_BAZELRC = ''
+_APOLLO_CURRENT_BAZEL_VERSION = None
+_APOLLO_MIN_BAZEL_VERSION = '2.0.0'
+_APOLLO_MAX_BAZEL_VERSION = '3.99.0'
+
 
 class UserInputError(Exception):
     pass
@@ -54,6 +55,7 @@ class UserInputError(Exception):
 
 def is_linux():
     return platform.system() == 'Linux'
+
 
 def get_input(question):
     try:
@@ -99,11 +101,13 @@ def sed_in_place(filename, old, new):
 
 
 def write_to_bazelrc(line):
-    with open(_TF_BAZELRC, 'a') as f:
+    with open(_APOLLO_BAZELRC, 'a') as f:
         f.write(line + '\n')
+
 
 def write_action_env_to_bazelrc(var_name, var):
     write_to_bazelrc('build --action_env {}="{}"'.format(var_name, str(var)))
+
 
 def run_shell(cmd, allow_non_zero=False, stderr=None):
     if stderr is None:
@@ -116,6 +120,7 @@ def run_shell(cmd, allow_non_zero=False, stderr=None):
     else:
         output = subprocess.check_output(cmd, stderr=stderr)
     return output.decode('UTF-8').strip()
+
 
 def get_python_path(environ_cp, python_bin_path):
     """Get the python site package paths."""
@@ -147,10 +152,12 @@ def get_python_path(environ_cp, python_bin_path):
             paths.append(path)
     return paths
 
+
 def get_python_major_version(python_bin_path):
     """Get the python major version."""
     return run_shell(
         [python_bin_path, '-c', 'import sys; print(sys.version[0])'])
+
 
 def setup_python(environ_cp):
     """Setup python related env variables."""
@@ -211,14 +218,15 @@ def setup_python(environ_cp):
             write_action_env_to_bazelrc('PYTHONPATH',
                                         environ_cp.get('PYTHONPATH'))
     # Write tools/python_bin_path.sh
-    with open(
-            os.path.join(_TF_WORKSPACE_ROOT, 'tools', 'python_bin_path.sh'),
-            'w') as f:
+    with open(os.path.join(_APOLLO_ROOT_DIR, 'tools', 'python_bin_path.sh'),
+              'w') as f:
         f.write('export PYTHON_BIN_PATH="{}"'.format(python_bin_path))
+
 
 def reset_tf_configure_bazelrc():
     """Reset file that contains customized config settings."""
-    open(_TF_BAZELRC, 'w').close()
+    open(_APOLLO_BAZELRC, 'w').close()
+
 
 def get_var(environ_cp,
             var_name,
@@ -489,6 +497,7 @@ def set_tf_cuda_clang(environ_cp):
         no_reply=no_reply,
         bazel_config_name='cuda_clang')
 
+
 def get_from_env_or_user_or_default(environ_cp, var_name, ask_for_var,
                                     var_default):
     """Get var_name either from env, or user or default.
@@ -537,6 +546,7 @@ def set_clang_cuda_compiler_path(environ_cp):
     environ_cp['CLANG_CUDA_COMPILER_PATH'] = clang_cuda_compiler_path
     write_action_env_to_bazelrc('CLANG_CUDA_COMPILER_PATH',
                                 clang_cuda_compiler_path)
+
 
 def prompt_loop_or_load_from_env(environ_cp,
                                  var_name,
@@ -710,6 +720,7 @@ def is_cuda_compatible(lib, cuda_ver, cudnn_ver):
         cuda_ok = (cudart == cuda_ver)
     return cudnn_ok and cuda_ok
 
+
 def set_tf_tensorrt_version(environ_cp):
     """Set TF_TENSORRT_VERSION."""
     if not int(environ_cp.get('TF_NEED_TENSORRT', False)):
@@ -723,6 +734,7 @@ def set_tf_tensorrt_version(environ_cp):
         environ_cp, 'TF_TENSORRT_VERSION', ask_tensorrt_version,
         _DEFAULT_TENSORRT_VERSION)
     environ_cp['TF_TENSORRT_VERSION'] = tf_tensorrt_version
+
 
 def set_tf_nccl_version(environ_cp):
     """Set TF_NCCL_VERSION."""
@@ -880,6 +892,7 @@ def system_specific_test_config(environ_cp):
     if environ_cp.get('TF_NEED_CUDA', None) == '1':
         write_to_bazelrc('test --test_env=LD_LIBRARY_PATH')
 
+
 def set_system_libs_flag(environ_cp):
     syslibs = environ_cp.get('TF_SYSTEM_LIBS', '')
     if syslibs:
@@ -897,6 +910,7 @@ def set_system_libs_flag(environ_cp):
         write_to_bazelrc(
             'build --define=INCLUDEDIR=%s' % environ_cp['INCLUDEDIR'])
 
+
 def config_info_line(name, help_text):
     """Helper function to print formatted help text for Bazel config options."""
     print('\t--config=%-12s\t# %s' % (name, help_text))
@@ -905,29 +919,18 @@ def config_info_line(name, help_text):
 def validate_cuda_config(environ_cp):
     """Run find_cuda_config.py and return cuda_toolkit_path, or None."""
 
-    def maybe_encode_env(env):
-        """Encodes unicode in env to str on Windows python 2.x."""
-        if sys.version_info[0] != 2:
-            return env
-        for k, v in env.items():
-            if isinstance(k, unicode):
-                k = k.encode('ascii')
-            if isinstance(v, unicode):
-                v = v.encode('ascii')
-            env[k] = v
-        return env
-
     cuda_libraries = ['cuda', 'cudnn']
     if int(environ_cp.get('TF_NEED_TENSORRT', False)):
         cuda_libraries.append('tensorrt')
     if environ_cp.get('TF_NCCL_VERSION', None):
         cuda_libraries.append('nccl')
 
+    # FIXME(all): abs path for find_cuda_config.py
     proc = subprocess.Popen(
-        [environ_cp['PYTHON_BIN_PATH'], 'tools/gpus/find_cuda_config.py'] +
+        [environ_cp['PYTHON_BIN_PATH'], 'third_party/gpus/find_cuda_config.py'] +
         cuda_libraries,
         stdout=subprocess.PIPE,
-        env=maybe_encode_env(environ_cp))
+        env=environ_cp)
 
     if proc.wait():
         # Errors from find_cuda_config.py were sent to stderr.
@@ -961,6 +964,7 @@ def validate_cuda_config(environ_cp):
     environ_cp['CUDA_TOOLKIT_PATH'] = config['cuda_toolkit_path']
     return True
 
+
 def set_overall_build_config():
     overall_text = """
 ## The following was adapted from tensorflow/.bazelrc
@@ -984,8 +988,9 @@ build:cuda_clang --action_env TF_CUDA_CLANG=1
 build:tensorrt --action_env TF_NEED_TENSORRT=1
 build:nonccl --define=no_nccl_support=true
 """
-    with open(_TF_BAZELRC, 'a') as f:
+    with open(_APOLLO_BAZELRC, 'a') as f:
         f.write(overall_text)
+
 
 def default_workspace_directory():
     current_dir = os.path.dirname(__file__)
@@ -993,13 +998,14 @@ def default_workspace_directory():
         current_dir = "."
     return os.path.abspath(current_dir + "/..")
 
+
 def main():
     if not is_linux():
         raise ValueError("Currently ONLY Linux platform is supported.")
 
-    global _TF_WORKSPACE_ROOT
-    global _TF_BAZELRC
-    global _TF_CURRENT_BAZEL_VERSION
+    global _APOLLO_ROOT_DIR
+    global _APOLLO_BAZELRC
+    global _APOLLO_CURRENT_BAZEL_VERSION
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1015,22 +1021,23 @@ def main():
 
     args = parser.parse_args()
 
-    _TF_WORKSPACE_ROOT = args.workspace
-    _TF_BAZELRC = os.path.join(_TF_WORKSPACE_ROOT, args.output_file)
+    _APOLLO_ROOT_DIR = args.workspace
+    _APOLLO_BAZELRC = os.path.join(_APOLLO_ROOT_DIR, args.output_file)
 
     # Make a copy of os.environ to be clear when functions and getting and setting
     # environment variables.
     environ_cp = dict(os.environ)
 
     try:
-        current_bazel_version = check_bazel_version(_TF_MIN_BAZEL_VERSION,
-                                                    _TF_MAX_BAZEL_VERSION)
+        current_bazel_version = check_bazel_version(_APOLLO_MIN_BAZEL_VERSION,
+                                                    _APOLLO_MAX_BAZEL_VERSION)
     except subprocess.CalledProcessError as e:
         print("Error checking bazel version: ",
               e.output.decode('UTF-8').strip())
         raise e
 
-    _TF_CURRENT_BAZEL_VERSION = convert_version_to_int(current_bazel_version)
+    _APOLLO_CURRENT_BAZEL_VERSION = convert_version_to_int(
+        current_bazel_version)
 
     reset_tf_configure_bazelrc()
     setup_python(environ_cp)
@@ -1125,6 +1132,7 @@ def main():
 #    config_info_line('noaws', 'Disable AWS S3 filesystem support.')
 #    config_info_line('nogcp', 'Disable GCP support.')
 #    config_info_line('nohdfs', 'Disable HDFS support.')
+
 
 if __name__ == '__main__':
     main()
