@@ -42,44 +42,44 @@ class Id0x0c0ba7f08c0ba7f0 : public ::apollo::drivers::canbus::ProtocolData<
   // config detail: {'name': 'fMotMaxTq', 'offset': 0.0, 'precision': 1.0, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|65535]', 'bit': 16, 'type': 'int', 'order': 'intel', 'physical_unit': 'NM'}
   int fmotmaxtq(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 32, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 32, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 33, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 33, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 34, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 34, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 35, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 35, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 36, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 36, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 37, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 37, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 38, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 38, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 39, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 39, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 40, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 40, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 41, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 41, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 42, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 42, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 43, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-  bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 43, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // bool dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 20, 'is_signed_var': False, 'physical_range': '[0|1048575]', 'bit': 44, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
-  int dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
+  // // config detail: {'name': 'dwMCUErrFlg', 'offset': 0.0, 'precision': 1.0, 'len': 20, 'is_signed_var': False, 'physical_range': '[0|1048575]', 'bit': 44, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
+  // int dwmcuerrflg(const std::uint8_t* bytes, const int32_t length) const;
 };
 
 }  // namespace diamond

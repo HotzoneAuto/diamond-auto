@@ -32,7 +32,6 @@
 
 #include "modules/canbus/proto/chassis_detail.pb.h"
 #include "modules/drivers/canbus/proto/can_card_parameter.pb.h"
-#include "modules/guardian/proto/guardian.pb.h"
 
 #include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/monitor_log/monitor_log_buffer.h"
@@ -85,14 +84,10 @@ class CanbusComponent final : public apollo::cyber::TimerComponent {
   void PublishChassis();
   void PublishChassisDetail();
   void OnControlCommand(const apollo::control::ControlCommand &control_command);
-  void OnGuardianCommand(
-      const apollo::guardian::GuardianCommand &guardian_command);
   apollo::common::Status OnError(const std::string &error_msg);
   void RegisterCanClients();
 
   CanbusConf canbus_conf_;
-  std::shared_ptr<cyber::Reader<apollo::guardian::GuardianCommand>>
-      guardian_cmd_reader_;
   std::shared_ptr<cyber::Reader<apollo::control::ControlCommand>>
       control_command_reader_;
   std::unique_ptr<apollo::drivers::canbus::CanClient> can_client_;

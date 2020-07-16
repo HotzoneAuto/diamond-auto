@@ -1,11 +1,12 @@
-# Dag all comes in DAG streming.
 module_config {
-  module_library : "/apollo/bazel-bin/modules/control/libcontrol_component.so"
-  components {
-    class_name : "ControlComponent"
-    config {
-      name: "control_component"
-      flag_file_path:"/apollo/modules/control/conf/control.conf"
+    module_library : "/apollo/bazel-bin/modules/control/libcontrol_component.so"
+
+    timer_components {
+        class_name : "ControlComponent"
+        config {
+            name: "control"
+            flag_file_path: "/apollo/modules/control/conf/control.conf"
+            interval: 10
+        }
     }
-  }
 }

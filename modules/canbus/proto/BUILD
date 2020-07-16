@@ -107,6 +107,7 @@ proto_library(
         "//modules/common/proto:header_proto",
         "//modules/common/proto:vehicle_signal_proto",
         "//modules/common/proto:drive_state_proto",
+        "//modules/common/proto:geometry_proto",
         "//modules/common/configs/proto:vehicle_config_proto",
     ],
 )

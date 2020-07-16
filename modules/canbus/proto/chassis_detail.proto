@@ -26,6 +26,8 @@ message ChassisDetail {
   optional Light light = 13;                // Light
   optional Battery battery = 14;            // Battery info
   optional CheckResponseSignal check_response = 15;
+  optional License license = 16 [deprecated = true];  // License info
+  optional Surround surround = 17;     
   optional Gem gem = 18;
   optional Diamond diamond = 19;
   // Reserve fields for other vehicles
@@ -492,6 +494,7 @@ message BasicInfo {
   optional double heading = 34;
   optional double hdop = 35;
   optional double vdop = 36;
+  optional GpsQuality quality = 37;
   optional int32 num_satellites = 38;
   optional double gps_speed = 39;
 }

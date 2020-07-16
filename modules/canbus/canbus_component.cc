@@ -30,7 +30,6 @@ using apollo::common::ErrorCode;
 using apollo::common::time::Clock;
 using apollo::control::ControlCommand;
 using apollo::drivers::canbus::CanClientFactory;
-using apollo::guardian::GuardianCommand;
 
 std::string CanbusComponent::Name() const { return FLAGS_canbus_module_name; }
 
@@ -104,31 +103,17 @@ bool CanbusComponent::Init() {
         << " initialized with canbus conf as : "
         << canbus_conf_.vehicle_parameter().ShortDebugString();
 
-  cyber::ReaderConfig guardian_cmd_reader_config;
-  guardian_cmd_reader_config.channel_name = FLAGS_guardian_topic;
-  guardian_cmd_reader_config.pending_queue_size =
-      FLAGS_guardian_cmd_pending_queue_size;
-
   cyber::ReaderConfig control_cmd_reader_config;
   control_cmd_reader_config.channel_name = FLAGS_control_command_topic;
   control_cmd_reader_config.pending_queue_size =
       FLAGS_control_cmd_pending_queue_size;
 
-  if (FLAGS_receive_guardian) {
-    guardian_cmd_reader_ = node_->CreateReader<GuardianCommand>(
-        guardian_cmd_reader_config,
-        [this](const std::shared_ptr<GuardianCommand> &cmd) {
-          ADEBUG << "Received guardian data: run canbus callback.";
-          OnGuardianCommand(*cmd);
-        });
-  } else {
     control_command_reader_ = node_->CreateReader<ControlCommand>(
         control_cmd_reader_config,
         [this](const std::shared_ptr<ControlCommand> &cmd) {
           ADEBUG << "Received control data: run canbus callback.";
           OnControlCommand(*cmd);
         });
-  }
 
   chassis_writer_ = node_->CreateWriter<Chassis>(FLAGS_chassis_topic);
 
@@ -221,11 +206,6 @@ void CanbusComponent::OnControlCommand(const ControlCommand &control_command) {
     return;
   }
   can_sender_.Update();
-}
-
-void CanbusComponent::OnGuardianCommand(
-    const GuardianCommand &guardian_command) {
-  OnControlCommand(guardian_command.control_command());
 }
 
 common::Status CanbusComponent::OnError(const std::string &error_msg) {

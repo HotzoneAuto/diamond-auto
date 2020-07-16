@@ -35,14 +35,14 @@ void Id0x0c08a7f08c08a7f0::Parse(const std::uint8_t* bytes, int32_t length,
   chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_fmottq(fmottq(bytes, length));
   chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_fmotspd(fmotspd(bytes, length));
   chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_fmotcur(fmotcur(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts1(bymcusts1(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  // chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcusts(bymcusts(bytes, length));
   chassis->mutable_diamond()->mutable_id_0x0c08a7f0_8c08a7f0()->set_bymcu1msglife1(bymcu1msglife1(bytes, length));
 }
 
@@ -89,7 +89,7 @@ double Id0x0c08a7f08c08a7f0::fmotcur(const std::uint8_t* bytes, int32_t length) 
 }
 
 // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 48, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+bool Id0x0c08a7f08c08a7f0::bymcusts1(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 6);
   int32_t x = t0.get_byte(0, 1);
 
@@ -97,68 +97,68 @@ bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) c
   return ret;
 }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 49, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(1, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 49, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(1, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 50, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(2, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 50, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(2, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 51, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(3, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 51, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(3, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 52, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(4, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 52, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(4, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 53, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(5, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 53, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(5, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 54, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(6, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 54, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(6, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
-// config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 55, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
-bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 6);
-  int32_t x = t0.get_byte(7, 1);
+// // config detail: {'name': 'bymcusts', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 55, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+// bool Id0x0c08a7f08c08a7f0::bymcusts(const std::uint8_t* bytes, int32_t length) const {
+//   Byte t0(bytes + 6);
+//   int32_t x = t0.get_byte(7, 1);
 
-  bool ret = x;
-  return ret;
-}
+//   bool ret = x;
+//   return ret;
+// }
 
 // config detail: {'name': 'bymcu1msglife1', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 56, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
 int Id0x0c08a7f08c08a7f0::bymcu1msglife1(const std::uint8_t* bytes, int32_t length) const {

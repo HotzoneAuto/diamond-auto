@@ -209,6 +209,7 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
   AINFO << "Switch to AUTO_STEER_ONLY mode ok.";
   return ErrorCode::OK;
   */
+    return ErrorCode::OK;
 }
 
 ErrorCode DiamondController::EnableSpeedOnlyMode() {
@@ -234,6 +235,7 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
   AINFO << "Switch to AUTO_SPEED_ONLY mode ok.";
   return ErrorCode::OK;
   */
+    return ErrorCode::OK;
 }
 
 // NEUTRAL, REVERSE, DRIVE
