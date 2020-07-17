@@ -1,0 +1,17 @@
+name: Diamond
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: cyber start 
+      run: bash docker/scripts/cyber_start.sh
+    # - name: cyber into 
+      # run: bash docker/scripts/cyber_into.sh
+    - name: build 
+      run: docker exec -u $USER apollo_cyber_$USER bash -c "./apollo.sh build"
