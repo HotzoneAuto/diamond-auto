@@ -8,6 +8,6 @@ max_range: 100.0
 min_range: 2.0
 max_angle: 360
 min_angle: 0
-dev_ip: "192.168.1.205"
-msop_port: 6695
-difop_port: 7785
+dev_ip: "192.168.1.200"
+msop_port: 6699
+difop_port: 7788
