@@ -19,11 +19,11 @@
 #include <memory>
 #include <string>
 
+#include "modules/drivers/velodyne/driver/rsinput.h"
+#include "modules/drivers/velodyne/driver/rslidar_decoder.h"
 #include "modules/drivers/velodyne/driver/socket_input.h"
 #include "modules/drivers/velodyne/proto/config.pb.h"
 #include "modules/drivers/velodyne/proto/velodyne.pb.h"
-#include "modules/drivers/velodyne/driver/rslidar_decoder.h"
-#include "modules/drivers/velodyne/driver/rsinput.h"
 namespace apollo {
 namespace drivers {
 namespace velodyne {
@@ -89,12 +89,13 @@ class RSDriver : public VelodyneDriver {
 
   void Init() override;
   bool RSPoll(const std::shared_ptr<PointCloud> &pc);
-private:
+
+ private:
   std::unique_ptr<rslidar_driver::Input> rsinput_ = nullptr;
   robosense::rslidar::ST_Param param_;
   int GeneratePointCloud(rslidar_driver::rslidarPacket pkt,
-                                 const std::shared_ptr<PointCloud>& pc);
-  std::shared_ptr<robosense::rslidar::RSLidarDecoder> decoder_=nullptr;
+                         const std::shared_ptr<PointCloud> &pc);
+  std::shared_ptr<robosense::rslidar::RSLidarDecoder> decoder_ = nullptr;
 };
 
 class VelodyneDriverFactory {

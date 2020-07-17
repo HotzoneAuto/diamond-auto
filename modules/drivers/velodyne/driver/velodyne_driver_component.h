@@ -21,10 +21,10 @@
 
 #include "cyber/cyber.h"
 
+#include "modules/drivers/proto/pointcloud.pb.h"
 #include "modules/drivers/velodyne/driver/driver.h"
 #include "modules/drivers/velodyne/proto/config.pb.h"
 #include "modules/drivers/velodyne/proto/velodyne.pb.h"
-#include "modules/drivers/proto/pointcloud.pb.h"
 namespace apollo {
 namespace drivers {
 namespace velodyne {
@@ -53,8 +53,7 @@ class VelodyneDriverComponent : public Component<> {
   std::shared_ptr<apollo::cyber::Writer<VelodyneScan>> writer_;
   std::shared_ptr<apollo::cyber::Writer<PointCloud>> RSwriter_;
   bool rs_lidar_ = 0;
-  std::shared_ptr<PointCloud> pointcloud_=nullptr;
-
+  std::shared_ptr<PointCloud> pointcloud_ = nullptr;
 };
 
 CYBER_REGISTER_COMPONENT(VelodyneDriverComponent)

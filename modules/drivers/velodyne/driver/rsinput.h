@@ -25,80 +25,76 @@
  */
 #pragma once
 
-#include <unistd.h>
-#include <stdio.h>
-#include <netinet/in.h>
-#include <string>
-#include <sstream>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <poll.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/file.h>
+#include <netinet/in.h>
+#include <poll.h>
 #include <signal.h>
-#include "modules/drivers/velodyne/proto/config.pb.h"
+#include <stdio.h>
+#include <sys/file.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <sstream>
+#include <string>
 #include "cyber/cyber.h"
-namespace rslidar_driver
-{
-  struct rslidarPacket {
-    double stamp;
-    uint8_t data[1248];
-  };
- 
-  /* input result error code define */
-  enum E_INPUT_STATE
-  {
-    E_OK = 0,
-    E_ERROR_INVALID_PARAM = 1,
-    E_ERROR_SOCKET = 2,
-    E_ERROR_PKT_LEN = 4,
-    E_PKT_MSOP = 8,
-    E_PKT_DIFOP = 16,
-    E_PCAP_EMPTY = 32,
-    E_PCAP_REPEAT = 64,
-    E_MAX
-  };
+#include "modules/drivers/velodyne/proto/config.pb.h"
+namespace rslidar_driver {
+struct rslidarPacket {
+  double stamp;
+  uint8_t data[1248];
+};
+
+/* input result error code define */
+enum E_INPUT_STATE {
+  E_OK = 0,
+  E_ERROR_INVALID_PARAM = 1,
+  E_ERROR_SOCKET = 2,
+  E_ERROR_PKT_LEN = 4,
+  E_PKT_MSOP = 8,
+  E_PKT_DIFOP = 16,
+  E_PCAP_EMPTY = 32,
+  E_PCAP_REPEAT = 64,
+  E_MAX
+};
 
 /*****************************************************************
  * @name class Input
  * @brief input base class, get packet of RSLiDAR from live or pcap file
  */
-class Input
-{
-public:
-  Input(apollo::drivers::velodyne::Config config_);//, uint16_t port);
+class Input {
+ public:
+  Input(apollo::drivers::velodyne::Config config_);  //, uint16_t port);
 
-  virtual ~Input()
-  {
-  }
+  virtual ~Input() {}
 
-  virtual E_INPUT_STATE getPacket(rslidarPacket* pkt, const unsigned int timeout) = 0;
+  virtual E_INPUT_STATE getPacket(rslidarPacket* pkt,
+                                  const unsigned int timeout) = 0;
 
-protected:
+ protected:
   apollo::drivers::velodyne::Config config_;
   uint16_t msop_port_;
   uint16_t difop_port_;
   std::string dev_ip_;
 };
 
-
 /*****************************************************
  * @name class InputSocket
  * @brief Live rslidar input from socket.
  ****************************************************/
-class InputSocket : public Input
-{
-public:
+class InputSocket : public Input {
+ public:
   InputSocket(apollo::drivers::velodyne::Config config);
 
   virtual ~InputSocket();
 
-  virtual E_INPUT_STATE getPacket(rslidarPacket* pkt, const unsigned int timeout);
+  virtual E_INPUT_STATE getPacket(rslidarPacket* pkt,
+                                  const unsigned int timeout);
 
-private:
-  int setupSocket(const std::string & ip, const uint16_t port);
-private:
+ private:
+  int setupSocket(const std::string& ip, const uint16_t port);
+
+ private:
   int msop_fd_;
   int difop_fd_;
   in_addr dev_addr_;
@@ -109,5 +105,4 @@ private:
  * @brief rslidar input from PCAP dump file.
  ****************************************************/
 
-}
-
+}  // namespace rslidar_driver

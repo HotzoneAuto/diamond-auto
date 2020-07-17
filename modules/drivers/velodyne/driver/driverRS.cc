@@ -31,7 +31,7 @@ void RSDriver::Init() {
   else
     param_.lidar = RS_Type_Lidar16;
   param_.resolution = RS_Resolution_5mm;
- // param_.intensity = robosense::rslidar::RS_INTENSITY_EXTERN;
+  // param_.intensity = robosense::rslidar::RS_INTENSITY_EXTERN;
   param_.echo = RS_Echo_Strongest;
   param_.cut_angle = 0;
   param_.max_distance = config_.max_range();
@@ -48,7 +48,7 @@ void RSDriver::Init() {
 bool RSDriver::RSPoll(const std::shared_ptr<PointCloud>& pc) {
   // Allocate a new shared pointer for zero-copy sharing with other nodelets.
   pc->set_is_dense(false);
-   // TODO;
+  // TODO;
   if (config_.model() == RS32)
     pc->set_height(32);
   else
@@ -104,16 +104,17 @@ bool RSDriver::RSPoll(const std::shared_ptr<PointCloud>& pc) {
 }
 int RSDriver::GeneratePointCloud(rslidar_driver::rslidarPacket pkt,
                                  const std::shared_ptr<PointCloud>& pc) {
-  double timestamp;                                 
-  int ret = decoder_->processMsopPkt(pkt.data , pc, timestamp);
+  double timestamp;
+  int ret = decoder_->processMsopPkt(pkt.data, pc, timestamp);
   int size = pc->point_size();
   if (size == 0) {
     // we discard this pointcloud if empty
     AERROR << "All points is NAN! Please check velodyne:" << config_.model();
   } else {
     pc->set_measurement_time(pc->mutable_header()->timestamp_sec());
-    pc->set_width(pc->point_size()/pc->height());  
-    pc->mutable_header()->set_lidar_timestamp(pc->mutable_header()->timestamp_sec());
+    pc->set_width(pc->point_size() / pc->height());
+    pc->mutable_header()->set_lidar_timestamp(
+        pc->mutable_header()->timestamp_sec());
   }
   return ret;
 }

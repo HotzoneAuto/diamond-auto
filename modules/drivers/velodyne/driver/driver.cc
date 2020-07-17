@@ -149,8 +149,10 @@ int VelodyneDriver::PollStandard(std::shared_ptr<VelodyneScan> scan) {
       // keep reading until full packet received
       VelodynePacket* packet = scan->add_firing_pkts();
       int rc = input_->get_firing_data_packet(packet);
-//      AINFO<<"sync_count "<<sync_counter<<"last count "<<last_count_<<"rc "<<rc;
-//      AINFO<<"NPACKETS "<<config_.npackets()<<"firing packets "<<scan->firing_pkts_size();
+      //      AINFO<<"sync_count "<<sync_counter<<"last count
+      //      "<<last_count_<<"rc "<<rc; AINFO<<"NPACKETS
+      //      "<<config_.npackets()<<"firing packets
+      //      "<<scan->firing_pkts_size();
       if (rc == 0) {
         break;  // got a full packet?
       } else if (rc < 0) {
@@ -182,10 +184,10 @@ void VelodyneDriver::PollPositioningPacket(void) {
       nmea_time->hour = static_cast<uint16_t>(current_time.tm_hour);
       nmea_time->min = static_cast<uint16_t>(current_time.tm_min);
       nmea_time->sec = static_cast<uint16_t>(current_time.tm_sec);
-//      AINFO << "Get NMEA Time from local time :"
-//            << "year:" << nmea_time->year << "mon:" << nmea_time->mon
-//            << "day:" << nmea_time->day << "hour:" << nmea_time->hour
- //           << "min:" << nmea_time->min << "sec:" << nmea_time->sec;
+      //      AINFO << "Get NMEA Time from local time :"
+      //            << "year:" << nmea_time->year << "mon:" << nmea_time->mon
+      //            << "day:" << nmea_time->day << "hour:" << nmea_time->hour
+      //           << "min:" << nmea_time->min << "sec:" << nmea_time->sec;
     } else {
       while (!cyber::IsShutdown()) {
         int rc = positioning_input_->get_positioning_data_packet(nmea_time);
@@ -290,7 +292,9 @@ VelodyneDriver* VelodyneDriverFactory::CreateDriver(const Config& config) {
   }
   return driver;
 }
- bool VelodyneDriver::RSPoll(const std::shared_ptr<PointCloud> &pc) {return true;}
+bool VelodyneDriver::RSPoll(const std::shared_ptr<PointCloud>& pc) {
+  return true;
+}
 }  // namespace velodyne
 }  // namespace drivers
 }  // namespace apollo

@@ -64,19 +64,19 @@ bool PriSecFusionComponent::Proc(
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
   }
-  if (target->header().frame_id()=="robosense32")  //delete point in vehicle front
+  if (target->header().frame_id() ==
+      "robosense32")  // delete point in vehicle front
   {
-    //AINFO<<"GET ROBOSENSE32 SIZE"<<target->point_size();
-    for (int i=0;i< target->point_size();i++ ) {
-      auto point= target->mutable_point(i);
-      if (point->x()<2.5 && point->x()>0 && point->y()<1 && point->y()>-1)
-      {
-       // AINFO<<"point "<<point->x()<<" "<<point->y()<<" "<<point->z();
+    // AINFO<<"GET ROBOSENSE32 SIZE"<<target->point_size();
+    for (int i = 0; i < target->point_size(); i++) {
+      auto point = target->mutable_point(i);
+      if (point->x() < 2.5 && point->x() > 0 && point->y() < 1 &&
+          point->y() > -1) {
+        // AINFO<<"point "<<point->x()<<" "<<point->y()<<" "<<point->z();
         point->set_x(nan);
         point->set_y(nan);
         point->set_z(nan);
         point->set_intensity(nan);
-        
       }
     }
   }

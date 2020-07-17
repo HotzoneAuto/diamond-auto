@@ -14,36 +14,30 @@
  */
 #include "rsdriver.h"
 
-namespace rslidar_driver
-{
+namespace rslidar_driver {
 /****************************************************
  * @name rslidarDriver
  * @brief constructor
  * @param node
  * @param private_nh
  ***************************************************/
-rslidarDriver::rslidarDriver(ros::NodeHandle node, ros::NodeHandle private_nh)
-{
-    // read data from live socket
-    this->input_handler_.reset(new rslidar_driver::InputSocket(private_nh));
+rslidarDriver::rslidarDriver(ros::NodeHandle node, ros::NodeHandle private_nh) {
+  // read data from live socket
+  this->input_handler_.reset(new rslidar_driver::InputSocket(private_nh));
 }
-
 
 /*********************************************************
  * @name poll
  * @brief get packets mainloop
  * @return true unless end of file reached
  *********************************************************/
-bool rslidarDriver::poll(void)
-{
+bool rslidarDriver::poll(void) {
   rslidar_msgs::rslidarPacketPtr packet_ptr(new rslidar_msgs::rslidarPacket);
 
-  while (1)
-  {
+  while (1) {
     rslidar_msgs::rslidarPacket packet_msg;
     E_INPUT_STATE ret = this->input_handler_->getPacket(&packet_msg, 100);
-    switch (ret)
-    {
+    switch (ret) {
       case E_ERROR_INVALID_PARAM:
         ROS_ERROR("[driver] invalid param");
         break;
@@ -62,7 +56,7 @@ bool rslidarDriver::poll(void)
         this->difop_pub_.publish(packet_ptr);
         break;
       case E_PCAP_EMPTY:
-//        ROS_ERROR("[driver] pcap filter no match");
+        //        ROS_ERROR("[driver] pcap filter no match");
         break;
       case E_PCAP_REPEAT:
         ROS_INFO("[driver] pcap repeat");

@@ -24,7 +24,7 @@
 // Eigen 3.3.7: #define ALIVE (0)
 // fastrtps: enum ChangeKind_t { ALIVE, ... };
 #if defined(ALIVE)
-#   undef ALIVE
+#undef ALIVE
 #endif
 
 #include "modules/drivers/proto/pointcloud.pb.h"
