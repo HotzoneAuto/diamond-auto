@@ -141,8 +141,37 @@ Chassis DiamondController::chassis() {
 
   // 3
   chassis_.set_engine_started(true);
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  */
+  
+  // 4 Motor torque nm
+  if (chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().has_fmottq()) {
+    chassis_.set_motor_torque_nm(static_cast<float>(
+        chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().fmottq()));
+  } else {
+    chassis_.set_motor_torque_nm(0);
+  }
+
+  // 5
+  // TODO(zongbao): compute speed respect to motor torque
+  // if (chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().has_fmottq()) {
+  //       auto speed = 0.1 * chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().fmottq()
+  //       chassis_.set_speed_mps(static_cast<float>(
+  //       chassis_detail.gem().vehicle_speed_rpt_6f().vehicle_speed()));
+  // } else {
+  //   chassis_.set_speed_mps(0);
+  // }
+
+  // 7
+  chassis_.set_fuel_range_m(0);
+
+  // 8 engine rpm respect to motor speed by rpm
+  if (chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().has_fmotspd()) {
+    chassis_.set_engine_rpm(
+        static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().fmotspd()));
+  } else {
+    chassis_.set_engine_rpm(0);
+  }
+
+
   return chassis_;
 }
 
@@ -156,11 +185,25 @@ ErrorCode DiamondController::EnableAutoMode() {
     AINFO << "already in COMPLETE_AUTO_DRIVE mode";
     return ErrorCode::OK;
   }
-  return ErrorCode::OK;
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  brake_60_->set_enable();
-  throttle_62_->set_enable();
-  steering_64_->set_enable();
+
+  // Driver Motor TODO(zongbao): test on board
+  id_0x0c19f0a7_8c19f0a7_->set_bymot1workmode(true);
+
+  // Steering Motor
+  // DC/DC 
+  id_0x0c079aa7_8c079aa7_->set_bydcdccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_bydcaccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_bydcacwkst(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_byeapcmd(0x55);
+
+  // DC/DC 
+  id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_bydcac2wkst(0x55);
+
 
   can_sender_->Update();
   const int32_t flag =
@@ -174,7 +217,6 @@ ErrorCode DiamondController::EnableAutoMode() {
   set_driving_mode(Chassis::COMPLETE_AUTO_DRIVE);
   AINFO << "Switch to COMPLETE_AUTO_DRIVE mode ok.";
   return ErrorCode::OK;
-  */
 }
 
 ErrorCode DiamondController::DisableAutoMode() {
@@ -193,10 +235,20 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
     AINFO << "Already in AUTO_STEER_ONLY mode.";
     return ErrorCode::OK;
   }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  brake_60_->set_disable();
-  throttle_62_->set_disable();
-  steering_64_->set_enable();
+  // Steering Motor
+  // DC/DC 
+  id_0x0c079aa7_8c079aa7_->set_bydcdccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_bydcaccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_bydcacwkst(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_byeapcmd(0x55);
+
+  // DC/DC 
+  id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_8c079aa7_->set_bydcac2wkst(0x55);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, true)) {
@@ -208,8 +260,6 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
   set_driving_mode(Chassis::AUTO_STEER_ONLY);
   AINFO << "Switch to AUTO_STEER_ONLY mode ok.";
   return ErrorCode::OK;
-  */
-    return ErrorCode::OK;
 }
 
 ErrorCode DiamondController::EnableSpeedOnlyMode() {
@@ -219,10 +269,8 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
     AINFO << "Already in AUTO_SPEED_ONLY mode";
     return ErrorCode::OK;
   }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  brake_60_->set_enable();
-  throttle_62_->set_enable();
-  steering_64_->set_disable();
+  // Driver Motor TODO(zongbao): test on board
+  id_0x0c19f0a7_8c19f0a7_->set_bymot1workmode(true);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, true)) {
@@ -234,8 +282,6 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
   set_driving_mode(Chassis::AUTO_SPEED_ONLY);
   AINFO << "Switch to AUTO_SPEED_ONLY mode ok.";
   return ErrorCode::OK;
-  */
-    return ErrorCode::OK;
 }
 
 // NEUTRAL, REVERSE, DRIVE
@@ -310,9 +356,9 @@ void DiamondController::Throttle(double pedal) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  throttle_62_->set_pedal(pedal);
-  */
+
+  // Driver Motor target tarque TODO(zongbao): test on board
+  id_0x0c19f0a7_8c19f0a7_->set_fmot1targettq(pedal * 50);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
@@ -409,8 +455,6 @@ void DiamondController::ResetProtocol() {
 }
 
 bool DiamondController::CheckChassisError() {
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  */
   return false;
 }
 
@@ -482,9 +526,7 @@ void DiamondController::SecurityDogThreadFunc() {
 }
 
 bool DiamondController::CheckResponse(const int32_t flags, bool need_wait) {
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  */
-  return false;
+  return true;
 }
 
 void DiamondController::set_chassis_error_mask(const int32_t mask) {

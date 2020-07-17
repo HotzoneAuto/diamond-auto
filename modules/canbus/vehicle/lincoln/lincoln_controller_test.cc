@@ -45,7 +45,6 @@ class LincolnControllerTest : public ::testing::Test {
     control_cmd_.set_throttle(20.0);
     control_cmd_.set_brake(0.0);
     control_cmd_.set_steering_rate(80.0);
-    control_cmd_.set_horn(false);
   }
 
  protected:

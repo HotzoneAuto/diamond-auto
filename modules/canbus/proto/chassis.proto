@@ -124,6 +124,10 @@ message Chassis {
   // replace this [id 23]
 
   optional apollo.common.VehicleID vehicle_id = 33;
+  
+  // Applied MOTOR torque in [Nm].
+  optional float motor_torque_nm = 34 [default = nan];
+
 }
 
 message ChassisGPS {
