@@ -9,6 +9,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: agree diamond
+      run: cp scripts/AGREEMENT.txt ${HOME}/.apollo_agreement.txt
     - name: cyber start 
       run: bash docker/scripts/cyber_start.sh
     # - name: cyber into 
