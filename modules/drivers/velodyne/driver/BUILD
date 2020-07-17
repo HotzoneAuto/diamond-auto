@@ -3,7 +3,7 @@ load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
 
-cc_library(
+cc_binary(
     name = "libvelodyne_driver_component.so",
     linkopts = ["-shared"],
     linkstatic = False,
