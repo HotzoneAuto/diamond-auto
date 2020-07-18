@@ -9,11 +9,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: agree diamond
+    - name: Signed Diamond Agreement
       run: cp scripts/AGREEMENT.txt ${HOME}/.apollo_agreement.txt
-    - name: cyber start 
+    - name: Pull and Create Container
       run: bash docker/scripts/cyber_start.sh
     # - name: cyber into 
       # run: bash docker/scripts/cyber_into.sh
-    - name: build 
+    - name: Build
       run: docker exec -u $USER apollo_cyber_$USER bash -c "./apollo.sh build"
