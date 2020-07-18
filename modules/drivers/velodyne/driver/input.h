@@ -22,7 +22,6 @@
 
 #include "cyber/cyber.h"
 
-// #include "velodyne_msgs/VelodyneScanUnified.h"
 #include "modules/drivers/velodyne/proto/velodyne.pb.h"
 
 namespace apollo {

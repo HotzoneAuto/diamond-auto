@@ -19,8 +19,6 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
-//#ifndef ROBOSENSE_RSLIDAR_DECODER_H
-//#define ROBOSENSE_RSLIDAR_DECODER_H
 
 #pragma once
 
@@ -143,5 +141,3 @@ class RSLidarDecoder {
 
 }  // namespace rslidar
 }  // namespace robosense
-
-//#endif //ROBOSENSE_RSLIDAR_RSLIDAR_DECODER_H

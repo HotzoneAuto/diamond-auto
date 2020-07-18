@@ -19,8 +19,6 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
-#ifndef ROBOSENSE_RSLIDAR_PACKET_H
-#define ROBOSENSE_RSLIDAR_PACKET_H
 
 #pragma once
 
@@ -265,5 +263,3 @@ typedef struct {
 
 }  // namespace rslidar
 }  // namespace robosense
-
-#endif  // ROBOSENSE_RSLIDAR_RSLIDAR_PACKET_H
