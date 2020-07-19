@@ -1,32 +1,32 @@
 # system utils
-supervisor
+#supervisor
 
 # Google infras
-absl-py
-glog
-grpcio-tools
+#absl-py
+#glog
+#grpcio-tools
 protobuf
-python-gflags
+#python-gflags
 
 # Web
-flask
-flask-cors
-requests
-simplejson
+#flask
+#flask-cors
+#requests
+#simplejson
 
 # ROS env
 PyYAML
 
 # Python tools
-pyproj
-shapely
+#pyproj
+#shapely
 
 # Data format
-h5py
-utm
+#h5py
+#utm
 
 # Audio
-pyalsaaudio
+# pyalsaaudio
 
 # Learning
-opencv-python
+#opencv-python
