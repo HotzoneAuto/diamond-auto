@@ -1,0 +1,15 @@
+module_config{
+    module_library: "path of public library"
+    components{
+        class_name: "LPMSDriverComponent"
+        config{
+            name:"LPMS"
+            config_file_path:
+            readers:[(receivers defined in "LPMSDriverComponent::Proc()")
+                {
+                    channel:
+                }
+            ]
+        }
+    }
+}
