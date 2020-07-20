@@ -1,0 +1,24 @@
+vehicle_param {
+  brand: DIAMOND
+  front_edge_to_center: 6.00
+  back_edge_to_center: 6.00
+  left_edge_to_center: 1.9
+  right_edge_to_center: 1.9
+
+  length: 12.00
+  width: 3.80
+  height: 1.00
+  min_turn_radius: 5.26
+  max_acceleration: 1.18
+  max_deceleration: -4.5
+  max_steer_angle: 360.0
+  max_steer_angle_rate: 4
+  min_steer_angle_rate: 0
+  steer_ratio: 23
+  wheel_base: 2.565
+  wheel_rolling_radius: 0.275
+  max_abs_speed_when_stopped: 0.15
+
+  brake_deadzone: 0.0
+  throttle_deadzone: 0.0
+}

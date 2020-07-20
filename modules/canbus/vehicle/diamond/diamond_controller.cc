@@ -384,11 +384,11 @@ void DiamondController::Steer(double angle) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  // const double real_angle = params_.max_steer_angle() * angle / 100.0;
+  const double real_angle = 360.0 * angle / 100.0;
   // reverse sign
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  steering_64_->set_steering_angle(real_angle)->set_steering_angle_speed(200);
-  */
+  id_0x0c089aa7_8c089aa7_->set_bydcacdir(real_angle);
+
+  id_0x0c089aa7_8c089aa7_->set_bydcac2dir(real_angle);
 }
 
 // steering with new angle speed
@@ -400,14 +400,14 @@ void DiamondController::Steer(double angle, double angle_spd) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  const double real_angle = params_.max_steer_angle() * angle / 100.0;
-  const double real_angle_spd = ProtocolData::BoundedValue(
-      params_.min_steer_angle_spd(), params_.max_steer_angle_spd(),
-      params_.max_steer_angle_spd() * angle_spd / 100.0);
-  steering_64_->set_steering_angle(real_angle)
-      ->set_steering_angle_speed(real_angle_spd);
-  */
+  const double real_angle = 360 * angle / 100.0;
+  const double real_angle_spd = angle_spd / 100.0;
+ 
+ id_0x0c089aa7_8c089aa7_->set_bydcacdir(real_angle);
+ id_0x0c089aa7_8c089aa7_->set_fdcactargspd(real_angle_spd);
+
+ id_0x0c089aa7_8c089aa7_->set_bydcac2dir(real_angle);
+ id_0x0c089aa7_8c089aa7_->set_fdcac2targspd(real_angle_spd);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
