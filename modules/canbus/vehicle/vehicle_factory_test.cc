@@ -34,12 +34,6 @@ class VehicleFactoryTest : public ::testing::Test {
 TEST_F(VehicleFactoryTest, CreateVehicle) {
   VehicleParameter parameter;
 
-  parameter.set_brand(apollo::common::GEM);
-  EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
-
-  parameter.set_brand(apollo::common::LINCOLN_MKZ);
-  EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
-
   parameter.set_brand(apollo::common::DIAMOND);
   EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
 

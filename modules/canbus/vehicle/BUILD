@@ -42,9 +42,9 @@ cc_library(
     hdrs = ["vehicle_factory.h"],
     copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
-        "//modules/canbus/vehicle/lincoln:lincoln_vehicle_factory",
+        # "//modules/canbus/vehicle/lincoln:lincoln_vehicle_factory",
         "//modules/canbus/vehicle/diamond:diamond_vehicle_factory",
-        "//modules/canbus/vehicle/gem:gem_vehicle_factory",
+        # "//modules/canbus/vehicle/gem:gem_vehicle_factory",
         "//modules/common/util:factory",
     ],
 )
