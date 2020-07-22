@@ -1,0 +1,7 @@
+<cyber>
+    <module>
+        <name>robosense</name>
+        <dag_conf>/apollo/modules/drivers/velodyne/dag/robosense.dag</dag_conf>
+        <process_name>robosense</process_name>
+    </module>
+</cyber>

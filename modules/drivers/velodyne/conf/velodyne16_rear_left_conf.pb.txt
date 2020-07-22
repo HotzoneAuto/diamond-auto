@@ -1,5 +1,5 @@
 frame_id: "velodyne16_rear_left"
-scan_channel: "/apollo/sensor/lidar16/rear/left/Scan"
+scan_channel: "/diamond/sensor/lidar16/rear/left/Scan"
 rpm: 600.0
 model: VLP16
 mode: STRONGEST
@@ -13,6 +13,6 @@ use_gps_time: false
 calibration_online: false
 calibration_file: "/apollo/modules/drivers/velodyne/params/VLP16_calibration.yaml"
 organized: false
-convert_channel_name: "/apollo/sensor/lidar16/rear/left/PointCloud2"
+convert_channel_name: "/diamond/sensor/lidar16/rear/left/PointCloud2"
 use_poll_sync: false
 is_main_frame: false

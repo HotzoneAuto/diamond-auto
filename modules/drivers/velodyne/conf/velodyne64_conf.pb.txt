@@ -1,5 +1,5 @@
 frame_id: "velodyne64"
-scan_channel: "/apollo/sensor/lidar64/Scan"
+scan_channel: "/diamond/sensor/lidar64/Scan"
 rpm: 600.0
 model: HDL64E_S3D
 mode: STRONGEST

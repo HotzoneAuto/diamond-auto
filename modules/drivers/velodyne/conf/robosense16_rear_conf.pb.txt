@@ -1,5 +1,5 @@
 frame_id: "robosense16_rear"
-convert_channel_name: "/apollo/sensor/lidar/rear/PointCloud2"
+convert_channel_name: "/diamond/sensor/lidar/rear/PointCloud2"
 scan_channel: "/apollo/sensor/robosense16_rear/scan"
 rpm: 600.0
 model: RS16
