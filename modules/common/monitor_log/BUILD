@@ -20,6 +20,7 @@ cc_library(
         "//modules/common/proto:geometry_cc_proto",
         "//modules/common/time",
         "//modules/common/util:message_util",
+        "//modules/common/adapters:adapter_gflags",
         "@com_google_googletest//:gtest",
     ],
 )

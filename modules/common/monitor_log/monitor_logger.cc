@@ -19,6 +19,8 @@
 
 #include "absl/strings/str_cat.h"
 
+#include "modules/common/adapters/adapter_gflags.h"
+
 namespace apollo {
 namespace common {
 namespace monitor {
@@ -29,7 +31,7 @@ MonitorLogger::MonitorLogger() {
   node_ = cyber::CreateNode(node_name);
   if (node_ != nullptr) {
     monitor_msg_writer_ =
-        node_->CreateWriter<MonitorMessage>("/apollo/monitor");
+        node_->CreateWriter<MonitorMessage>(FLAGS_monitor_log_topic);
   }
 }
 

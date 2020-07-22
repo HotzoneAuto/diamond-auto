@@ -130,3 +130,4 @@ DECLARE_string(recorder_status_topic);
 DECLARE_string(latency_recording_topic);
 // Latency reporting topic
 DECLARE_string(latency_reporting_topic);
+DECLARE_string(monitor_log_topic);

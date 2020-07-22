@@ -245,3 +245,5 @@ DEFINE_string(latency_recording_topic, "/diamond/common/latency_records",
               "Latency recording topic.");
 DEFINE_string(latency_reporting_topic, "/diamond/common/latency_reports",
               "Latency reporting topic.");
+
+DEFINE_string(monitor_log_topic, "/diamond/monitor", "monitor log topic.");
