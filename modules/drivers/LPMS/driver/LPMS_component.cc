@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
+#include "modules/drivers/LPMS/driver/LPMS_component.h"
 
 #include <memory>
 #include <string>
 #include <thread>
 
 #include "modules/common/util/message_util.h"
-#include "modules/drivers/LPMS/driver/LPMS_driver_component.h"
 
 namespace apollo {
 namespace drivers {
