@@ -24,7 +24,7 @@ namespace diamond {
 
 using ::apollo::drivers::canbus::Byte;
 
-const int32_t Id0x0c089aa78c089aa7::ID = 0x2c089aa7;
+const int32_t Id0x0c089aa78c089aa7::ID = 0x0c089aa7;
 
 // public
 Id0x0c089aa78c089aa7::Id0x0c089aa78c089aa7() { Reset(); }

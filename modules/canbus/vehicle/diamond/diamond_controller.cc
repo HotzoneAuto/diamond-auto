@@ -357,8 +357,7 @@ void DiamondController::Throttle(double pedal) {
     return;
   }
 
-  // Driver Motor target tarque TODO(zongbao): test on board
-  id_0x0c19f0a7_8c19f0a7_->set_fmot1targettq(pedal * 50);
+  id_0x0c19f0a7_8c19f0a7_->set_fmot1targettq(pedal);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
