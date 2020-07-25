@@ -86,8 +86,8 @@ def extract_dbc_meta(dbc_file, out_file, car_type, black_list, sender_list,
                 protocol = {}
                 if int(items[1]) > MAX_CAN_ID:
                     continue
-                protocol["id"] = "%x" % int(items[1])
-                protocol["name"] = "%s_%s" % (p_name, protocol["id"])
+                protocol["id"] = "%s" % p_name[5:]
+                protocol["name"] = "%s" % protocol["id"]
                 protocol["sender"] = items[4]
                 if protocol["id"] in black_list:
                     continue
