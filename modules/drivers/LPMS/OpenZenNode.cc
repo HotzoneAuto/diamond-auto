@@ -38,9 +38,9 @@ public:
     std::shared_ptr<apollo::drivers::Imu> imu_writer_ = nullptr;
 
     // Service
-    ros::ServiceServer autocalibration_serv;
-    ros::ServiceServer gyrocalibration_serv;
-    ros::ServiceServer resetHeading_serv;
+    // ros::ServiceServer autocalibration_serv;
+    // ros::ServiceServer gyrocalibration_serv;
+    // ros::ServiceServer resetHeading_serv;
     
     // Parameters
     std::string m_sensorName;
@@ -86,14 +86,11 @@ public:
                     // IMU
                     auto const& d = event_value.data.imuData;
 
-                    sensor_msgs::Imu imu_msg;
-                    sensor_msgs::MagneticField mag_msg;
-
                     apollo::drivers::Imu imu;
 
                     auto header = imu->mutable_header();
 
-                    heade->set_timestamp(apollo::cyber::Time::Now().ToSecond());
+                    header->set_timestamp(apollo::cyber::Time::Now().ToSecond());
                     header->set_frame(param.frame_id);
 
                     // Fill orientation quaternion
@@ -126,8 +123,7 @@ public:
                     magnetic_field->set_z(d.b[2] * cMicroToTelsa);
 
                     // Publish the messages
-                    // param.imu_pub.publish(imu_msg);
-                    // param.mag_pub.publish(mag_msg);
+                    imu_writer_->Write(imu);
                 }
             }
                 
@@ -157,16 +153,9 @@ public:
         Services
         // autocalibration_serv = nh.advertiseService("enable_gyro_autocalibration", &OpenZenSensor::setAutocalibration, this);
         gyrocalibration_serv = nh.advertiseService("calibrate_gyroscope", &OpenZenSensor::calibrateGyroscope, this);
-        resetHeading_serv = nh.advertiseService("reset_heading", &OpenZenSensor::resetHeading, this);
+        // resetHeading_serv = nh.advertiseService("reset_heading", &OpenZenSensor::resetHeading, this);
 
-        auto server = node_->CreateService<Content, Content>("reset_heading", [](const std::shared_ptr<Content>& request,
-                        std::shared_ptr<Content>& response) {
-            AINFO << "server: i am driver server";
-            static uint64_t id = 0;
-            ++id;
-            response->set_success(true);
-            response->set_message(0);
-        });
+        auto server = node_->CreateService<Content, Content>("reset_heading", &OpenZenSensor::resetHeading, this);
 
 
         auto clientPair = zen::make_client();
@@ -455,6 +444,17 @@ int main(int argc, char *argv[])
 
     if (!lpOpenZen.run())
     {
+        auto client = node->CreateClient<Content, Content>("reset_heading");
+        auto request = std::make_shared<Content>();
+        request->set_success(false);
+        request->set_message('init');
+        auto res = client->SendRequest(request);
+
+        if (res != nullptr) {
+            AINFO << "client: responese: " << res->ShortDebugString();
+        } else {
+            AINFO << "client: service may not ready.";
+        }
         apollo::cyber::AsyncShutdown();
         return 1;
     }
