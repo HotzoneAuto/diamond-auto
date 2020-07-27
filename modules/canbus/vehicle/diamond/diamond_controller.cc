@@ -237,18 +237,18 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
   }
   // Steering Motor
   // DC/DC 
-  id_0x0c079aa7_8c079aa7_->set_bydcdccmd(0x55);
+  //id_0x0c079aa7_8c079aa7_->set_bydcdccmd(0x55);
   // DC/AC
   id_0x0c079aa7_8c079aa7_->set_bydcaccmd(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_bydcacwkst(0x55);
+  //id_0x0c079aa7_8c079aa7_->set_bydcacwkst(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_byeapcmd(0x55);
+  //id_0x0c079aa7_8c079aa7_->set_byeapcmd(0x55);
 
   // DC/DC 
   id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_bydcac2wkst(0x55);
+  //id_0x0c079aa7_8c079aa7_->set_bydcac2wkst(0x55);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, true)) {
@@ -357,8 +357,7 @@ void DiamondController::Throttle(double pedal) {
     return;
   }
 
-  // Driver Motor target tarque TODO(zongbao): test on board
-  id_0x0c19f0a7_8c19f0a7_->set_fmot1targettq(pedal * 50);
+  id_0x0c19f0a7_8c19f0a7_->set_fmot1targettq(pedal);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
@@ -384,11 +383,10 @@ void DiamondController::Steer(double angle) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  const double real_angle = 360.0 * angle / 100.0;
+  //const double real_angle = 360.0 * angle / 100.0;
   // reverse sign
-  id_0x0c089aa7_8c089aa7_->set_bydcacdir(real_angle);
-
-  id_0x0c089aa7_8c089aa7_->set_bydcac2dir(real_angle);
+  //id_0x0c079aa7_8c079aa7_->set_bydcaccmd(real_angle);
+  //id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(real_angle);
 }
 
 // steering with new angle speed
@@ -400,14 +398,10 @@ void DiamondController::Steer(double angle, double angle_spd) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  const double real_angle = 360 * angle / 100.0;
-  const double real_angle_spd = angle_spd / 100.0;
+  //const double real_angle = 360 * angle / 100.0;
  
- id_0x0c089aa7_8c089aa7_->set_bydcacdir(real_angle);
- id_0x0c089aa7_8c089aa7_->set_fdcactargspd(real_angle_spd);
-
- id_0x0c089aa7_8c089aa7_->set_bydcac2dir(real_angle);
- id_0x0c089aa7_8c089aa7_->set_fdcac2targspd(real_angle_spd);
+  //id_0x0c079aa7_8c079aa7_->set_bydcaccmd(real_angle);
+  //id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(real_angle);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {

@@ -28,7 +28,7 @@ namespace diamond {
 using ::apollo::drivers::canbus::Byte;
 
 Id0x0c08a7f08c08a7f0::Id0x0c08a7f08c08a7f0() {}
-const int32_t Id0x0c08a7f08c08a7f0::ID = 0x2c08a7f0;
+const int32_t Id0x0c08a7f08c08a7f0::ID = 0x0c08a7f0;
 
 void Id0x0c08a7f08c08a7f0::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {

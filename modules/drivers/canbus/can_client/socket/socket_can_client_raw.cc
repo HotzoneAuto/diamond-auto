@@ -79,11 +79,26 @@ ErrorCode SocketCanClientRaw::Start() {
 
   // 1. for non virtual busses, set receive message_id filter, ie white list
   if (interface_ != CANCardParameter::VIRTUAL) {
-    struct can_filter filter[2048];
-    for (int i = 0; i < 2048; ++i) {
+    struct can_filter filter[5];
+    /*for (int i = 0; i < 2048; ++i) {
       filter[i].can_id = 0x000 + i;
-      filter[i].can_mask = CAN_SFF_MASK;
-    }
+      filter[i].can_mask = CAN_EFF_MASK;
+    }*/
+
+    filter[0].can_id = 0x0C09A79B;
+    filter[0].can_mask = CAN_EFF_MASK;
+
+    filter[1].can_id = 0x0C0AA79C;
+    filter[1].can_mask = CAN_EFF_MASK;
+
+    filter[2].can_id = 0x0C09A7F0;
+    filter[2].can_mask = CAN_EFF_MASK;
+
+    filter[3].can_id = 0x0C08A7F0;
+    filter[3].can_mask = CAN_EFF_MASK;
+
+    filter[4].can_id = 0x0C0BA7F0;
+    filter[4].can_mask = CAN_EFF_MASK;
 
     ret = setsockopt(dev_handler_, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
                      sizeof(filter));
@@ -164,7 +179,7 @@ ErrorCode SocketCanClientRaw::Send(const std::vector<CanFrame> &frames,
              << CANBUS_MESSAGE_LENGTH << ").";
       return ErrorCode::CAN_CLIENT_ERROR_SEND_FAILED;
     }
-    send_frames_[i].can_id = frames[i].id;
+    send_frames_[i].can_id = CAN_EFF_FLAG | frames[i].id;
     send_frames_[i].can_dlc = frames[i].len;
     std::memcpy(send_frames_[i].data, frames[i].data, frames[i].len);
 
@@ -211,7 +226,7 @@ ErrorCode SocketCanClientRaw::Receive(std::vector<CanFrame> *const frames,
              << CANBUS_MESSAGE_LENGTH << ").";
       return ErrorCode::CAN_CLIENT_ERROR_RECV_FAILED;
     }
-    cf.id = recv_frames_[i].can_id;
+    cf.id = recv_frames_[i].can_id & CAN_EFF_MASK;
     cf.len = recv_frames_[i].can_dlc;
     std::memcpy(cf.data, recv_frames_[i].data, recv_frames_[i].can_dlc);
     frames->push_back(cf);
