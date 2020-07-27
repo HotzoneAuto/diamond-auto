@@ -40,7 +40,7 @@ BO_ 2365584295 ID_0x0CFFF3A7: 8 Vector__XXX
  SG_ byBatRlyOffCmd : 0|8@1+ (1,0) [0|255] "" Vector__XXX
  SG_ byBatRlyCmd : 8|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 2551763187 ID_0x1818D0F3: 8 Vector__XXX
+BO_ 2551763187 ID_0x1818D0F3: 8 Vector__XX
  SG_ fBatVolt : 0|16@1+ (0.1,-1000) [-1000|5553.5] "V" Vector__XXX
  SG_ fBatCur : 16|16@1+ (0.1,1000) [1000|7553.5] "A" Vector__XXX
  SG_ fBatSOC : 32|8@1+ (0.4,0) [0|102] "%" Vector__XXX
@@ -68,16 +68,16 @@ BO_ 2551763187 ID_0x1818D0F3: 8 Vector__XXX
  SG_ byBatInChrg : 62|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byBatFuseSts : 63|1@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 2551828723 ID_0x1819D0F3: 8 Vector__XXX
+BO_ 2551828723 ID_0x1819D0F3: 8 Vector__XX
  SG_ fBatMaxChrgCur : 0|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
  SG_ fBatMaxDsgCur : 16|16@1+ (0.1,-1000) [-1000|5553.5] "A" Vector__XXX
  SG_ byBatErrLevel : 32|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 2551894259 ID_0x181AD0F3: 8 Vector__XXX
- SG_ fPosInsRValue : 0|16@1+ (1,0) [0|65535] "k¦¸" Vector__XXX
- SG_ fNegInsRValue : 16|16@1+ (1,0) [0|65535] "k¦¸" Vector__XXX
+BO_ 2551894259 ID_0x181AD0F3: 8 Vector__XX
+ SG_ fPosInsRValue : 0|16@1+ (1,0) [0|65535] "k" Vector__XXX
+ SG_ fNegInsRValue : 16|16@1+ (1,0) [0|65535] "k" Vector__XXX
 
-BO_ 2551959795 ID_0x181BD0F3: 8 Vector__XXX
+BO_ 2551959795 ID_0x181BD0F3: 8 Vector__XX
  SG_ byVINRcvFlg : 0|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byFireExtinguiErr : 8|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byChrgSeatTempHigh : 9|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -87,10 +87,10 @@ BO_ 2551959795 ID_0x181BD0F3: 8 Vector__XXX
  SG_ byBatReqPowerOff : 13|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byRemainRlyNotOpenErr : 14|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byFireAlrm : 15|1@1+ (1,0) [0|1] "" Vector__XXX
- SG_ fChrgSeatTemp1 : 16|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
- SG_ fChrgSeatTemp2 : 24|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
- SG_ fChrgSeatTemp3 : 32|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
- SG_ fChrgSeatTemp4 : 40|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+ SG_ fChrgSeatTemp1 : 16|8@1+ (1,-40) [-40|215] "" Vector__XXX
+ SG_ fChrgSeatTemp2 : 24|8@1+ (1,-40) [-40|215] "" Vector__XXX
+ SG_ fChrgSeatTemp3 : 32|8@1+ (1,-40) [-40|215] "" Vector__XXX
+ SG_ fChrgSeatTemp4 : 40|8@1+ (1,-40) [-40|215] "" Vector__XXX
  SG_ byBatErrNum : 48|8@1+ (1,0) [0|255] "" Vector__XXX
  SG_ bySocJmpErr : 56|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byBatOverChrgErr : 57|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -101,15 +101,15 @@ BO_ 2551959795 ID_0x181BD0F3: 8 Vector__XXX
  SG_ byPantographRly : 62|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byInsRCommErr : 63|1@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 2552025331 ID_0x181CD0F3: 8 Vector__XXX
+BO_ 2552025331 ID_0x181CD0F3: 8 Vector__XX
  SG_ fBatRatedCap : 0|16@1+ (1,0) [0|65535] "AH" Vector__XXX
  SG_ fBatRatedVolt : 16|16@1+ (0.1,0) [0|6553.5] "V" Vector__XXX
 
-BO_ 2552090867 ID_0x181DD0F3: 8 Vector__XXX
- SG_ fBatMaxCellTemp : 0|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
- SG_ fBatMinCellTemp : 24|8@1+ (1,-40) [-40|215] "¡æ" Vector__XXX
+BO_ 2552090867 ID_0x181DD0F3: 8 Vector__XX
+ SG_ fBatMaxCellTemp : 0|8@1+ (1,-40) [-40|215] "" Vector__XXX
+ SG_ fBatMinCellTemp : 24|8@1+ (1,-40) [-40|215] "" Vector__XXX
 
-BO_ 2552156403 ID_0x181ED0F3: 8 Vector__XXX
+BO_ 2552156403 ID_0x181ED0F3: 8 Vector__XX
  SG_ byFuelBatCloseCmd : 32|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byParkChrgDisable : 33|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byVehTMSDcdcSts : 34|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -142,9 +142,18 @@ BO_ 2552156403 ID_0x181ED0F3: 8 Vector__XXX
  SG_ byBatChrgSignalErr : 61|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byBMSMode : 62|2@1+ (1,0) [0|3] "" Vector__XXX
 
-BO_ 2552221939 ID_0x181FD0F3: 8 Vector__XXX
+BO_ 2552221939 ID_0x181FD0F3: 8 Vector__XX
  SG_ byBatInsRChkErr : 16|8@1+ (1,0) [0|255] "" Vector__XXX
  SG_ byChrgerErr : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 2565579173 ID_0x18EBA1A5: 8 Vector__XX
+ SG_ byFireAlarmLevel : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ byFireExtinguiVehErr : 18|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2552615155 ID_0x1825D0F3: 8 Vector__XX
+ SG_ fBatMaxCellVolt : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ fBatMinCellVolt : 16|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ fBatAvrCellVolt : 32|16@1+ (1,0) [0|65535] "mV" Vector__XXX
 
 BO_ 2552287475 ID_0x1820D0F3  : 8 Vector__XXX
 
@@ -155,11 +164,6 @@ BO_ 2552418547 ID_0x1822D0F3: 8 Vector__XXX
 BO_ 2552484083 ID_0x1823D0F3: 8 Vector__XXX
 
 BO_ 2552549619 ID_0x1824D0F3 : 8 Vector__XXX
-
-BO_ 2552615155 ID_0x1825D0F3: 8 Vector__XXX
- SG_ fBatMaxCellVolt : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
- SG_ fBatMinCellVolt : 16|16@1+ (1,0) [0|65535] "mV" Vector__XXX
- SG_ fBatAvrCellVolt : 32|16@1+ (1,0) [0|65535] "mV" Vector__XXX
 
 BO_ 2552680691 ID_0x1826D0F3: 8 Vector__XXX
 
@@ -188,10 +192,6 @@ BO_ 2550212852 ID_0x180128F4: 8 Vector__XXX
 BO_ 2550278388 ID_0x180228F4: 8 Vector__XXX
 
 BO_ 2550343924 ID_0x180328F4: 8 Vector__XXX
-
-BO_ 2565579173 ID_0x18EBA1A5: 8 Vector__XXX
- SG_ byFireAlarmLevel : 8|8@1+ (1,0) [0|255] "" Vector__XXX
- SG_ byFireExtinguiVehErr : 18|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 2565579174 ID_0x18EBA1A6: 8 Vector__XXX
 

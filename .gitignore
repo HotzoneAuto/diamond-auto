@@ -38,6 +38,8 @@ nohup.out
 modules/tools/ota/update.ini
 modules/tools/ota/vehicle_info.pb.txt
 
+modules/tools/gen_vehicle_protocol/output*
+
 # Localization
 modules/localization/msf/local_map/test_data/ndt_map/map_data/
 
