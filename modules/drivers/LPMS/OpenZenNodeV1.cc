@@ -8,13 +8,6 @@
 //
 //===========================================================================//
 
-// #include "ros/ros.h"
-// #include "sensor_msgs/Imu.h"
-// #include "sensor_msgs/MagneticField.h"
-// #include "std_srvs/SetBool.h"
-// #include "std_srvs/Trigger.h"
-// #include "std_msgs/Bool.h"
-
 #include <memory>
 #include <string>
 
@@ -27,33 +20,28 @@
 #include "cyber/common/log.h"
 
 #include "modules/drivers/proto/imu.pb.h"
+#include "modules/drivers/imu/proto/service.pb.h"
+
+using apollo::drivers::LPMS::Content;
 
 class OpenZenSensor
 {
 public:
-    // Access to Cyber_RT node
-	std::shared_ptr<apollo::cyber::Node> node(
-		apollo::cyber::CreateNode("nh"));
-	std::shared_ptr<apollo::cyber::Node> node(
-		apollo::cyber::CreateNode("private_nh"));
-	cyber::Timer updateTimer(); // 定时器声明是否需要参数？
-	
-	// Writer nodes
-	std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("imu_pub"));
-	std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("mag_pub"));
-	std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("autocalibration_status_pub"));
-	  
-	// Server nodes
-	std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("autocalibration_serv"));
-	std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("gyrocalibration_serv"));
-	std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("resetHeading_serv"));
-	 
+    // Access to ROS node
+    // ros::NodeHandle nh, private_nh;
+
+    std::shared_ptr<apollo::cyber::Node> node_;
+
+    // Publisher
+    // ros::Publisher autocalibration_status_pub;
+
+    std::shared_ptr<apollo::drivers::Imu> imu_writer_ = nullptr;
+
+    // Service
+    // ros::ServiceServer autocalibration_serv;
+    // ros::ServiceServer gyrocalibration_serv;
+    // ros::ServiceServer resetHeading_serv;
+    
     // Parameters
     std::string m_sensorName;
     std::string m_sensorInterface;
@@ -61,15 +49,14 @@ public:
     int m_baudrate = 0;
 
 
-    OpenZenSensor(apollo::cyber::Node h): 
-        nh(h),
-        private_nh("~"), 
-        m_sensorThread( [](SensorThreadParams const& param) -> bool 
-		{
+    OpenZenSensor(apollo::cyber::Node node): 
+        node(node),
+        // private_nh("~"), 
+        m_sensorThread( [](SensorThreadParams const& param) -> bool {
+
             const float cDegToRad = 3.1415926f/180.0f;
             const float cEarthG = 9.81f;
             const float cMicroToTelsa = 1e-6f;
-			//单位换算涉及到cyber_RT和ros中物理量单位的区别
 
             auto event = param.zenClient->waitForNextEvent();
             auto have_event = event.first;
@@ -99,83 +86,78 @@ public:
                     // IMU
                     auto const& d = event_value.data.imuData;
 
-                    sensor_msgs::Imu imu_msg;
-                    sensor_msgs::MagneticField mag_msg;
-					
-					apollo::drivers::Imu imu;
-					auto header = imu->mutable_header();
+                    apollo::drivers::Imu imu;
 
-                    header->set_timestamp(cyber::Time::Now());
-					header->set_frame(param.frame_id);
+                    auto header = imu->mutable_header();
+
+                    header->set_timestamp(apollo::cyber::Time::Now().ToSecond());
+                    header->set_frame(param.frame_id);
 
                     // Fill orientation quaternion
-					auto orientation = imu->mutable_orientation();
+                    auto orientation = imu->mutable_orientation();
                     orientation->set_w(d.q[0]);
-                    orientation->set_w(-d.q[1]);
-                    orientation->set_w(d.q[2]);
-                    orientation->set_w(-d.q[3]);
+                    orientation->set_x(-d.q[1]);
+                    orientation->set_y(-d.q[2]);
+                    orientation->set_z(-d.q[3]);
 
                     // Fill angular velocity data
                     // - scale from deg/s to rad/s
-					auto angular_velocity = imu->mutable_angular_velocity();
-                    angular_velocity->set_x(d.g[0] * cDegToRad)
+                    auto angular_velocity = imu->mutable_angular_velocity();
+                    angular_velocity->set_x(d.g[0] * cDegToRad);
                     angular_velocity->set_y(d.g[1] * cDegToRad);
                     angular_velocity->set_z(d.g[2] * cDegToRad);
 
                     // Fill linear acceleration data
-                    const float cyberConversion = -1.0 * (!param.useLpmsAccelerationConvention) +
+                    const float rosConversion = -1.0 * (!param.useLpmsAccelerationConvention) +
                         1.0 * param.useLpmsAccelerationConvention;
-						
-					auto linear_acceleration = imu->mutable_linear_acceleration();
 
-                    linear_acceleration->set_x(cyberConversion * d.a[0] * cEarthG);
-                    linear_acceleration->set_y(cyberConversion * d.a[1] * cEarthG);
-                    linear_acceleration->set_z(cyberConversion * d.a[2] * cEarthG);
-
-                    mag_msg.header.stamp = imu_msg.header.stamp;
-                    mag_msg.header.frame_id = param.frame_id;
+                    auto linear_acceleration = imu->mutable_linear_acceleration();
+                    linear_acceleration->set_x(rosConversion * d.a[0] * cEarthG;);
+                    linear_acceleration->set_y(rosConversion * d.a[1] * cEarthG);
+                    linear_acceleration->set_z(rosConversion * d.a[2] * cEarthG);
 
                     // Units are microTesla in the LPMS library, Tesla in ROS.
-					auto magnetic_field = imu->mutable_magnetic_field();
-                    magnetic_field->set_x(d.b[0] * cMicroToTelsa);
+                    auto magnetic_field = imu->mutable_magnetic_field();
+                    magnetic_field->set_x(d.b[0] * cMicroToTelsa); 
                     magnetic_field->set_y(d.b[1] * cMicroToTelsa);
                     magnetic_field->set_z(d.b[2] * cMicroToTelsa);
 
                     // Publish the messages
-                    param.imu_pub->Write(imu_msg);
-                    param.mag_pub->Write(mag_msg);
+                    imu_writer_->Write(imu);
                 }
             }
                 
             return true;
-        }
+        })
     {
         // Get node parameters
-        private_nh->param<std::string>("sensor_name", m_sensorName, "");
-        private_nh->param<std::string>("sensor_interface", m_sensorInterface, "LinuxDevice");
-        private_nh->param<bool>("openzen_verbose", m_openzenVerbose, false);
-		// Cyber_RT中node是否有param属性？
+        private_nh.param<std::string>("sensor_name", m_sensorName, "");
+        private_nh.param<std::string>("sensor_interface", m_sensorInterface, "LinuxDevice");
+        private_nh.param<bool>("openzen_verbose", m_openzenVerbose, false);
         // using 0 as default will tell OpenZen to use the defaul baudrate for a respective sensor
-        private_nh->param("baudrate", m_baudrate, 0);
+        private_nh.param("baudrate", m_baudrate, 0);
 
         // In LP-Research sensor output, the linear acceleration measurement is pointing down (z-) when
         // the sensor is lying flat on the table. ROS convention is z+ pointing up in this case
         // By default, this ROS driver converts to the ROS convention. Set this flag to true to
         // use the LPMS convention
-		// 此处需要关注ros和cyber_rt在坐标规定的区别
-        private_nh->param<bool>("use_lpms_acceleration_convention", m_useLpmsAccelerationConvention, false);
-        private_nh->param<std::string>("frame_id", frame_id, "imu");
+        private_nh.param<bool>("use_lpms_acceleration_convention", m_useLpmsAccelerationConvention, false);
+        private_nh.param<std::string>("frame_id", frame_id, "imu");
 
         // Publisher
-        imu_pub = nh->CreateWriter<sensor_msgs::Imu>("data",1);
-        mag_pub = nh->CreateWriter<sensor_msgs::MagneticField>("mag",1);
-        autocalibration_status_pub = nh->CreateWriter<std_msgs::Bool>("is_autocalibration_active", 1, true);
+        // imu_pub = nh.advertise<sensor_msgs::Imu>("data",1);
+        // mag_pub = nh.advertise<sensor_msgs::MagneticField>("mag",1);
+        // autocalibration_status_pub = nh.advertise<std_msgs::Bool>("is_autocalibration_active", 1, true);
+        imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
 
         // Services
-        autocalibration_serv = nh->CreateService("enable_gyro_autocalibration", &OpenZenSensor::setAutocalibration, this);
-        gyrocalibration_serv = nh->CreateService("calibrate_gyroscope", &OpenZenSensor::calibrateGyroscope, this);
-        resetHeading_serv = nh->CreateService("reset_heading", &OpenZenSensor::resetHeading, this);
+        // autocalibration_serv = nh.advertiseService("enable_gyro_autocalibration", &OpenZenSensor::setAutocalibration, this);
+        // gyrocalibration_serv = nh.advertiseService("calibrate_gyroscope", &OpenZenSensor::calibrateGyroscope, this);
+        // resetHeading_serv = nh.advertiseService("reset_heading", &OpenZenSensor::resetHeading, this);
 
+        auto autocalibration_serv = node_->CreateService<Content, Content>("auto_calibration", &OpenZenSensor::autocalibration, this);
+		auto gyrocalibration_serv = node_->CreateService<Content, Content>("gyro_calibration", &OpenZenSensor::gyrocalibration, this);
+		auto resetHeading_serv = node_->CreateService<Content, Content>("reset_heading", &OpenZenSensor::resetHeading, this);
 
         auto clientPair = zen::make_client();
         m_zenClient = std::unique_ptr<zen::ZenClient>(new zen::ZenClient(std::move(clientPair.second)));
@@ -268,7 +250,7 @@ public:
         else
         {
             // directly connect to sensor
-            AINFO << "Connecting directly to sensor " << m_sensorName << " over interface " << m_sensorInterface);
+            AINFO << "Connecting directly to sensor " << m_sensorName << " over interface " << m_sensorInterface;
             auto sensorObtainPair = m_zenClient->obtainSensorByName(m_sensorInterface, m_sensorName, m_baudrate);
 
             if (sensorObtainPair.first != ZenSensorInitError_None)
@@ -312,12 +294,12 @@ public:
         m_sensorThread.start( SensorThreadParams{
             m_zenClient.get(),
             frame_id,
-            imu_pub,
-            mag_pub,
+            imu_writer_,
             m_useLpmsAccelerationConvention
         } );
 
         AINFO << "Data streaming from sensor started";
+
         return true;
     }
 
@@ -344,7 +326,7 @@ public:
         else 
         {
             msg.data = useAutoCalibration;
-            autocalibration_status_pub->Write(msg);   
+            autocalibration_status_pub.publish(msg);   
         }
     }
 
@@ -361,7 +343,7 @@ public:
 
         if (auto error = m_zenImu->setBoolProperty(ZenImuProperty_GyrUseAutoCalibration, req.data))
         {
-            AINFO << "set autocalibration Error";
+            AINFO << "set autocalibration Error");
             res.success = false; 
             msg.append(std::string("[Failed] current autocalibration status set to: ") + (req.data?"True":"False"));
         
@@ -378,14 +360,14 @@ public:
         return res.success;
     }
 
-    bool resetHeading (std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+    bool resetHeading (const std::shared_ptr<Content>& request, std::shared_ptr<Content>& response)
     {
         if (!m_zenImu) {
             AINFO << "No IMU compontent available, can't reset heading";
             return false;
         }
 
-        AINFO << "reset_heading";
+        AINFO << "reset_heading");
         // Offset reset parameters:
         // 0: Object reset
         // 1: Heading reset
@@ -393,13 +375,13 @@ public:
         if (auto error = m_zenImu->setInt32Property( ZenImuProperty_OrientationOffsetMode, 1)) 
         {
             AINFO << "Error";
-            res.success = false;
-            res.message = "[Failed] Heading reset";
+            response->set_success(false);
+            response->set_message("[Failed] Heading reset");
         } 
         else 
         {
-            res.success = true;
-            res.message = "[Success] Heading reset";
+            response->set_success(true);
+            response->set_message("[Success] Heading reset");
         }
         return res.success;
     }
@@ -423,7 +405,8 @@ public:
         }
         else
         {
-            Duration _d(4.0); // Param of duration: double: seconds; int: nanoseconds
+            // ros::Duration(4).sleep();
+			Duration interval(4.0);
             res.success = true;
             res.message = "[Success] Gyroscope calibration procedure completed";
             AINFO << "calibrate_gyroscope: Gyroscope calibration procedure completed";
@@ -446,10 +429,7 @@ public:
     {
         zen::ZenClient * zenClient;
         std::string frame_id;
-        std::shared_ptr<apollo::cyber::Node> node(
-			apollo::cyber::CreateNode("imu_pub"));
-		std::shared_ptr<apollo::cyber::Node> node(
-			apollo::cyber::CreateNode("mag_pub"));// cyber_rt中如何实现取址效果？
+        apollo::cyber::Writer & imu_writer_;
         bool useLpmsAccelerationConvention;
     };
 
@@ -458,15 +438,46 @@ public:
 
 int main(int argc, char *argv[])
 {
-    apollo::cyber::init(argc, argv, "openzen_sensor_node");
-    std::shared_ptr<apollo::cyber::Node> node(
-      apollo::cyber::CreateNode("openzen"));
+    apollo::cyber::init(argv[0]);
+    std::shared_ptr<apollo::cyber::Node> node(apollo::cyber::CreateNode("openzen_node"));
     
+    // ros::AsyncSpinner spinner(0);
+    // spinner.start();
 
     OpenZenSensor lpOpenZen(node);
 
     if (!lpOpenZen.run())
     {
+        auto reset_heading_client = node->CreateClient<Content, Content>("reset_heading");
+		auto auto_calibration_client = node->CreateClient<Content, Content>("auto_calibration");
+		auto gyro_calibration_client = node->CreateClient<Content, Content>("gyro_calibration_client");
+        auto request = std::make_shared<Content>();
+        request->set_success(false);
+        request->set_message('init');
+        auto reset_heading_res = reset_heading_client->SendRequest(request);
+		auto auto_calibration_res = auto_calibration_client->SendRequest(request);
+		auto gyro_calibration_res = gyro_calibration_client->SendRequest(request);
+
+        if (reset_heading_res != nullptr) {
+            AINFO << "reset_heading_client: responese: " << reset_heading_res->ShortDebugString();
+        } 
+		else {
+            AINFO << "reset_heading_client: service may not ready.";
+        }
+		
+		if (auto_calibration_res != nullptr){
+			AINFO << "auto_calibration_client: response: " << auto_calibration_res->ShortDebugString();
+		}
+		else {
+			AINFO << "auto_calibration_client: service may not ready.";
+		}
+		
+		if (gyro_calibration_res != nullptr){
+			AINFO << "gyro_calibration_client: response: " << gyro_calibration_res->ShortDebugString();
+		}
+		else{
+			AINFO << "gyro_calibration_client: service may not ready.";
+		}
         apollo::cyber::AsyncShutdown();
         return 1;
     }
