@@ -13,6 +13,8 @@ namespace drivers {
 namespace rfid {
 
 using apollo::cyber::Component;
+using apollo::cyber::Writer;
+using apollo::drivers::RFID;
 
 class RfidComponent : public Component<> {
  public:
@@ -22,7 +24,7 @@ class RfidComponent : public Component<> {
 
  private:
   Uart device_ = Uart("ttyUSB0");
-  std::shared_ptr<apollo::cyber::Writer<apollo::drivers::RFID>> rfid_writer_ = nullptr;
+  std::shared_ptr<Writer<RFID>> rfid_writer_ = nullptr;
 
 std::future<void> async_action_;
   // atomic flag for action
