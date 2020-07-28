@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 ******************************************************************************/
-#include "modules/common/uart.h"
+#include "modules/common/util/uart.h"
 
 #include <fcntl.h>
 #include <stdio.h>
