@@ -4,6 +4,7 @@ set -e
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Prepare
+apt-get install libbluetooth-dev
 git clone https://bitbucket.org/lpresearch/openzen.git
 pushd openzen
     git submodule update --init
