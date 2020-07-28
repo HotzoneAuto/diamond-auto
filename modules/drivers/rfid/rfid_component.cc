@@ -1,10 +1,6 @@
 
 #include "modules/drivers/rfid/rfid_component.h"
 
-
-#include "modules/drivers/proto/rfid.pb.h"
-
-
 namespace apollo {
 namespace drivers {
 namespace rfid {
@@ -13,7 +9,7 @@ bool RfidComponent::Init() {
   device_.SetOpt(9600, 8, 'N', 1);
 
   rfid_writer_ = 
-        node_->CreateWriter<apollo::drivers::RFID>("/diamond/sensor/rfid");
+        node_->CreateWriter<RFID>("/diamond/sensor/rfid");
 
   async_action_ = cyber::Async(&RfidComponent::Action, this);
   return true;
@@ -49,7 +45,7 @@ void RfidComponent::Action(){
         // auto a = Hex2Ascii(buffer[10]);
         // AINFO << "CARD ID :" << static_cast<int>(a);
 
-        apollo::drivers::RFID rfid;
+        RFID rfid;
         rfid.set_id(static_cast<int>(buffer[10]));
 
         rfid_writer_->Write(rfid);
@@ -59,7 +55,9 @@ void RfidComponent::Action(){
   }
 }
 
-
+RfidComponent::~RfidComponent(){
+  AINFO << "RfidComponent::~RfidComponent()";
+}
 
 }  // namespace rfid
 }  // namespace drivers
