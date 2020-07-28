@@ -49,7 +49,7 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         count++;
       }
       AINFO << "count: " << count;
-      if (count == 13) {
+          if (count == 13) {
         AINFO << "DEBUG READ OVER!!!!!!!!!!!!!";
         // for(auto & b : buffer) {
         // auto as = Hex2Ascii(b);
@@ -62,12 +62,16 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         auto header = rfid.mutable_header();
         header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
         header->set_frame_id("rfid");
+
+        AINFO << "CARD ID : " << static_cast<int>(buffer[10]);
         
         rfid.set_id(static_cast<int>(buffer[10]));
 
         rfid_writer_->Write(rfid);
       }
     }
+
+
     
   }
 }
