@@ -1,35 +1,88 @@
-#include<iostream>
+#include <iostream>
+
+#include "cyber/cyber.h"
+#include "cyber/init.h"
+#include "cyber/common/log.h"
+#include "cyber/common/macros.h"
+
+#include "modules/common/util/uart.h"
+#include "modules/drivers/proto/rfid.pb.h"
+
+typedef unsigned char BYTE;
+
 using namespace std;
-int main()
-{
- char Rx_Buff[20]; //接收缓冲
- volatile unsigned char Rx_Length; //接收数据长度计数 
- #pragma vector = USART_RXC_vect // 串口中断 
- __interrupt void Usart_RFID_Rx_ISR(void);
- {
-  char UDR;
-  unsigned char i = 0;
-  char Rx_Char;
-  Rx_Char = UDR; //接收到一位数据
-  Rx_Buff[Rx_Length] = Rx_Char;
-  if (Rx_Char == 0x02) //如果收到的数据是 02，证明接收到的是数据头
-  {
-   Rx_Length = 0; //已经接收了 1 位数据了
+
+char Hex2Ascii(char hex) {
+  AINFO << "hex to transfer :" << hex;
+  char c = toupper(hex);
+
+  if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) {
+    BYTE t = (c >= 'A') ? c - 'A' + 10 : c - '0';
+
+    return t << 4;
   }
-  Rx_Length++;
-   if ((Rx_Char == 0x03) && (Rx_Length == 13)) // 收 13 个数据
-   {
-    bool Read_Card_Flag = true; // 接收完成，卡号已经放 Rx_Buff[]里了
-   }
- }
+  return 'N';
 }
-void Init_Uart(void) // 初始化串口为 9600,8N1
-{
- int UCSRB = 0x00; //disable while setting baud rate
- int UCSRA = 0x00;
- int UCSRC = 0x0E;
- int UBRRL = 0x2F; //set baud rate lo
- int UBRRH = 0x00; //set baud rate hi
-  UCSRB = 0xD8;
- int Rx_Length = 0;
+
+void OnData(std::shared_ptr<apollo::cyber::Node> node) {
+  Uart device_ = Uart("ttyUSB0");
+  device_.SetOpt(9600, 8, 'N', 1);
+  int count = 1;
+  static char buffer[20];
+  static char buf;
+  std::shared_ptr<apollo::cyber::Writer<apollo::drivers::RFID>> rfid_writer_ = 
+        node->CreateWriter<apollo::drivers::RFID>("/diamond/sensor/rfid");
+  while (!apollo::cyber::IsShutdown()) {
+    count = 1;
+    std::memset(buffer, 0, 20);
+    while (1) {
+      int ret = device_.Read(&buf, 1);
+      AINFO << "RFID Device return: " << ret;
+
+      if (ret == 1) {
+        AINFO << "RFID Device buf: " << buf;
+        if (buf == 0x02) {
+          count = 1;
+          break;
+        }
+        buffer[count] = buf;
+        count++;
+      }
+      AINFO << "count: " << count;
+      if (count == 13) {
+        AINFO << "DEBUG READ OVER!!!!!!!!!!!!!";
+        // for(auto & b : buffer) {
+        // auto as = Hex2Ascii(b);
+        // AINFO << "retrun transfered: " << as;
+        // }
+        // auto a = Hex2Ascii(buffer[10]);
+        // AINFO << "CARD ID :" << static_cast<int>(a);
+
+        apollo::drivers::RFID rfid;
+        auto header = rfid.mutable_header();
+        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+        header->set_frame_id("rfid");
+        
+        rfid.set_id(static_cast<int>(buffer[10]));
+
+        rfid_writer_->Write(rfid);
+      }
+    }
+    
+  }
+}
+
+int main(int32_t argc, char** argv) {
+  apollo::cyber::Init(argv[0]);
+
+  FLAGS_alsologtostderr = true;
+  FLAGS_v = 3;
+
+  google::ParseCommandLineFlags(&argc, &argv, true);
+
+  std::shared_ptr<apollo::cyber::Node> node = apollo::cyber::CreateNode("rfid");
+  OnData(node);
+  // apollo::cyber::AsyncShutdown();
+  // apollo::cyber::WaitForShutdown();
+  return 0;
 }
