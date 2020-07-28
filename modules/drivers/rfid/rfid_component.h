@@ -5,6 +5,7 @@
 #include "cyber/class_loader/class_loader.h"
 #include "cyber/component/component.h"
 
+#include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/util/uart.h"
 #include "modules/drivers/proto/rfid.pb.h"
 
@@ -23,6 +24,7 @@ class RfidComponent : public Component<> {
   ~RfidComponent();
 
  private:
+ // TODO(all): config by udev or sudo usermod -aG dialout $USER
   Uart device_ = Uart("ttyUSB0");
   std::shared_ptr<Writer<RFID>> rfid_writer_ = nullptr;
 

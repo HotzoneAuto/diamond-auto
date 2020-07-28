@@ -1,6 +1,8 @@
 
 #include "modules/drivers/rfid/rfid_component.h"
 
+#include "modules/common/adapters/adapter_gflags.h"
+
 namespace apollo {
 namespace drivers {
 namespace rfid {
@@ -9,7 +11,7 @@ bool RfidComponent::Init() {
   device_.SetOpt(9600, 8, 'N', 1);
 
   rfid_writer_ = 
-        node_->CreateWriter<RFID>("/diamond/sensor/rfid");
+        node_->CreateWriter<RFID>(FLAGS_rfid_topic);
 
   async_action_ = cyber::Async(&RfidComponent::Action, this);
   return true;

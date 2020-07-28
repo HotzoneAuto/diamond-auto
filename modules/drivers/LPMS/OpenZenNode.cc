@@ -19,6 +19,7 @@
 #include "cyber/init.h"
 #include "cyber/time/time.h"
 
+#include "modules/common/adapters/adapter_gflags.h"
 #include "modules/drivers/LPMS/proto/service.pb.h"
 #include "modules/drivers/proto/imu.pb.h"
 
@@ -139,7 +140,7 @@ class OpenZenSensor {
     // autocalibration_status_pub =
     // nh.advertise<std_msgs::Bool>("is_autocalibration_active", 1, true);
     imu_writer_ =
-        node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
+        node_->CreateWriter<apollo::drivers::Imu>(FLAGS_raw_imu_topic);
 
     // Services
     // autocalibration_serv = nh.advertiseService("enable_gyro_autocalibration",
