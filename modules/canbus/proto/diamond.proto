@@ -2,113 +2,7 @@ syntax = "proto2";
 
 package apollo.canbus;
 
-message Id_0x0c09a7f0_8c09a7f0 {
-// Report Message
-  // [V] [-1000|5553.5]
-  optional double fmotvolt = 1;
-  // [TMP] [-40|215]
-  optional int32 fmottemp = 2;
-  // [TMP] [-40|215]
-  optional int32 fmcutemp = 3;
-  // [A] [-1000|5553.5]
-  optional double fmotrectcur = 4;
-  // [] [0|1]
-  optional bool bymotspddir = 5;
-  // [] [0|255]
-  optional int32 bymoterrcode = 6;
-}
-
-message Id_0x0c08a7f0_8c08a7f0 {
-// Report Message
-  // [NM] [-32000|33535]
-  optional int32 fmottq = 1;
-  // [RPM] [0|32767.5]
-  optional double fmotspd = 2;
-  // [A] [-1000|5553.5]
-  optional double fmotcur = 3;
-  // [] [0|1]
-  optional bool bymcusts1 = 4;
-  // [] [0|1]
-  optional bool bymcusts2 = 5;
-  // [] [0|1]
-  optional bool bymcusts3 = 6;
-  // [] [0|1]
-  optional bool bymcusts4 = 7;
-  // [] [0|1]
-  optional bool bymcusts5 = 8;
-  // [] [0|1]
-  optional bool bymcusts6 = 9;
-  // [] [0|1]
-  optional bool bymcusts7 = 10;
-  // [] [0|1]
-  optional bool bymcusts8 = 11;
-  // [] [0|255]
-  optional int32 bymcu1msglife1 = 12;
-}
-
-message Id_0x0c19f0a7_8c19f0a7 {
-// Control Message
-  // [] [0|65535]
-  optional int32 fmot1targettq = 1;
-  // [V] [-1000|5553.5]
-  optional double fmot1lmtvolt = 2;
-  // [A] [-1000|5553.5]
-  optional double fmot1lmtcur = 3;
-  // [] [0|1]
-  optional bool bymot1workmode = 4;
-  // [] [0|255]
-  optional int32 bylife = 5;
-}
-
-message Id_0x0c089aa7_8c089aa7 {
-// Control Message
-  // [rpm] [0|65535]
-  optional int32 fdcactargspd = 1;
-  // [] [0|255]
-  optional int32 bydcacdir = 2;
-  // [rpm] [0|65535]
-  optional int32 fdcac2targspd = 3;
-  // [] [0|255]
-  optional int32 bydcac2dir = 4;
-}
-
-message Id_0x0c0ba7f0_8c0ba7f0 {
-// Report Message
-  // [kw] [0|255]
-  optional int32 fmotmaxpower = 1;
-  // [rpm] [0|25500]
-  optional double fmotmaxspd = 2;
-  // [NM] [0|65535]
-  optional int32 fmotmaxtq = 3;
-  // [] [0|1]
-  optional bool dwmcuerrflg1 = 4;
-  // [] [0|1]
-  optional bool dwmcuerrflg2 = 5;
-  // [] [0|1]
-  optional bool dwmcuerrflg3 = 6;
-  // [] [0|1]
-  optional bool dwmcuerrflg4 = 7;
-  // [] [0|1]
-  optional bool dwmcuerrflg5 = 8;
-  // [] [0|1]
-  optional bool dwmcuerrflg6 = 9;
-  // [] [0|1]
-  optional bool dwmcuerrflg7 = 10;
-  // [] [0|1]
-  optional bool dwmcuerrflg8 = 11;
-  // [] [0|1]
-  optional bool dwmcuerrflg9 = 12;
-  // [] [0|1]
-  optional bool dwmcuerrflg10 = 13;
-  // [] [0|1]
-  optional bool dwmcuerrflg11 = 14;
-  // [] [0|1]
-  optional bool dwmcuerrflg12 = 15;
-  // [] [0|1048575]
-  optional int32 dwmcuerrflg13 = 16;
-}
-
-message Id_0x0c079aa7_8c079aa7 {
+message Id_0x0c079aa7 {
 // Control Message
   // [] [0|255]
   optional int32 bydcdccmd = 1;
@@ -124,11 +18,66 @@ message Id_0x0c079aa7_8c079aa7 {
   optional int32 bydcac2wkst = 6;
 }
 
+message Id_0x0c08a7f0 {
+// Report Message
+  // [NM] [-32000|33535]
+  optional int32 fmottq = 1;
+  // [RPM] [0|32767.5]
+  optional double fmotspd = 2;
+  // [A] [-1000|5553.5]
+  optional double fmotcur = 3;
+  // [] [0|255]
+  optional int32 bymcusts = 4;
+  // [] [0|255]
+  optional int32 bymcu1msglife1 = 5;
+}
+
+message Id_0x0c09a7f0 {
+// Report Message
+  // [V] [-1000|5553.5]
+  optional double fmotvolt = 1;
+  // [] [-40|215]
+  optional int32 fmottemp = 2;
+  // [] [-40|215]
+  optional int32 fmcutemp = 3;
+  // [A] [-1000|5553.5]
+  optional double fmotrectcur = 4;
+  // [] [0|1]
+  optional bool bymotspddir = 5;
+  // [] [0|255]
+  optional int32 bymoterrcode = 6;
+}
+
+message Id_0x0c0ba7f0 {
+// Report Message
+  // [kw] [0|255]
+  optional int32 fmotmaxpower = 1;
+  // [rpm] [0|25500]
+  optional double fmotmaxspd = 2;
+  // [NM] [0|65535]
+  optional int32 fmotmaxtq = 3;
+  // [] [0|4294967295]
+  optional int32 dwmcuerrflg = 4;
+}
+
+message Id_0x0c19f0a7 {
+// Control Message
+  // [NM] [-32000|33535]
+  optional int32 fmot1targettq = 1;
+  // [V] [-1000|5553.5]
+  optional double fmot1lmtvolt = 2;
+  // [A] [-1000|5553.5]
+  optional double fmot1lmtcur = 3;
+  // [] [0|255]
+  optional int32 bymot1workmode = 4;
+  // [] [0|255]
+  optional int32 bylife = 5;
+}
+
 message Diamond {
-  optional Id_0x0c09a7f0_8c09a7f0 id_0x0c09a7f0_8c09a7f0 = 1; // report message
-  optional Id_0x0c08a7f0_8c08a7f0 id_0x0c08a7f0_8c08a7f0 = 2; // report message
-  optional Id_0x0c19f0a7_8c19f0a7 id_0x0c19f0a7_8c19f0a7 = 3; // control message
-  optional Id_0x0c089aa7_8c089aa7 id_0x0c089aa7_8c089aa7 = 4; // control message
-  optional Id_0x0c0ba7f0_8c0ba7f0 id_0x0c0ba7f0_8c0ba7f0 = 5; // report message
-  optional Id_0x0c079aa7_8c079aa7 id_0x0c079aa7_8c079aa7 = 6; // control message
+  optional Id_0x0c079aa7 id_0x0c079aa7 = 1; // control message
+  optional Id_0x0c08a7f0 id_0x0c08a7f0 = 2; // report message
+  optional Id_0x0c09a7f0 id_0x0c09a7f0 = 3; // report message
+  optional Id_0x0c0ba7f0 id_0x0c0ba7f0 = 4; // report message
+  optional Id_0x0c19f0a7 id_0x0c19f0a7 = 5; // control message
 }

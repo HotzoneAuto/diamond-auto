@@ -1,8 +1,8 @@
-dbc_file: CAN1.dbc
+dbc_file: CAN1NET.dbc
 protocol_conf: diamond_can1_protocol.yml
 car_type: diamond
 sender_list: []
-sender: Vector__XXX
+sender: Vector__XX
 black_list: []
 
 output_dir: output_can1/
