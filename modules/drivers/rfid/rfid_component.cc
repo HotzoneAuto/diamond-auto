@@ -10,18 +10,17 @@ namespace rfid {
 bool RfidComponent::Init() {
   device_.SetOpt(9600, 8, 'N', 1);
 
-  rfid_writer_ = 
-        node_->CreateWriter<RFID>(FLAGS_rfid_topic);
+  rfid_writer_ = node_->CreateWriter<RFID>(FLAGS_rfid_topic);
 
   async_action_ = cyber::Async(&RfidComponent::Action, this);
   return true;
 }
 
-void RfidComponent::Action(){
+void RfidComponent::Action() {
   int count = 1;
   static char buffer[20];
   static char buf;
-    while (!apollo::cyber::IsShutdown()) {
+  while (!apollo::cyber::IsShutdown()) {
     count = 1;
     std::memset(buffer, 0, 20);
     while (1) {
@@ -53,13 +52,10 @@ void RfidComponent::Action(){
         rfid_writer_->Write(rfid);
       }
     }
-    
   }
 }
 
-RfidComponent::~RfidComponent(){
-  AINFO << "RfidComponent::~RfidComponent()";
-}
+RfidComponent::~RfidComponent() { AINFO << "RfidComponent::~RfidComponent()"; }
 
 }  // namespace rfid
 }  // namespace drivers

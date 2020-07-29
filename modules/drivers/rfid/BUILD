@@ -22,6 +22,8 @@ cc_library(
         "//cyber",
         "//modules/common/util:uart",
         "//modules/drivers/proto:rfid_cc_proto",
+        "//modules/common/adapters:adapter_gflags",
+        "@com_github_gflags_gflags//:gflags",
     ],
 )
 
@@ -34,5 +36,7 @@ cc_binary(
         "//cyber",
         "//modules/common/util:uart",
         "//modules/drivers/proto:rfid_cc_proto",
+        "//modules/common/adapters:adapter_gflags",
+        "@com_github_gflags_gflags//:gflags",
     ],
 )
