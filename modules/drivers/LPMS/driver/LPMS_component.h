@@ -30,9 +30,12 @@
 #include "modules/drivers/proto/imu.pb.h"
 
 
-namespace apollo {
-namespace drivers {
-namespace LPMS {
+namespace apollo
+{
+namespace drivers
+{
+namespace LPMS
+{
 
 using apollo::cyber::Component;
 using apollo::cyber::Reader;
@@ -47,7 +50,7 @@ public:
 
 	// Publisher
 	std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_ =
-		nullptr;
+	            nullptr;
 
 	// Service
 
@@ -56,36 +59,37 @@ public:
 	std::string m_sensorInterface;
 	std::string frame_id;
 	int m_baudrate = 0;
-	  
-	LPMSDriverComponent() = default
-	~LPMSDriverComponent() 
+
+LPMSDriverComponent() = default
+		                        ~LPMSDriverComponent()
 	{
-		if (device_thread_->joinable()) 
+		if (device_thread_->joinable())
 		{
 			device_thread_->join();
 		}
 	}
 	bool Init() override;
 	// bool Proc(const std::shared_ptr<Driver>& msg) override;
-	  
+
 	bool run(void);
 	void publishIsAutocalibrationActive();
-	bool setAutocalibration(const std::shared_ptr<Request>& req, 
-							  const std::shared_ptr<Content>& res);
+	bool setAutocalibration(const std::shared_ptr<Request>& req,
+	                        const std::shared_ptr<Content>& res);
 	bool resetHeading(const std::shared_ptr<Content>& request,
-						std::shared_ptr<Content>& response);
+	                  std::shared_ptr<Content>& response);
 	bool calibrateGyroscope(const std::shared_ptr<Content>& req,
-							  const std::shared_ptr<Content>& res);
+	                        const std::shared_ptr<Content>& res);
 
 private:
 	std::unique_ptr<zen::ZenClient> m_zenClient;
 	std::unique_ptr<zen::ZenSensor> m_zenSensor;
 	std::unique_ptr<zen::ZenSensorComponent> m_zenImu;//receive and send message
-	  
+
 	bool m_openzenVerbose;
 	bool m_useLpmsAccelerationConvention;
 
-	struct SensorThreadParams {
+	struct SensorThreadParams
+	{
 		zen::ZenClient* zenClient;
 		std::string frame_id;
 		std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_;
@@ -93,7 +97,7 @@ private:
 	};
 
 	ManagedThread<SensorThreadParams> m_sensorThread;
-	  
+
 	/*
 	const float cDegToRad = 3.1415926f / 180.0f;
 	const float cEarthG = 9.81f;
