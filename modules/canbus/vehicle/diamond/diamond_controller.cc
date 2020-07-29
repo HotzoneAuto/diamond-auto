@@ -183,18 +183,18 @@ ErrorCode DiamondController::EnableAutoMode() {
 
   // Steering Motor
   // DC/DC 
-  id_0x0c079aa7->set_bydcdccmd(0x55);
+  id_0x0c079aa7_->set_bydcdccmd(0x55);
   // DC/AC
-  id_0x0c079aa7->set_bydcaccmd(0x55);
+  id_0x0c079aa7_->set_bydcaccmd(0x55);
   // DC/AC
-  id_0x0c079aa7->set_bydcacwkst(0x55);
+  id_0x0c079aa7_->set_bydcacwkst(0x55);
   // DC/AC
-  id_0x0c079aa7->set_byeapcmd(0x55);
+  id_0x0c079aa7_->set_byeapcmd(0x55);
 
   // DC/DC 
-  id_0x0c079aa7->set_bydcac2cmd(0x55);
+  id_0x0c079aa7_->set_bydcac2cmd(0x55);
   // DC/AC
-  id_0x0c079aa7->set_bydcac2wkst(0x55);
+  id_0x0c079aa7_->set_bydcac2wkst(0x55);
 
 
   can_sender_->Update();
@@ -229,18 +229,18 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
   }
   // Steering Motor
   // DC/DC 
-  //id_0x0c079aa7->set_bydcdccmd(0x55);
+  //id_0x0c079aa7_->set_bydcdccmd(0x55);
   // DC/AC
-  id_0x0c079aa7->set_bydcaccmd(0x55);
+  id_0x0c079aa7_->set_bydcaccmd(0x55);
   // DC/AC
-  //id_0x0c079aa7->set_bydcacwkst(0x55);
+  //id_0x0c079aa7_->set_bydcacwkst(0x55);
   // DC/AC
-  //id_0x0c079aa7->set_byeapcmd(0x55);
+  //id_0x0c079aa7_->set_byeapcmd(0x55);
 
   // DC/DC 
-  id_0x0c079aa7->set_bydcac2cmd(0x55);
+  id_0x0c079aa7_->set_bydcac2cmd(0x55);
   // DC/AC
-  //id_0x0c079aa7->set_bydcac2wkst(0x55);
+  //id_0x0c079aa7_->set_bydcac2wkst(0x55);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, true)) {
@@ -262,7 +262,7 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
     return ErrorCode::OK;
   }
   // Driver Motor TODO(zongbao): test on board
-  id_0x0c19f0a7->set_bymot1workmode(0x92);
+  id_0x0c19f0a7_->set_bymot1workmode(0x92);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, true)) {
@@ -349,7 +349,7 @@ void DiamondController::Throttle(double pedal) {
     return;
   }
 
-  id_0x0c19f0a7->set_fmot1targettq(pedal);
+  id_0x0c19f0a7_->set_fmot1targettq(pedal);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
@@ -377,8 +377,8 @@ void DiamondController::Steer(double angle) {
   }
   const double real_angle = 360.0 * angle / 100.0;
   // reverse sign
-  id_0x0c079aa7->set_bydcaccmd(real_angle);
-  id_0x0c079aa7->set_bydcac2cmd(real_angle);
+  id_0x0c079aa7_->set_bydcaccmd(real_angle);
+  id_0x0c079aa7_->set_bydcac2cmd(real_angle);
 }
 
 // steering with new angle speed
@@ -392,8 +392,8 @@ void DiamondController::Steer(double angle, double angle_spd) {
   }
   // const double real_angle = 360 * angle / 100.0;
  
-  // id_0x0c079aa7->set_bydcaccmd(real_angle);
-  // id_0x0c079aa7->set_bydcac2cmd(real_angle);
+  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
+  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
