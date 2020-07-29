@@ -24,11 +24,11 @@ class RfidComponent : public Component<> {
   ~RfidComponent();
 
  private:
- // TODO(all): config by udev or sudo usermod -aG dialout $USER
+  // TODO(all): config by udev or sudo usermod -aG dialout $USER
   Uart device_ = Uart("ttyUSB0");
   std::shared_ptr<Writer<RFID>> rfid_writer_ = nullptr;
 
-std::future<void> async_action_;
+  std::future<void> async_action_;
   // atomic flag for action
   //   std::atomic<bool> action_ready_ = {false};
 };

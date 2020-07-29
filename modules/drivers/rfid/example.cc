@@ -1,13 +1,13 @@
 #include <iostream>
 
-#include "cyber/cyber.h"
-#include "cyber/init.h"
 #include "cyber/common/log.h"
 #include "cyber/common/macros.h"
+#include "cyber/cyber.h"
+#include "cyber/init.h"
 
+#include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/util/uart.h"
 #include "modules/drivers/proto/rfid.pb.h"
-#include "modules/common/adapters/adapter_gflags.h"
 
 typedef unsigned char BYTE;
 
@@ -32,8 +32,8 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
   int count = 1;
   static char buffer[20];
   static char buf;
-  std::shared_ptr<apollo::cyber::Writer<apollo::drivers::RFID>> rfid_writer_ = 
-        node->CreateWriter<apollo::drivers::RFID>(FLAGS_rfid_topic);
+  std::shared_ptr<apollo::cyber::Writer<apollo::drivers::RFID>> rfid_writer_ =
+      node->CreateWriter<apollo::drivers::RFID>(FLAGS_rfid_topic);
   while (!apollo::cyber::IsShutdown()) {
     count = 1;
     std::memset(buffer, 0, 20);
@@ -51,7 +51,7 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         count++;
       }
       AINFO << "count: " << count;
-          if (count == 13) {
+      if (count == 13) {
         AINFO << "DEBUG READ OVER!!!!!!!!!!!!!";
         // for(auto & b : buffer) {
         // auto as = Hex2Ascii(b);
@@ -66,15 +66,12 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         header->set_frame_id("rfid");
 
         AINFO << "CARD ID : " << static_cast<int>(buffer[10]);
-        
+
         rfid.set_id(static_cast<int>(buffer[10]));
 
         rfid_writer_->Write(rfid);
       }
     }
-
-
-    
   }
 }
 
