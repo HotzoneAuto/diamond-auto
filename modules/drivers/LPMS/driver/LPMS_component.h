@@ -19,14 +19,16 @@
 #include <string>
 #include <thread>
 
+#include "OpenZen.h"
+#include "ManagedThread.h"
+#include "cyber/common/log.h"
 #include "cyber/cyber.h"
-#include "cyner/component/component.h"
+#include "cyber/init.h"
+#include "cyber/time/time.h"
 
-/*
-#include "modules/drivers/velodyne/driver/driver.h"
-#include "modules/drivers/velodyne/proto/config.pb.h"
-#include "modules/drivers/velodyne/proto/velodyne.pb.h"
-*/
+#include "modules/drivers/LPMS/proto/service.pb.h"
+#include "modules/drivers/proto/imu.pb.h"
+
 
 namespace apollo {
 namespace drivers {
@@ -35,33 +37,69 @@ namespace LPMS {
 using apollo::cyber::Component;
 using apollo::cyber::Reader;
 using apollo::cyber::Writer;
-// using apollo::drivers::velodyne::VelodyneScan;
+using apollo::drivers::LPMS::Content;
+using apollo::drivers::LPMS::Request;
 
-class LPMSDriverComponent : public Component<> {
- public:
-  LPMSDriverComponent() = default
-  ~LPMSDriverComponent() {
-    if (device_thread_->joinable()) {
-      device_thread_->join();
-    }
-  }
-  bool Init() override;
-  bool Proc(const std::shared_ptr<Driver>& msg) override;
+class LPMSDriverComponent : public Component<>
+{
+public:
+	std::shared_ptr<apollo::cyber::Node> node_;
 
- private:
-/*
-  void device_poll();
-  void RSdevice_poll();
-  volatile bool runing_;  ///< device thread is running
-  uint32_t seq_ = 0;
-  std::shared_ptr<std::thread> device_thread_;
-  std::shared_ptr<VelodyneDriver> dvr_;  ///< driver implementation class
-  std::shared_ptr<apollo::cyber::Writer<VelodyneScan>> writer_;
-  std::shared_ptr<apollo::cyber::Writer<PointCloud>> RSwriter_;
-  bool rs_lidar_ = 0;
-  std::shared_ptr<PointCloud> pointcloud_ = nullptr;
-*/
-  std::shared_ptr<apollo::cyber::Writer<LPMS>> writer_; //receive and send message
+	// Publisher
+	std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_ =
+		nullptr;
+
+	// Service
+
+	// Parameters
+	std::string m_sensorName;
+	std::string m_sensorInterface;
+	std::string frame_id;
+	int m_baudrate = 0;
+	  
+	LPMSDriverComponent() = default
+	~LPMSDriverComponent() 
+	{
+		if (device_thread_->joinable()) 
+		{
+			device_thread_->join();
+		}
+	}
+	bool Init() override;
+	// bool Proc(const std::shared_ptr<Driver>& msg) override;
+	  
+	bool run(void);
+	void publishIsAutocalibrationActive();
+	bool setAutocalibration(const std::shared_ptr<Request>& req, 
+							  const std::shared_ptr<Content>& res);
+	bool resetHeading(const std::shared_ptr<Content>& request,
+						std::shared_ptr<Content>& response);
+	bool calibrateGyroscope(const std::shared_ptr<Content>& req,
+							  const std::shared_ptr<Content>& res);
+
+private:
+	std::unique_ptr<zen::ZenClient> m_zenClient;
+	std::unique_ptr<zen::ZenSensor> m_zenSensor;
+	std::unique_ptr<zen::ZenSensorComponent> m_zenImu;//receive and send message
+	  
+	bool m_openzenVerbose;
+	bool m_useLpmsAccelerationConvention;
+
+	struct SensorThreadParams {
+		zen::ZenClient* zenClient;
+		std::string frame_id;
+		std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_;
+		bool useLpmsAccelerationConvention;
+	};
+
+	ManagedThread<SensorThreadParams> m_sensorThread;
+	  
+	/*
+	const float cDegToRad = 3.1415926f / 180.0f;
+	const float cEarthG = 9.81f;
+	const float cMicroToTelsa = 1e-6f;
+	*/
+
 };
 
 CYBER_REGISTER_COMPONENT(LPMSDriverComponent)
