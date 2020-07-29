@@ -345,9 +345,7 @@ bool LPMSDriverComponent::calibrateGyroscope(const std::shared_ptr<Content>& req
     return res->success();						
 }								
 					
-/*
-other essential contents
-*/
+
 }  // namespace LPMS
 }  // namespace drivers
 }  // namespace apollo
