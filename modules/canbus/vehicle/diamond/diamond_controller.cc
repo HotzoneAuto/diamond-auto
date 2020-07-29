@@ -67,30 +67,22 @@ ErrorCode DiamondController::Init(
   message_manager_ = message_manager;
 
   // sender part
-  id_0x0c079aa7_8c079aa7_ = dynamic_cast<Id0x0c079aa78c079aa7*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c079aa78c079aa7::ID));
-  if (id_0x0c079aa7_8c079aa7_ == nullptr) {
-     AERROR << "Id0x0c079aa78c079aa7 does not exist in the DiamondMessageManager!";
+  id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>
+          (message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
+  if (id_0x0c079aa7_ == nullptr) {
+     AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
      return ErrorCode::CANBUS_ERROR;
   }
 
-  id_0x0c089aa7_8c089aa7_ = dynamic_cast<Id0x0c089aa78c089aa7*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c089aa78c089aa7::ID));
-  if (id_0x0c089aa7_8c089aa7_ == nullptr) {
-     AERROR << "Id0x0c089aa78c089aa7 does not exist in the DiamondMessageManager!";
+  id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>
+          (message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
+  if (id_0x0c19f0a7_ == nullptr) {
+     AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
      return ErrorCode::CANBUS_ERROR;
   }
 
-  id_0x0c19f0a7_8c19f0a7_ = dynamic_cast<Id0x0c19f0a78c19f0a7*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c19f0a78c19f0a7::ID));
-  if (id_0x0c19f0a7_8c19f0a7_ == nullptr) {
-     AERROR << "Id0x0c19f0a78c19f0a7 does not exist in the DiamondMessageManager!";
-     return ErrorCode::CANBUS_ERROR;
-  }
-
-  can_sender_->AddMessage(Id0x0c079aa78c079aa7::ID, id_0x0c079aa7_8c079aa7_, false);
-  can_sender_->AddMessage(Id0x0c089aa78c089aa7::ID, id_0x0c089aa7_8c089aa7_, false);
-  can_sender_->AddMessage(Id0x0c19f0a78c19f0a7::ID, id_0x0c19f0a7_8c19f0a7_, false);
+  can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
+  can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
@@ -143,19 +135,19 @@ Chassis DiamondController::chassis() {
   chassis_.set_engine_started(true);
   
   // 4 Motor torque nm
-  if (chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().has_fmottq()) {
+  if (chassis_detail.diamond().id_0x0c08a7f0().has_fmottq()) {
     chassis_.set_motor_torque_nm(static_cast<float>(
-        chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().fmottq()));
+        chassis_detail.diamond().id_0x0c08a7f0().fmottq()));
   } else {
     chassis_.set_motor_torque_nm(0);
   }
 
   // 5
-  // TODO(zongbao): compute speed respect to motor torque
-  // if (chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().has_fmottq()) {
-  //       auto speed = 0.1 * chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().fmottq()
+  // TODO(DENGKE): compute speed respect to motor torque
+  // if (chassis_detail.diamond().id_0x0c08a7f0().has_fmottq()) {
+  //       auto speed = 0.1 * chassis_detail.diamond().id_0x0c08a7f0().fmottq()
   //       chassis_.set_speed_mps(static_cast<float>(
-  //       chassis_detail.gem().vehicle_speed_rpt_6f().vehicle_speed()));
+  //       chassis_detail.diamond().id_0x0c08a7f0().vehicle_speed()));
   // } else {
   //   chassis_.set_speed_mps(0);
   // }
@@ -164,9 +156,9 @@ Chassis DiamondController::chassis() {
   chassis_.set_fuel_range_m(0);
 
   // 8 engine rpm respect to motor speed by rpm
-  if (chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().has_fmotspd()) {
+  if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
     chassis_.set_engine_rpm(
-        static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0_8c08a7f0().fmotspd()));
+        static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0().fmotspd()));
   } else {
     chassis_.set_engine_rpm(0);
   }
@@ -187,22 +179,22 @@ ErrorCode DiamondController::EnableAutoMode() {
   }
 
   // Driver Motor TODO(zongbao): test on board
-  id_0x0c19f0a7_8c19f0a7_->set_bymot1workmode(true);
+  id_0x0c19f0a7_->set_bymot1workmode(0x92);
 
   // Steering Motor
   // DC/DC 
-  id_0x0c079aa7_8c079aa7_->set_bydcdccmd(0x55);
+  id_0x0c079aa7->set_bydcdccmd(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_bydcaccmd(0x55);
+  id_0x0c079aa7->set_bydcaccmd(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_bydcacwkst(0x55);
+  id_0x0c079aa7->set_bydcacwkst(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_byeapcmd(0x55);
+  id_0x0c079aa7->set_byeapcmd(0x55);
 
   // DC/DC 
-  id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(0x55);
+  id_0x0c079aa7->set_bydcac2cmd(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_bydcac2wkst(0x55);
+  id_0x0c079aa7->set_bydcac2wkst(0x55);
 
 
   can_sender_->Update();
@@ -237,18 +229,18 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
   }
   // Steering Motor
   // DC/DC 
-  //id_0x0c079aa7_8c079aa7_->set_bydcdccmd(0x55);
+  //id_0x0c079aa7->set_bydcdccmd(0x55);
   // DC/AC
-  id_0x0c079aa7_8c079aa7_->set_bydcaccmd(0x55);
+  id_0x0c079aa7->set_bydcaccmd(0x55);
   // DC/AC
-  //id_0x0c079aa7_8c079aa7_->set_bydcacwkst(0x55);
+  //id_0x0c079aa7->set_bydcacwkst(0x55);
   // DC/AC
-  //id_0x0c079aa7_8c079aa7_->set_byeapcmd(0x55);
+  //id_0x0c079aa7->set_byeapcmd(0x55);
 
   // DC/DC 
-  id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(0x55);
+  id_0x0c079aa7->set_bydcac2cmd(0x55);
   // DC/AC
-  //id_0x0c079aa7_8c079aa7_->set_bydcac2wkst(0x55);
+  //id_0x0c079aa7->set_bydcac2wkst(0x55);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, true)) {
@@ -270,7 +262,7 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
     return ErrorCode::OK;
   }
   // Driver Motor TODO(zongbao): test on board
-  id_0x0c19f0a7_8c19f0a7_->set_bymot1workmode(true);
+  id_0x0c19f0a7->set_bymot1workmode(0x92);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, true)) {
@@ -357,7 +349,7 @@ void DiamondController::Throttle(double pedal) {
     return;
   }
 
-  id_0x0c19f0a7_8c19f0a7_->set_fmot1targettq(pedal);
+  id_0x0c19f0a7->set_fmot1targettq(pedal);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
@@ -383,10 +375,10 @@ void DiamondController::Steer(double angle) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  //const double real_angle = 360.0 * angle / 100.0;
+  const double real_angle = 360.0 * angle / 100.0;
   // reverse sign
-  //id_0x0c079aa7_8c079aa7_->set_bydcaccmd(real_angle);
-  //id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(real_angle);
+  id_0x0c079aa7->set_bydcaccmd(real_angle);
+  id_0x0c079aa7->set_bydcac2cmd(real_angle);
 }
 
 // steering with new angle speed
@@ -398,10 +390,10 @@ void DiamondController::Steer(double angle, double angle_spd) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  //const double real_angle = 360 * angle / 100.0;
+  // const double real_angle = 360 * angle / 100.0;
  
-  //id_0x0c079aa7_8c079aa7_->set_bydcaccmd(real_angle);
-  //id_0x0c079aa7_8c079aa7_->set_bydcac2cmd(real_angle);
+  // id_0x0c079aa7->set_bydcaccmd(real_angle);
+  // id_0x0c079aa7->set_bydcac2cmd(real_angle);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {

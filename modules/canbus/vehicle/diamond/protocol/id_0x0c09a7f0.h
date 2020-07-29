@@ -23,32 +23,32 @@ namespace apollo {
 namespace canbus {
 namespace diamond {
 
-class Id0x0c09a7f08c09a7f0 : public ::apollo::drivers::canbus::ProtocolData<
+class Id0x0c09a7f0 : public ::apollo::drivers::canbus::ProtocolData<
                     ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
-  Id0x0c09a7f08c09a7f0();
+  Id0x0c09a7f0();
   void Parse(const std::uint8_t* bytes, int32_t length,
                      ChassisDetail* chassis) const override;
 
  private:
 
-  // config detail: {'name': 'fMotVolt', 'offset': -1000.0, 'precision': 0.1, 'len': 16, 'is_signed_var': False, 'physical_range': '[-1000|5553.5]', 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'V'}
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fMotVolt', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'V', 'precision': 0.1, 'type': 'double'}
   double fmotvolt(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'fMotTemp', 'offset': -40.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[-40|215]', 'bit': 16, 'type': 'int', 'order': 'intel', 'physical_unit': 'TMP'}
+  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'fMotTemp', 'offset': -40.0, 'order': 'intel', 'physical_range': '[-40|215]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int fmottemp(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'fMCUTemp', 'offset': -40.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[-40|215]', 'bit': 24, 'type': 'int', 'order': 'intel', 'physical_unit': 'TMP'}
+  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name': 'fMCUTemp', 'offset': -40.0, 'order': 'intel', 'physical_range': '[-40|215]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int fmcutemp(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'fMotRectCur', 'offset': -1000.0, 'precision': 0.1, 'len': 16, 'is_signed_var': False, 'physical_range': '[-1000|5553.5]', 'bit': 32, 'type': 'double', 'order': 'intel', 'physical_unit': 'A'}
+  // config detail: {'bit': 32, 'is_signed_var': False, 'len': 16, 'name': 'fMotRectCur', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
   double fmotrectcur(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'byMotSpdDir', 'offset': 0.0, 'precision': 1.0, 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 50, 'type': 'bool', 'order': 'intel', 'physical_unit': ''}
+  // config detail: {'bit': 50, 'is_signed_var': False, 'len': 1, 'name': 'byMotSpdDir', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'bool'}
   bool bymotspddir(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'name': 'byMotErrCode', 'offset': 0.0, 'precision': 1.0, 'len': 8, 'is_signed_var': False, 'physical_range': '[0|255]', 'bit': 56, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
+  // config detail: {'bit': 56, 'is_signed_var': False, 'len': 8, 'name': 'byMotErrCode', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int bymoterrcode(const std::uint8_t* bytes, const int32_t length) const;
 };
 

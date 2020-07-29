@@ -27,9 +27,8 @@
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7_8c079aa7.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0c089aa7_8c089aa7.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7_8c19f0a7.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 
 namespace apollo {
 namespace canbus {
@@ -113,9 +112,8 @@ class DiamondController final : public VehicleController {
 
  private:
   // control protocol
-  Id0x0c079aa78c079aa7* id_0x0c079aa7_8c079aa7_ = nullptr;
-  Id0x0c089aa78c089aa7* id_0x0c089aa7_8c089aa7_ = nullptr;
-  Id0x0c19f0a78c19f0a7* id_0x0c19f0a7_8c19f0a7_ = nullptr;
+  Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
+  Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
