@@ -29,6 +29,7 @@
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 
 namespace apollo {
 namespace canbus {
@@ -112,8 +113,11 @@ class DiamondController final : public VehicleController {
 
  private:
   // control protocol
+  // CAN1
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
+  // CAN2
+  Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;

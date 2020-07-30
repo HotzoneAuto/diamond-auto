@@ -74,10 +74,259 @@ message Id_0x0c19f0a7 {
   optional int32 bylife = 5;
 }
 
+message Id_0x0cfff3a7 {
+// Control Message
+  // [] [0|255]
+  optional int32 bybatrlyoffcmd = 1;
+  // [] [0|255]
+  optional int32 bybatrlycmd = 2;
+}
+
+message Id_0x1818d0f3 {
+// Report Message
+  // [V] [-1000|5553.5]
+  optional double fbatvolt = 1;
+  // [A] [1000|7553.5]
+  optional double fbatcur = 2;
+  // [%] [0|102]
+  optional double fbatsoc = 3;
+  // [] [0|1]
+  optional bool bybatcellvolthigh = 4;
+  // [] [0|1]
+  optional bool bybatcellvoltlow = 5;
+  // [] [0|1]
+  optional bool bybatsochigh = 6;
+  // [] [0|1]
+  optional bool bybatsoclow = 7;
+  // [] [0|1]
+  optional bool bybatinnercommerr = 8;
+  // [] [0|1]
+  optional bool bybatvoltlow = 9;
+  // [] [0|1]
+  optional bool bybatvolthigh = 10;
+  // [] [0|1]
+  optional bool bybatimbalance = 11;
+  // [] [0|1]
+  optional bool bybatheatuprateerr = 12;
+  // [] [0|1]
+  optional bool bybatsmokeerr = 13;
+  // [] [0|1]
+  optional bool bybatinsrerr = 14;
+  // [] [0|1]
+  optional bool bybatdsgcurhigh = 15;
+  // [] [0|1]
+  optional bool bybatchrgcurhigh = 16;
+  // [] [0|1]
+  optional bool bybattemphigh = 17;
+  // [] [0|1]
+  optional bool bybattempdiffhigh = 18;
+  // [] [0|1]
+  optional bool bybatcoolrun = 19;
+  // [] [0|1]
+  optional bool bybatnegrlysts = 20;
+  // [] [0|1]
+  optional bool byhaslargerescell = 21;
+  // [] [0|1]
+  optional bool byhassmallcapcell = 22;
+  // [] [0|1]
+  optional bool byhasbatchargercomm = 23;
+  // [] [0|1]
+  optional bool bybatchrgcc = 24;
+  // [] [0|1]
+  optional bool bybatinchrg = 25;
+  // [] [0|1]
+  optional bool bybatfusests = 26;
+}
+
+message Id_0x1819d0f3 {
+// Report Message
+  // [A] [-1000|5553.5]
+  optional double fbatmaxchrgcur = 1;
+  // [A] [-1000|5553.5]
+  optional double fbatmaxdsgcur = 2;
+  // [] [0|255]
+  optional int32 bybaterrlevel = 3;
+}
+
+message Id_0x181ad0f3 {
+// Report Message
+  // [k] [0|65535]
+  optional int32 fposinsrvalue = 1;
+  // [k] [0|65535]
+  optional int32 fneginsrvalue = 2;
+}
+
+message Id_0x181bd0f3 {
+// Report Message
+  // [] [0|1]
+  optional bool byvinrcvflg = 1;
+  // [] [0|1]
+  optional bool byfireextinguierr = 2;
+  // [] [0|1]
+  optional bool bychrgseattemphigh = 3;
+  // [] [0|1]
+  optional bool bywirelesschrgcc = 4;
+  // [] [0|1]
+  optional bool bymsdsts = 5;
+  // [] [0|1]
+  optional bool bymainrlynotopenerr = 6;
+  // [] [0|1]
+  optional bool bybatreqpoweroff = 7;
+  // [] [0|1]
+  optional bool byremainrlynotopenerr = 8;
+  // [] [0|1]
+  optional bool byfirealrm = 9;
+  // [] [-40|215]
+  optional int32 fchrgseattemp1 = 10;
+  // [] [-40|215]
+  optional int32 fchrgseattemp2 = 11;
+  // [] [-40|215]
+  optional int32 fchrgseattemp3 = 12;
+  // [] [-40|215]
+  optional int32 fchrgseattemp4 = 13;
+  // [] [0|255]
+  optional int32 bybaterrnum = 14;
+  // [] [0|1]
+  optional bool bysocjmperr = 15;
+  // [] [0|1]
+  optional bool bybatoverchrgerr = 16;
+  // [] [0|1]
+  optional bool bybatmisschrger = 17;
+  // [] [0|1]
+  optional bool byhvnotclose = 18;
+  // [] [0|1]
+  optional bool bybatheatnotclose = 19;
+  // [] [0|1]
+  optional bool bychargecompleted = 20;
+  // [] [0|1]
+  optional bool bypantographrly = 21;
+  // [] [0|1]
+  optional bool byinsrcommerr = 22;
+}
+
+message Id_0x181cd0f3 {
+// Report Message
+  // [AH] [0|65535]
+  optional int32 fbatratedcap = 1;
+  // [V] [0|6553.5]
+  optional double fbatratedvolt = 2;
+}
+
+message Id_0x181dd0f3 {
+// Report Message
+  // [] [-40|215]
+  optional int32 fbatmaxcelltemp = 1;
+  // [] [-40|215]
+  optional int32 fbatmincelltemp = 2;
+}
+
+message Id_0x181ed0f3 {
+// Report Message
+  // [] [0|1]
+  optional bool byfuelbatclosecmd = 1;
+  // [] [0|1]
+  optional bool byparkchrgdisable = 2;
+  // [] [0|1]
+  optional bool byvehtmsdcdcsts = 3;
+  // [] [0|1]
+  optional bool byvehtmsdcdcerr = 4;
+  // [] [0|1]
+  optional bool byvehtmserr = 5;
+  // [] [0|1]
+  optional bool byinsrjump = 6;
+  // [] [0|1]
+  optional bool bybatdcdcerr = 7;
+  // [] [0|1]
+  optional bool bybattemplow = 8;
+  // [] [0|1]
+  optional bool bybatheatcircuiterr = 9;
+  // [] [0|1]
+  optional bool bybatselfprotecterr = 10;
+  // [] [0|1]
+  optional bool bycanacommerr = 11;
+  // [] [0|1]
+  optional bool bybatbranchbreakerr = 12;
+  // [] [0|1]
+  optional bool bybatinmsderr = 13;
+  // [] [0|1]
+  optional bool bytmsrlynotcloseerr = 14;
+  // [] [0|1]
+  optional bool bytmsrlynotopenerr = 15;
+  // [] [0|1]
+  optional bool bybatnegrlynotcloseerr = 16;
+  // [] [0|1]
+  optional bool bychrgaposrlynotopenerr = 17;
+  // [] [0|1]
+  optional bool bychrgaposrlynotcloseerr = 18;
+  // [] [0|1]
+  optional bool bychrganegrlynotcloseerr = 19;
+  // [] [0|1]
+  optional bool bychrganegrlynotopenerr = 20;
+  // [] [0|1]
+  optional bool bychrgbposrlynotcloseerr = 21;
+  // [] [0|1]
+  optional bool bychrgbposrlynotopenerr = 22;
+  // [] [0|1]
+  optional bool bychrgbnegrlynotcloseerr = 23;
+  // [] [0|1]
+  optional bool bychrgbnegrlynotopenerr = 24;
+  // [] [0|1]
+  optional bool bydsgcurhghwhenchrg = 25;
+  // [] [0|1]
+  optional bool bychrgseatntcerr = 26;
+  // [] [0|1]
+  optional bool bybatoverdsg = 27;
+  // [] [0|1]
+  optional bool bybatcursensorerr = 28;
+  // [] [0|1]
+  optional bool bybmslowvolterr = 29;
+  // [] [0|1]
+  optional bool bybatchrgsignalerr = 30;
+  // [] [0|3]
+  optional int32 bybmsmode = 31;
+}
+
+message Id_0x181fd0f3 {
+// Report Message
+  // [] [0|255]
+  optional int32 bybatinsrchkerr = 1;
+  // [] [0|255]
+  optional int32 bychrgererr = 2;
+}
+
+message Id_0x1825d0f3 {
+// Report Message
+  // [mV] [0|65535]
+  optional int32 fbatmaxcellvolt = 1;
+  // [mV] [0|65535]
+  optional int32 fbatmincellvolt = 2;
+  // [mV] [0|65535]
+  optional int32 fbatavrcellvolt = 3;
+}
+
+message Id_0x18eba1a5 {
+// Report Message
+  // [] [0|255]
+  optional int32 byfirealarmlevel = 1;
+  // [] [0|1]
+  optional bool byfireextinguiveherr = 2;
+}
+
 message Diamond {
   optional Id_0x0c079aa7 id_0x0c079aa7 = 1; // control message
   optional Id_0x0c08a7f0 id_0x0c08a7f0 = 2; // report message
   optional Id_0x0c09a7f0 id_0x0c09a7f0 = 3; // report message
   optional Id_0x0c0ba7f0 id_0x0c0ba7f0 = 4; // report message
   optional Id_0x0c19f0a7 id_0x0c19f0a7 = 5; // control message
+  optional Id_0x0cfff3a7 id_0x0cfff3a7 = 6; // control message
+  optional Id_0x1818d0f3 id_0x1818d0f3 = 7; // report message
+  optional Id_0x1819d0f3 id_0x1819d0f3 = 8; // report message
+  optional Id_0x181ad0f3 id_0x181ad0f3 = 9; // report message
+  optional Id_0x181bd0f3 id_0x181bd0f3 = 10; // report message
+  optional Id_0x181cd0f3 id_0x181cd0f3 = 11; // report message
+  optional Id_0x181dd0f3 id_0x181dd0f3 = 12; // report message
+  optional Id_0x181ed0f3 id_0x181ed0f3 = 13; // report message
+  optional Id_0x181fd0f3 id_0x181fd0f3 = 14; // report message
+  optional Id_0x1825d0f3 id_0x1825d0f3 = 15; // report message
+  optional Id_0x18eba1a5 id_0x18eba1a5 = 16; // report message
 }
