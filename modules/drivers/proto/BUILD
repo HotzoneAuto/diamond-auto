@@ -29,6 +29,29 @@ py_proto_library(
 )
 
 cc_proto_library(
+    name = "imu_cc_proto",
+    deps = [
+        ":imu_proto",
+    ],
+)
+
+proto_library(
+    name = "imu_proto",
+    srcs = ["imu.proto"],
+    deps = [
+        "//modules/common/proto:header_proto",
+        "//modules/common/proto:geometry_proto",
+    ],
+)
+
+py_proto_library(
+    name = "imu_py_pb2",
+    deps = [
+        ":imu_proto",
+    ],
+)
+
+cc_proto_library(
     name = "magnetic_cc_proto",
     deps = [
         ":magnetic_proto",
