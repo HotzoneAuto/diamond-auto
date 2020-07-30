@@ -127,6 +127,7 @@ message Chassis {
   
   // Applied MOTOR torque in [Nm].
   optional float motor_torque_nm = 34 [default = nan];
+  optional float bat_volt = 35 [default = nan];
 
 }
 

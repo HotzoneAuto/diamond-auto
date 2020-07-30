@@ -170,6 +170,13 @@ Chassis DiamondController::chassis() {
     chassis_.set_engine_rpm(0);
   }
 
+   if (chassis_detail.diamond().id_0x1818d0f3().has_fbatvolt()) {
+     chassis_.set_bat_volt(static_cast<float>(
+         chassis_detail.diamond().id_0x1818d0f3().fbatvolt()));
+   } else {
+     chassis_.set_bat_volt(0);
+  }
+
 
   return chassis_;
 }
