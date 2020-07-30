@@ -81,6 +81,13 @@ ErrorCode DiamondController::Init(
      return ErrorCode::CANBUS_ERROR;
   }
 
+  id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>
+          (message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
+  if (id_0x0cfff3a7_ == nullptr) {
+     AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
+     return ErrorCode::CANBUS_ERROR;
+  }
+
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
 
