@@ -46,8 +46,8 @@ void Id0x0c19f0a7::UpdateData(uint8_t* data) {
 void Id0x0c19f0a7::Reset() {
   // TODO(All) :  you should check this manually
   fmot1targettq_ = 0;
-  fmot1lmtvolt_ = 0.0;
-  fmot1lmtcur_ = 0.0;
+  fmot1lmtvolt_ = 800;
+  fmot1lmtcur_ = 250;
   bymot1workmode_ = 0;
   bylife_ = 0;
 }

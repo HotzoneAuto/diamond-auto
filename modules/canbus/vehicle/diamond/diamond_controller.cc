@@ -179,23 +179,19 @@ ErrorCode DiamondController::EnableAutoMode() {
   }
 
   // Driver Motor TODO(zongbao): test on board
-  id_0x0c19f0a7_->set_bymot1workmode(0x92);
+  id_0x0c19f0a7_->set_fmot1targettq(0);
+  id_0x0c19f0a7_->set_fmot1lmtvolt(800);
+  id_0x0c19f0a7_->set_fmot1lmtcur(250);
+  id_0x0c19f0a7_->set_bymot1workmode(0);
+  id_0x0c19f0a7_->set_bylife(0);
 
   // Steering Motor
-  // DC/DC 
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcaccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcacwkst(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_byeapcmd(0x55);
-
-  // DC/DC 
-  id_0x0c079aa7_->set_bydcac2cmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcac2wkst(0x55);
-
+  id_0x0c079aa7_->set_bydcdccmd(0xAA);
+  id_0x0c079aa7_->set_bydcaccmd(0xAA);
+  id_0x0c079aa7_->set_bydcacwkst(0xAA);
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 
   can_sender_->Update();
   const int32_t flag =
@@ -262,7 +258,7 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
     return ErrorCode::OK;
   }
   // Driver Motor TODO(zongbao): test on board
-  id_0x0c19f0a7_->set_bymot1workmode(0x92);
+  // id_0x0c19f0a7_->set_bymot1workmode(0x92);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, true)) {
@@ -350,6 +346,7 @@ void DiamondController::Throttle(double pedal) {
   }
 
   id_0x0c19f0a7_->set_fmot1targettq(pedal);
+  id_0x0c19f0a7_->set_bymot1workmode(146);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
@@ -375,10 +372,23 @@ void DiamondController::Steer(double angle) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  const double real_angle = 360.0 * angle / 100.0;
+  // const double real_angle = 360.0 * angle / 100.0;
   // reverse sign
-  id_0x0c079aa7_->set_bydcaccmd(real_angle);
-  id_0x0c079aa7_->set_bydcac2cmd(real_angle);
+  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
+  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
+  // DC/DC 
+  id_0x0c079aa7_->set_bydcdccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_->set_bydcaccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_->set_bydcacwkst(0x55);
+  // DC/AC
+  id_0x0c079aa7_->set_byeapcmd(0x55);
+
+  // DC/DC 
+  id_0x0c079aa7_->set_bydcac2cmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_->set_bydcac2wkst(0x55);
 }
 
 // steering with new angle speed
