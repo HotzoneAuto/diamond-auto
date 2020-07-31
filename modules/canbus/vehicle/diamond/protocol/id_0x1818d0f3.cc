@@ -32,58 +32,33 @@ const int32_t Id0x1818d0f3::ID = 0x1818D0F3;
 
 void Id0x1818d0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_fbatvolt(
-      fbatvolt(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_fbatcur(
-      fbatcur(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_fbatsoc(
-      fbatsoc(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatcellvolthigh(
-      bybatcellvolthigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatcellvoltlow(
-      bybatcellvoltlow(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatsochigh(
-      bybatsochigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatsoclow(
-      bybatsoclow(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatinnercommerr(
-      bybatinnercommerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatvoltlow(
-      bybatvoltlow(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatvolthigh(
-      bybatvolthigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatimbalance(
-      bybatimbalance(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatheatuprateerr(
-      bybatheatuprateerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatsmokeerr(
-      bybatsmokeerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatinsrerr(
-      bybatinsrerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatdsgcurhigh(
-      bybatdsgcurhigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatchrgcurhigh(
-      bybatchrgcurhigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybattemphigh(
-      bybattemphigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybattempdiffhigh(
-      bybattempdiffhigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatcoolrun(
-      bybatcoolrun(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatnegrlysts(
-      bybatnegrlysts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_byhaslargerescell(
-      byhaslargerescell(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_byhassmallcapcell(
-      byhassmallcapcell(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_byhasbatchargercomm(
-      byhasbatchargercomm(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatchrgcc(
-      bybatchrgcc(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatinchrg(
-      bybatinchrg(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1818d0f3()->set_bybatfusests(
-      bybatfusests(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x1818d0f3();
+  id->set_fbatvolt(fbatvolt(bytes, length));
+  id->set_fbatcur(fbatcur(bytes, length));
+  id->set_fbatsoc(fbatsoc(bytes, length));
+  id->set_bybatcellvolthigh(bybatcellvolthigh(bytes, length));
+  id->set_bybatcellvoltlow(bybatcellvoltlow(bytes, length));
+  id->set_bybatsochigh(bybatsochigh(bytes, length));
+  id->set_bybatsoclow(bybatsoclow(bytes, length));
+  id->set_bybatinnercommerr(bybatinnercommerr(bytes, length));
+  id->set_bybatvoltlow(bybatvoltlow(bytes, length));
+  id->set_bybatvolthigh(bybatvolthigh(bytes, length));
+  id->set_bybatimbalance(bybatimbalance(bytes, length));
+  id->set_bybatheatuprateerr(bybatheatuprateerr(bytes, length));
+  id->set_bybatsmokeerr(bybatsmokeerr(bytes, length));
+  id->set_bybatinsrerr(bybatinsrerr(bytes, length));
+  id->set_bybatdsgcurhigh(bybatdsgcurhigh(bytes, length));
+  id->set_bybatchrgcurhigh(bybatchrgcurhigh(bytes, length));
+  id->set_bybattemphigh(bybattemphigh(bytes, length));
+  id->set_bybattempdiffhigh(bybattempdiffhigh(bytes, length));
+  id->set_bybatcoolrun(bybatcoolrun(bytes, length));
+  id->set_bybatnegrlysts(bybatnegrlysts(bytes, length));
+  id->set_byhaslargerescell(byhaslargerescell(bytes, length));
+  id->set_byhassmallcapcell(byhassmallcapcell(bytes, length));
+  id->set_byhasbatchargercomm(byhasbatchargercomm(bytes, length));
+  id->set_bybatchrgcc(bybatchrgcc(bytes, length));
+  id->set_bybatinchrg(bybatinchrg(bytes, length));
+  id->set_bybatfusests(bybatfusests(bytes, length));
 }
 
 // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':
