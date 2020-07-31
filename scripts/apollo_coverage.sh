@@ -5,6 +5,18 @@ TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 source "${TOP_DIR}/scripts/apollo.bashrc"
 source "${TOP_DIR}/scripts/apollo_base.sh"
 
+BAZEL_OUT="${TOP_DIR}/bazel-out" # $(bazel info output_path)
+COVERAGE_HTML="${TOP_DIR}/.cache/coverage"
+COVERAGE_DAT="${BAZEL_OUT}/_coverage/_coverage_report.dat"
+
+# Note(storypku): branch coverage seems not work when running bazel coverage
+# GENHTML_OPTIONS="--rc genhtml_branch_coverage=1 --highlight --legend"
+
+##============= Perception ===================##
+PERCEPTION_EXCEPTIONS="\
+except //modules/perception/lidar/lib/detection/lidar_point_pillars:point_pillars_test \
+"
+
 ##============= Localization ===================##
 LOCALIZATION_EXCEPTIONS="\
 except //modules/localization/ndt/ndt_locator:ndt_lidar_locator_test \
@@ -25,6 +37,7 @@ DISABLED_TARGETS=
 
 function _disabled_test_targets_all() {
     local disabled="${LOCALIZATION_EXCEPTIONS}"
+    disabled="${disabled} ${PERCEPTION_EXCEPTIONS}"
     if ! ${USE_ESD_CAN} ; then
         warning "ESD CAN library supplied by ESD Electronics doesn't exist."
         warning "If you need ESD CAN, please refer to:"
@@ -36,9 +49,6 @@ function _disabled_test_targets_all() {
         disabled="${disabled} except //modules/localization/msf/..."
     fi
     echo "${disabled}"
-    # TODO(all): exceptions for CPU mode: should be done in BUILD file level.
-    # grep -v "cnn_segmentation_test\|yolo_camera_detector_test\|unity_recognize_test\|
-    # perception_traffic_light_rectify_test\|cuda_util_test"`"
 }
 
 # bazel run //modules/planning/tools:inference_demo crash
@@ -131,15 +141,15 @@ function _parse_cmdline_arguments() {
     SHORTHAND_TARGETS="${remained_args}"
 }
 
-function _run_bazel_test_impl() {
-    local job_args="--jobs=$(nproc)"
-    bazel test --distdir="${APOLLO_CACHE_DIR}/distdir" "${job_args}" $@
+function _run_bazel_coverage_impl() {
+    local count="$(( $(nproc) / 2 ))"
+    bazel coverage --jobs=${count} $@
 }
 
-function bazel_test() {
+function bazel_coverage() {
     if ! "${APOLLO_IN_DOCKER}" ; then
-        error "The build operation must be run from within docker container"
-        # exit 1
+        error "Coverage test must be run from within the docker container"
+        exit 1
     fi
 
     _parse_cmdline_arguments "$@"
@@ -151,22 +161,25 @@ function bazel_test() {
     local disabled_targets
     disabled_targets="$(determine_disabled_targets ${SHORTHAND_TARGETS})"
 
-    info "Test Overview: "
-    info "${TAB}Test Options: ${GREEN}${CMDLINE_OPTIONS}${NO_COLOR}"
-    info "${TAB}Test Targets: ${GREEN}${test_targets}${NO_COLOR}"
+    info "Coverage Overview: "
+    info "${TAB}Coverage Options: ${GREEN}${CMDLINE_OPTIONS}${NO_COLOR}"
+    info "${TAB}Coverage Targets: ${GREEN}${test_targets}${NO_COLOR}"
     info "${TAB}Disabled:     ${YELLOW}${disabled_targets}${NO_COLOR}"
 
-    _run_bazel_test_impl "${CMDLINE_OPTIONS}" "$(bazel query ${test_targets} ${disabled_targets})"
+    _run_bazel_coverage_impl "${CMDLINE_OPTIONS}" "$(bazel query ${test_targets} ${disabled_targets})"
 }
 
 function main() {
     if [ "${USE_GPU}" -eq 1 ]; then
-        info "Your GPU is enabled to run unit tests on ${ARCH} platform."
+        info "Your GPU is enabled to run coverage test on ${ARCH} platform."
     else
-        info "Running tests under CPU mode on ${ARCH} platform."
+        info "Running coverage test under CPU mode on ${ARCH} platform."
     fi
-    bazel_test $@
-    success "Done unit testing ${SHORTHAND_TARGETS}."
+
+    bazel_coverage $@
+    genhtml "${COVERAGE_DAT}" --output-directory "${COVERAGE_HTML}"
+    success "Done bazel coverage ${SHORTHAND_TARGETS}. "
+    info "Coverage report was generated under ${COVERAGE_HTML}"
 }
 
 main "$@"
