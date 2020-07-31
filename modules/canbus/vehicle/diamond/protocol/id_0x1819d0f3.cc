@@ -32,13 +32,19 @@ const int32_t Id0x1819d0f3::ID = 0x1819D0F3;
 
 void Id0x1819d0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x1819d0f3()->set_fbatmaxchrgcur(fbatmaxchrgcur(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1819d0f3()->set_fbatmaxdsgcur(fbatmaxdsgcur(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1819d0f3()->set_bybaterrlevel(bybaterrlevel(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x1819d0f3()->set_fbatmaxchrgcur(
+      fbatmaxchrgcur(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x1819d0f3()->set_fbatmaxdsgcur(
+      fbatmaxdsgcur(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x1819d0f3()->set_bybaterrlevel(
+      bybaterrlevel(bytes, length));
 }
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fbatmaxchrgcur', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
-double Id0x1819d0f3::fbatmaxchrgcur(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':
+// 'fbatmaxchrgcur', 'offset': -1000.0, 'order': 'intel', 'physical_range':
+// '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
+double Id0x1819d0f3::fbatmaxchrgcur(const std::uint8_t* bytes,
+                                    int32_t length) const {
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
 
@@ -51,8 +57,11 @@ double Id0x1819d0f3::fbatmaxchrgcur(const std::uint8_t* bytes, int32_t length) c
   return ret;
 }
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name': 'fbatmaxdsgcur', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
-double Id0x1819d0f3::fbatmaxdsgcur(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name':
+// 'fbatmaxdsgcur', 'offset': -1000.0, 'order': 'intel', 'physical_range':
+// '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
+double Id0x1819d0f3::fbatmaxdsgcur(const std::uint8_t* bytes,
+                                   int32_t length) const {
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 8);
 
@@ -65,8 +74,11 @@ double Id0x1819d0f3::fbatmaxdsgcur(const std::uint8_t* bytes, int32_t length) co
   return ret;
 }
 
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name': 'bybaterrlevel', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-int Id0x1819d0f3::bybaterrlevel(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name':
+// 'bybaterrlevel', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+int Id0x1819d0f3::bybaterrlevel(const std::uint8_t* bytes,
+                                int32_t length) const {
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 

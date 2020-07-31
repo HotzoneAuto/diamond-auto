@@ -16,9 +16,9 @@
 
 #include "modules/canbus/vehicle/diamond/diamond_vehicle_factory.h"
 
+#include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_controller.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
-#include "cyber/common/log.h"
 #include "modules/common/util/util.h"
 
 namespace apollo {
@@ -32,7 +32,7 @@ DiamondVehicleFactory::CreateVehicleController() {
 std::unique_ptr<MessageManager<::apollo::canbus::ChassisDetail>>
 DiamondVehicleFactory::CreateMessageManager() {
   return std::unique_ptr<MessageManager<::apollo::canbus::ChassisDetail>>(
-	new diamond::DiamondMessageManager());
+      new diamond::DiamondMessageManager());
 }
 
 }  // namespace canbus

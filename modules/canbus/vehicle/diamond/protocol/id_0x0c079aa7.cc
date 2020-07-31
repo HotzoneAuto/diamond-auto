@@ -54,15 +54,15 @@ void Id0x0c079aa7::Reset() {
   bydcac2wkst_ = 0xAA;
 }
 
-Id0x0c079aa7* Id0x0c079aa7::set_bydcdccmd(
-    int bydcdccmd) {
+Id0x0c079aa7* Id0x0c079aa7::set_bydcdccmd(int bydcdccmd) {
   bydcdccmd_ = bydcdccmd;
   return this;
- }
+}
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'byDcdcCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c079aa7::set_p_bydcdccmd(uint8_t* data,
-    int bydcdccmd) {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+// 'byDcdcCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c079aa7::set_p_bydcdccmd(uint8_t* data, int bydcdccmd) {
   bydcdccmd = ProtocolData::BoundedValue(0, 255, bydcdccmd);
   int x = bydcdccmd;
 
@@ -70,16 +70,15 @@ void Id0x0c079aa7::set_p_bydcdccmd(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0c079aa7* Id0x0c079aa7::set_bydcaccmd(
-    int bydcaccmd) {
+Id0x0c079aa7* Id0x0c079aa7::set_bydcaccmd(int bydcaccmd) {
   bydcaccmd_ = bydcaccmd;
   return this;
- }
+}
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'byDcAcCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c079aa7::set_p_bydcaccmd(uint8_t* data,
-    int bydcaccmd) {
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name':
+// 'byDcAcCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c079aa7::set_p_bydcaccmd(uint8_t* data, int bydcaccmd) {
   bydcaccmd = ProtocolData::BoundedValue(0, 255, bydcaccmd);
   int x = bydcaccmd;
 
@@ -87,16 +86,15 @@ void Id0x0c079aa7::set_p_bydcaccmd(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0c079aa7* Id0x0c079aa7::set_bydcacwkst(
-    int bydcacwkst) {
+Id0x0c079aa7* Id0x0c079aa7::set_bydcacwkst(int bydcacwkst) {
   bydcacwkst_ = bydcacwkst;
   return this;
- }
+}
 
-// config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name': 'byDcAcWkSt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c079aa7::set_p_bydcacwkst(uint8_t* data,
-    int bydcacwkst) {
+// config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name':
+// 'byDcAcWkSt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c079aa7::set_p_bydcacwkst(uint8_t* data, int bydcacwkst) {
   bydcacwkst = ProtocolData::BoundedValue(0, 255, bydcacwkst);
   int x = bydcacwkst;
 
@@ -104,16 +102,15 @@ void Id0x0c079aa7::set_p_bydcacwkst(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0c079aa7* Id0x0c079aa7::set_byeapcmd(
-    int byeapcmd) {
+Id0x0c079aa7* Id0x0c079aa7::set_byeapcmd(int byeapcmd) {
   byeapcmd_ = byeapcmd;
   return this;
- }
+}
 
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name': 'byEapCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c079aa7::set_p_byeapcmd(uint8_t* data,
-    int byeapcmd) {
+// config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name':
+// 'byEapCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c079aa7::set_p_byeapcmd(uint8_t* data, int byeapcmd) {
   byeapcmd = ProtocolData::BoundedValue(0, 255, byeapcmd);
   int x = byeapcmd;
 
@@ -121,16 +118,15 @@ void Id0x0c079aa7::set_p_byeapcmd(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0c079aa7* Id0x0c079aa7::set_bydcac2cmd(
-    int bydcac2cmd) {
+Id0x0c079aa7* Id0x0c079aa7::set_bydcac2cmd(int bydcac2cmd) {
   bydcac2cmd_ = bydcac2cmd;
   return this;
- }
+}
 
-// config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name': 'byDcAc2Cmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c079aa7::set_p_bydcac2cmd(uint8_t* data,
-    int bydcac2cmd) {
+// config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name':
+// 'byDcAc2Cmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c079aa7::set_p_bydcac2cmd(uint8_t* data, int bydcac2cmd) {
   bydcac2cmd = ProtocolData::BoundedValue(0, 255, bydcac2cmd);
   int x = bydcac2cmd;
 
@@ -138,16 +134,15 @@ void Id0x0c079aa7::set_p_bydcac2cmd(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0c079aa7* Id0x0c079aa7::set_bydcac2wkst(
-    int bydcac2wkst) {
+Id0x0c079aa7* Id0x0c079aa7::set_bydcac2wkst(int bydcac2wkst) {
   bydcac2wkst_ = bydcac2wkst;
   return this;
- }
+}
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 8, 'name': 'byDcAc2WkSt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c079aa7::set_p_bydcac2wkst(uint8_t* data,
-    int bydcac2wkst) {
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 8, 'name':
+// 'byDcAc2WkSt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c079aa7::set_p_bydcac2wkst(uint8_t* data, int bydcac2wkst) {
   bydcac2wkst = ProtocolData::BoundedValue(0, 255, bydcac2wkst);
   int x = bydcac2wkst;
 

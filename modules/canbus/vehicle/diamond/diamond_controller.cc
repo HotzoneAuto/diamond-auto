@@ -29,21 +29,21 @@ namespace apollo {
 namespace canbus {
 namespace diamond {
 
-using ::apollo::drivers::canbus::ProtocolData;
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
+using ::apollo::drivers::canbus::ProtocolData;
 
 namespace {
 
 const int32_t kMaxFailAttempt = 10;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
-}
+}  // namespace
 
 ErrorCode DiamondController::Init(
-	const VehicleParameter& params,
-	CanSender<::apollo::canbus::ChassisDetail> *const can_sender,
-    MessageManager<::apollo::canbus::ChassisDetail> *const message_manager) {
+    const VehicleParameter& params,
+    CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
+    MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
   if (is_initialized_) {
     AINFO << "DiamondController has already been initiated.";
     return ErrorCode::CANBUS_ERROR;
@@ -67,25 +67,25 @@ ErrorCode DiamondController::Init(
   message_manager_ = message_manager;
 
   // sender part
-  id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
+  id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
   if (id_0x0c079aa7_ == nullptr) {
-     AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
-     return ErrorCode::CANBUS_ERROR;
+    AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
   }
 
-  id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
+  id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
   if (id_0x0c19f0a7_ == nullptr) {
-     AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
-     return ErrorCode::CANBUS_ERROR;
+    AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
   }
 
-  id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>
-          (message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
+  id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
   if (id_0x0cfff3a7_ == nullptr) {
-     AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
-     return ErrorCode::CANBUS_ERROR;
+    AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
   }
 
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
@@ -140,11 +140,11 @@ Chassis DiamondController::chassis() {
 
   // 3
   chassis_.set_engine_started(true);
-  
+
   // 4 Motor torque nm
   if (chassis_detail.diamond().id_0x0c08a7f0().has_fmottq()) {
-    chassis_.set_motor_torque_nm(static_cast<float>(
-        chassis_detail.diamond().id_0x0c08a7f0().fmottq()));
+    chassis_.set_motor_torque_nm(
+        static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0().fmottq()));
   } else {
     chassis_.set_motor_torque_nm(0);
   }
@@ -170,13 +170,12 @@ Chassis DiamondController::chassis() {
     chassis_.set_engine_rpm(0);
   }
 
-   if (chassis_detail.diamond().id_0x1818d0f3().has_fbatvolt()) {
-     chassis_.set_bat_volt(static_cast<float>(
-         chassis_detail.diamond().id_0x1818d0f3().fbatvolt()));
-   } else {
-     chassis_.set_bat_volt(0);
+  if (chassis_detail.diamond().id_0x1818d0f3().has_fbatvolt()) {
+    chassis_.set_bat_volt(static_cast<float>(
+        chassis_detail.diamond().id_0x1818d0f3().fbatvolt()));
+  } else {
+    chassis_.set_bat_volt(0);
   }
-
 
   return chassis_;
 }
@@ -238,19 +237,19 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
     return ErrorCode::OK;
   }
   // Steering Motor
-  // DC/DC 
-  //id_0x0c079aa7_->set_bydcdccmd(0x55);
+  // DC/DC
+  // id_0x0c079aa7_->set_bydcdccmd(0x55);
   // DC/AC
   id_0x0c079aa7_->set_bydcaccmd(0x55);
   // DC/AC
-  //id_0x0c079aa7_->set_bydcacwkst(0x55);
+  // id_0x0c079aa7_->set_bydcacwkst(0x55);
   // DC/AC
-  //id_0x0c079aa7_->set_byeapcmd(0x55);
+  // id_0x0c079aa7_->set_byeapcmd(0x55);
 
-  // DC/DC 
+  // DC/DC
   id_0x0c079aa7_->set_bydcac2cmd(0x55);
   // DC/AC
-  //id_0x0c079aa7_->set_bydcac2wkst(0x55);
+  // id_0x0c079aa7_->set_bydcac2wkst(0x55);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, true)) {
@@ -373,7 +372,7 @@ void DiamondController::Acceleration(double acc) {
     return;
   }
   /* ADD YOUR OWN CAR CHASSIS OPERATION
-  */
+   */
 }
 
 // diamond default, -470 ~ 470, left:+, right:-
@@ -390,7 +389,7 @@ void DiamondController::Steer(double angle) {
   // reverse sign
   // id_0x0c079aa7_->set_bydcaccmd(real_angle);
   // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
-  // DC/DC 
+  // DC/DC
   id_0x0c079aa7_->set_bydcdccmd(0x55);
   // DC/AC
   id_0x0c079aa7_->set_bydcaccmd(0x55);
@@ -399,7 +398,7 @@ void DiamondController::Steer(double angle) {
   // DC/AC
   id_0x0c079aa7_->set_byeapcmd(0x55);
 
-  // DC/DC 
+  // DC/DC
   id_0x0c079aa7_->set_bydcac2cmd(0x55);
   // DC/AC
   id_0x0c079aa7_->set_bydcac2wkst(0x55);
@@ -415,7 +414,7 @@ void DiamondController::Steer(double angle, double angle_spd) {
     return;
   }
   // const double real_angle = 360 * angle / 100.0;
- 
+
   // id_0x0c079aa7_->set_bydcaccmd(real_angle);
   // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
 }
@@ -464,9 +463,7 @@ void DiamondController::ResetProtocol() {
   message_manager_->ResetSendMessages();
 }
 
-bool DiamondController::CheckChassisError() {
-  return false;
-}
+bool DiamondController::CheckChassisError() { return false; }
 
 void DiamondController::SecurityDogThreadFunc() {
   int32_t vertical_ctrl_fail = 0;

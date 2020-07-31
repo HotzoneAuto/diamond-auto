@@ -32,12 +32,17 @@ const int32_t Id0x181ad0f3::ID = 0x181AD0F3;
 
 void Id0x181ad0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x181ad0f3()->set_fposinsrvalue(fposinsrvalue(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ad0f3()->set_fneginsrvalue(fneginsrvalue(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x181ad0f3()->set_fposinsrvalue(
+      fposinsrvalue(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x181ad0f3()->set_fneginsrvalue(
+      fneginsrvalue(bytes, length));
 }
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fposinsrvalue', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
-int Id0x181ad0f3::fposinsrvalue(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':
+// 'fposinsrvalue', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
+int Id0x181ad0f3::fposinsrvalue(const std::uint8_t* bytes,
+                                int32_t length) const {
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
 
@@ -50,8 +55,11 @@ int Id0x181ad0f3::fposinsrvalue(const std::uint8_t* bytes, int32_t length) const
   return ret;
 }
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name': 'fneginsrvalue', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
-int Id0x181ad0f3::fneginsrvalue(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name':
+// 'fneginsrvalue', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
+int Id0x181ad0f3::fneginsrvalue(const std::uint8_t* bytes,
+                                int32_t length) const {
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 8);
 

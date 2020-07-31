@@ -52,15 +52,15 @@ void Id0x0c19f0a7::Reset() {
   bylife_ = 0;
 }
 
-Id0x0c19f0a7* Id0x0c19f0a7::set_fmot1targettq(
-    int fmot1targettq) {
+Id0x0c19f0a7* Id0x0c19f0a7::set_fmot1targettq(int fmot1targettq) {
   fmot1targettq_ = fmot1targettq;
   return this;
- }
+}
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fMot1TargetTq', 'offset': -32000.0, 'order': 'intel', 'physical_range': '[-32000|33535]', 'physical_unit': 'NM', 'precision': 1.0, 'type': 'int'}
-void Id0x0c19f0a7::set_p_fmot1targettq(uint8_t* data,
-    int fmot1targettq) {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':
+// 'fMot1TargetTq', 'offset': -32000.0, 'order': 'intel', 'physical_range':
+// '[-32000|33535]', 'physical_unit': 'NM', 'precision': 1.0, 'type': 'int'}
+void Id0x0c19f0a7::set_p_fmot1targettq(uint8_t* data, int fmot1targettq) {
   fmot1targettq = ProtocolData::BoundedValue(-32000, 33535, fmot1targettq);
   int x = (fmot1targettq - -32000.000000);
   uint8_t t = 0;
@@ -75,16 +75,15 @@ void Id0x0c19f0a7::set_p_fmot1targettq(uint8_t* data,
   to_set1.set_value(t, 0, 8);
 }
 
-
-Id0x0c19f0a7* Id0x0c19f0a7::set_fmot1lmtvolt(
-    double fmot1lmtvolt) {
+Id0x0c19f0a7* Id0x0c19f0a7::set_fmot1lmtvolt(double fmot1lmtvolt) {
   fmot1lmtvolt_ = fmot1lmtvolt;
   return this;
- }
+}
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name': 'fMot1LmtVolt', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'V', 'precision': 0.1, 'type': 'double'}
-void Id0x0c19f0a7::set_p_fmot1lmtvolt(uint8_t* data,
-    double fmot1lmtvolt) {
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name':
+// 'fMot1LmtVolt', 'offset': -1000.0, 'order': 'intel', 'physical_range':
+// '[-1000|5553.5]', 'physical_unit': 'V', 'precision': 0.1, 'type': 'double'}
+void Id0x0c19f0a7::set_p_fmot1lmtvolt(uint8_t* data, double fmot1lmtvolt) {
   fmot1lmtvolt = ProtocolData::BoundedValue(-1000.0, 5553.5, fmot1lmtvolt);
   int x = (fmot1lmtvolt - -1000.000000) / 0.100000;
   uint8_t t = 0;
@@ -99,16 +98,15 @@ void Id0x0c19f0a7::set_p_fmot1lmtvolt(uint8_t* data,
   to_set1.set_value(t, 0, 8);
 }
 
-
-Id0x0c19f0a7* Id0x0c19f0a7::set_fmot1lmtcur(
-    double fmot1lmtcur) {
+Id0x0c19f0a7* Id0x0c19f0a7::set_fmot1lmtcur(double fmot1lmtcur) {
   fmot1lmtcur_ = fmot1lmtcur;
   return this;
- }
+}
 
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 16, 'name': 'fMot1LmtCur', 'offset': -1000.0, 'order': 'intel', 'physical_range': '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
-void Id0x0c19f0a7::set_p_fmot1lmtcur(uint8_t* data,
-    double fmot1lmtcur) {
+// config detail: {'bit': 32, 'is_signed_var': False, 'len': 16, 'name':
+// 'fMot1LmtCur', 'offset': -1000.0, 'order': 'intel', 'physical_range':
+// '[-1000|5553.5]', 'physical_unit': 'A', 'precision': 0.1, 'type': 'double'}
+void Id0x0c19f0a7::set_p_fmot1lmtcur(uint8_t* data, double fmot1lmtcur) {
   fmot1lmtcur = ProtocolData::BoundedValue(-1000.0, 5553.5, fmot1lmtcur);
   int x = (fmot1lmtcur - -1000.000000) / 0.100000;
   uint8_t t = 0;
@@ -123,16 +121,15 @@ void Id0x0c19f0a7::set_p_fmot1lmtcur(uint8_t* data,
   to_set1.set_value(t, 0, 8);
 }
 
-
-Id0x0c19f0a7* Id0x0c19f0a7::set_bymot1workmode(
-    int bymot1workmode) {
+Id0x0c19f0a7* Id0x0c19f0a7::set_bymot1workmode(int bymot1workmode) {
   bymot1workmode_ = bymot1workmode;
   return this;
- }
+}
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 8, 'name': 'byMot1WorkMode', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c19f0a7::set_p_bymot1workmode(uint8_t* data,
-    int bymot1workmode) {
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 8, 'name':
+// 'byMot1WorkMode', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c19f0a7::set_p_bymot1workmode(uint8_t* data, int bymot1workmode) {
   bymot1workmode = ProtocolData::BoundedValue(0, 255, bymot1workmode);
   int x = bymot1workmode;
 
@@ -140,16 +137,15 @@ void Id0x0c19f0a7::set_p_bymot1workmode(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0c19f0a7* Id0x0c19f0a7::set_bylife(
-    int bylife) {
+Id0x0c19f0a7* Id0x0c19f0a7::set_bylife(int bylife) {
   bylife_ = bylife;
   return this;
- }
+}
 
-// config detail: {'bit': 56, 'is_signed_var': False, 'len': 8, 'name': 'byLife', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0c19f0a7::set_p_bylife(uint8_t* data,
-    int bylife) {
+// config detail: {'bit': 56, 'is_signed_var': False, 'len': 8, 'name':
+// 'byLife', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0c19f0a7::set_p_bylife(uint8_t* data, int bylife) {
   bylife = ProtocolData::BoundedValue(0, 255, bylife);
   int x = bylife;
 

@@ -16,32 +16,33 @@
 
 #pragma once
 
-#include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 class Id0x181fd0f3 : public ::apollo::drivers::canbus::ProtocolData<
-                    ::apollo::canbus::ChassisDetail> {
+                         ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
   Id0x181fd0f3();
   void Parse(const std::uint8_t* bytes, int32_t length,
-                     ChassisDetail* chassis) const override;
+             ChassisDetail* chassis) const override;
 
  private:
-
-  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'byBatInsRChkErr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name':
+  // 'byBatInsRChkErr', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int bybatinsrchkerr(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name': 'byChrgerErr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name':
+  // 'byChrgerErr', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int bychrgererr(const std::uint8_t* bytes, const int32_t length) const;
 };
 
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-

@@ -16,15 +16,15 @@
 
 #pragma once
 
-#include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 class Id0x0cfff3a7 : public ::apollo::drivers::canbus::ProtocolData<
-                    ::apollo::canbus::ChassisDetail> {
+                         ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
 
@@ -36,18 +36,25 @@ class Id0x0cfff3a7 : public ::apollo::drivers::canbus::ProtocolData<
 
   void Reset() override;
 
-  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'byBatRlyOffCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+  // 'byBatRlyOffCmd', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   Id0x0cfff3a7* set_bybatrlyoffcmd(int bybatrlyoffcmd);
 
-  // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name': 'byBatRlyCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
+  // 'byBatRlyCmd', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   Id0x0cfff3a7* set_bybatrlycmd(int bybatrlycmd);
 
  private:
-
-  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'byBatRlyOffCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+  // 'byBatRlyOffCmd', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   void set_p_bybatrlyoffcmd(uint8_t* data, int bybatrlyoffcmd);
 
-  // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name': 'byBatRlyCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
+  // 'byBatRlyCmd', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   void set_p_bybatrlycmd(uint8_t* data, int bybatrlycmd);
 
  private:
@@ -58,5 +65,3 @@ class Id0x0cfff3a7 : public ::apollo::drivers::canbus::ProtocolData<
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-

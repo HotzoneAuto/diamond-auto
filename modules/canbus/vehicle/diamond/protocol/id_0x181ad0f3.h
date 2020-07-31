@@ -16,32 +16,33 @@
 
 #pragma once
 
-#include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 class Id0x181ad0f3 : public ::apollo::drivers::canbus::ProtocolData<
-                    ::apollo::canbus::ChassisDetail> {
+                         ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
   Id0x181ad0f3();
   void Parse(const std::uint8_t* bytes, int32_t length,
-                     ChassisDetail* chassis) const override;
+             ChassisDetail* chassis) const override;
 
  private:
-
-  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fPosInsRValue', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':
+  // 'fPosInsRValue', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
   int fposinsrvalue(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name': 'fNegInsRValue', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name':
+  // 'fNegInsRValue', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|65535]', 'physical_unit': 'k', 'precision': 1.0, 'type': 'int'}
   int fneginsrvalue(const std::uint8_t* bytes, const int32_t length) const;
 };
 
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-

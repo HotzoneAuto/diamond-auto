@@ -16,32 +16,33 @@
 
 #pragma once
 
-#include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 class Id0x181dd0f3 : public ::apollo::drivers::canbus::ProtocolData<
-                    ::apollo::canbus::ChassisDetail> {
+                         ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
   Id0x181dd0f3();
   void Parse(const std::uint8_t* bytes, int32_t length,
-                     ChassisDetail* chassis) const override;
+             ChassisDetail* chassis) const override;
 
  private:
-
-  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'fBatMaxCellTemp', 'offset': -40.0, 'order': 'intel', 'physical_range': '[-40|215]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+  // 'fBatMaxCellTemp', 'offset': -40.0, 'order': 'intel', 'physical_range':
+  // '[-40|215]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int fbatmaxcelltemp(const std::uint8_t* bytes, const int32_t length) const;
 
-  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name': 'fBatMinCellTemp', 'offset': -40.0, 'order': 'intel', 'physical_range': '[-40|215]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name':
+  // 'fBatMinCellTemp', 'offset': -40.0, 'order': 'intel', 'physical_range':
+  // '[-40|215]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int fbatmincelltemp(const std::uint8_t* bytes, const int32_t length) const;
 };
 
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-
