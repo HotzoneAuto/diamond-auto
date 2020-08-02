@@ -23,9 +23,7 @@ namespace drivers
 namespace LPMS
 {
 
-bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
-	: node_(node),
-	  m_sensorThread([&](SensorThreadParams const& param) -> bool
+bool LPMSDriverComponent::m_sensorThread(SensorThreadParams const& param) // read data from IMU
 {
 	const float cDegToRad = 3.1415926f / 180.0f;
 	const float cEarthG = 9.81f;
@@ -82,8 +80,8 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 
 			//   Fill linear acceleration data
 			const float rosConversion =
-			-1.0 * (!param.useLpmsAccelerationConvention) +
-			1.0 * param.useLpmsAccelerationConvention;
+			    -1.0 * (!param.useLpmsAccelerationConvention) +
+			    1.0 * param.useLpmsAccelerationConvention;
 
 			auto linear_acceleration = imu.mutable_linear_acceleration();
 			linear_acceleration->set_x(rosConversion * d.a[0] * cEarthG);
@@ -104,7 +102,10 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 
 	return true;
 }
+
+bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 {
+	node_ = node;
 	imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
 
 	auto clientPair = zen::make_client();
@@ -155,8 +156,8 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 						firstSensorFound = true;
 					}
 					AINFO << "OpenZen sensor with name "
-					<< event.data.sensorFound.serialNumber
-					<< " on IO system found" << event.data.sensorFound.ioType;
+					      << event.data.sensorFound.serialNumber
+					      << " on IO system found" << event.data.sensorFound.ioType;
 					break;
 
 				case ZenSensorEvent_SensorListingProgress:
@@ -174,7 +175,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		}
 
 		AINFO << "Connecting to found sensor " << foundSens.serialNumber
-		<< " on IO system " << foundSens.ioType;
+		      << " on IO system " << foundSens.ioType;
 		// if a baudRate has been set, override the default given by OpenZen
 		// listing
 		if (m_baudrate > 0)
@@ -185,7 +186,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		if (sensorObtainPair.first != ZenSensorInitError_None)
 		{
 			AERROR << "Cannot connect to sensor found with discovery. Make sure "
-			"you have the user rights to access serial devices.";
+			       "you have the user rights to access serial devices.";
 			return;
 		}
 		m_zenSensor = std::unique_ptr<zen::ZenSensor>(new zen::ZenSensor(std::move(sensorObtainPair.second)));
@@ -194,18 +195,27 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 	{
 		// directly connect to sensor
 		AINFO << "Connecting directly to sensor " << m_sensorName
-		<< " over interface " << m_sensorInterface;
+		      << " over interface " << m_sensorInterface;
 		auto sensorObtainPair = m_zenClient->obtainSensorByName(m_sensorInterface, m_sensorName, m_baudrate);
 
 		if (sensorObtainPair.first != ZenSensorInitError_None)
 		{
 			AERROR << "Cannot connect directly to sensor.  Make sure you have the "
-			"user rights to access serial devices.";
+			       "user rights to access serial devices.";
 			return;
 		}
 		m_zenSensor = std::unique_ptr<zen::ZenSensor>(
-		    new zen::ZenSensor(std::move(sensorObtainPair.second)));
+		                  new zen::ZenSensor(std::move(sensorObtainPair.second)));
 	}
+	
+	std::packaged_task<bool(SensorThreadParams)> SensorPackage(m_sensorThread);	
+	std::thread t_read(std::ref(SensorPackage), param);
+	t_read.detach();
+	if(t_read.joinable())
+		t_read.join();
+	assert(!t_read.joinable());
+	std::future<bool> SensorFuture = SensorPackage.get_future();
+	
 }
 
 
@@ -229,7 +239,7 @@ bool LPMSDriverComponent::run(void)
 	{
 		// error, this sensor does not have an IMU component
 		AINFO << "No IMU component available, sensor control commands won't be "
-		"available";
+		      "available";
 	}
 	else
 	{
@@ -255,7 +265,7 @@ void LPMSDriverComponent::publishIsAutocalibrationActive()
 	if (!m_zenImu)
 	{
 		AINFO << "No IMU compontent available, can't publish autocalibration "
-		"status";
+		      "status";
 		return;
 	}
 
@@ -347,7 +357,6 @@ bool LPMSDriverComponent::calibrateGyroscope(const std::shared_ptr<Content>& req
 	if (auto error = m_zenImu->executeProperty(ZenImuProperty_CalibrateGyro))
 	{
 		AINFO << "Error : " << error;
-
 		res->set_success(false);
 		res->set_message("[Failed] Gyroscope calibration procedure error");
 	}

@@ -60,8 +60,8 @@ public:
 	std::string frame_id;
 	int m_baudrate = 0;
 
-LPMSDriverComponent() = default
-		                        ~LPMSDriverComponent()
+	LPMSDriverComponent() = default;
+	~LPMSDriverComponent()
 	{
 		if (device_thread_->joinable())
 		{

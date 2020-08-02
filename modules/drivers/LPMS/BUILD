@@ -5,7 +5,8 @@ package(default_visibility = ["//visibility:public"])
 
 cc_binary(
     name = "openzennode",
-    srcs = ["OpenZenNode.cc"],
+	hdrs = ["LPMS_component.h"],
+    srcs = ["LPMS_component.cc"],
     deps = [
         ":ManagedThread",
         "//cyber",
