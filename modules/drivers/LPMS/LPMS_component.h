@@ -18,6 +18,8 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <future>
+#include <assert.h>
 
 #include "OpenZen.h"
 #include "ManagedThread.h"
@@ -68,7 +70,9 @@ public:
 			device_thread_->join();
 		}
 	}
-	bool Init() override;
+	
+	bool m_sensorThread(SensorThreadParams const& param);
+	bool Init(std::shared_ptr<apollo::cyber::Node> node) override;
 	// bool Proc(const std::shared_ptr<Driver>& msg) override;
 
 	bool run(void);
