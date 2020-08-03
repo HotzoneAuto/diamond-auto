@@ -63,16 +63,16 @@ public:
 	int m_baudrate = 0;
 
 	LPMSDriverComponent() = default;
-	~LPMSDriverComponent()
-	{
+	~LPMSDriverComponent(){};
+	/*{
 		if (device_thread_->joinable())
 		{
 			device_thread_->join();
 		}
-	}
+	}*/
 	
 	bool m_sensorThread(SensorThreadParams const& param);
-	bool Init(std::shared_ptr<apollo::cyber::Node> node) override;
+	bool Init(std::shared_ptr<apollo::cyber::Node> node);
 	// bool Proc(const std::shared_ptr<Driver>& msg) override;
 
 	bool run(void);

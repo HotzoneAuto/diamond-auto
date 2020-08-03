@@ -23,7 +23,7 @@ namespace drivers
 namespace LPMS
 {
 
-bool LPMSDriverComponent::m_sensorThread(SensorThreadParams const& param) // read data from IMU
+bool LPMSDriverComponent::m_sensorThread(LPMSDriverComponent::SensorThreadParams const& param) // read data from IMU
 {
 	const float cDegToRad = 3.1415926f / 180.0f;
 	const float cEarthG = 9.81f;
@@ -114,7 +114,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 	if (clientPair.first != ZenError_None)
 	{
 		AERROR << "Cannot start OpenZen";
-		return;
+		return false;
 	}
 
 	if (m_openzenVerbose)
@@ -131,7 +131,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		if (listError != ZenError_None)
 		{
 			AERROR << "Cannot list sensors";
-			return;
+			return false;
 		}
 
 		bool listingDone = false;
@@ -171,7 +171,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		if (!firstSensorFound)
 		{
 			AERROR << "No OpenZen sensors found";
-			return;
+			return false;
 		}
 
 		AINFO << "Connecting to found sensor " << foundSens.serialNumber
@@ -187,7 +187,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		{
 			AERROR << "Cannot connect to sensor found with discovery. Make sure "
 			       "you have the user rights to access serial devices.";
-			return;
+			return false;
 		}
 		m_zenSensor = std::unique_ptr<zen::ZenSensor>(new zen::ZenSensor(std::move(sensorObtainPair.second)));
 	}
@@ -202,14 +202,14 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		{
 			AERROR << "Cannot connect directly to sensor.  Make sure you have the "
 			       "user rights to access serial devices.";
-			return;
+			return false;
 		}
 		m_zenSensor = std::unique_ptr<zen::ZenSensor>(
 		                  new zen::ZenSensor(std::move(sensorObtainPair.second)));
 	}
 	
-	std::packaged_task<bool(SensorThreadParams)> SensorPackage(m_sensorThread);	
-	std::thread t_read(std::ref(SensorPackage), param);
+	std::packaged_task<bool(LPMSDriverComponent::SensorThreadParams)> SensorPackage(m_sensorThread);	
+	std::thread t_read(std::ref(SensorPackage)/*, param*/);
 	t_read.detach();
 	if(t_read.joinable())
 		t_read.join();
@@ -238,21 +238,15 @@ bool LPMSDriverComponent::run(void)
 	if (!hasImu)
 	{
 		// error, this sensor does not have an IMU component
-		AINFO << "No IMU component available, sensor control commands won't be "
-		      "available";
+		AINFO << "No IMU component available, sensor control commands won't be available";
 	}
 	else
 	{
-		m_zenImu = std::unique_ptr<zen::ZenSensorComponent>(
-		               new zen::ZenSensorComponent(std::move(imuPair.second)));
+		m_zenImu = std::unique_ptr<zen::ZenSensorComponent>(new zen::ZenSensorComponent(std::move(imuPair.second)));
 		publishIsAutocalibrationActive();
 	}
 
-	m_sensorThread.start(SensorThreadParams {m_zenClient.get(), frame_id,
-	                     imu_writer_,
-	                     m_useLpmsAccelerationConvention
-	                                        });
-
+	m_sensorThread.start(LPMSDriverComponent::SensorThreadParams{m_zenClient.get(), frame_id, imu_writer_, m_useLpmsAccelerationConvention});
 	AINFO << "Data streaming from sensor started";
 
 	return true;
@@ -264,8 +258,7 @@ void LPMSDriverComponent::publishIsAutocalibrationActive()
 
 	if (!m_zenImu)
 	{
-		AINFO << "No IMU compontent available, can't publish autocalibration "
-		      "status";
+		AINFO << "No IMU compontent available, can't publish autocalibration status";
 		return;
 	}
 
