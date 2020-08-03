@@ -92,13 +92,13 @@ private:
 	bool m_openzenVerbose;
 	bool m_useLpmsAccelerationConvention;
 
-	struct SensorThreadParams
+	typedef struct SensorThreadParams
 	{
 		zen::ZenClient* zenClient;
 		std::string frame_id;
 		std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_;
 		bool useLpmsAccelerationConvention;
-	};
+	}SensorThreadParams;
 
 	ManagedThread<SensorThreadParams> m_sensorThread;
 
