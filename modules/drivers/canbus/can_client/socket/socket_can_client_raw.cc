@@ -92,7 +92,6 @@ ErrorCode SocketCanClientRaw::Start() {
        filter[i].can_id=hex_value[i];
        filter[i].can_mask = CAN_EFF_MASK;
     }
-    
     ret = setsockopt(dev_handler_, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
                      sizeof(filter));
     if (ret < 0) {
