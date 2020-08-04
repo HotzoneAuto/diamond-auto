@@ -38,6 +38,8 @@ function set_lib_path() {
     export LD_LIBRARY_PATH=/usr/local/libtorch_gpu/lib:$LD_LIBRARY_PATH
   fi
 
+  export LD_LIBRARY_PATH=/usr/local/fast-rtps/lib:$LD_LIBRARY_PATH
+  export CPLUS_INCLUDE_PATH=/usr/local/fast-rtps/include:$CPLUS_INCLUDE_PATH
   # FIXME(all): remove PYTHONPATH settings
   export PYTHONPATH="${APOLLO_ROOT_DIR}/modules/tools:${PYTHONPATH}"
   # Set teleop paths
