@@ -84,7 +84,14 @@ ErrorCode SocketCanClientRaw::Start() {
       filter[i].can_id = 0x000 + i;
       filter[i].can_mask = CAN_EFF_MASK;
     }*/
-
+    int hex_value[] = { 0x0C09A79B, 0x0C0AA79C,0x0C09A7F0,0x0C08A7F0,0x0C0BA7F0
+    ,0x1818F0F3 ,0x1819D0F3 ,0x181AD0F3 ,0x181BD0F3,0x181CD0F3,0x181DD0F3
+    ,0x181ED0F3,0x181FD0F3,0x1825D0F3,0x18EBA1A5 };
+     for (int i = 0; i < sizeof(hex_value) / sizeof(hex_value[0]); ++i) {
+         filter[i].can_id=hex_value[i];
+         filter[i].can_mask = CAN_EFF_MASK;
+         }
+/*
     filter[0].can_id = 0x0C09A79B;
     filter[0].can_mask = CAN_EFF_MASK;
 
@@ -125,6 +132,7 @@ ErrorCode SocketCanClientRaw::Start() {
     filter[13].can_mask = CAN_EFF_MASK;
     filter[14].can_id = 0x18EBA1A5;
     filter[14].can_mask = CAN_EFF_MASK;
+*/
     ret = setsockopt(dev_handler_, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
                      sizeof(filter));
     if (ret < 0) {
