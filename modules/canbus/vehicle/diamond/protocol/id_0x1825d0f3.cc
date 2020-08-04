@@ -32,13 +32,19 @@ const int32_t Id0x1825d0f3::ID = 0x1825D0F3;
 
 void Id0x1825d0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatmaxcellvolt(fbatmaxcellvolt(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatmincellvolt(fbatmincellvolt(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatavrcellvolt(fbatavrcellvolt(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatmaxcellvolt(
+      fbatmaxcellvolt(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatmincellvolt(
+      fbatmincellvolt(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatavrcellvolt(
+      fbatavrcellvolt(bytes, length));
 }
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name': 'fbatmaxcellvolt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'mV', 'precision': 1.0, 'type': 'int'}
-int Id0x1825d0f3::fbatmaxcellvolt(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':
+// 'fbatmaxcellvolt', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|65535]', 'physical_unit': 'mV', 'precision': 1.0, 'type': 'int'}
+int Id0x1825d0f3::fbatmaxcellvolt(const std::uint8_t* bytes,
+                                  int32_t length) const {
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
 
@@ -51,8 +57,11 @@ int Id0x1825d0f3::fbatmaxcellvolt(const std::uint8_t* bytes, int32_t length) con
   return ret;
 }
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name': 'fbatmincellvolt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'mV', 'precision': 1.0, 'type': 'int'}
-int Id0x1825d0f3::fbatmincellvolt(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 16, 'name':
+// 'fbatmincellvolt', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|65535]', 'physical_unit': 'mV', 'precision': 1.0, 'type': 'int'}
+int Id0x1825d0f3::fbatmincellvolt(const std::uint8_t* bytes,
+                                  int32_t length) const {
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 8);
 
@@ -65,8 +74,11 @@ int Id0x1825d0f3::fbatmincellvolt(const std::uint8_t* bytes, int32_t length) con
   return ret;
 }
 
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 16, 'name': 'fbatavrcellvolt', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65535]', 'physical_unit': 'mV', 'precision': 1.0, 'type': 'int'}
-int Id0x1825d0f3::fbatavrcellvolt(const std::uint8_t* bytes, int32_t length) const {
+// config detail: {'bit': 32, 'is_signed_var': False, 'len': 16, 'name':
+// 'fbatavrcellvolt', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|65535]', 'physical_unit': 'mV', 'precision': 1.0, 'type': 'int'}
+int Id0x1825d0f3::fbatavrcellvolt(const std::uint8_t* bytes,
+                                  int32_t length) const {
   Byte t0(bytes + 5);
   int32_t x = t0.get_byte(0, 8);
 

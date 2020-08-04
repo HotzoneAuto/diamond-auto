@@ -46,15 +46,15 @@ void Id0x0cfff3a7::Reset() {
   bybatrlycmd_ = 0;
 }
 
-Id0x0cfff3a7* Id0x0cfff3a7::set_bybatrlyoffcmd(
-    int bybatrlyoffcmd) {
+Id0x0cfff3a7* Id0x0cfff3a7::set_bybatrlyoffcmd(int bybatrlyoffcmd) {
   bybatrlyoffcmd_ = bybatrlyoffcmd;
   return this;
- }
+}
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'byBatRlyOffCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0cfff3a7::set_p_bybatrlyoffcmd(uint8_t* data,
-    int bybatrlyoffcmd) {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+// 'byBatRlyOffCmd', 'offset': 0.0, 'order': 'intel', 'physical_range':
+// '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0cfff3a7::set_p_bybatrlyoffcmd(uint8_t* data, int bybatrlyoffcmd) {
   bybatrlyoffcmd = ProtocolData::BoundedValue(0, 255, bybatrlyoffcmd);
   int x = bybatrlyoffcmd;
 
@@ -62,16 +62,15 @@ void Id0x0cfff3a7::set_p_bybatrlyoffcmd(uint8_t* data,
   to_set.set_value(x, 0, 8);
 }
 
-
-Id0x0cfff3a7* Id0x0cfff3a7::set_bybatrlycmd(
-    int bybatrlycmd) {
+Id0x0cfff3a7* Id0x0cfff3a7::set_bybatrlycmd(int bybatrlycmd) {
   bybatrlycmd_ = bybatrlycmd;
   return this;
- }
+}
 
-// config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name': 'byBatRlyCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x0cfff3a7::set_p_bybatrlycmd(uint8_t* data,
-    int bybatrlycmd) {
+// config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
+// 'byBatRlyCmd', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|255]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x0cfff3a7::set_p_bybatrlycmd(uint8_t* data, int bybatrlycmd) {
   bybatrlycmd = ProtocolData::BoundedValue(0, 255, bybatrlycmd);
   int x = bybatrlycmd;
 

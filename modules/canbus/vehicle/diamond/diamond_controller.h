@@ -37,15 +37,15 @@ namespace diamond {
 
 class DiamondController final : public VehicleController {
  public:
-
-  explicit DiamondController() {};
+  explicit DiamondController(){};
 
   virtual ~DiamondController();
 
   ::apollo::common::ErrorCode Init(
       const VehicleParameter& params,
-      CanSender<::apollo::canbus::ChassisDetail> *const can_sender,
-      MessageManager<::apollo::canbus::ChassisDetail> *const message_manager) override;
+      CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
+      MessageManager<::apollo::canbus::ChassisDetail>* const message_manager)
+      override;
 
   bool Start() override;
 

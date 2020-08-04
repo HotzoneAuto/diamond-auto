@@ -43,8 +43,8 @@ namespace canbus {
 class DiamondVehicleFactory : public AbstractVehicleFactory {
  public:
   /**
-  * @brief destructor
-  */
+   * @brief destructor
+   */
   virtual ~DiamondVehicleFactory() = default;
 
   /**
@@ -63,5 +63,3 @@ class DiamondVehicleFactory : public AbstractVehicleFactory {
 
 }  // namespace canbus
 }  // namespace apollo
-
-

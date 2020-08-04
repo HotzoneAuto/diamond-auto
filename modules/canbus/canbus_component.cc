@@ -108,12 +108,12 @@ bool CanbusComponent::Init() {
   control_cmd_reader_config.pending_queue_size =
       FLAGS_control_cmd_pending_queue_size;
 
-    control_command_reader_ = node_->CreateReader<ControlCommand>(
-        control_cmd_reader_config,
-        [this](const std::shared_ptr<ControlCommand> &cmd) {
-          ADEBUG << "Received control data: run canbus callback.";
-          OnControlCommand(*cmd);
-        });
+  control_command_reader_ = node_->CreateReader<ControlCommand>(
+      control_cmd_reader_config,
+      [this](const std::shared_ptr<ControlCommand> &cmd) {
+        ADEBUG << "Received control data: run canbus callback.";
+        OnControlCommand(*cmd);
+      });
 
   chassis_writer_ = node_->CreateWriter<Chassis>(FLAGS_chassis_topic);
 

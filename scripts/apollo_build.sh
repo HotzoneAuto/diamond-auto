@@ -3,6 +3,7 @@ set -e
 
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 source "${TOP_DIR}/scripts/apollo.bashrc"
+source "${TOP_DIR}/scripts/apollo_base.sh"
 
 ARCH="$(uname -m)"
 
@@ -15,12 +16,7 @@ function determine_disabled_bazel_targets() {
     local disabled=
     local compo="$1"
     if [[ -z "${compo}" || "${compo}" == "drivers" ]]; then
-        if ! ${USE_ESD_CAN} ; then
-            warning "ESD CAN library supplied by ESD Electronics doesn't exist."
-            warning "If you need ESD CAN, please refer to:"
-            warning "  third_party/can_card_library/esd_can/README.md"
-            disabled="${disabled} except //modules/drivers/canbus/can_client/esd/..."
-        fi
+        disabled=
     elif [[ "${compo}" == "localization" && "${ARCH}" != "x86_64" ]]; then
         # Skip msf for non-x86_64 platforms
         disabled="${disabled} except //modules/localization/msf/..."
@@ -123,7 +119,7 @@ function bazel_build() {
 
 	_parse_cmdline_arguments $@
 
-    CMDLINE_OPTIONS="${CMDLINE_OPTIONS} --define USE_ESD_CAN=${USE_ESD_CAN}"
+    CMDLINE_OPTIONS="${CMDLINE_OPTIONS}"
 
     local build_targets
     build_targets="$(determine_build_targets ${SHORTHAND_TARGETS})"
@@ -155,10 +151,9 @@ function main() {
         info "Running build under CPU mode on ${ARCH} platform."
     fi
     bazel_build $@
-    # Disable simulator build temporarily
-    # build_simulator
     if [ -z "${SHORTHAND_TARGETS}" ]; then
-        SHORTHAND_TARGETS="apollo"
+        SHORTHAND_TARGETS="diamond-auto"
+        build_simulator
     fi
     success "Done building ${SHORTHAND_TARGETS}. Enjoy!"
 }

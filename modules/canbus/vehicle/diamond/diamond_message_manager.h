@@ -26,7 +26,7 @@ namespace diamond {
 using ::apollo::drivers::canbus::MessageManager;
 
 class DiamondMessageManager
-	: public MessageManager<::apollo::canbus::ChassisDetail> {
+    : public MessageManager<::apollo::canbus::ChassisDetail> {
  public:
   DiamondMessageManager();
   virtual ~DiamondMessageManager();
@@ -35,5 +35,3 @@ class DiamondMessageManager
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-
