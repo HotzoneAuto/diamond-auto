@@ -215,6 +215,7 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		t_read.join();
 	assert(!t_read.joinable());
 	std::future<bool> SensorFuture = SensorPackage.get_future();
+	return true;
 	
 }
 
