@@ -292,43 +292,6 @@ void DiamondController::Gear(Chassis::GearPosition gear_position) {
     AINFO << "This drive mode no need to set gear.";
     return;
   }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  switch (gear_position) {
-    case Chassis::GEAR_NEUTRAL: {
-      gear_66_->set_gear_neutral();
-      break;
-    }
-    case Chassis::GEAR_REVERSE: {
-      gear_66_->set_gear_reverse();
-      break;
-    }
-    case Chassis::GEAR_DRIVE: {
-      gear_66_->set_gear_drive();
-      break;
-    }
-    case Chassis::GEAR_PARKING: {
-      gear_66_->set_gear_park();
-      break;
-    }
-    case Chassis::GEAR_LOW: {
-      gear_66_->set_gear_low();
-      break;
-    }
-    case Chassis::GEAR_NONE: {
-      gear_66_->set_gear_none();
-      break;
-    }
-    case Chassis::GEAR_INVALID: {
-      AERROR << "Gear command is invalid!";
-      gear_66_->set_gear_none();
-      break;
-    }
-    default: {
-      gear_66_->set_gear_none();
-      break;
-    }
-  }
-  */
 }
 
 // brake with new acceleration
