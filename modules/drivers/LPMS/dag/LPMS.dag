@@ -1,15 +1,12 @@
 module_config{
-    module_library: "path of public library"
+    module_library: "/apollo/bazel-bin/modules/drivers/LPMS/liblpms.so"
     components{
         class_name: "LPMSDriverComponent"
         config{
             name:"LPMS"
-            config_file_path:
-            readers:[(receivers defined in "LPMSDriverComponent::Proc()")
-                {
-                    channel:
-                }
-            ]
+            config_file_path:  "/apollo/modules/canbus/conf/canbus_conf.pb.txt"
+            flag_file_path:  "/apollo/modules/canbus/conf/canbus.conf"
+            # readers:
         }
     }
 }
