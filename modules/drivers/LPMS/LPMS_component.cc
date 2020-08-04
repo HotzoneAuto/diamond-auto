@@ -23,7 +23,7 @@ namespace drivers
 namespace LPMS
 {
 
-bool LPMSDriverComponent::m_sensorThread(const SensorThreadParams& param) // read data from IMU
+bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) // read data from IMU
 {
 	const float cDegToRad = 3.1415926f / 180.0f;
 	const float cEarthG = 9.81f;
