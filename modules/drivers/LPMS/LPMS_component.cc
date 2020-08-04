@@ -208,13 +208,15 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		                  new zen::ZenSensor(std::move(sensorObtainPair.second)));
 	}
 	
-	std::packaged_task<bool(SensorThreadParams)> SensorPackage(m_sensorThread);	
-	std::thread t_read(std::ref(SensorPackage)/*, param*/);
+	// std::packaged_task<bool(SensorThreadParams)> SensorPackage(m_sensorThread);	
+	/*
+	std::thread t_read(m_sensorThread_fun);
 	t_read.detach();
 	if(t_read.joinable())
 		t_read.join();
 	assert(!t_read.joinable());
-	std::future<bool> SensorFuture = SensorPackage.get_future();
+	*/
+	// std::future<bool> SensorFuture = SensorPackage.get_future();
 	return true;
 	
 }
