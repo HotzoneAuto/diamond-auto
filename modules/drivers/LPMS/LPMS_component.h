@@ -70,8 +70,15 @@ public:
 			device_thread_->join();
 		}
 	}*/
-	
-	bool m_sensorThread(SensorThreadParams const& param);
+	typedef struct SensorThreadParams
+	{
+		zen::ZenClient* zenClient;
+		std::string frame_id;
+		std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_;
+		bool useLpmsAccelerationConvention;
+	}SensorThreadParams;
+
+	bool m_sensorThread(const SensorThreadParams& param);
 	bool Init(std::shared_ptr<apollo::cyber::Node> node);
 	// bool Proc(const std::shared_ptr<Driver>& msg) override;
 
@@ -91,14 +98,6 @@ private:
 
 	bool m_openzenVerbose;
 	bool m_useLpmsAccelerationConvention;
-
-	typedef struct SensorThreadParams
-	{
-		zen::ZenClient* zenClient;
-		std::string frame_id;
-		std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Imu>> imu_writer_;
-		bool useLpmsAccelerationConvention;
-	}SensorThreadParams;
 
 	ManagedThread<SensorThreadParams> m_sensorThread;
 

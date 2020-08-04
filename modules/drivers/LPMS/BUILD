@@ -12,6 +12,8 @@ cc_binary(
         "//cyber",
         "//modules/drivers/proto:imu_cc_proto",
         "//modules/drivers/LPMS/proto:service_cc_proto",
+        "//modules/common/adapters:adapter_gflags",
+        "@com_github_gflags_gflags//:gflags",
         "@openzen",
     ],
 )

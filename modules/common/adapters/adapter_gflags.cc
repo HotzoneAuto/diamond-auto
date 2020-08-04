@@ -21,7 +21,7 @@ DEFINE_bool(enable_adapter_dump, false,
             "/tmp/adapters/<topic_name>/<seq_num>.txt for debugging purposes.");
 DEFINE_string(gps_topic, "/diamond/sensor/gnss/odometry", "GPS topic name");
 DEFINE_string(imu_topic, "/diamond/sensor/gnss/corrected_imu", "IMU topic name");
-DEFINE_string(raw_imu_topic, "/diamond/sensor/gnss/imu", "Raw IMU topic name");
+DEFINE_string(raw_imu_topic, "/diamond/sensor/imu", "Raw IMU topic name");
 DEFINE_string(chassis_topic, "/diamond/canbus/chassis", "chassis topic name");
 DEFINE_string(chassis_detail_topic, "/diamond/canbus/chassis_detail",
               "chassis detail topic name");
@@ -209,25 +209,6 @@ DEFINE_string(v2x_trafficlight_topic, "/diamond/v2x/traffic_light",
 DEFINE_string(storytelling_topic, "/diamond/storytelling",
               "Storytelling topic.");
 
-// For pandora.
-DEFINE_string(pandora_pointcloud_topic,
-              "/diamond/sensor/pandora/hesai40/PointCloud2",
-              "pandora pointcloud topic name");
-DEFINE_string(pandora_camera_front_color_topic,
-              "/diamond/sensor/pandora/camera/front_color",
-              "pandora front color camera topic name");
-DEFINE_string(pandora_camera_right_gray_topic,
-              "/diamond/sensor/pandora/camera/right_gray",
-              "pandora right gray camera topic name");
-DEFINE_string(pandora_camera_left_gray_topic,
-              "/diamond/sensor/pandora/camera/left_gray",
-              "pandora left gray camera topic name");
-DEFINE_string(pandora_camera_front_gray_topic,
-              "/diamond/sensor/pandora/camera/front_gray",
-              "pandora front gray camera topic name");
-DEFINE_string(pandora_camera_back_gray_topic,
-              "/diamond/sensor/pandora/camera/back_gray",
-              "pandora back gray camera topic name");
 DEFINE_string(guardian_topic, "/diamond/guardian", "Guardian topic.");
 DEFINE_string(gnss_raw_data_topic, "/diamond/sensor/gnss/raw_data",
               "gnss raw data topic name");
@@ -247,3 +228,4 @@ DEFINE_string(latency_reporting_topic, "/diamond/common/latency_reports",
               "Latency reporting topic.");
 
 DEFINE_string(monitor_log_topic, "/diamond/monitor", "monitor log topic.");
+DEFINE_string(rfid_topic, "/diamond/rfid", "RFID sensor topic.");

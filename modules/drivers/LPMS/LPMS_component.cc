@@ -23,7 +23,7 @@ namespace drivers
 namespace LPMS
 {
 
-bool LPMSDriverComponent::m_sensorThread(LPMSDriverComponent::SensorThreadParams const& param) // read data from IMU
+bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) // read data from IMU
 {
 	const float cDegToRad = 3.1415926f / 180.0f;
 	const float cEarthG = 9.81f;
@@ -208,13 +208,14 @@ bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
 		                  new zen::ZenSensor(std::move(sensorObtainPair.second)));
 	}
 	
-	std::packaged_task<bool(LPMSDriverComponent::SensorThreadParams)> SensorPackage(m_sensorThread);	
+	std::packaged_task<bool(SensorThreadParams)> SensorPackage(m_sensorThread);	
 	std::thread t_read(std::ref(SensorPackage)/*, param*/);
 	t_read.detach();
 	if(t_read.joinable())
 		t_read.join();
 	assert(!t_read.joinable());
 	std::future<bool> SensorFuture = SensorPackage.get_future();
+	return true;
 	
 }
 
@@ -246,7 +247,7 @@ bool LPMSDriverComponent::run(void)
 		publishIsAutocalibrationActive();
 	}
 
-	m_sensorThread.start(LPMSDriverComponent::SensorThreadParams{m_zenClient.get(), frame_id, imu_writer_, m_useLpmsAccelerationConvention});
+	m_sensorThread.start(SensorThreadParams{m_zenClient.get(), frame_id, imu_writer_, m_useLpmsAccelerationConvention});
 	AINFO << "Data streaming from sensor started";
 
 	return true;

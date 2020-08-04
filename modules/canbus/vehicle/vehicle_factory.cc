@@ -25,10 +25,10 @@ namespace canbus {
 
 void VehicleFactory::RegisterVehicleFactory() {
   // Register(apollo::common::LINCOLN_MKZ, []() -> AbstractVehicleFactory * {
-    // return new LincolnVehicleFactory();
+  // return new LincolnVehicleFactory();
   // });
   // Register(apollo::common::GEM, []() -> AbstractVehicleFactory * {
-    // return new GemVehicleFactory();
+  // return new GemVehicleFactory();
   // });
   Register(apollo::common::DIAMOND, []() -> AbstractVehicleFactory * {
     return new DiamondVehicleFactory();
