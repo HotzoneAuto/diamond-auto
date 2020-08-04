@@ -78,7 +78,7 @@ public:
 		bool useLpmsAccelerationConvention;
 	}SensorThreadParams;
 
-	bool m_sensorThread(const SensorThreadParams& param);
+	bool m_sensorThread_fun(const SensorThreadParams& param);
 	bool Init(std::shared_ptr<apollo::cyber::Node> node);
 	// bool Proc(const std::shared_ptr<Driver>& msg) override;
 
