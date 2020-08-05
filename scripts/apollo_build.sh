@@ -15,13 +15,9 @@ SHORTHAND_TARGETS=
 function determine_disabled_bazel_targets() {
     local disabled=
     local compo="$1"
-    if [[ -z "${compo}" || "${compo}" == "drivers" ]]; then
-        disabled=
-    elif [[ "${compo}" == "localization" && "${ARCH}" != "x86_64" ]]; then
-        # Skip msf for non-x86_64 platforms
-        disabled="${disabled} except //modules/localization/msf/..."
+    if [[ "${ARCH}" != "x86_64" ]]; then
+      disabled="except //modules/tools/visualizer/... except //modules/common/math/... except //modules/drivers/camera/... except //modules/drivers/tools/image_decompress/..."
     fi
-
     echo "${disabled}"
     # DISABLED_CYBER_MODULES="except //cyber/record:record_file_integration_test"
 }
@@ -64,7 +60,7 @@ function determine_build_targets() {
         if [ -z "${targets_all}" ]; then
             targets_all="${build_targets}"
         else
-            targets_all="${targets_all} union ${build_targets}"
+            targets_all="${targets_all} ${disabled} union ${build_targets}"
         fi
     done
     echo "${targets_all}"
