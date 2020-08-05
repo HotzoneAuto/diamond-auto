@@ -154,14 +154,13 @@ Chassis DiamondController::chassis() {
   }
 
   // 5
-  // TODO(DENGKE): compute speed respect to motor torque
-  // if (chassis_detail.diamond().id_0x0c08a7f0().has_fmottq()) {
-  //       auto speed = 0.1 * chassis_detail.diamond().id_0x0c08a7f0().fmottq()
-  //       chassis_.set_speed_mps(static_cast<float>(
-  //       chassis_detail.diamond().id_0x0c08a7f0().vehicle_speed()));
-  // } else {
-  //   chassis_.set_speed_mps(0);
-  // }
+  // compute speed respect to motor torque
+   if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
+     auto speed = 0.001957 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
+     chassis_.set_speed_mps(static_cast<float>(speed));
+   } else {
+     chassis_.set_speed_mps(0);
+   }
 
   // 7
   chassis_.set_fuel_range_m(0);
