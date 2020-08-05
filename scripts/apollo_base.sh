@@ -37,7 +37,8 @@ function set_lib_path() {
   else
     export LD_LIBRARY_PATH=/usr/local/libtorch_gpu/lib:$LD_LIBRARY_PATH
   fi
-
+  export LD_LIBRARY_PATH=/usr/local/fast-rtps/lib:$LD_LIBRARY_PATH
+  export CPLUS_INCLUDE_PATH=/usr/local/fast-rtps/include:$CPLUS_INCLUDE_PATH
   # FIXME(all): remove PYTHONPATH settings
   export PYTHONPATH="${APOLLO_ROOT_DIR}/modules/tools:${PYTHONPATH}"
   # Set teleop paths
@@ -82,7 +83,7 @@ function setup_device_for_aarch64() {
       return
   fi
 
-  sudo ip link set can0 type can bitrate 500000
+  sudo ip link set can0 type can bitrate 250000
   sudo ip link set can0 up
 }
 

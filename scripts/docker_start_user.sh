@@ -64,14 +64,6 @@ function setup_user_account_if_not_exist() {
 }
 
 function grant_device_permissions() {
-    # setup CAN device
-    modprobe can
-    modprobe can_raw
-    modprobe mttcan
-
-    ip link set can0 type can bitrate 250000
-    ip link set up can0
-
     [ -e /dev/ttyACM0 ]  && chmod a+rw /dev/ttyACM0
 
     # setup camera device

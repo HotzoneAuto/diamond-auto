@@ -7,46 +7,11 @@ namespace apollo {
 namespace drivers {
 namespace rfid {
 
-int stringToHex(char *str, uint8_t *out) {
-  int outLength = 0;
-  int cnt = 0;
-  uint8_t high = 0, low = 0;
-  char current = 0;
-  uint8_t value = 0;
-  uint8_t isHighValid = 0;
-  while ((current = str[cnt])) {
-    ++cnt;
-    if (current >= '0' && current <= '9') {
-      value = static_cast<uint8_t>(current - '0');
-    } else if (current >= 'a' && current <= 'f') {
-      value = static_cast<uint8_t>(current - 'a' + 10);
-    } else if (current >= 'A' && current <= 'F') {
-      value = static_cast<uint8_t>(current - 'A' + 10);
-    } else {
-      continue;
-    }
+std::string RfidComponent::Name() const { return "rfid"; }
 
-    if (!isHighValid) {
-      high = value;
-
-      isHighValid = 1;
-    } else {
-      low = value;
-
-      out[outLength] = static_cast<uint8_t>(high << 4) | low;
-      ++outLength;
-      isHighValid = 0;
-    }
-  }
-
-  return outLength;
-}
+RfidComponent::RfidComponent() {}
 
 bool RfidComponent::Init() {
-  char str = 0x03;
-  uint8_t out;
-  stringToHex(&str, &out);
-  AINFO << out;
   // Uart device set option
   device_.SetOpt(9600, 8, 'N', 1);
 
@@ -68,7 +33,7 @@ bool RfidComponent::Check() {
   // AINFO << "transfered size : " << transfered_size
   //       << " retrun transfered: " << new_hex;
 
-  int value;
+  int value = 0;
   // for (int i = 0; i < 11; i + 2) {
     // value | = new_hex[i];
   // }
@@ -77,32 +42,37 @@ bool RfidComponent::Check() {
 }
 
 void RfidComponent::Action() {
-  int count = 0;
-  static char buffer[13];
+  int count = 1;
+  static char buffer[20];
   static char buf;
   while (!apollo::cyber::IsShutdown()) {
-    // count = 1;
-    std::memset(buffer, 0, 13);
+    count = 1;
+    std::memset(buffer, 0, 20);
     while (1) {
       int ret = device_.Read(&buf, 1);
       AINFO << "RFID Device return: " << ret;
+
       if (ret == 1) {
         AINFO << "RFID Device buf: " << buf;
-        // 0x02 Head
-        // 0x03 End
         if (buf == 0x02) {
-          count = 0;
+          count = 1;
           break;
         }
         buffer[count] = buf;
         count++;
       }
       AINFO << "count: " << count;
-      // 0x03 end
-      if (buf == 0x03 && count == 12) {
-        RFID rfid;
-        rfid.set_id(static_cast<int>(buffer[10]));
-        rfid.set_description("CARD STATION");
+      if (buf == 0x03 && count == 13) {
+        AINFO << "origin id from buffer[10]: " << buffer[10];
+        uint32_t station_id = buffer[10] - '0';
+        AINFO << "TRANSFER ID :" << station_id;
+
+        apollo::drivers::RFID rfid;
+        auto header = rfid.mutable_header();
+        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+        header->set_frame_id("rfid");
+
+        rfid.set_id(station_id);
 
         rfid_writer_->Write(rfid);
       }
