@@ -110,6 +110,8 @@ message Chassis {
   // Applied MOTOR torque in [Nm].
   optional float motor_torque_nm = 34 [default = nan];
   optional float bat_volt = 35 [default = nan];
+  optional float motor_volt = 36 [default = nan];
+  optional float bat_percentage = 37 [default = nan];
 }
 
 message WheelSpeed {
