@@ -103,8 +103,9 @@ bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) //
 	return true;
 }
 
-bool LPMSDriverComponent::Init(std::shared_ptr<apollo::cyber::Node> node)
+bool LPMSDriverComponent::Init(/*std::shared_ptr<apollo::cyber::Node> node*/)
 {
+	std::shared_ptr<apollo::cyber::Node> node;
 	node_ = node;
 	imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
 

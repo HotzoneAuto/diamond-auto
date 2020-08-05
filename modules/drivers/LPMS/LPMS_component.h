@@ -79,7 +79,7 @@ public:
 	}SensorThreadParams;
 
 	bool m_sensorThread_fun(const SensorThreadParams& param);
-	bool Init(std::shared_ptr<apollo::cyber::Node> node);
+	bool Init(/*std::shared_ptr<apollo::cyber::Node> node*/);
 	// bool Proc(const std::shared_ptr<Driver>& msg) override;
 
 	bool run(void);
