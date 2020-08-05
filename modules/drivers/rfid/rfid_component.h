@@ -1,5 +1,6 @@
 
 #pragma once
+
 #include <memory>
 
 #include "cyber/class_loader/class_loader.h"
@@ -21,6 +22,7 @@ class RfidComponent : public Component<> {
  public:
   bool Init() override;
   void Action();
+  bool Check();
   ~RfidComponent();
 
  private:

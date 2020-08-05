@@ -1,0 +1,7 @@
+<cyber>
+    <module>
+        <name>rfid</name>
+        <dag_conf>/apollo/modules/drivers/rfid/dag/rfid.dag</dag_conf>
+        <process_name>rfid</process_name>
+    </module>
+</cyber>
