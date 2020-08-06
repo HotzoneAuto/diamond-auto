@@ -435,7 +435,7 @@ void DiamondController::Throttle(double pedal) {
     return;
   }
 
-  id_0x0c19f0a7_->set_fmot1targettq(pedal);
+  id_0x0c19f0a7_->set_fmot1targettq(pedal / 2 * 0.001957);
   // motor torque mode
   // id_0x0c19f0a7_->set_bymot1workmode(146);
   // motor speed mode
