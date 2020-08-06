@@ -62,6 +62,31 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         AINFO << "RETURN ID : " << static_cast<int>(buffer[10]);
 
         // magnetic.set_id(static_cast<int>(buffer[10]));
+        /*#include <iostream>
+        using namespace std;
+        int main()
+        {
+	        int count = 0;
+	        static char * AGV_Buffer[16];
+	        static char buf[2];
+        	static char AGV_length;
+		      while (1)
+	          {
+			        int c = count % 8;
+			        AGV_Buffer[c] = buf;
+			        count++;		
+			          if (c == 3)
+			          {
+				           cout <<"第四位AGV_Buffer[3]是："<< AGV_Buffer[c] << endl;
+			          }
+			          if (c == 4)
+		          	{
+				           cout << "第五位AGV_Buffer[4]是：" << AGV_Buffer[c] << endl;
+			          }
+		         }	
+		     return 0;
+        }*/
+
 
         magnetic_writer_->Write(magnetic);
       }
