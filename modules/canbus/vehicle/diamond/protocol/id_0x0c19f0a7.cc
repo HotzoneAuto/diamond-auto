@@ -30,7 +30,6 @@ const int32_t Id0x0c19f0a7::ID = 0x0C19F0A7;
 Id0x0c19f0a7::Id0x0c19f0a7() { Reset(); }
 
 uint32_t Id0x0c19f0a7::GetPeriod() const {
-  // TODO(All) :  modify every protocol's period manually
   static const uint32_t PERIOD = 20 * 1000;
   return PERIOD;
 }
@@ -44,7 +43,6 @@ void Id0x0c19f0a7::UpdateData(uint8_t* data) {
 }
 
 void Id0x0c19f0a7::Reset() {
-  // TODO(All) :  you should check this manually
   fmot1targettq_ = 0;
   fmot1lmtvolt_ = 800;
   fmot1lmtcur_ = 250;

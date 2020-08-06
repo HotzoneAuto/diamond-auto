@@ -46,8 +46,6 @@ ErrorCode DiamondController::Init(
     const VehicleParameter& params,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
-  // ChassisDetail chassis_detail;
-  // message_manager_->GetSensorData(&chassis_detail);
 
   if (is_initialized_) {
     AINFO << "DiamondController has already been initiated.";
@@ -92,13 +90,6 @@ ErrorCode DiamondController::Init(
     AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
-
-  /*id_0x0c0ba7f0_ = dynamic_cast<Id0x0c0ba7f0*>(
-      message_manager_->GetMutableProtocolDataById(Id0x0c0ba7f0::ID));
-   if(id_0x0c0ba7f0_ == nullptr) {
-    AERROR << "0x0c0ba7f0 does not exist in the DiamondMessageManager!";
-    return ErrorCode::CANBUS_ERROR;
-   }*/
 
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
@@ -175,12 +166,15 @@ Chassis DiamondController::chassis() {
   // 7
   chassis_.set_fuel_range_m(0);
 
+  // vehicle id
+  chassis_.mutable_vehicle_id()->set_vin(params_.vin());
+
   // 8 engine rpm respect to motor speed by rpm
   if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
-    chassis_.set_engine_rpm(
+    chassis_.set_motor_rpm(
         static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0().fmotspd()));
   } else {
-    chassis_.set_engine_rpm(0);
+    chassis_.set_motor_rpm(0);
   }
 
   if (chassis_detail.diamond().id_0x1818d0f3().has_fbatvolt()) {
@@ -429,9 +423,8 @@ void DiamondController::Brake(double pedal) {
     AINFO << "The current drive mode does not need to set brake pedal.";
     return;
   }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  brake_60_->set_pedal(pedal);
-  */
+
+  id_0x0c19f0a7_->set_bymot1workmode(148);
 }
 
 // drive with old acceleration
@@ -444,7 +437,10 @@ void DiamondController::Throttle(double pedal) {
   }
 
   id_0x0c19f0a7_->set_fmot1targettq(pedal);
-  id_0x0c19f0a7_->set_bymot1workmode(146);
+  // motor torque mode
+  // id_0x0c19f0a7_->set_bymot1workmode(146);
+  // motor speed mode
+  id_0x0c19f0a7_->set_bymot1workmode(178);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
