@@ -10,4 +10,5 @@ message VehicleParameter {
   optional double max_engine_pedal = 2;
   optional int32 max_enable_fail_attempt = 3;
   optional Chassis.DrivingMode driving_mode = 4;
+  optional string vin = 5;
 }
