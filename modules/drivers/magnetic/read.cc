@@ -26,70 +26,60 @@ char Hex2Ascii(char hex) {
   return 'N';
 }
 
+// JUST DATA MODE
+// TODO(wangying): need receive data with itensity
 void OnData(std::shared_ptr<apollo::cyber::Node> node) {
-  // TODO(all): config by udev or sudo usermod -aG dialout $USER
-  Uart device_ = Uart("ttyUSB0");
+  // TODO(wangying): auto config by udev
+  Uart device_ = Uart("ttyUSB1");
   device_.SetOpt(9600, 8, 'N', 1);
   int count = 1;
-  static char buffer[20];
+  static char buffer[7];
   static char buf;
-  std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Magnetic>> magnetic_writer_ =
-      node->CreateWriter<apollo::drivers::Magnetic>(FLAGS_magnetic_channel);
+  std::shared_ptr<apollo::cyber::Writer<apollo::drivers::Magnetic>>
+      magnetic_writer_ =
+          node->CreateWriter<apollo::drivers::Magnetic>(FLAGS_magnetic_channel);
   while (!apollo::cyber::IsShutdown()) {
-    count = 1;
-    std::memset(buffer, 0, 20);
-    while (1) {
-      int ret = device_.Read(&buf, 1);
-      AINFO << "Magnetic Device return: " << ret;
+    // Send read Data message
+    // char msg_read_cmd = {0x01, 0x03, 0x00, 0x01, 0x00, 0x01, 0xd5, 0xca};
+    char msg_read_cmd[8];
+    msg_read_cmd[0] = 0x01;
+    msg_read_cmd[1] = 0x03;
+    msg_read_cmd[2] = 0x00;
+    msg_read_cmd[3] = 0x01;
+    msg_read_cmd[4] = 0x00;
+    msg_read_cmd[5] = 0x01;
+    msg_read_cmd[6] = 0xd5;
+    msg_read_cmd[7] = 0xca;
+    int result = device_.Write(msg_read_cmd, 8);
+    ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result;
 
-      if (ret == 1) {
-        AINFO << "Magnetic RFID Device buf: " << buf;
-        if (buf == 0x02) {
-          count = 1;
-          break;
-        }
-        buffer[count] = buf;
-        count++;
-      }
+    count = 1;
+    std::memset(buffer, 0, 7);
+    int ret = device_.Read(&buf, 1);
+    AINFO << "Magnetic Device return: " << ret;
+
+    if (ret == 1) {
+      AINFO << "Magnetic Device buf: " << buf;
+      buffer[count] = buf;
+      count++;
       AINFO << "count: " << count;
-      if (count == 13) {
+
+      if (count == 7) {
         AINFO << "DEBUG READ OVER!!!!!!!!!!!!!";
         apollo::drivers::Magnetic magnetic;
         auto header = magnetic.mutable_header();
         header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
         header->set_frame_id("magnetic");
 
-        AINFO << "RETURN ID : " << static_cast<int>(buffer[10]);
+        AINFO << "RETURN ID buffer[3] : " << static_cast<int>(buffer[3]);
+        AINFO << "RETURN ID buffer[4] : " << static_cast<int>(buffer[4]);
 
         // magnetic.set_id(static_cast<int>(buffer[10]));
-        /*#include <iostream>
-        using namespace std;
-        int main()
-        {
-	        int count = 0;
-	        static char * AGV_Buffer[16];
-	        static char buf[2];
-        	static char AGV_length;
-		      while (1)
-	          {
-			        int c = count % 8;
-			        AGV_Buffer[c] = buf;
-			        count++;		
-			          if (c == 3)
-			          {
-				           cout <<"第四位AGV_Buffer[3]是："<< AGV_Buffer[c] << endl;
-			          }
-			          if (c == 4)
-		          	{
-				           cout << "第五位AGV_Buffer[4]是：" << AGV_Buffer[c] << endl;
-			          }
-		         }	
-		     return 0;
-        }*/
-
 
         magnetic_writer_->Write(magnetic);
       }
+    } else {
+      AERROR << "MAGNETIC MSG READ ERROR "<< ret;
     }
   }
 }
@@ -102,7 +92,8 @@ int main(int32_t argc, char** argv) {
 
   google::ParseCommandLineFlags(&argc, &argv, true);
 
-  std::shared_ptr<apollo::cyber::Node> node = apollo::cyber::CreateNode("magnetic");
+  std::shared_ptr<apollo::cyber::Node> node =
+      apollo::cyber::CreateNode("magnetic");
   OnData(node);
   // apollo::cyber::AsyncShutdown();
   // apollo::cyber::WaitForShutdown();
