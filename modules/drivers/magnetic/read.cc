@@ -30,7 +30,7 @@ char Hex2Ascii(char hex) {
 // TODO(wangying): need receive data with itensity
 void OnData(std::shared_ptr<apollo::cyber::Node> node) {
   // TODO(wangying): auto config by udev
-  Uart device_ = Uart("ttyUSB1");
+  Uart device_ = Uart("ttyUSB0");
   device_.SetOpt(9600, 8, 'N', 1);
   int count = 1;
   static char buffer[7];
@@ -54,32 +54,30 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
     ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result;
 
     count = 1;
-    std::memset(buffer, 0, 7);
-    int ret = device_.Read(&buf, 1);
-    AINFO << "Magnetic Device return: " << ret;
-
-    if (ret == 1) {
-      AINFO << "Magnetic Device buf: " << buf;
-      buffer[count] = buf;
-      count++;
-      AINFO << "count: " << count;
-
-      if (count == 7) {
-        AINFO << "DEBUG READ OVER!!!!!!!!!!!!!";
-        apollo::drivers::Magnetic magnetic;
-        auto header = magnetic.mutable_header();
-        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
-        header->set_frame_id("magnetic");
-
-        AINFO << "RETURN ID buffer[3] : " << static_cast<int>(buffer[3]);
-        AINFO << "RETURN ID buffer[4] : " << static_cast<int>(buffer[4]);
-
-        // magnetic.set_id(static_cast<int>(buffer[10]));
-
-        magnetic_writer_->Write(magnetic);
+    std::memset(buffer, 0, 10);
+    while (1) {
+      int ret = device_.Read(&buf, 1);
+      if (ret == 1) {
+        if (buf == 0x01) {
+          break;
+        }
+        buffer[count] = buf;
+        count++;
       }
-    } else {
-      AERROR << "MAGNETIC MSG READ ERROR "<< ret;
+    }
+
+    if (count == 7) {
+      apollo::drivers::Magnetic magnetic;
+      auto header = magnetic.mutable_header();
+      header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+      header->set_frame_id("magnetic");
+
+      AINFO << "RETURN ID buffer[3] : " << static_cast<int>(buffer[3]);
+      AINFO << "RETURN ID buffer[4] : " << static_cast<int>(buffer[4]);
+
+      // magnetic.set_id(static_cast<int>(buffer[10]));
+
+      magnetic_writer_->Write(magnetic);
     }
   }
 }
@@ -96,6 +94,6 @@ int main(int32_t argc, char** argv) {
       apollo::cyber::CreateNode("magnetic");
   OnData(node);
   // apollo::cyber::AsyncShutdown();
-  // apollo::cyber::WaitForShutdown();
+  apollo::cyber::WaitForShutdown();
   return 0;
 }
