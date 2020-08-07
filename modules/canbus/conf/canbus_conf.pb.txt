@@ -2,7 +2,7 @@ vehicle_parameter {
   brand: DIAMOND
   max_enable_fail_attempt: 5
   driving_mode: COMPLETE_AUTO_DRIVE
-  vin: 1
+  vin: "diamond-NO 1"
 }
 
 can_card_parameter {

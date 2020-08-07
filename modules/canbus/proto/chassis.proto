@@ -50,8 +50,8 @@ message Chassis {
     GEAR_NONE = 6;
   }
 
-  optional bool engine_started = 3;
-
+  // chassis also needs it own sending timestamp
+  optional apollo.common.Header header = 3;
   // Engine speed in RPM.
   optional float motor_rpm = 4 [default = nan];
 
@@ -90,9 +90,6 @@ message Chassis {
 
   // timestamp for steering module
   optional double steering_timestamp = 24;  // In seconds, with 1e-6 accuracy
-
-  // chassis also needs it own sending timestamp
-  optional apollo.common.Header header = 25;
 
   optional int32 chassis_error_mask = 26 [default = 0];
 

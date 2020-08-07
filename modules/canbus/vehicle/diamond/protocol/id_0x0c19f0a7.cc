@@ -46,6 +46,7 @@ void Id0x0c19f0a7::Reset() {
   fmot1targettq_ = 0;
   fmot1lmtvolt_ = 800;
   fmot1lmtcur_ = 250;
+  // default motor speed mode
   bymot1workmode_ = 0;
   bylife_ = 0;
 }

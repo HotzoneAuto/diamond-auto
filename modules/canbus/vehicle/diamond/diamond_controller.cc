@@ -143,7 +143,6 @@ Chassis DiamondController::chassis() {
   chassis_.set_error_code(chassis_error_code());
 
   // 3
-  chassis_.set_engine_started(true);
 
   // 4 Motor torque nm
   if (chassis_detail.diamond().id_0x0c08a7f0().has_fmottq()) {
@@ -204,19 +203,12 @@ void DiamondController::Emergency() {
   set_driving_mode(Chassis::EMERGENCY_MODE);
   ResetProtocol();
 }
-
 ErrorCode DiamondController::EnableAutoMode() {
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
     AINFO << "already in COMPLETE_AUTO_DRIVE mode";
     return ErrorCode::OK;
   }
   /*=====================k1 k2 start==========================*/
-  // ChassisDetail chassis_detail;
-  id_0x0c19f0a7_->set_fmot1targettq(0);
-  id_0x0c19f0a7_->set_fmot1lmtvolt(800);
-  id_0x0c19f0a7_->set_fmot1lmtcur(250);
-  id_0x0c19f0a7_->set_bymot1workmode(0);
-  id_0x0c19f0a7_->set_bylife(0);
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   AINFO << "0x0c0ba7f0 ="
@@ -245,8 +237,9 @@ ErrorCode DiamondController::EnableAutoMode() {
            << chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts();
 
     if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() !=
-        false) {
-      AERROR << "K2 up";
+        false or chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts()==1) {
+        if( chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr()==0){
+      AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="<< chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
       p = fopen("/sys/class/gpio/gpio351/direction", "w");
       fprintf(p, "%s", "high");
       fclose(p);
@@ -281,6 +274,9 @@ ErrorCode DiamondController::EnableAutoMode() {
         fprintf(p, "%s", "low");
         fclose(p);
       }
+      }else{
+          AERROR << "1818d0f3 bybatinsrerr REEOR!!";
+          }
     }
   } else {
     AERROR << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
@@ -385,8 +381,6 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
     AINFO << "Already in AUTO_SPEED_ONLY mode";
     return ErrorCode::OK;
   }
-  // Driver Motor TODO(zongbao): test on board
-  // id_0x0c19f0a7_->set_bymot1workmode(0x92);
 
   can_sender_->Update();
   if (!CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, true)) {
@@ -423,7 +417,7 @@ void DiamondController::Brake(double pedal) {
     return;
   }
 
-  id_0x0c19f0a7_->set_bymot1workmode(148);
+  // id_0x0c19f0a7_->set_bymot1workmode(148);
 }
 
 // drive with old acceleration
@@ -435,11 +429,11 @@ void DiamondController::Throttle(double pedal) {
     return;
   }
 
-  id_0x0c19f0a7_->set_fmot1targettq(pedal / 2 * 0.001957);
+  id_0x0c19f0a7_->set_fmot1targettq(pedal);
   // motor torque mode
-  // id_0x0c19f0a7_->set_bymot1workmode(146);
+  id_0x0c19f0a7_->set_bymot1workmode(146);
   // motor speed mode
-  id_0x0c19f0a7_->set_bymot1workmode(178);
+  // id_0x0c19f0a7_->set_bymot1workmode(178);
 }
 
 // confirm the car is driven by acceleration command or throttle/brake pedal
