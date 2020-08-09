@@ -96,6 +96,8 @@ bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) //
 
 			// Publish the messages
 			imu_writer_->Write(imu);
+			node_ = node;
+			imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
 		}
 	}
 	AINFO << "event_value.component.handle != 1";
@@ -103,11 +105,10 @@ bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) //
 	return true;
 }
 
-bool LPMSDriverComponent::Init(/*std::shared_ptr<apollo::cyber::Node> node*/)
+bool LPMSDriverComponent::Init()
 {
-	std::shared_ptr<apollo::cyber::Node> node;
-	node_ = node;
-	imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
+	// std::shared_ptr<apollo::cyber::Node> node;
+
 
 	auto clientPair = zen::make_client();
 	m_zenClient = std::unique_ptr<zen::ZenClient>(new zen::ZenClient(std::move(clientPair.second)));
@@ -208,18 +209,9 @@ bool LPMSDriverComponent::Init(/*std::shared_ptr<apollo::cyber::Node> node*/)
 		m_zenSensor = std::unique_ptr<zen::ZenSensor>(
 		                  new zen::ZenSensor(std::move(sensorObtainPair.second)));
 	}
-	
-	// std::packaged_task<bool(SensorThreadParams)> SensorPackage(m_sensorThread);	
-	/*
-	std::thread t_read(m_sensorThread_fun);
-	t_read.detach();
-	if(t_read.joinable())
-		t_read.join();
-	assert(!t_read.joinable());
-	*/
-	// std::future<bool> SensorFuture = SensorPackage.get_future();
+
 	return true;
-	
+
 }
 
 
@@ -250,7 +242,7 @@ bool LPMSDriverComponent::run(void)
 		publishIsAutocalibrationActive();
 	}
 
-	m_sensorThread.start(SensorThreadParams{m_zenClient.get(), frame_id, imu_writer_, m_useLpmsAccelerationConvention});
+	m_sensorThread.start(SensorThreadParams {m_zenClient.get(), frame_id, imu_writer_, m_useLpmsAccelerationConvention});
 	AINFO << "Data streaming from sensor started";
 
 	return true;
