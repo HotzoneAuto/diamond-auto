@@ -96,7 +96,7 @@ bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) //
 
 			// Publish the messages
 			imu_writer_->Write(imu);
-			node_ = node;
+			node = node_;
 			imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
 		}
 	}
