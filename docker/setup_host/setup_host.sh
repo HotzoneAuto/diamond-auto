@@ -39,3 +39,8 @@ grep -q uvcvideo /etc/modules
 if [ $? -ne 0 ]; then
   echo "uvcvideo clock=realtime" | sudo tee -a /etc/modules
 fi
+
+// TODO(wangying): test it online 
+sudo udevadm control --reload-rules && udevadm trigger
+
+echo "udev-rules successfully installed"

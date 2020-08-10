@@ -5,38 +5,38 @@
 
 #include "cyber/class_loader/class_loader.h"
 #include "cyber/component/component.h"
-#include "cyber/cyber.h"
+
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/util/uart.h"
-#include "modules/drivers/proto/rfid.pb.h"
+#include "modules/drivers/proto/magnetic.pb.h"
 
 namespace apollo {
 namespace drivers {
-namespace rfid {
+namespace magnetic {
 
 using apollo::cyber::Component;
 using apollo::cyber::Writer;
-using apollo::drivers::RFID;
+using apollo::drivers::Magnetic;
 
-class RfidComponent : public apollo::cyber::Component<> {
+class MagneticComponent : public Component<> {
  public:
-  RfidComponent();
-  std::string Name() const;
   bool Init() override;
   void Action();
   bool Check();
-  ~RfidComponent();
+  ~MagneticComponent();
 
  private:
-  // TODO(wangying): auto config by udev
+  // TODO(wangying):
+  // 1. config by udev
+  // 2. or sudo usermod -aG dialout $USER
   Uart device_ = Uart("ttyUSB0");
-  std::shared_ptr<Writer<RFID>> rfid_writer_ = nullptr;
+  std::shared_ptr<Writer<Magnetic>> magnetic_writer_ = nullptr;
 
   std::future<void> async_action_;
 };
 
-CYBER_REGISTER_COMPONENT(RfidComponent)
+CYBER_REGISTER_COMPONENT(MagneticComponent)
 
-}  // namespace rfid
+}  // namespace magnetic
 }  // namespace drivers
 }  // namespace apollo

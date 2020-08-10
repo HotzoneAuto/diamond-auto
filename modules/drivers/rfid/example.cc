@@ -26,7 +26,7 @@ char Hex2Ascii(char hex) {
 }
 
 void OnData(std::shared_ptr<apollo::cyber::Node> node) {
-  // TODO(all): config by udev or sudo usermod -aG dialout $USER
+  // TODO(wangying): auto config by udev
   Uart device_ = Uart("ttyUSB0");
   device_.SetOpt(9600, 8, 'N', 1);
   int count = 1;

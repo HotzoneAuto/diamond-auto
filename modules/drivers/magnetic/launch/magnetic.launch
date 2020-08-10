@@ -1,0 +1,7 @@
+<cyber>
+    <module>
+        <name>magnetic</name>
+        <dag_conf>/apollo/modules/drivers/magnetic/dag/magnetic.dag</dag_conf>
+        <process_name>magnetic</process_name>
+    </module>
+</cyber>
