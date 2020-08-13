@@ -40,7 +40,9 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
           node->CreateWriter<apollo::drivers::Magnetic>(FLAGS_magnetic_channel);
   while (!apollo::cyber::IsShutdown()) {
     // Send read Data message
-    // char msg_read_cmd = {0x01, 0x03, 0x00, 0x01, 0x00, 0x01, 0xd5, 0xca};
+    // unsigned char msg_cmd[] = {0x01, 0x03, 0x00, 0x01, 0x00,
+                              //  0x01, 0xd5, 0xca, 0};
+    // TODO(wangying): remove untill test okay
     char msg_read_cmd[8];
     msg_read_cmd[0] = 0x01;
     msg_read_cmd[1] = 0x03;
@@ -50,11 +52,11 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
     msg_read_cmd[5] = 0x01;
     msg_read_cmd[6] = 0xd5;
     msg_read_cmd[7] = 0xca;
-    int result = device_.Write(msg_read_cmd, 8);
+    int result = device_.Write(msg_read_cmd, 9);
     ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result;
 
     count = 1;
-    std::memset(buffer, 0, 10);
+    std::memset(buffer, 0, 10);  
     while (1) {
       int ret = device_.Read(&buf, 1);
       if (ret == 1) {

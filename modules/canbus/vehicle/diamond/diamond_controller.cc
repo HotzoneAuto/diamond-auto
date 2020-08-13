@@ -46,7 +46,6 @@ ErrorCode DiamondController::Init(
     const VehicleParameter& params,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
-
   if (is_initialized_) {
     AINFO << "DiamondController has already been initiated.";
     return ErrorCode::CANBUS_ERROR;
@@ -154,12 +153,12 @@ Chassis DiamondController::chassis() {
 
   // 5
   // compute speed respect to motor torque
-   if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
-     auto speed = 0.001957 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
-     chassis_.set_speed_mps(static_cast<float>(speed));
-   } else {
-     chassis_.set_speed_mps(0);
-   }
+  if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
+    auto speed = 0.001957 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
+    chassis_.set_speed_mps(static_cast<float>(speed));
+  } else {
+    chassis_.set_speed_mps(0);
+  }
 
   // 7
   chassis_.set_fuel_range_m(0);
@@ -237,46 +236,48 @@ ErrorCode DiamondController::EnableAutoMode() {
            << chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts();
 
     if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() !=
-        false or chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts()==1) {
-        if( chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr()==0){
-      AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="<< chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-      p = fopen("/sys/class/gpio/gpio351/direction", "w");
-      fprintf(p, "%s", "high");
-      fclose(p);
-      sleep(3);
-      chassis_detail.Clear();
-      message_manager_->GetSensorData(&chassis_detail);
-      AERROR << "K2 up over 1818d0f3="
-             << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-      AERROR << "K2 up over 0c09a7f0="
-             << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
-      AERROR << "K2 up over 0c09a7f0="
-             << chassis_detail.diamond().id_0x0c09a7f0().fmotrectcur();
-      AERROR << " 0x0c09a7f0 fmotvolt ="
-             << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
-      if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
-              chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
-        AERROR << "K1 up";
-        p = fopen("/sys/class/gpio/gpio271/direction", "w");
+            false or
+        chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts() == 1) {
+      if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
+        AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
+               << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
+        p = fopen("/sys/class/gpio/gpio351/direction", "w");
         fprintf(p, "%s", "high");
         fclose(p);
         sleep(3);
-        AERROR << "K2 down";
-        p = fopen("/sys/class/gpio/gpio351/direction", "w");
-        fprintf(p, "%s", "low");
-        fclose(p);
-      } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
-                     chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
-                 25) {
-        sleep(3);
-        AERROR << ">25 K2 down";
-        p = fopen("/sys/class/gpio/gpio351/direction", "w");
-        fprintf(p, "%s", "low");
-        fclose(p);
+        chassis_detail.Clear();
+        message_manager_->GetSensorData(&chassis_detail);
+        AERROR << "K2 up over 1818d0f3="
+               << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
+        AERROR << "K2 up over 0c09a7f0="
+               << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
+        AERROR << "K2 up over 0c09a7f0="
+               << chassis_detail.diamond().id_0x0c09a7f0().fmotrectcur();
+        AERROR << " 0x0c09a7f0 fmotvolt ="
+               << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
+        if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
+                chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
+          AERROR << "K1 up";
+          p = fopen("/sys/class/gpio/gpio271/direction", "w");
+          fprintf(p, "%s", "high");
+          fclose(p);
+          sleep(3);
+          AERROR << "K2 down";
+          p = fopen("/sys/class/gpio/gpio351/direction", "w");
+          fprintf(p, "%s", "low");
+          fclose(p);
+        } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
+                       chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
+                   25) {
+          sleep(3);
+          AERROR << ">25 K2 down";
+          p = fopen("/sys/class/gpio/gpio351/direction", "w");
+          fprintf(p, "%s", "low");
+          fclose(p);
+        }
+      } else {
+        AERROR << "1818d0f3 bybatinsrerr REEOR!!";
       }
-      }else{
-          AERROR << "1818d0f3 bybatinsrerr REEOR!!";
-          }
     }
   } else {
     AERROR << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();

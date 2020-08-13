@@ -26,7 +26,7 @@ bool RfidComponent::Init() {
 // TODO()CHECK
 bool RfidComponent::Check() {
   // sum check for rfid result
-  int check_value = 0;// buffer[11];
+  int check_value = 0;  // buffer[11];
 
   // char new_hex;
   // auto transfered_size = stringToHex(&buffer + 1, &new_hex);
@@ -35,7 +35,7 @@ bool RfidComponent::Check() {
 
   int value = 0;
   // for (int i = 0; i < 11; i + 2) {
-    // value | = new_hex[i];
+  // value | = new_hex[i];
   // }
 
   return value == check_value;
