@@ -2,7 +2,6 @@ syntax = "proto2";
 
 package apollo.canbus;
 
-import "modules/common/configs/proto/vehicle_config.proto";
 import "modules/canbus/proto/chassis.proto";
 import "modules/canbus/proto/diamond.proto";
 
@@ -15,14 +14,10 @@ message ChassisDetail {
   optional Gas gas = 7;                     // gas pedal
   optional Epb epb = 8;                     // Electronic parking brake
   optional Brake brake = 9;                 // brake pedal
-  optional VehicleSpd vehicle_spd = 11;     // vehicle speed
   optional Light light = 13;                // Light
   optional Battery battery = 14;            // Battery info
   optional CheckResponseSignal check_response = 15;
-  optional Surround surround = 17;     
   optional Diamond diamond = 19;
-  // Reserve fields for other vehicles
-  optional apollo.common.VehicleID vehicle_id = 101;
 }
 
 // CheckResponseSignal
@@ -62,27 +57,6 @@ message Light {
   optional bool is_brake_lamp_on = 3;
 }
 
-message VehicleSpd {
-  // esp 277
-  optional bool is_vehicle_standstill = 1;
-
-  // esp 218
-  optional bool is_vehicle_spd_valid = 2;
-  optional double vehicle_spd = 3 [default = 0];  // unit:m/s
-  // esp 208
-  optional bool is_wheel_spd_rr_valid = 4;
-  optional WheelSpeed.WheelSpeedType wheel_direction_rr = 5;
-  optional double wheel_spd_rr = 6;
-  optional bool is_wheel_spd_rl_valid = 7;
-  optional WheelSpeed.WheelSpeedType wheel_direction_rl = 8;
-  optional double wheel_spd_rl = 9;
-  optional bool is_wheel_spd_fr_valid = 10;
-  optional WheelSpeed.WheelSpeedType wheel_direction_fr = 11;
-  optional double wheel_spd_fr = 12;
-  optional bool is_wheel_spd_fl_valid = 13;
-  optional WheelSpeed.WheelSpeedType wheel_direction_fl = 14;
-  optional double wheel_spd_fl = 15;
-}
 message Brake {
   enum HSAStatusType {
     HSA_INACTIVE = 0;

@@ -46,14 +46,11 @@ message ControlCommand {
   // target acceleration in m`s^-2
   optional double acceleration = 10;
 
-  // model reset
-  optional bool reset_model = 16 [deprecated = true];
   // engine on/off, true: engine on
   optional bool engine_on_off = 17;
   // completion percentage of trajectory planned in last cycle
   optional double trajectory_fraction = 18;
-  optional apollo.canbus.Chassis.DrivingMode driving_mode = 19
-      [deprecated = true];
+
   optional apollo.canbus.Chassis.GearPosition gear_location = 20;
 
   optional Debug debug = 22;
@@ -63,13 +60,6 @@ message ControlCommand {
   optional apollo.common.EngageAdvice engage_advice = 26;
   optional bool is_in_safe_mode = 27 [default = false];
 
-  // deprecated fields
-  optional bool left_turn = 13 [deprecated = true];
-  optional bool right_turn = 14 [deprecated = true];
-  optional bool high_beam = 11 [deprecated = true];
-  optional bool low_beam = 12 [deprecated = true];
-  optional bool horn = 15 [deprecated = true];
-  optional TurnSignal turnsignal = 21 [deprecated = true];
 }
 
 message SimpleLongitudinalDebug {

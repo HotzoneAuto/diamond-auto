@@ -1,0 +1,9 @@
+module_config {
+    module_library : "/apollo/bazel-bin/modules/drivers/magnetic/libmagnetic.so"
+    components {
+        class_name : "MagneticComponent"
+        config {
+            name: "magnetic"
+        }
+    }
+}

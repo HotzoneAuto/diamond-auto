@@ -334,7 +334,9 @@ function setup_devices_and_mount_volumes() {
         16.04|18.04|20.04|*)
             ## Question(storypku): Any special considerations here ?
             if [[ "${HOST_ARCH}" == "${TARGET_ARCH}" ]]; then
-                volumes="${volumes} -v /dev:/dev"
+                volumes="${volumes} -v /dev:/dev  \
+			            -v /sys/class/gpio:/sys/class/gpio  \
+		    "
             fi
             ;;
     esac

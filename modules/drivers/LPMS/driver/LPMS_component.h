@@ -39,8 +39,7 @@ using apollo::cyber::Writer;
 
 class LPMSDriverComponent : public Component<> {
  public:
-  LPMSDriverComponent() = default
-  ~LPMSDriverComponent() {
+  LPMSDriverComponent() = default ~LPMSDriverComponent() {
     if (device_thread_->joinable()) {
       device_thread_->join();
     }
@@ -49,19 +48,20 @@ class LPMSDriverComponent : public Component<> {
   bool Proc(const std::shared_ptr<Driver>& msg) override;
 
  private:
-/*
-  void device_poll();
-  void RSdevice_poll();
-  volatile bool runing_;  ///< device thread is running
-  uint32_t seq_ = 0;
-  std::shared_ptr<std::thread> device_thread_;
-  std::shared_ptr<VelodyneDriver> dvr_;  ///< driver implementation class
-  std::shared_ptr<apollo::cyber::Writer<VelodyneScan>> writer_;
-  std::shared_ptr<apollo::cyber::Writer<PointCloud>> RSwriter_;
-  bool rs_lidar_ = 0;
-  std::shared_ptr<PointCloud> pointcloud_ = nullptr;
-*/
-  std::shared_ptr<apollo::cyber::Writer<LPMS>> writer_; //receive and send message
+  /*
+    void device_poll();
+    void RSdevice_poll();
+    volatile bool runing_;  ///< device thread is running
+    uint32_t seq_ = 0;
+    std::shared_ptr<std::thread> device_thread_;
+    std::shared_ptr<VelodyneDriver> dvr_;  ///< driver implementation class
+    std::shared_ptr<apollo::cyber::Writer<VelodyneScan>> writer_;
+    std::shared_ptr<apollo::cyber::Writer<PointCloud>> RSwriter_;
+    bool rs_lidar_ = 0;
+    std::shared_ptr<PointCloud> pointcloud_ = nullptr;
+  */
+  std::shared_ptr<apollo::cyber::Writer<LPMS>>
+      writer_;  // receive and send message
 };
 
 CYBER_REGISTER_COMPONENT(LPMSDriverComponent)

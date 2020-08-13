@@ -67,9 +67,9 @@ class OpenZenSensor {
                 return false;
             }
           }
-          
+
           if (event_value.component.handle == 1) {
-              AINFO << "event_value.component.handle == 1";
+            AINFO << "event_value.component.handle == 1";
             if (event_value.eventType == ZenImuEvent_Sample) {
               // IMU
               auto const& d = event_value.data.imuData;
@@ -80,21 +80,21 @@ class OpenZenSensor {
               header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
               header->set_frame_id("imu");
 
-            //   Fill orientation quaternion
+              //   Fill orientation quaternion
               auto orientation = imu.mutable_orientation();
               orientation->set_qw(d.q[0]);
               orientation->set_qx(-d.q[1]);
               orientation->set_qy(-d.q[2]);
               orientation->set_qz(-d.q[3]);
 
-            //   // Fill angular velocity data
-            //   // - scale from deg/s to rad/s
+              //   // Fill angular velocity data
+              //   // - scale from deg/s to rad/s
               auto angular_velocity = imu.mutable_angular_velocity();
               angular_velocity->set_x(d.g[0] * cDegToRad);
               angular_velocity->set_y(d.g[1] * cDegToRad);
               angular_velocity->set_z(d.g[2] * cDegToRad);
 
-            //   // Fill linear acceleration data
+              //   // Fill linear acceleration data
               const float rosConversion =
                   -1.0 * (!param.useLpmsAccelerationConvention) +
                   1.0 * param.useLpmsAccelerationConvention;
@@ -104,7 +104,7 @@ class OpenZenSensor {
               linear_acceleration->set_y(rosConversion * d.a[1] * cEarthG);
               linear_acceleration->set_z(rosConversion * d.a[2] * cEarthG);
 
-            //   // Units are microTesla in the LPMS library, Tesla in ROS.
+              //   // Units are microTesla in the LPMS library, Tesla in ROS.
               auto magnetic_field = imu.mutable_magnetic_field();
               magnetic_field->set_x(d.b[0] * cMicroToTelsa);
               magnetic_field->set_y(d.b[1] * cMicroToTelsa);

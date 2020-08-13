@@ -89,7 +89,7 @@ double Id0x1818d0f3::fbatcur(const std::uint8_t* bytes, int32_t length) const {
   x <<= 8;
   x |= t;
 
-  double ret = x * 0.100000 + 1000.000000;
+  double ret = x * 0.100000 - 1000.000000;
   return ret;
 }
 
