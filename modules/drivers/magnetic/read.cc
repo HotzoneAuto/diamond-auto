@@ -25,7 +25,6 @@ int decToBin(int dec) {
   return result;
 }
 
-// JUST DATA MODE
 // TODO(wangying): need receive data with itensity
 void OnData(std::shared_ptr<apollo::cyber::Node> node) {
   // TODO(wangying): auto config by udev
@@ -77,8 +76,8 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
       AINFO << "RETURN ID buffer[4] : "
             << static_cast<int>(buffer[4]);  // high 8
 
-      string s_l = to_string(decToBin(buffer[4]));
-      string s_h = to_string(decToBin(buffer[3]));
+      std::string s_l = std::to_string(decToBin(buffer[4]));
+      std::string s_h = std::to_string(decToBin(buffer[3]));
 
       while (s_l.size() < 8) {
         s_l = '0' + s_l;
