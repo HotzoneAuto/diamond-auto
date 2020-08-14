@@ -6,12 +6,13 @@ package apollo.drivers;
 import "modules/common/proto/header.proto";
 
 message Channel {
-    optional uint32 id = 1;
+    optional float lat_dev = 1;
     // status true: detected, false: not detected
     optional bool status = 2; 
 }
 
 message Magnetic {
   optional apollo.common.Header header = 1;
-  repeated Channel channel = 2;
+  // repeated Channel channel = 2;
+  optional float lat_dev = 2;
 }
