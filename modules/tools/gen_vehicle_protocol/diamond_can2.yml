@@ -1,0 +1,9 @@
+dbc_file: CAN2.dbc
+protocol_conf: diamond_can2_protocol.yml
+car_type: diamond
+sender_list: []
+sender: Vector__XXX
+black_list: []
+
+output_dir: output_can2/
+

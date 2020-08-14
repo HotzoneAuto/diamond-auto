@@ -53,7 +53,6 @@ TEST(MessageManagerTest, GetMutableProtocolDataById) {
   EXPECT_NE(manager.GetMutableProtocolDataById(MockProtocolData::ID), nullptr);
 
   ::apollo::canbus::ChassisDetail chassis_detail;
-  chassis_detail.set_car_type(::apollo::canbus::ChassisDetail::QIRUI_EQ_15);
   EXPECT_EQ(manager.GetSensorData(&chassis_detail), ErrorCode::OK);
   EXPECT_EQ(manager.GetSensorData(nullptr), ErrorCode::CANBUS_ERROR);
 }

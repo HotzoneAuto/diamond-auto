@@ -68,10 +68,10 @@ def gen_report_cpp(car_type, protocol, output_dir):
         classname = protocol["name"].replace('_', '').capitalize()
         fmt_val["classname"] = classname
         protocol_id = int(protocol["id"].upper(), 16)
-        if protocol_id > 2048:
-            fmt_val["id_upper"] = gen_esd_can_extended(protocol["id"].upper())
-        else:
-            fmt_val["id_upper"] = protocol["id"].upper()
+        # if protocol_id > 2048:
+            # fmt_val["id_upper"] = gen_esd_can_extended(protocol["id"].upper())
+        # else:
+        fmt_val["id_upper"] = protocol["id"].upper()
         set_var_to_protocol_list = []
         func_impl_list = []
         for var in protocol["vars"]:
@@ -373,10 +373,10 @@ def gen_control_cpp(car_type, protocol, output_dir):
         fmt_val["car_type_lower"] = car_type
         fmt_val["protocol_name_lower"] = protocol["name"]
         protocol_id = int(protocol["id"].upper(), 16)
-        if protocol_id > 2048:
-            fmt_val["id_upper"] = gen_esd_can_extended(protocol["id"].upper())
-        else:
-            fmt_val["id_upper"] = protocol["id"].upper()
+        # if protocol_id > 2048:
+            # fmt_val["id_upper"] = gen_esd_can_extended(protocol["id"].upper())
+        # else:
+        fmt_val["id_upper"] = protocol["id"].upper()
         classname = protocol["name"].replace('_', '').capitalize()
         fmt_val["classname"] = classname
 

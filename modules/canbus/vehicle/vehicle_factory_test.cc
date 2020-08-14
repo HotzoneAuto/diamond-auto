@@ -36,7 +36,6 @@ TEST_F(VehicleFactoryTest, CreateVehicle) {
 
   parameter.set_brand(apollo::common::DIAMOND);
   EXPECT_NE(factory_.CreateVehicle(parameter), nullptr);
-
 }
 
 }  // namespace canbus

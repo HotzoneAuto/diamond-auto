@@ -405,7 +405,7 @@ class Teleop {
     control_command_.set_speed(0.0);
     control_command_.set_acceleration(0.0);
     control_command_.set_engine_on_off(false);
-    control_command_.set_driving_mode(Chassis::COMPLETE_MANUAL);
+    // control_command_.set_driving_mode(Chassis::COMPLETE_MANUAL);
     control_command_.set_gear_location(Chassis::GEAR_INVALID);
     control_command_.mutable_signal()->set_turn_signal(
         VehicleSignal::TURN_NONE);

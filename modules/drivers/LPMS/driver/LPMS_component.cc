@@ -48,12 +48,11 @@ bool LPMSDriverComponent::Init() {
   return true;
 }
 
-
-bool LPMSDriverComponent::Proc(const std::shared_ptr<Driver>& msg){
+bool LPMSDriverComponent::Proc(const std::shared_ptr<Driver>& msg) {
   if (!CheckInput()) {
     AERROR << "Input check failed!";
     return false;
-  }//check whether the input message is right
+  }  // check whether the input message is right
 
   /*
   other essential contents in proceeding function

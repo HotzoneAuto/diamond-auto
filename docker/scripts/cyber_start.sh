@@ -21,7 +21,7 @@ source "${APOLLO_ROOT_DIR}/scripts/apollo.bashrc"
 # CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
 
 VERSION_X86_64="diamond-auto-x86_64-18.04-20200727_1838"
-VERSION_AARCH64="diamond-auto-aarch64-18.04-20200723_2253"
+VERSION_AARCH64="diamond-auto-aarch64-18.04-20200729_1004"
 VERSION_LOCAL_CYBER="local_cyber_dev"
 CYBER_CONTAINER="apollo_cyber_${USER}"
 CYBER_INSIDE="in_cyber_docker"
@@ -334,7 +334,9 @@ function setup_devices_and_mount_volumes() {
         16.04|18.04|20.04|*)
             ## Question(storypku): Any special considerations here ?
             if [[ "${HOST_ARCH}" == "${TARGET_ARCH}" ]]; then
-                volumes="${volumes} -v /dev:/dev"
+                volumes="${volumes} -v /dev:/dev  \
+			            -v /sys/class/gpio:/sys/class/gpio  \
+		    "
             fi
             ;;
     esac

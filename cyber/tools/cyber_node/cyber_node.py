@@ -22,7 +22,7 @@ from cyber.python.cyber_py3 import cyber
 
 def print_node_info(node_name, sleep_s=2):
     roleattr_rawdata = cyber.NodeUtils.get_node_attr(node_name, sleep_s)
-    from cyber.proto.role_attributes_pb2 import RoleAttributes
+    from cyber.proto.role_attributes_py_pb2 import RoleAttributes
     try:
         msg = RoleAttributes()
         msg.ParseFromString(roleattr_rawdata)

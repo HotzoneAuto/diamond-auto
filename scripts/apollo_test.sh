@@ -3,42 +3,15 @@ set -e
 
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 source "${TOP_DIR}/scripts/apollo.bashrc"
-
-##========== Perception ================##
-PERCEPTION_EXCEPTIONS="\
-except //modules/perception/lidar/lib/detection/lidar_point_pillars:point_pillars_test \
-"
+source "${TOP_DIR}/scripts/apollo_base.sh"
 
 ##============= Localization ===================##
 LOCALIZATION_EXCEPTIONS="\
 except //modules/localization/ndt/ndt_locator:ndt_lidar_locator_test \
 except //modules/localization/msf/local_pyramid_map/pyramid_map:pyramid_map_test \
 except //modules/localization/msf/local_pyramid_map/pyramid_map:pyramid_map_pool_test \
-except //modules/localization/msf:msf_localization_test \
-except //modules/localization/msf/local_map/ndt_map:localization_msf_ndt_map_test \
-except //modules/localization/msf/local_pyramid_map/ndt_map:localization_pyramid_map_ndt_map_test \
-except //modules/localization/ndt:ndt_localization_pose_buffer_test \
-except //modules/localization/ndt:ndt_localization_test \
 except //modules/localization/ndt/ndt_locator:ndt_solver_test \
-"
-
-##============== Prediction ====================##
-PREDICTION_EXCEPTIONS="\
-except //modules/prediction/predictor/single_lane:single_lane_predictor_test \
-except //modules/prediction/container/obstacles:obstacle_test \
-except //modules/prediction/container/obstacles:obstacle_clusters_test \
-except //modules/prediction/common:road_graph_test \
-"
-
-##====================== Planning ===============##
-PLANNING_EXCEPTIONS="\
-except //modules/planning/tasks/learning_model:learning_model_inference_task_test \
-except //modules/planning/reference_line:qp_spline_reference_line_smoother_test   \
-except //modules/planning/open_space/trajectory_smoother:dual_variable_warm_start_osqp_interface_test \
-except //modules/planning/math/smoothing_spline:osqp_spline_2d_solver_test  \
-except //modules/planning/math/smoothing_spline:osqp_spline_1d_solver_test  \
-except //modules/planning/learning_based/model_inference:model_inference_test   \
-except //modules/planning/integration_tests:sunnyvale_big_loop_test \
+except //modules/localization/msf:msf_localization_test \
 "
 
 ##======================= Failed Test Cases are Listed Above ================##
@@ -51,11 +24,7 @@ SHORTHAND_TARGETS=
 DISABLED_TARGETS=
 
 function _disabled_test_targets_all() {
-    local disabled="${PERCEPTION_EXCEPTIONS}"
-    disabled="${disabled} ${PREDICTION_EXCEPTIONS}"
-    disabled="${disabled} ${LOCALIZATION_EXCEPTIONS}"
-    disabled="${disabled} ${PLANNING_EXCEPTIONS}"
-
+    local disabled="${LOCALIZATION_EXCEPTIONS}"
     if ! ${USE_ESD_CAN} ; then
         warning "ESD CAN library supplied by ESD Electronics doesn't exist."
         warning "If you need ESD CAN, please refer to:"
@@ -93,12 +62,6 @@ function determine_disabled_targets() {
                 disabled="${disabled} except //modules/localization/msf/..."
             fi
             disabled="${disabled} ${LOCALIZATION_EXCEPTIONS}"
-        elif [[ "${compo}" == "prediction" ]]; then
-            disabled="${disabled} ${PREDICTION_EXCEPTIONS}"
-        elif [[ "${compo}" == "planning" ]]; then
-            disabled="${disabled} ${PLANNING_EXCEPTIONS}"
-        elif [[ "${compo}" == "perception" ]]; then
-            disabled="${disabled} ${PERCEPTION_EXCEPTIONS}"
         fi
     done
 

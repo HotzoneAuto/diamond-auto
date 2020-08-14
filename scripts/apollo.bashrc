@@ -35,6 +35,7 @@ export TAB="    " # 4 spaces
 
 BOLD='\033[1m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 GREEN='\033[32m'
 WHITE='\033[34m'
 YELLOW='\033[33m'
@@ -84,16 +85,26 @@ function fail() {
 }
 
 function determine_gpu_use() {
-    # TODO(all): remove USE_GPU when {cyber,dev}_start.sh"
+    local arch="$(uname -m)"
     local use_gpu=0
-    # Check nvidia-driver and GPU device
-    local nv_driver="nvidia-smi"
-    if [ ! -x "$(command -v ${nv_driver} )" ]; then
-        warning "No nvidia-driver found. CPU will be used."
-    elif [ -z "$(eval ${nv_driver} )" ]; then
-        warning "No GPU device found. CPU will be used."
-    else
-        use_gpu=1
+
+    if [[ "${arch}" == "aarch64" ]]; then
+        if lsmod | grep -q nvgpu; then
+            if ldconfig -p | grep -q cudart; then
+                use_gpu=1
+            fi
+        fi
+    else ## x86_64 mode
+        # TODO(all): remove USE_GPU env var in {cyber,dev}_start.sh"
+        # Check nvidia-driver and GPU device
+        local nv_driver="nvidia-smi"
+        if [ ! -x "$(command -v ${nv_driver} )" ]; then
+            warning "No nvidia-driver found. CPU will be used."
+        elif [ -z "$(eval ${nv_driver} )" ]; then
+            warning "No GPU device found. CPU will be used."
+        else
+            use_gpu=1
+        fi
     fi
     export USE_GPU="${use_gpu}"
 }
