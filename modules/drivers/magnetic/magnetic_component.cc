@@ -19,7 +19,6 @@ int decToBin(int dec) {
   return result;
 }
 
-
 bool MagneticComponent::Init() {
   // Uart device set option
   device_.SetOpt(9600, 8, 'N', 1);
@@ -34,9 +33,7 @@ bool MagneticComponent::Init() {
 }
 
 // TODO()CHECK
-bool MagneticComponent::Check() {
-  return true;
-}
+bool MagneticComponent::Check() { return true; }
 
 void MagneticComponent::Action() {
   int count = 1;
