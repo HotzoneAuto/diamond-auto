@@ -6,8 +6,7 @@ source "${DIR}/apollo_base.sh"
 
    function start() {
     LOG="${APOLLO_ROOT_DIR}/data/log/rfid.out"
-    CMD="cyber_launch start /apollo/modules/drivers/rfid/launch/rfid.launc
-      h"
+    CMD="cyber_launch start /apollo/modules/drivers/rfid/launch/rfid.launch"
     NUM_PROCESSES="$(pgrep -c -f "modules/drivers/rfid/dag/rfid.dag")"
     if [ "${NUM_PROCESSES}" -eq 0 ]; then
         eval "nohup ${CMD} </dev/null >${LOG} 2>&1 &"
@@ -15,7 +14,7 @@ source "${DIR}/apollo_base.sh"
 }
 
 function stop() {
-    eval "nohup cyber_launch stop /apollo/modules/drivers/rfid/laun/rfid.launch < /dev/null 2>&1 &"
+    eval "nohup cyber_launch stop /apollo/modules/drivers/rfid/launch/rfid.launch < /dev/null 2>&1 &"
 }
 
 # run command_name module_name
