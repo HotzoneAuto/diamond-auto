@@ -240,6 +240,7 @@ bool LPMSDriverComponent::run(void)
 
 	m_sensorThread.start(SensorThreadParams {m_zenClient.get(), frame_id, imu_writer_, m_useLpmsAccelerationConvention});
 	AINFO << "Data streaming from sensor started";
+	
 
 	return true;
 }

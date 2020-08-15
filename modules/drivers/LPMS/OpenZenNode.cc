@@ -119,7 +119,7 @@ public:
 
 				// Publish the messages
 				imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>(FLAGS_raw_imu_topic);
-				// imu_writer_->Write(imu);
+				imu_writer_->Write(imu);
 			}
 		}
 		AINFO << "event_value.component.handle != 1";
@@ -284,8 +284,6 @@ public:
 		                                        });
 
 		AINFO << "Data streaming from sensor started";
-		
-		imu_writer_->Write(imu);
 
 		return true;
 	}
