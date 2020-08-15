@@ -95,8 +95,8 @@ bool LPMSDriverComponent::m_sensorThread_fun(const SensorThreadParams& param) //
 			magnetic_field->set_z(d.b[2] * cMicroToTelsa);
 
 			// Publish the messages
-			imu_writer_->Write(imu);
 			imu_writer_ = node_->CreateWriter<apollo::drivers::Imu>("/diamond/sensor/imu");
+			imu_writer_->Write(imu);
 		}
 	}
 	AINFO << "event_value.component.handle != 1";
