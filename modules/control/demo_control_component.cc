@@ -1,5 +1,5 @@
 #include "modules/control/demo_control_component.h"
-#include "modules/control/diamond_control_pid.h"
+#include "modules/control/diamondauto_control_pid.h"
 
 #include <string>
 #include "cyber/cyber.h"
