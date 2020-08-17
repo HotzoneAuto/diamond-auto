@@ -32,10 +32,10 @@ message ControlCommand {
 
   // target non-directional steering rate, in percentage of full scale per
   // second [0, 100]
-  optional double steering_rate = 6;
+  optional double steering_rate = 5;
 
   // target front steering angle, in percentage of full scale [-100, 100]
-  optional double front_steering_target = 7;
+  optional double front_steering_target = 6;
   
   // target back steering angle, in percentage of full scale [-100, 100]
   optional double back_steering_target = 7;
