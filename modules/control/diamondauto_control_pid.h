@@ -7,35 +7,35 @@
 
 using namespace std;
 
-static float kp_steer = 0.1;
-static float ki_steer = 0;
-static float kd_steer = 0.1;
-static float delta_u_steer;
-static float u_pre_steer = 0;
-static float u_steer;
+// static float kp_steer = 0.1;
+// static float ki_steer = 0;
+// static float kd_steer = 0.1;
+// static float delta_u_steer;
+// static float u_pre_steer = 0;
+// static float u_steer;
 static int steer_direction;
 
 static float kp_speed = 0;
 static float ki_speed = 0;
 static float kd_speed = 0;
-static float delta_u_torque;
-static float u_pre_torque = 0;
+// static float delta_u_torque;
+// static float u_pre_torque = 0;
 static float u_torque;
 
 static float steer_motor_spd;
-static float tire_steer_spd;
-static float steer_angle=0;
+// static float tire_steer_spd;
+// static float steer_angle=0;
 static float veh_spd = 0;
-static float desired_v = 2; 
+// static float desired_v = 2; 
 
 static float speed_motor_deadzone = 0;
 
 static float pid_integral = 0; // 纵向pid累积量
 static float pid_error = 0; 
 static float pid_error_pre = 0;
-static float fmottq = 0;
+// static float fmottq = 0;
 static float canbus_veh_spd = 0;
-static int veh_mode = 0;
+// static int veh_mode = 0;
 
 // void pid_steering(float & e2, float & e1, float & e); // 转向PID控制，PID输出控制量（转速）给转向电机
 // float steer_motor(float error); // 经过电机响应、车辆运动，输出下一时刻的磁导航偏差
