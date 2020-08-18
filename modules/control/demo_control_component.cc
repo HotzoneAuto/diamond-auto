@@ -49,7 +49,7 @@ void ControlComponent::GenerateCommand()
 	
 	// TODO：发送扭矩，PID天闯
 	int motor_flag = 0; //控制驱动电机正反转
-	float motor_speed = 0; //驱动电机转速
+	// float motor_speed = 0; //驱动电机转速
 	float motor_torque = 0; //驱动电机转矩
 	
 	int front_steering_dir = 0; //控制前方转向电机正反转
@@ -155,7 +155,7 @@ void ControlComponent::GenerateCommand()
 				back_steering_dir = 2; //后方转向电机不转
 		}
 		else{// 若出现异常
-			motor_speed = 0;
+			motor_torque = pid_speed(0);
 			front_steering_dir = 2;
 			back_steering_dir = 2;
 		}

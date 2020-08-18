@@ -140,7 +140,8 @@ public:
 		double throttle = 0;
 		double acc = 0;
 		double dec = 0;
-		double steering = 0;
+		double front_steering = 0;
+		double back_steering = 0;
 		struct termios cooked_;
 		struct termios raw_;
 		int32_t kfd_ = 0;
