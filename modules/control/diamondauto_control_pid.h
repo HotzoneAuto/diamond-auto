@@ -42,7 +42,7 @@ static float canbus_veh_spd = 0;
 // static int veh_mode = 0;
 
 
-float pid_speed(float desire_v)  // Ŀ������pid���ת��
+float pid_speed(float desire_v) 
 {
 	cout << "pid中的期望速度" << desire_v << endl;
 	veh_spd = chassis_->speed_mps();
