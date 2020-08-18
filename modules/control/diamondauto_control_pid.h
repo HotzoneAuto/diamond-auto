@@ -1,9 +1,11 @@
-#ifndef _DIAMONDAUTO_CONTROL_H_
-#define _DIAMONDAUTO_CONTROL_H_
+#pragma once
 
 #include <stdlib.h>
-#include <iostream>
 #include <cmath>
+#include <iostream>
+
+namespace apollo {
+namespace control {
 
 using namespace std;
 
@@ -26,216 +28,193 @@ static float steer_motor_spd;
 // static float tire_steer_spd;
 // static float steer_angle=0;
 static float veh_spd = 0;
-// static float desired_v = 2; 
+// static float desired_v = 2;
 
 static float speed_motor_deadzone = 0;
 
-static float pid_integral = 0; // ×ÝÏòpidÀÛ»ýÁ¿
-static float pid_error = 0; 
+static float pid_integral = 0;  // ï¿½ï¿½ï¿½ï¿½pidï¿½Û»ï¿½ï¿½ï¿½
+static float pid_error = 0;
 static float pid_error_pre = 0;
 // static float fmottq = 0;
 static float canbus_veh_spd = 0;
 // static int veh_mode = 0;
 
-// void pid_steering(float & e2, float & e1, float & e); // ×ªÏòPID¿ØÖÆ£¬PIDÊä³ö¿ØÖÆÁ¿£¨×ªËÙ£©¸ø×ªÏòµç»ú
-// float steer_motor(float error); // ¾­¹ýµç»úÏìÓ¦¡¢³µÁ¾ÔË¶¯£¬Êä³öÏÂÒ»Ê±¿ÌµÄ´Åµ¼º½Æ«²î
-// void pid_speed(float desire_v); // ×ÝÏòËÙ¶ÈPID¿ØÖÆ£¬PIDÊä³ö¿ØÖÆÁ¿£¨×ª¾Ø£©¸øÇý¶¯µç»ú
+// void pid_steering(float & e2, float & e1, float & e); //
+// ×ªï¿½ï¿½PIDï¿½ï¿½ï¿½Æ£ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½Ù£ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ float steer_motor(float error);
+// // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ê±ï¿½ÌµÄ´Åµï¿½ï¿½ï¿½Æ«ï¿½ï¿½ void pid_speed(float
+// desire_v); // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½PIDï¿½ï¿½ï¿½Æ£ï¿½PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½Ø£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-void Init()
-{
-	cout<<"³õÊ¼»¯......"<<endl<<endl;
-};
+void Init() { cout << "ï¿½ï¿½Ê¼ï¿½ï¿½......" << endl << endl; };
 
-void Self_check()
-{
-	cout<<"³µÁ¾×´Ì¬×Ô¼ì......"<<endl<<endl;
-};
-
+void Self_check() { cout << "ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½Ô¼ï¿½......" << endl << endl; };
 
 /*void pid_steering(float & e2, float & e1, float & e)
 {
-	cout<<"¿ØÖÆÇ°µÄ´Åµ¼º½Æ«²î£º"<<e2<<"¡¢"<<e1<<"¡¢"<<e<<endl;
+        cout<<"ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Ä´Åµï¿½ï¿½ï¿½Æ«ï¿½î£º"<<e2<<"ï¿½ï¿½"<<e1<<"ï¿½ï¿½"<<e<<endl;
 
-	delta_u_steer = kp_steer*(e-e1)+ki_steer*(e)+kd_steer*(e-2*e1+e2); // pidÊä³öµÄ¿ØÖÆÁ¿ÔöÁ¿
-	
-	u_steer = u_pre_steer + delta_u_steer;
+        delta_u_steer = kp_steer*(e-e1)+ki_steer*(e)+kd_steer*(e-2*e1+e2); //
+pidï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	cout<<"PIDÊä³ö¸ø×ªÏòµç»úµÄ¿ØÖÆÁ¿£º"<<u_steer<<endl;
+        u_steer = u_pre_steer + delta_u_steer;
 
-	u_pre_steer = u_steer;
+        cout<<"PIDï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"<<u_steer<<endl;
 
-	// ÅÐ¶Ïµç»úÕý·´×ª
-	if (e>0)
-	{
-		cout<<"×ªÏòÂÖÓ¦×ó×ª"<<endl;
-		steer_direction = 1; 
-	}
-	else if (e<0)
-	{
-		cout<<"×ªÏòÂÖÓ¦ÓÒ×ª"<<endl;
-		steer_direction = -1;
-	}
-	else
-	{
-		cout<<"×ªÏòÂÖÓ¦Ö±ÐÐ"<<endl;
-		steer_direction = 0;
-	}
+        u_pre_steer = u_steer;
 
-	e2 = e1;
-	e1 = e;
-	e = steer_motor(e);
-	
-	cout<<"¾­¹ýPIDµ÷½Ú£¬ÐÂµÄ´Åµ¼º½Æ«²îÐòÁÐ£º"<<e2<<"¡¢"<<e1<<"¡¢"<<e<<endl;
-			
+        // ï¿½Ð¶Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ª
+        if (e>0)
+        {
+                cout<<"×ªï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½×ª"<<endl;
+                steer_direction = 1;
+        }
+        else if (e<0)
+        {
+                cout<<"×ªï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½×ª"<<endl;
+                steer_direction = -1;
+        }
+        else
+        {
+                cout<<"×ªï¿½ï¿½ï¿½ï¿½Ó¦Ö±ï¿½ï¿½"<<endl;
+                steer_direction = 0;
+        }
+
+        e2 = e1;
+        e1 = e;
+        e = steer_motor(e);
+
+        cout<<"ï¿½ï¿½ï¿½ï¿½PIDï¿½ï¿½ï¿½Ú£ï¿½ï¿½ÂµÄ´Åµï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½"<<e2<<"ï¿½ï¿½"<<e1<<"ï¿½ï¿½"<<e<<endl;
+
 };
 */
 
 /* float steer_motor(float e)
 {
-	if (steer_direction == 1) // ×ó×ª
-	{
-		cout<<"µç»ú×ó×ª"<<endl;
-		// CANÍ¨Ñ¶¸ø×ªÏòµç»ú×ó×ªÃüÁî£»		
-	}
-	else if(steer_direction == -1) // ÓÒ×ª
-	{
-		cout<<"µç»úÓÒ×ª"<<endl;
-		// CANÍ¨Ñ¶¸ø×ªÏòµç»úÓÒ×ªÃüÁî£»		
-	}
-	
-
-	// µç»úÄ£ÐÍ£ºÓÉ pid ¿ØÖÆÁ¿ µ½ ×ªÏòµç»úÊä³ö×ªËÙ£»
-	steer_motor_spd = u_steer;// Ëæ±ãÐ´µÄ
+        if (steer_direction == 1) // ï¿½ï¿½×ª
+        {
+                cout<<"ï¿½ï¿½ï¿½ï¿½ï¿½×ª"<<endl;
+                // CANÍ¨Ñ¶ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½î£»
+        }
+        else if(steer_direction == -1) // ï¿½ï¿½×ª
+        {
+                cout<<"ï¿½ï¿½ï¿½ï¿½ï¿½×ª"<<endl;
+                // CANÍ¨Ñ¶ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½î£»
+        }
 
 
-	// ¼õËÙ»ú¹¹£º×ªÏòµç»úÊä³ö×ªËÙ Í¨¹ý¼õËÙ»ú¹¹ µ½ ÂÖÌ¥×ªÏòËÙ¶È£»
-	tire_steer_spd = steer_motor_spd/20;
-	
+        // ï¿½ï¿½ï¿½Ä£ï¿½Í£ï¿½ï¿½ï¿½ pid ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½Ù£ï¿½
+        steer_motor_spd = u_steer;// ï¿½ï¿½ï¿½Ð´ï¿½ï¿½
 
-	// ÔË¶¯¸üÐÂ£ºÂÖÌ¥×ªÏòËÙ¶È µ½ ÂÖÌ¥×ª½Ç(½ÇÎ»ÒÆ´«¸ÐÆ÷)£»³µÁ¾ºá×ÝÏòÔË¶¯£¬×´Ì¬¸üÐÂ
-	steer_angle = steer_angle + tire_steer_spd;//½ÇÎ»ÒÆ´«¸ÐÆ÷²âÁ¿
-	
 
-	// ÐÂµÄÆ«²î¼ì²â£º´Åµ¼º½´«¸ÐÆ÷¼ì²âµ±Ç°Æ«²î
-	cout<<"ÂÖÌ¥×ª½Ç£º"<<steer_angle<<endl;
-		
-	float error_new;
-	error_new = e+sin(steer_angle*3.1415926/180)*veh_spd*100*0.05; //0.05s¿ØÖÆÒ»´Î
-	// cout<<"ÐÂµÄÆ«²î£º"<<error_new<<endl;
-	return error_new;
+        // ï¿½ï¿½ï¿½Ù»ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ Í¨ï¿½ï¿½ï¿½ï¿½ï¿½Ù»ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ì¥×ªï¿½ï¿½ï¿½Ù¶È£ï¿½
+        tire_steer_spd = steer_motor_spd/20;
+
+
+        // ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½Ì¥×ªï¿½ï¿½ï¿½Ù¶ï¿½ ï¿½ï¿½
+ï¿½ï¿½Ì¥×ªï¿½ï¿½(ï¿½ï¿½Î»ï¿½Æ´ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ steer_angle = steer_angle +
+tire_steer_spd;//ï¿½ï¿½Î»ï¿½Æ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+
+        // ï¿½Âµï¿½Æ«ï¿½ï¿½ï¿½â£ºï¿½Åµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ±Ç°Æ«ï¿½ï¿½
+        cout<<"ï¿½ï¿½Ì¥×ªï¿½Ç£ï¿½"<<steer_angle<<endl;
+
+        float error_new;
+        error_new = e+sin(steer_angle*3.1415926/180)*veh_spd*100*0.05;
+//0.05sï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+        // cout<<"ï¿½Âµï¿½Æ«ï¿½î£º"<<error_new<<endl;
+        return error_new;
 };
 */
 
-void simple_steering(float & e)
-{
-	if (e>4.5 || e<-4.5)
-	{
-		// ÏÂ·¢ÈÃ×ªÏòµç»ú¿ªÊ¼×ªµÄÐÅºÅ
-		cout<<"×ªÏòµç»ú¿ªÊ¼×ª"<<endl;
-	}
-	else 
-	{
-		// ÏÂ·¢ÈÃ×ªÏòµç»úÍ£Ö¹×ªµÄÐÅºÅ	
-		cout<<"×ªÏòµç»úÍ£Ö¹×ª"<<endl;
-	}
-
+void simple_steering(float& e) {
+  if (e > 4.5 || e < -4.5) {
+    // ï¿½Â·ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼×ªï¿½ï¿½ï¿½Åºï¿½
+    cout << "×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼×ª" << endl;
+  } else {
+    // ï¿½Â·ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Í£Ö¹×ªï¿½ï¿½ï¿½Åºï¿½
+    cout << "×ªï¿½ï¿½ï¿½ï¿½Í£Ö¹×ª" << endl;
+  }
 }
 
+void rule_steering(float& e) {
+  // ï¿½Ð¶ï¿½Ç°ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ª
+  if (e > 4.5) {
+    cout << "×ªï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½×ª" << endl;  //ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½Ä£ï¿½é·´ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½
+    steer_direction = 1;
+  } else if (e < -4.5) {
+    cout << "×ªï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½×ª" << endl;
+    steer_direction = 2;
+  } else {
+    cout << "×ªï¿½ï¿½ï¿½ï¿½Ó¦Ö±ï¿½ï¿½" << endl;
+    steer_direction = 0;
+  }
 
-void rule_steering(float & e)
-{
-	// ÅÐ¶ÏÇ°Ãæ×ªÏòµç»úÕý·´×ª
-	if (e>4.5)
-	{
-		cout<<"×ªÏòÂÖÓ¦×ó×ª"<<endl; //¸ù¾ÝÆ«²îÄ£¿é·´À¡µÄÖµ½øÐÐµ÷Õû
-		steer_direction = 1; 
-	}
-	else if (e<-4.5)
-	{
-		cout<<"×ªÏòÂÖÓ¦ÓÒ×ª"<<endl;
-		steer_direction = 2;
-	}
-	else
-	{
-		cout<<"×ªÏòÂÖÓ¦Ö±ÐÐ"<<endl;
-		steer_direction = 0;
-	}
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ÅºÅ·ï¿½ï¿½ï¿½CANÍ¨Ñ¶
 
-	// °ÑÕý·´×ªÐÅºÅ·¢¸øCANÍ¨Ñ¶
+  // Ç°ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½CANï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½Åºï¿½
 
-	// Ç°Ãæ×ªÏòµç»ú½ÓÊÕCAN¸øµÄÕý·´×ªÐÅºÅ
+  if (steer_direction == 1)  // ï¿½ï¿½×ª
+  {
+    cout << "ï¿½ï¿½ï¿½ï¿½ï¿½×ª" << endl;
+    // CANÍ¨Ñ¶ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½î£»
 
-	if (steer_direction == 1) // ×ó×ª
-	{
-		cout<<"µç»ú×ó×ª"<<endl;
-		// CANÍ¨Ñ¶¸ø×ªÏòµç»ú×ó×ªÃüÁî£»	
+    if (e >= 6) {
+      steer_motor_spd = 1435;  // ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½
+    } else if (e >= 3) {
+      steer_motor_spd = 1435;
+    } else {
+      steer_motor_spd = 1435;
+    }
+  } else if (steer_direction == 2)  // ï¿½ï¿½×ª
+  {
+    cout << "ï¿½ï¿½ï¿½ï¿½ï¿½×ª" << endl;
+    // CANÍ¨Ñ¶ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½î£»
 
-		if (e>=6)
-		{
-			steer_motor_spd = 1435; // Êý¾Ý¾ßÌå¸ø¶àÉÙÐèÒªËã
-		}
-		else if (e>=3)
-		{
-			steer_motor_spd = 1435;	
-		}
-		else
-		{
-			steer_motor_spd = 1435;	
-		}
-	}
-	else if(steer_direction == 2) // ÓÒ×ª
-	{
-		cout<<"µç»úÓÒ×ª"<<endl;
-		// CANÍ¨Ñ¶¸ø×ªÏòµç»úÓÒ×ªÃüÁî£»	
+    if (e <= -6) {
+      steer_motor_spd =
+          1435;  // ×ªï¿½ï¿½ï¿½ï¿½ï¿½î¶¨×ªï¿½ï¿½1435rpmï¿½ï¿½Ä¿Ç°ï¿½ï¿½ï¿½É¿Ø£ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½Ô¿É¿ï¿½ï¿½Ð£ï¿½ï¿½î¶¨×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½70s×ª1È¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0.857rpm
+    } else if (e <= -3) {
+      steer_motor_spd = 1435;
+    } else {
+      steer_motor_spd = 1435;
+    }
+  }
 
-		if (e<=-6)
-		{
-			steer_motor_spd = 1435;	// ×ªÏòµç»ú¶î¶¨×ªËÙ1435rpm£¬Ä¿Ç°²»¿É¿Ø£¬ÕýÔÚ³¢ÊÔ¿É¿ØÖÐ£¬¶î¶¨×ªËÙÏÂÊÇ70s×ª1È¦£¬³µÂÖ0.857rpm
-		}
-		else if (e<=-3)
-		{
-			steer_motor_spd = 1435;	
-		}
-		else
-		{
-			steer_motor_spd = 1435;	
-		}
-	}
+  cout << "×ªï¿½Ùµï¿½ï¿½×ªï¿½ï¿½Îª" << steer_motor_spd << endl;
 
-	cout<<"×ªËÙµç»ú×ªËÙÎª"<<steer_motor_spd<<endl;
-	
-	e = e/2; // ´Ë´¦Ó¦¸ÃÊÇ´Åµ¼º½´«¸ÐÆ÷ÊµÊ±½ÓÊÕµÄÐÂÆ«²î
+  e = e / 2;  // ï¿½Ë´ï¿½Ó¦ï¿½ï¿½ï¿½Ç´Åµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÊµÊ±ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½Æ«ï¿½ï¿½
 
-	cout<<"ÐÂµÄ´Åµ¼º½Æ«²îÎª£º"<<e<<endl;
+  cout << "ï¿½ÂµÄ´Åµï¿½ï¿½ï¿½Æ«ï¿½ï¿½Îªï¿½ï¿½" << e << endl;
 }
 
-float pid_speed(float desire_v) // Ä¿µÄÊÇÓÃpidÇó³ö×ª¾Ø
+float pid_speed(float desire_v)  // Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pidï¿½ï¿½ï¿½×ªï¿½ï¿½
 {
-	cout<<"pidÖÐµÄÆÚÍûËÙ¶È£º"<<desire_v<<endl;
-	pid_error = desire_v - veh_spd;  // pidÊäÈëÎªµ±Ç°³µËÙÎó²î
-	cout<< "×ÝÏòËÙ¶ÈÆ«²î£º"<<pid_error<<endl;
+  cout << "pidï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È£ï¿½" << desire_v << endl;
+  pid_error = desire_v - veh_spd;  // pidï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+  cout << "ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½Æ«ï¿½î£º" << pid_error << endl;
 
-	pid_integral += pid_error;
-	
-	// speed_motor_errorÓ¦¸ÃÊÇÒ»¸öÓëÆÚÍûËÙ¶ÈÏà¹ØµÄÇ°À¡Á¿£¬¸ø¶¨ÆÚÍûËÙ¶È¿ÉÒÔËã³öÒ»¸ö¸ÃËÙ¶ÈÔÈËÙÏÂµÄÄ¿±ê×ª¾ØÖµ
-	// speed_motor_errorÓ¦¸ÃÊÇÕû³µÄ¿±ê×ª¾Ø
-	u_torque = speed_motor_deadzone + kp_speed*pid_error + ki_speed*pid_integral + kd_speed*(pid_error-pid_error_pre);
+  pid_integral += pid_error;
 
-	cout<<"PIDÊä³ö¸øÇý¶¯µç»úµÄ¿ØÖÆÁ¿(×ª¾Ø)£º"<<u_torque<<endl;
+  // speed_motor_errorÓ¦ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½Øµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Ä¿ï¿½ï¿½×ªï¿½ï¿½Öµ
+  // speed_motor_errorÓ¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½×ªï¿½ï¿½
+  u_torque = speed_motor_deadzone + kp_speed * pid_error +
+             ki_speed * pid_integral + kd_speed * (pid_error - pid_error_pre);
 
-	veh_spd = canbus_veh_spd; // ³µËÙ¸üÐÂ£»ÐèÒª¸ù¾Ý¸øÇý¶¯µç»úµÄ¿ØÖÆÁ¿¼ÆËã³ö³µËÙÏìÓ¦£»	
-	
-	cout<<"µ±Ç°³µËÙ£º"<<veh_spd<<endl;
-	pid_error_pre  = pid_error;	 
-	
-	return u_torque;
-	
-	// ½«u_torqueÍ¨¹ýCANÍ¨Ñ¶·¢ËÍ¸øÇý¶¯µç»ú
+  cout << "PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½(×ªï¿½ï¿½)ï¿½ï¿½" << u_torque << endl;
 
-	// u_pre_torque = u_torque;
+  veh_spd =
+      canbus_veh_spd;  // ï¿½ï¿½ï¿½Ù¸ï¿½ï¿½Â£ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½
 
-	// ½«CANbus·´À¡µÄ³µËÙ¸³¸øµ±Ç°³µËÙ
+  cout << "ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Ù£ï¿½" << veh_spd << endl;
+  pid_error_pre = pid_error;
+
+  return u_torque;
+
+  // ï¿½ï¿½u_torqueÍ¨ï¿½ï¿½CANÍ¨Ñ¶ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+  // u_pre_torque = u_torque;
+
+  // ï¿½ï¿½CANbusï¿½ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½
 }
 
-
-#endif
+}  // namespace control
+}  // namespace apollo
