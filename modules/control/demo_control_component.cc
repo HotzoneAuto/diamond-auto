@@ -55,11 +55,37 @@ void ControlComponent::GenerateCommand()
 	int front_steering_dir = 0; //控制前方转向电机正反转
 	int back_steering_dir = 0; //控制后方转向电机正反转
 	
-	float front_steering_speed = 0; //rpm，前方转向电机转速
-	float back_steering_speed = 0; //rpm，后方转向电机转速
+	// float front_steering_speed = 0; //rpm，前方转向电机转速
+	// float back_steering_speed = 0; //rpm，后方转向电机转速
+	
+	float front_wheel_angle = 0; //前轮转角
+	float back_wheel_angle = 0; //后轮转角
 	
 	cmd -> set_front_steering_target(0);
 	cmd -> set_back_steering_target(0); //初始时前后转向电机转角为0
+	
+	//上过高压自检完成之后，进入自动驾驶模式后，车辆处于ready状态时
+	while (front_wheel_angle > 0.5 || back_wheel_angle > 0.5)// 待标定
+	{
+		front_steering_dir = 0; 
+		back_steering_dir = 0; //则前后方转向电机反转（即向左）
+		/*
+		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
+		Xavier向四合一发送55 AA 55 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+		*/
+		//TODO: 消息发送，刷新
+	}
+	
+	while (front_wheel_angle < -0.5 || back_wheel_angle < -0.5)// 待标定
+	{
+		front_steering_dir = 1; 
+		back_steering_dir = 1; //则前后方转向电机正转（即向右）
+		/*
+		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
+		Xavier向四合一发送55 AA 55 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+		*/
+		//TODO: 消息发送，刷新
+	}
 	
 	while (true)
 	{
@@ -82,12 +108,22 @@ void ControlComponent::GenerateCommand()
 			if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
 			{
 				front_steering_dir = 0; //则前方转向电机正转（即向右）
-				cmd -> set_front_steering_target(10); //转向量为10，待标定
+				/*
+				此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
+				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
+				Xavier向四合一发送55 AA 55 AA AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				*/
+				cmd -> set_front_steering_target(10); //转向量为10，待标定（目标角度暂时不用）
 			}
-			else if (frong_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
+			else if (front_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
 			{
 				front_steering_dir = 1; //则前方转向电机反转（即向左）
-				cmd -> set_front_steering_target(10); //转向量为10，待标定
+				/*
+				此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
+				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
+				Xavier向四合一发送55 AA 55 AA AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				*/
+				cmd -> set_front_steering_target(10); //转向量为10，待标定（目标角度暂时不用）
 			}
 			else
 				front_steering_dir = 2; //前方转向电机不转
@@ -98,11 +134,21 @@ void ControlComponent::GenerateCommand()
 			if (back_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
 			{
 				back_steering_dir = 0; //则后方转向电机正转（即向右）
+				/*
+				此处应当控制后方转向电机的转速（标定值，初始为额定转速1435rpm）
+				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
+				Xavier向四合一发送55 AA AA 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				*/
 				cmd -> set_back_steering_target(10); //转向量为10
 			}
-			else if (frong_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
+			else if (front_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
 			{
 				back_steering_dir = 1; //则后方转向电机反转（即向左）
+				/*
+				此处应当控制后方转向电机的转速（标定值，初始为额定转速1435rpm）
+				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
+				Xavier向四合一发送55 AA AA 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				*/
 				cmd -> set_back_steering_target(10); //转向量为10
 			}
 			else
