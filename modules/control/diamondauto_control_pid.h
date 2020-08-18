@@ -4,8 +4,10 @@
 #include <cmath>
 #include <iostream>
 
-namespace apollo {
-namespace control {
+namespace apollo
+{
+namespace control
+{
 
 using namespace std;
 
@@ -44,11 +46,17 @@ static float canbus_veh_spd = 0;
 // // ���������Ӧ�������˶��������һʱ�̵Ĵŵ���ƫ�� void pid_speed(float
 // desire_v); // �����ٶ�PID���ƣ�PID�����������ת�أ����������
 
-void Init() { cout << "��ʼ��......" << endl << endl; };
+/*void Init()
+{
+	cout << "��ʼ��......" << endl << endl;
+};
 
-void Self_check() { cout << "����״̬�Լ�......" << endl << endl; };
+void Self_check()
+{
+	cout << "����״̬�Լ�......" << endl << endl;
+};
 
-/*void pid_steering(float & e2, float & e1, float & e)
+void pid_steering(float & e2, float & e1, float & e)
 {
         cout<<"����ǰ�Ĵŵ���ƫ�"<<e2<<"��"<<e1<<"��"<<e<<endl;
 
@@ -85,9 +93,8 @@ pid����Ŀ���������
         cout<<"����PID���ڣ��µĴŵ���ƫ�����У�"<<e2<<"��"<<e1<<"��"<<e<<endl;
 
 };
-*/
 
-/* float steer_motor(float e)
+float steer_motor(float e)
 {
         if (steer_direction == 1) // ��ת
         {
@@ -123,97 +130,120 @@ tire_steer_spd;//��λ�ƴ���������
         // cout<<"�µ�ƫ�"<<error_new<<endl;
         return error_new;
 };
+
+
+void simple_steering(float& e)
+{
+	if (e > 4.5 || e < -4.5)
+	{
+		// �·���ת������ʼת���ź�
+		cout << "ת������ʼת" << endl;
+	}
+	else
+	{
+		// �·���ת����ֹͣת���ź�
+		cout << "ת����ֹͣת" << endl;
+	}
+}
+
+void rule_steering(float& e)
+{
+	// �ж�ǰ��ת��������ת
+	if (e > 4.5)
+	{
+		cout << "ת����Ӧ��ת" << endl;  //����ƫ��ģ�鷴����ֵ���е���
+		steer_direction = 1;
+	}
+	else if (e < -4.5)
+	{
+		cout << "ת����Ӧ��ת" << endl;
+		steer_direction = 2;
+	}
+	else
+	{
+		cout << "ת����Ӧֱ��" << endl;
+		steer_direction = 0;
+	}
+
+	// ������ת�źŷ���CANͨѶ
+
+	// ǰ��ת��������CAN��������ת�ź�
+
+	if (steer_direction == 1)  // ��ת
+	{
+		cout << "�����ת" << endl;
+		// CANͨѶ��ת������ת���
+
+		if (e >= 6)
+		{
+			steer_motor_spd = 1435;  // ���ݾ����������Ҫ��
+		}
+		else if (e >= 3)
+		{
+			steer_motor_spd = 1435;
+		}
+		else
+		{
+			steer_motor_spd = 1435;
+		}
+	}
+	else if (steer_direction == 2)    // ��ת
+	{
+		cout << "�����ת" << endl;
+		// CANͨѶ��ת������ת���
+
+		if (e <= -6)
+		{
+			steer_motor_spd =
+			    1435;  // ת�����ת��1435rpm��Ŀǰ���ɿأ����ڳ��Կɿ��У��ת������70sת1Ȧ������0.857rpm
+		}
+		else if (e <= -3)
+		{
+			steer_motor_spd = 1435;
+		}
+		else
+		{
+			steer_motor_spd = 1435;
+		}
+	}
+
+	cout << "ת�ٵ��ת��Ϊ" << steer_motor_spd << endl;
+
+	e = e / 2;  // �˴�Ӧ���Ǵŵ���������ʵʱ���յ���ƫ��
+
+	cout << "�µĴŵ���ƫ��Ϊ��" << e << endl;
+}
 */
-
-void simple_steering(float& e) {
-  if (e > 4.5 || e < -4.5) {
-    // �·���ת������ʼת���ź�
-    cout << "ת������ʼת" << endl;
-  } else {
-    // �·���ת����ֹͣת���ź�
-    cout << "ת����ֹͣת" << endl;
-  }
-}
-
-void rule_steering(float& e) {
-  // �ж�ǰ��ת��������ת
-  if (e > 4.5) {
-    cout << "ת����Ӧ��ת" << endl;  //����ƫ��ģ�鷴����ֵ���е���
-    steer_direction = 1;
-  } else if (e < -4.5) {
-    cout << "ת����Ӧ��ת" << endl;
-    steer_direction = 2;
-  } else {
-    cout << "ת����Ӧֱ��" << endl;
-    steer_direction = 0;
-  }
-
-  // ������ת�źŷ���CANͨѶ
-
-  // ǰ��ת��������CAN��������ת�ź�
-
-  if (steer_direction == 1)  // ��ת
-  {
-    cout << "�����ת" << endl;
-    // CANͨѶ��ת������ת���
-
-    if (e >= 6) {
-      steer_motor_spd = 1435;  // ���ݾ����������Ҫ��
-    } else if (e >= 3) {
-      steer_motor_spd = 1435;
-    } else {
-      steer_motor_spd = 1435;
-    }
-  } else if (steer_direction == 2)  // ��ת
-  {
-    cout << "�����ת" << endl;
-    // CANͨѶ��ת������ת���
-
-    if (e <= -6) {
-      steer_motor_spd =
-          1435;  // ת�����ת��1435rpm��Ŀǰ���ɿأ����ڳ��Կɿ��У��ת������70sת1Ȧ������0.857rpm
-    } else if (e <= -3) {
-      steer_motor_spd = 1435;
-    } else {
-      steer_motor_spd = 1435;
-    }
-  }
-
-  cout << "ת�ٵ��ת��Ϊ" << steer_motor_spd << endl;
-
-  e = e / 2;  // �˴�Ӧ���Ǵŵ���������ʵʱ���յ���ƫ��
-
-  cout << "�µĴŵ���ƫ��Ϊ��" << e << endl;
-}
 
 float pid_speed(float desire_v)  // Ŀ������pid���ת��
 {
-  cout << "pid�е������ٶȣ�" << desire_v << endl;
-  pid_error = desire_v - veh_spd;  // pid����Ϊ��ǰ�������
-  cout << "�����ٶ�ƫ�" << pid_error << endl;
+	cout << "pid�е������ٶȣ�" << desire_v << endl;
+	veh_spd = chassis_->speed_mps();
+	pid_error = desire_v - veh_spd;  // pid����Ϊ��ǰ�������
+	cout << "�����ٶ�ƫ�" << pid_error << endl;
 
-  pid_integral += pid_error;
+	pid_integral += pid_error;
 
-  // speed_motor_errorӦ����һ���������ٶ���ص�ǰ���������������ٶȿ������һ�����ٶ������µ�Ŀ��ת��ֵ
-  // speed_motor_errorӦ��������Ŀ��ת��
-  u_torque = speed_motor_deadzone + kp_speed * pid_error +
-             ki_speed * pid_integral + kd_speed * (pid_error - pid_error_pre);
+	// speed_motor_errorӦ����һ���������ٶ���ص�ǰ���������������ٶȿ������һ�����ٶ������µ�Ŀ��ת��ֵ
+	// speed_motor_errorӦ��������Ŀ��ת��
+	u_torque = speed_motor_deadzone + kp_speed * pid_error +
+	           ki_speed * pid_integral + kd_speed * (pid_error - pid_error_pre);
 
-  cout << "PID�������������Ŀ�����(ת��)��" << u_torque << endl;
+	cout << "PID�������������Ŀ�����(ת��)��" << u_torque << endl;
 
-  veh_spd =
-      canbus_veh_spd;  // ���ٸ��£���Ҫ���ݸ���������Ŀ����������������Ӧ��
+	veh_spd =
+	    canbus_veh_spd;  // ���ٸ��£���Ҫ���ݸ���������Ŀ����������������Ӧ��
 
-  cout << "��ǰ���٣�" << veh_spd << endl;
-  pid_error_pre = pid_error;
+	cout << "��ǰ���٣�" << veh_spd << endl;
+	pid_error_pre = pid_error;
 
-  return u_torque;
+	return u_torque;
 
-  // ��u_torqueͨ��CANͨѶ���͸��������
+	// ��u_torqueͨ��CANͨѶ���͸��������
 
-  // u_pre_torque = u_torque;
+	// u_pre_torque = u_torque;
 
-  // ��CANbus�����ĳ��ٸ�����ǰ����
+	// ��CANbus�����ĳ��ٸ�����ǰ����
 }
 
 }  // namespace control

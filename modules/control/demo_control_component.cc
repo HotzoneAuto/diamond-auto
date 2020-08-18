@@ -91,9 +91,11 @@ void ControlComponent::GenerateCommand()
 	{
 		if (find_rfid_des == 1) //检测到终点rfid
 			motor_torque = pid_speed(0); //PID控制目标是驱动电机停转
+			cmd -> set_throttle(motor_torque);
 			// 以0为车速目标，向canbus发送经过PID后的转矩
 		else if (find_rfid_des == 0) //未检测到终点rfid
 			motor_torque = pid_speed(1); //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
+			cmd -> set_throttle(motor_torque);
 			// 以1为车速目标，向canbus发送经过PID后的转矩
 			
 		// 遥控，人工给输入
