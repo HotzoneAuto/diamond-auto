@@ -2,6 +2,19 @@ syntax = "proto2";
 
 package apollo.canbus;
 
+
+message Id_0x02 {
+// Report Message
+  // [deg] [0|360]
+  optional double angle_sensor_rear = 1;
+}
+
+message Id_0x01 {
+// Report Message
+  // [deg] [0|360]
+  optional double angle_sensor_front = 1;
+}
+
 message Id_0x0c079aa7 {
 // Control Message
   // [] [0|255]
@@ -329,4 +342,6 @@ message Diamond {
   optional Id_0x181fd0f3 id_0x181fd0f3 = 14; // report message
   optional Id_0x1825d0f3 id_0x1825d0f3 = 15; // report message
   optional Id_0x18eba1a5 id_0x18eba1a5 = 16; // report message
+  optional Id_0x02 id_0x02 = 17; // report message
+  optional Id_0x01 id_0x01 = 18; // report message
 }
