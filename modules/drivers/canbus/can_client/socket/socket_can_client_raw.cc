@@ -79,12 +79,8 @@ ErrorCode SocketCanClientRaw::Start() {
 
   // 1. for non virtual busses, set receive message_id filter, ie white list
   if (interface_ != CANCardParameter::VIRTUAL) {
-    struct can_filter filter[15];
-    /*for (int i = 0; i < 2048; ++i) {
-      filter[i].can_id = 0x000 + i;
-      filter[i].can_mask = CAN_EFF_MASK;
-    }*/
-
+    struct can_filter filter[17];
+    // TODO(ALL):REMOVE TO CONFIG Extend frame filter
     int hex_value[] = {0x0C09A79B, 0x0C0AA79C, 0x0C09A7F0, 0x0C08A7F0,
                        0x0C0BA7F0, 0x1818D0F3, 0x1819D0F3, 0x181AD0F3,
                        0x181BD0F3, 0x181CD0F3, 0x181DD0F3, 0x181ED0F3,
@@ -92,6 +88,12 @@ ErrorCode SocketCanClientRaw::Start() {
     for (int i = 0; i < sizeof(hex_value) / sizeof(hex_value[0]); ++i) {
       filter[i].can_id = hex_value[i];
       filter[i].can_mask = CAN_EFF_MASK;
+    }
+
+    // Stardard frame filter
+    for (int i = 15; i < 17; ++i) {
+      filter[i].can_id = 0x0 + (i - 14);
+      filter[i].can_mask = CAN_SFF_MASK;
     }
 
     ret = setsockopt(dev_handler_, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
@@ -173,7 +175,12 @@ ErrorCode SocketCanClientRaw::Send(const std::vector<CanFrame> &frames,
              << CANBUS_MESSAGE_LENGTH << ").";
       return ErrorCode::CAN_CLIENT_ERROR_SEND_FAILED;
     }
-    send_frames_[i].can_id = CAN_EFF_FLAG | frames[i].id;
+    if(frames[i].id > 2048) {
+      send_frames_[i].can_id = CAN_EFF_FLAG | frames[i].id;
+    } else {
+       // SFF frame
+      send_frames_[i].can_id = frames[i].id;
+    }
     send_frames_[i].can_dlc = frames[i].len;
     std::memcpy(send_frames_[i].data, frames[i].data, frames[i].len);
 
@@ -220,7 +227,11 @@ ErrorCode SocketCanClientRaw::Receive(std::vector<CanFrame> *const frames,
              << CANBUS_MESSAGE_LENGTH << ").";
       return ErrorCode::CAN_CLIENT_ERROR_RECV_FAILED;
     }
-    cf.id = recv_frames_[i].can_id & CAN_EFF_MASK;
+    if(recv_frames_[i].can_id > 2048){
+      cf.id = recv_frames_[i].can_id & CAN_EFF_MASK;
+    } else {
+      cf.id = recv_frames_[i].can_id;
+    }
     cf.len = recv_frames_[i].can_dlc;
     std::memcpy(cf.data, recv_frames_[i].data, recv_frames_[i].can_dlc);
     frames->push_back(cf);
