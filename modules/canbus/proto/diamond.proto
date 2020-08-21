@@ -325,6 +325,14 @@ message Id_0x18eba1a5 {
   optional bool byfireextinguiveherr = 2;
 }
 
+message Id_0x0b19f0a8 {
+// Control Message
+  // [V] [0|10]
+  optional int32 k1_high_low_vol_control = 1;
+  // [V] [0|10]
+  optional int32 k2_high_low_vol_control = 2;
+}
+
 message Diamond {
   optional Id_0x0c079aa7 id_0x0c079aa7 = 1; // control message
   optional Id_0x0c08a7f0 id_0x0c08a7f0 = 2; // report message
@@ -344,4 +352,5 @@ message Diamond {
   optional Id_0x18eba1a5 id_0x18eba1a5 = 16; // report message
   optional Id_0x02 id_0x02 = 17; // report message
   optional Id_0x01 id_0x01 = 18; // report message
+  optional Id_0x0b19f0a8 id_0x0b19f0a8 = 19; // control message
 }

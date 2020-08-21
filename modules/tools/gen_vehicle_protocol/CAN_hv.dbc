@@ -34,7 +34,7 @@ BO_ 1 ID_0x01: 8 Vector__XXX
 BO_ 2 ID_0x02: 8 Vector__XXX
  SG_ Angle_sensor_rear : 0|16@1+ (0.010986,0) [0|360] "deg" Vector__XXX
 
-BO_ 2333733032 ID_0x0B19F0A8: 8 Vector__XXX
+BO_ 2333733032 ID_0x0B19F0A8: 8 Vector__XX
  SG_ K1_High_low_Vol_control : 0|8@1+ (1,0) [0|10] "V" Vector__XXX
  SG_ K2_High_low_Vol_control : 8|8@1+ (1,0) [0|10] "V" Vector__XXX
 
