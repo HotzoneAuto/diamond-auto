@@ -1,0 +1,2 @@
+device_id: "ttyUSB1"
+enable_log: true

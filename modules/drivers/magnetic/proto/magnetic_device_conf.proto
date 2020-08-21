@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package apollo.drivers.magnetic;
+
+message MagneticDeviceConf {
+  optional string device_id = 1;
+  optional bool enable_log = 3 [default = false];
+}

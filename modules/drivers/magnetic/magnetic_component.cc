@@ -20,8 +20,17 @@ int decToBin(int dec) {
 }
 
 bool MagneticComponent::Init() {
+  if (!GetProtoConfig(&device_conf_)) {
+    AERROR << "Unable to load magnetic conf file: " << ConfigFilePath();
+    return false;
+  }
+
+  ADEBUG << "Device conf:" << device_conf_.ShortDebugString();
+
+  device_ = std::make_unique<Uart>(device_conf_.device_id().c_str());
+
   // Uart device set option
-  device_.SetOpt(9600, 8, 'N', 1);
+  device_->SetOpt(9600, 8, 'N', 1);
 
   // Publish rfid station data
   magnetic_writer_ = node_->CreateWriter<Magnetic>(FLAGS_magnetic_channel);
@@ -52,13 +61,13 @@ void MagneticComponent::Action() {
     msg_read_cmd[5] = 0x01;
     msg_read_cmd[6] = 0xd5;
     msg_read_cmd[7] = 0xca;
-    int result = device_.Write(msg_read_cmd, 8);
+    int result = device_->Write(msg_read_cmd, 8);
     ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result;
 
     count = 1;
     std::memset(buffer, 0, 10);
     while (1) {
-      int ret = device_.Read(&buf, 1);
+      int ret = device_->Read(&buf, 1);
       if (ret == 1) {
         if (buf == 0x01) {
           break;

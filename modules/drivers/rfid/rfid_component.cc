@@ -12,8 +12,17 @@ std::string RfidComponent::Name() const { return "rfid"; }
 RfidComponent::RfidComponent() {}
 
 bool RfidComponent::Init() {
+  if (!GetProtoConfig(&device_conf_)) {
+    AERROR << "Unable to load rfid conf file: " << ConfigFilePath();
+    return false;
+  }
+
+  ADEBUG << "Device conf:" << device_conf_.ShortDebugString();
+
+  device_ = std::make_unique<Uart>(device_conf_.device_id().c_str());
+
   // Uart device set option
-  device_.SetOpt(9600, 8, 'N', 1);
+  device_->SetOpt(9600, 8, 'N', 1);
 
   // Publish rfid station data
   rfid_writer_ = node_->CreateWriter<RFID>(FLAGS_rfid_topic);
@@ -49,7 +58,7 @@ void RfidComponent::Action() {
     // count = 1;
     std::memset(buffer, 0, 13);
     while (1) {
-      int ret = device_.Read(&buf, 1);
+      int ret = device_->Read(&buf, 1);
       AINFO << "RFID Device return: " << ret;
       if (ret == 1) {
         AINFO << "RFID Device buf: " << buf;

@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package apollo.drivers.rfid;
+
+message RFIDDeviceConf {
+  optional string device_id = 1;
+  optional bool enable_log = 3 [default = false];
+}
