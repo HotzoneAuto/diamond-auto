@@ -1,5 +1,6 @@
 #include "modules/control/demo_control_component.h"
 #include "modules/control/diamondauto_control_pid.h"
+#include "modules/control/diamondauto_control_wheel_angle_real.h"
 
 #include <string>
 #include "cyber/cyber.h"
@@ -52,37 +53,85 @@ void ControlComponent::GenerateCommand()
 	// float motor_speed = 0; //驱动电机转速
 	float motor_torque = 0; //驱动电机转矩
 	
-	int front_steering_dir = 0; //控制前方转向电机正反转
-	int back_steering_dir = 0; //控制后方转向电机正反转
+	// int front_steering_dir = 0; //控制前方转向电机正反转
+	// int back_steering_dir = 0; //控制后方转向电机正反转
 	
 	// float front_steering_speed = 0; //rpm，前方转向电机转速
 	// float back_steering_speed = 0; //rpm，后方转向电机转速
 	
-	float front_wheel_angle = 0; //前轮转角
-	float back_wheel_angle = 0; //后轮转角
+	// float front_wheel_angle = 0; //前轮转角
+	// float back_wheel_angle = 0; //后轮转角
 	
 	cmd -> set_front_steering_target(0);
 	cmd -> set_back_steering_target(0); //初始时前后转向电机转角为0
 	
 	//上过高压自检完成之后，进入自动驾驶模式后，车辆处于ready状态时
-	while (front_wheel_angle > 0.5 || back_wheel_angle > 0.5)// 待标定
+	while (front_wheel_angle_realtime > 0.5)// 待标定
 	{
-		front_steering_dir = 0; 
-		back_steering_dir = 0; //则前后方转向电机反转（即向左）
+		front_motor_steering_dir = 2; 
+		//则前方转向电机反转（即向左）
 		/*
 		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-		Xavier向四合一发送55 AA 55 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+		额定转速发送命令：0B 06 20 00 27 10 98 9C
+		Xavier向变频器发送 0B 06 10 00 00 02 0C 61 逆变器1工作，转向电机风扇1工作
+		*/
+		//TODO: 消息发送，刷新
+	}
+
+	while (rear_wheel_angle_realtime > 0.5)// 待标定
+	{
+		rear_motor_steering_dir = 2; //则后方转向电机反转（即向左）
+		/*
+		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
+		额定转速发送命令：0B 06 20 00 27 10 98 9C
+		Xavier向变频器发送 0B 06 10 00 00 02 0C 61 逆变器1工作，转向电机风扇1工作
 		*/
 		//TODO: 消息发送，刷新
 	}
 	
-	while (front_wheel_angle < -0.5 || back_wheel_angle < -0.5)// 待标定
+	while (front_wheel_angle_realtime < -0.5)// 待标定
 	{
-		front_steering_dir = 1; 
-		back_steering_dir = 1; //则前后方转向电机正转（即向右）
+		front_motor_steering_dir = 1; 
+		//则前方转向电机正转（即向右）
 		/*
 		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-		Xavier向四合一发送55 AA 55 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+		额定转速发送命令：0B 06 20 00 27 10 98 9C
+		Xavier向变频器发送 0B 06 10 00 00 01 4C 60 逆变器1工作，转向电机风扇1工作
+		*/
+		//TODO: 消息发送，刷新
+	}
+
+	while (rear_wheel_angle_realtime < -0.5)// 待标定
+	{
+		rear_motor_steering_dir = 1; //则后方转向电机正转（即向右）
+		/*
+		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
+		额定转速发送命令：0B 06 20 00 27 10 98 9C
+		Xavier向变频器发送 0B 06 10 00 00 01 4C 60 逆变器1工作，转向电机风扇1工作
+		*/
+		//TODO: 消息发送，刷新
+	}
+
+	while (abs(front_wheel_angle_realtime) <= 0.5)// 待标定
+	{
+		front_motor_steering_dir = 0; 
+		break; // TODO: Check
+		//则前方转向电机停转
+		/*
+		此处应当控制前方转向电机停转
+		Xavier向变频器发送 0B 06 10 00 00 05 4D A3 逆变器1工作，转向电机风扇1工作
+		*/
+		//TODO: 消息发送，刷新
+	}
+
+	while (abs(rear_wheel_angle_realtime) <= 0.5)// 待标定
+	{
+		rear_motor_steering_dir = 0; 
+		break; // TODO: Check
+		//则后方转向电机停转
+		/*
+		此处应当控制前方转向电机停转
+		Xavier向变频器发送 0B 06 10 00 00 05 4D A3 逆变器1工作，转向电机风扇1工作
 		*/
 		//TODO: 消息发送，刷新
 	}
@@ -163,6 +212,21 @@ void ControlComponent::GenerateCommand()
 			front_steering_dir = 2;
 			back_steering_dir = 2;
 		}
+
+		// 更新前轮转角
+		front_wheel_angle_realtime = update_front_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+		front_wheel_angle_previous = front_wheel_angle_realtime;
+
+
+
+
+
+
+
+
+
+
 
 		control_cmd_writer_->Write(cmd);
 		rate.Sleep();
