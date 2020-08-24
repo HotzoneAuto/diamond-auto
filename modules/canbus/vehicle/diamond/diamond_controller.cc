@@ -18,6 +18,7 @@
 
 #include "modules/common/proto/vehicle_signal.pb.h"
 
+#include <stdio.h>
 #include <cstdio>
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"

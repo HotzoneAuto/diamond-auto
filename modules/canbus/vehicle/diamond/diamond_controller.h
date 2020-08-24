@@ -30,7 +30,7 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
-
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0b19f0a8.h"
 namespace apollo {
 namespace canbus {
 namespace diamond {
