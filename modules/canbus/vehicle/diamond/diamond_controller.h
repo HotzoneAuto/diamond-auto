@@ -118,7 +118,9 @@ class DiamondController final : public VehicleController {
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
   // CAN2
   Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
-
+  //K1 K2
+  Id0x0b19f0a8* id_0x0b19f0a8_ = nullptr;
+  
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
   bool is_chassis_error_ = false;

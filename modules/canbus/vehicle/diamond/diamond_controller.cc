@@ -18,7 +18,6 @@
 
 #include "modules/common/proto/vehicle_signal.pb.h"
 
-#include <stdio.h>
 #include <cstdio>
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -40,7 +39,6 @@ const int32_t kMaxFailAttempt = 10;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
-FILE* p = NULL;
 
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,
@@ -218,6 +216,10 @@ void DiamondController::Emergency() {
   set_driving_mode(Chassis::EMERGENCY_MODE);
   ResetProtocol();
 }
+bool High_Low_Vol_Control(){
+
+	return true;
+} 
 ErrorCode DiamondController::EnableAutoMode() {
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
     AINFO << "already in COMPLETE_AUTO_DRIVE mode";
@@ -272,16 +274,16 @@ ErrorCode DiamondController::EnableAutoMode() {
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           AERROR << "K1 up";
-          chassis_detail.diamond.id_0b19f0a8().set_k1_high_low_vol_control(01);
+          id_0x0b19f0a7_->set_k1_high_low_vol_control(01);
 	  sleep(3);
           AERROR << "K2 down";
-          chassis_detail.diamond.id_0b19f0a8().set_k2_high_low_vol_control(00); 
+	  id_0x0b19f0a7_->set_k2_high_low_vol_control(00); 
 	} else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
           sleep(3);
           AERROR << ">25 K2 down";
-          chassis_detail.diamond.id_0b19f0a8().set_k1_high_low_vol_control(00); 
+          id_0x0b19f0a7_->set_k1_high_low_vol_control(00);
 	}
       } else {
         AERROR << "1818d0f3 bybatinsrerr REEOR!!";
@@ -297,7 +299,6 @@ ErrorCode DiamondController::EnableAutoMode() {
   id_0x0c19f0a7_->set_fmot1lmtcur(250);
   id_0x0c19f0a7_->set_bymot1workmode(0);
   id_0x0c19f0a7_->set_bylife(0);
-
   // Steering Motor
   id_0x0c079aa7_->set_bydcdccmd(0xAA);
   id_0x0c079aa7_->set_bydcaccmd(0xAA);
@@ -332,7 +333,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  chassis_detail.diamond.id_0b19f0a8().set_k1_high_low_vol_control(00); 
+  id_0x0b19f0a7_->set_k1_high_low_vol_control(00);
   AERROR << "K1 down";
   sleep(5);
 
