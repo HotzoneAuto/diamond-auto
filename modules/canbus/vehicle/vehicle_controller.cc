@@ -137,8 +137,8 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
       Steer(control_command.front_steering_target(), control_command.steering_rate());
 	  Steer(control_command.back_steering_target(), control_command.steering_rate());
     } else {
-      Steer(control_command.front_steering_target());
-	  Steer(control_command.back_steering_target());
+      Steer_Front(control_command.front_steering_target());
+	  Steer_Rear(control_command.back_steering_target());
     }
   }
 
