@@ -44,26 +44,21 @@ void ControlComponent::GenerateCommand()
 	// 初始化前后磁导航检测到的偏差值
 	float front_lat_dev_mgs = 0;  // TODO: lateral_dev_mgs need to changed according to MGS module.
 	float back_lat_dev_mgs = 0;
+
+	// 初始化驱动电机死区
+	if (veh_spd <= 0.1){ // TODO: 需更换成订阅canbus的车速数据
+		speed_motor_deadzone = speed_motor_deadzone_calibration; // 标定值
+	}
+	else{
+		speed_motor_deadzone = r_wheel * m_veh * g * f_c / (i1 * i0 * yita_t); // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
+	}	
 	
-	int find_rfid_des = 0; //记录是否检测到终点的rfid
-	int dir = 0; //记录行驶方向, 0代表从A到B, 1代表从B到A
-	
-	// TODO：发送扭矩，PID天闯
-	int motor_flag = 0; //控制驱动电机正反转
-	// float motor_speed = 0; //驱动电机转速
-	float motor_torque = 0; //驱动电机转矩
-	
-	// int front_steering_dir = 0; //控制前方转向电机正反转
-	// int back_steering_dir = 0; //控制后方转向电机正反转
-	
-	// float front_steering_speed = 0; //rpm，前方转向电机转速
-	// float back_steering_speed = 0; //rpm，后方转向电机转速
-	
-	// float front_wheel_angle = 0; //前轮转角
-	// float back_wheel_angle = 0; //后轮转角
-	
-	cmd -> set_front_steering_target(0);
-	cmd -> set_back_steering_target(0); //初始时前后转向电机转角为0
+	// cmd -> set_front_steering_target(0);
+	// cmd -> set_back_steering_target(0); //初始时前后转向轮转角为0
+
+
+	//TODO: 突然断电停车后，需记录最后时刻的状态数据，包括前后轮转角；重新启动后再读取数据文件
+
 	
 	//上过高压自检完成之后，进入自动驾驶模式后，车辆处于ready状态时
 	while (front_wheel_angle_realtime > 0.5)// 待标定
@@ -71,164 +66,213 @@ void ControlComponent::GenerateCommand()
 		front_motor_steering_dir = 2; 
 		//则前方转向电机反转（即向左）
 		/*
-		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-		额定转速发送命令：0B 06 20 00 27 10 98 9C
-		Xavier向变频器发送 0B 06 10 00 00 02 0C 61 逆变器1工作，转向电机风扇1工作
+		Xavier向前变频器发送：向前转向电机发送反转命令：0B 06 10 00 00 02 0C 61，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+		同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
 		*/
 		//TODO: 消息发送，刷新
+
+		front_wheel_angle_previous = front_wheel_angle_realtime;
+		front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		rate.Sleep(); 
 	}
 
 	while (rear_wheel_angle_realtime > 0.5)// 待标定
 	{
 		rear_motor_steering_dir = 2; //则后方转向电机反转（即向左）
 		/*
-		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-		额定转速发送命令：0B 06 20 00 27 10 98 9C
-		Xavier向变频器发送 0B 06 10 00 00 02 0C 61 逆变器1工作，转向电机风扇1工作
+		Xavier向后变频器发送：向后转向电机发送反转命令：0C 06 10 00 00 02 0D D6，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+		同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
 		*/
 		//TODO: 消息发送，刷新
+
+		rear_wheel_angle_previous = rear_wheel_angle_realtime;
+		rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous, rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		rate.Sleep(); 
 	}
 	
 	while (front_wheel_angle_realtime < -0.5)// 待标定
 	{
-		front_motor_steering_dir = 1; 
-		//则前方转向电机正转（即向右）
+		front_motor_steering_dir = 1; //则前方转向电机正转（即向右）
 		/*
-		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-		额定转速发送命令：0B 06 20 00 27 10 98 9C
-		Xavier向变频器发送 0B 06 10 00 00 01 4C 60 逆变器1工作，转向电机风扇1工作
+		Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C 60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+		同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
 		*/
 		//TODO: 消息发送，刷新
+
+		front_wheel_angle_previous = front_wheel_angle_realtime;
+		front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		rate.Sleep();
 	}
 
 	while (rear_wheel_angle_realtime < -0.5)// 待标定
 	{
 		rear_motor_steering_dir = 1; //则后方转向电机正转（即向右）
 		/*
-		此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-		额定转速发送命令：0B 06 20 00 27 10 98 9C
-		Xavier向变频器发送 0B 06 10 00 00 01 4C 60 逆变器1工作，转向电机风扇1工作
+		Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+		同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
 		*/
 		//TODO: 消息发送，刷新
+
+		rear_wheel_angle_previous = rear_wheel_angle_realtime;
+		rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous, rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		rate.Sleep(); 
 	}
 
-	while (abs(front_wheel_angle_realtime) <= 0.5)// 待标定
-	{
-		front_motor_steering_dir = 0; 
-		break; // TODO: Check
-		//则前方转向电机停转
-		/*
-		此处应当控制前方转向电机停转
-		Xavier向变频器发送 0B 06 10 00 00 05 4D A3 逆变器1工作，转向电机风扇1工作
-		*/
-		//TODO: 消息发送，刷新
-	}
+	// TODO: 补充下发命令代码
+	/*
+		Xavier向前变频器发送：向前转向电机发送停转命令：0B 06 10 00 00 05 4D A3
+		同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA AA，逆变器1停止工作，前转向电机风扇1停止工作
+	*/
+	//TODO: 消息发送，刷新
 
-	while (abs(rear_wheel_angle_realtime) <= 0.5)// 待标定
-	{
-		rear_motor_steering_dir = 0; 
-		break; // TODO: Check
-		//则后方转向电机停转
-		/*
-		此处应当控制前方转向电机停转
-		Xavier向变频器发送 0B 06 10 00 00 05 4D A3 逆变器1工作，转向电机风扇1工作
-		*/
-		//TODO: 消息发送，刷新
-	}
+	/*
+		Xavier向后变频器发送：向后转向电机发送停转命令：0C 06 10 00 00 05 4C 14
+		同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA AA，逆变器2停止工作，后转向电机风扇2停止工作
+	*/
+	//TODO: 消息发送，刷新
 	
+	
+	front_motor_steering_dir = 0; //则前方转向电机停转
+	rear_motor_steering_dir = 0; //则后方转向电机停转
+
+
 	while (true)
 	{
-		if (find_rfid_des == 1){ //检测到终点rfid
-			motor_torque = pid_speed(0); //PID控制目标是驱动电机停转
-			cmd -> set_throttle(motor_torque);
+		// 先只看A到B
+		if(find_rfid_B == 1){//检测到B点rfid
+			drivemotor_torque = pid_speed(0,speed_motor_deadzone); //PID控制目标是驱动电机停转
+			cmd -> set_throttle(drivemotor_torque);
 		}
 			// 以0为车速目标，向canbus发送经过PID后的转矩
-		else if (find_rfid_des == 0){ //未检测到终点rfid
-			motor_torque = pid_speed(1); //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
-			cmd -> set_throttle(motor_torque);
+
+		else if (find_rfid_B == 0){ //未检测到B点rfid
+			drivemotor_torque = pid_speed(1,speed_motor_deadzone); //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
+			cmd -> set_throttle(drivemotor_torque);
 		}
 			// 以1为车速目标，向canbus发送经过PID后的转矩
 			
+		/*
 		// 遥控，人工给输入
-		if (dir == 0) //若行驶方向从A到B（前进）
-			motor_flag = 0;
-		else if (dir == 1) //若行驶方向从B到A（后退）
-			motor_flag = 1;
+		if (veh_dir == 0) //若行驶方向从A到B（前进，A是第2辆车处，B是机械臂处）
+			drivemotor_flag = 1; 
+		else if (veh_dir == 1) //若行驶方向从B到A（后退）
+			drivemotor_flag = 2;
+		*/
 
-		if (/* motor_speed == 1 && */ motor_flag == 0)  // 若驱动电机正转（前进）
+
+		if (/* motor_speed == 1 && */ drivemotor_flag == 1)  // 若驱动电机反转（车辆前进A到B）
 		{
-			back_steering_dir = 2; //后方转向电机不转
+			rear_motor_steering_dir = 0; //后方转向电机不转
 			if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
 			{
-				front_steering_dir = 0; //则前方转向电机正转（即向右）
+				front_motor_steering_dir = 1; //则前方转向电机正转（即向右）
 				/*
-				此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
-				Xavier向四合一发送55 AA 55 AA AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C 60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+				同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
 				*/
-				cmd -> set_front_steering_target(10); //转向量为10，待标定（目标角度暂时不用）
+				cmd -> set_front_steering_target(10); //TODO 宗宝一起确定: 10%，待标定（目标角度暂时不用）
 			}
 			else if (front_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
 			{
-				front_steering_dir = 1; //则前方转向电机反转（即向左）
+				front_motor_steering_dir = 2; //则前方转向电机反转（即向左）
 				/*
-				此处应当控制前方转向电机的转速（标定值，初始为额定转速1435rpm）
-				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
-				Xavier向四合一发送55 AA 55 AA AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				Xavier向前变频器发送：向前转向电机发送反转命令：0B 06 10 00 00 02 0C 61，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+				同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
 				*/
-				cmd -> set_front_steering_target(10); //转向量为10，待标定（目标角度暂时不用）
+				cmd -> set_front_steering_target(-10); //TODO 宗宝一起确定: 10%，待标定（目标角度暂时不用）
 			}
-			else
-				front_steering_dir = 2; //前方转向电机不转
+			else{
+				if (front_wheel_angle_realtime >= 0.5) // 当前前轮转角为正，向右偏
+				{
+					front_motor_steering_dir = 2; // 前方转向电机反转（向左）
+					/*
+					Xavier向前变频器发送：向前转向电机发送反转命令：0B 06 10 00 00 02 0C 61，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
+					*/
+					cmd -> set_front_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
+				}
+				else if ((front_wheel_angle_realtime > -0.5) && (front_wheel_angle_realtime < 0.5)){
+					front_motor_steering_dir = 0; // 前方转向电机停转
+					/*
+					Xavier向前变频器发送：向前转向电机发送停转命令：0B 06 10 00 00 05 4D A3
+					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA AA，逆变器1停止工作，前转向电机风扇1停止工作
+					*/
+				}
+				else // 当前前轮转角为负，向左偏
+				{
+					front_motor_steering_dir = 1; // 前方转向电机正转（向右）
+					/*
+					Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C 60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
+					*/
+					cmd -> set_front_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
+				}
+			}
 		}
-		else if (/* motor_speed == 1*/ motor_flag == 1)  // 若驱动电机反转（倒车）
+		else if (/* motor_speed == 1*/ drivemotor_flag == 2)  // 若驱动电机正转（倒车，车辆从B到A）
 		{
-			front_steering_dir = 2; //前方转向电机不转
+			front_motor_steering_dir = 0; //前方转向电机不转
 			if (back_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
 			{
-				back_steering_dir = 0; //则后方转向电机正转（即向右）
+				rear_motor_steering_dir = 1; //则后方转向电机正转（即向右）
 				/*
-				此处应当控制后方转向电机的转速（标定值，初始为额定转速1435rpm）
-				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
-				Xavier向四合一发送55 AA AA 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+				同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
 				*/
-				cmd -> set_back_steering_target(10); //转向量为10
+				cmd -> set_back_steering_target(10); //TODO 宗宝一起确定: 10%，待标定（目标角度暂时不用）
 			}
 			else if (front_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
 			{
-				back_steering_dir = 1; //则后方转向电机反转（即向左）
+				rear_motor_steering_dir = 2; //则后方转向电机反转（即向左）
 				/*
-				此处应当控制后方转向电机的转速（标定值，初始为额定转速1435rpm）
-				判断角位移传感器反馈的角度不大于30°。当大于30°时，转向电机转速为0
-				Xavier向四合一发送55 AA AA 55 AA AA AA AA 逆变器1工作，转向电机风扇1工作
+				Xavier向后变频器发送：向后转向电机发送反转命令：0C 06 10 00 00 02 0D D6，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+				同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
 				*/
-				cmd -> set_back_steering_target(10); //转向量为10
+				cmd -> set_back_steering_target(-10); //TODO 宗宝一起确定: 10%，待标定（目标角度暂时不用）
 			}
-			else
-				back_steering_dir = 2; //后方转向电机不转
+			else{
+				if (rear_wheel_angle_realtime >= 0.5) // 当前后轮转角为正，向右偏
+				{
+					rear_motor_steering_dir = 2; // 后方转向电机反转（向左）
+					/*
+					Xavier向后变频器发送：向后转向电机发送反转命令：0C 06 10 00 00 02 0D D6，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+					同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
+					*/
+					cmd -> set_back_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
+				}
+				else if ((rear_wheel_angle_realtime > -0.5) && (rear_wheel_angle_realtime < 0.5)){
+					rear_motor_steering_dir = 0; // 后方转向电机停转
+					/*
+					Xavier向后变频器发送：向后转向电机发送停转命令：0C 06 10 00 00 05 4C 14
+					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA AA，逆变器2停止工作，后转向电机风扇2停止工作
+					*/
+				}
+				else // 当前后轮转角为负，向左偏
+				{
+					rear_motor_steering_dir = 1; // 后方转向电机正转（向右）
+					/*
+					Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+					同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
+					*/
+					cmd -> set_back_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
+				}
+			}
 		}
-		else{// 若出现异常
-			motor_torque = pid_speed(0);
-			front_steering_dir = 2;
-			back_steering_dir = 2;
+		else{ // 若出现异常
+			motor_torque = pid_speed(0，speed_motor_deadzone);
+			front_motor_steering_dir = 0; // 停止
+			back_motor_steering_dir = 0; // 停止
 		}
 
 		// 更新前轮转角
-		front_wheel_angle_realtime = update_front_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous, rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
 
 		front_wheel_angle_previous = front_wheel_angle_realtime;
-
-
-
-
-
-
-
-
-
-
+		rear_wheel_angle_previous = rear_wheel_angle_realtime;
 
 		control_cmd_writer_->Write(cmd);
+
 		rate.Sleep();
 	}
 }
