@@ -1,4 +1,4 @@
-#include "modules/control/demo_control_component.h"
+﻿#include "modules/control/demo_control_component.h"
 #include "modules/control/diamondauto_control_pid.h"
 #include "modules/control/diamondauto_control_wheel_angle_real.h"
 
@@ -44,6 +44,9 @@ void ControlComponent::GenerateCommand()
 	// 初始化前后磁导航检测到的偏差值
 	float front_lat_dev_mgs = 0;  // TODO: lateral_dev_mgs need to changed according to MGS module.
 	float back_lat_dev_mgs = 0;
+
+	// 获取当前车辆速度
+	veh_spd = chassis_.speed_mps()
 
 	// 初始化驱动电机死区
 	if (veh_spd <= 0.1){ // TODO: 需更换成订阅canbus的车速数据
@@ -140,13 +143,13 @@ void ControlComponent::GenerateCommand()
 	{
 		// 先只看A到B
 		if(find_rfid_B == 1){//检测到B点rfid
-			drivemotor_torque = pid_speed(0,speed_motor_deadzone); //PID控制目标是驱动电机停转
+			drivemotor_torque = pid_speed(veh_spd, 0,speed_motor_deadzone); //PID控制目标是驱动电机停转
 			cmd -> set_throttle(drivemotor_torque);
 		}
 			// 以0为车速目标，向canbus发送经过PID后的转矩
 
 		else if (find_rfid_B == 0){ //未检测到B点rfid
-			drivemotor_torque = pid_speed(1,speed_motor_deadzone); //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
+			drivemotor_torque = pid_speed(veh_spd,1,speed_motor_deadzone); //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
 			cmd -> set_throttle(drivemotor_torque);
 		}
 			// 以1为车速目标，向canbus发送经过PID后的转矩
@@ -197,7 +200,7 @@ void ControlComponent::GenerateCommand()
 					Xavier向前变频器发送：向前转向电机发送反转命令：0B 06 10 00 00 02 0C 61，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
 					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
 					*/
-					cmd -> set_front_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
+					cmd -> set_front_steering_target(-10); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
 				}
 				else if ((front_wheel_angle_realtime > -0.5) && (front_wheel_angle_realtime < 0.5)){
 					front_motor_steering_dir = 0; // 前方转向电机停转
@@ -205,6 +208,7 @@ void ControlComponent::GenerateCommand()
 					Xavier向前变频器发送：向前转向电机发送停转命令：0B 06 10 00 00 05 4D A3
 					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA AA，逆变器1停止工作，前转向电机风扇1停止工作
 					*/
+					cmd -> set_front_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
 				}
 				else // 当前前轮转角为负，向左偏
 				{
@@ -213,7 +217,7 @@ void ControlComponent::GenerateCommand()
 					Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C 60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
 					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA AA，逆变器1工作，前转向电机风扇1工作
 					*/
-					cmd -> set_front_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
+					cmd -> set_front_steering_target(10); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
 				}
 			}
 		}
@@ -246,7 +250,7 @@ void ControlComponent::GenerateCommand()
 					Xavier向后变频器发送：向后转向电机发送反转命令：0C 06 10 00 00 02 0D D6，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
 					同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
 					*/
-					cmd -> set_back_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
+					cmd -> set_back_steering_target(-10); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）	
 				}
 				else if ((rear_wheel_angle_realtime > -0.5) && (rear_wheel_angle_realtime < 0.5)){
 					rear_motor_steering_dir = 0; // 后方转向电机停转
@@ -254,6 +258,7 @@ void ControlComponent::GenerateCommand()
 					Xavier向后变频器发送：向后转向电机发送停转命令：0C 06 10 00 00 05 4C 14
 					同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA AA，逆变器2停止工作，后转向电机风扇2停止工作
 					*/
+					cmd -> set_back_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
 				}
 				else // 当前后轮转角为负，向左偏
 				{
@@ -262,14 +267,16 @@ void ControlComponent::GenerateCommand()
 					Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
 					同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA AA，逆变器2工作，后转向电机风扇2工作
 					*/
-					cmd -> set_back_steering_target(0); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
+					cmd -> set_back_steering_target(10); //TODO 宗宝一起确定: 目标转角为0，摆正，待标定（目标角度暂时不用）
 				}
 			}
 		}
 		else{ // 若出现异常
-			motor_torque = pid_speed(0，speed_motor_deadzone);
+			motor_torque = pid_speed(veh_spd, 0，speed_motor_deadzone);
 			front_motor_steering_dir = 0; // 停止
 			back_motor_steering_dir = 0; // 停止
+			cmd -> set_front_steering_target(0); 
+			cmd -> set_back_steering_target(0); 
 		}
 
 		// 更新前轮转角和编码器度数

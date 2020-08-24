@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <stdlib.h>
 #include <cmath>
 #include <iostream>
+
 
 namespace apollo
 {
@@ -42,10 +43,10 @@ static float canbus_veh_spd = 0;
 // static int veh_mode = 0;
 
 
-float pid_speed(float desire_v,float spd_motor_deadzone) 
+float pid_speed (float veh_spd,float desire_v,float spd_motor_deadzone) 
 {
 	cout << "pid中的期望速度" << desire_v << endl;
-	veh_spd = chassis_->speed_mps();
+	// veh_spd = chassis_->speed_mps();
 	pid_error = desire_v - veh_spd;  // pid输入为当前车速误差
 	cout << "纵向速度偏差" << pid_error << endl;
 

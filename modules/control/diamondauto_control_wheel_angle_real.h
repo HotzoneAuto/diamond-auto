@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <stdlib.h>
 #include <cmath>
@@ -12,60 +12,60 @@ namespace control
 using namespace std;
 
 // global
-// ×ªÏòÏà¹Ø
-static float front_encoder_angle_realtime = 0; // Ç°ÂÖ±àÂëÆ÷Ë²Ê±¶ÈÊı£¨0~360 deg£©
-static float front_encoder_angle_origin = 0; //Ç°ÂÖ±àÂëÆ÷Ô­Ê¼¶ÁÊı£¨0~32000£©
+// è½¬å‘ç›¸å…³
+static float front_encoder_angle_realtime = 0; // å‰è½®ç¼–ç å™¨ç¬æ—¶åº¦æ•°ï¼ˆ0~360 degï¼‰
+static float front_encoder_angle_origin = 0; //å‰è½®ç¼–ç å™¨åŸå§‹è¯»æ•°ï¼ˆ0~32000ï¼‰
 
-static float rear_encoder_angle_realtime = 0; // ºóÂÖ±àÂëÆ÷Ë²Ê±¶ÈÊı£¨0~360 deg£©
-static float rear_encoder_angle_origin = 0; //ºóÂÖ±àÂëÆ÷Ô­Ê¼¶ÁÊı£¨0~32000£©
+static float rear_encoder_angle_realtime = 0; // åè½®ç¼–ç å™¨ç¬æ—¶åº¦æ•°ï¼ˆ0~360 degï¼‰
+static float rear_encoder_angle_origin = 0; //åè½®ç¼–ç å™¨åŸå§‹è¯»æ•°ï¼ˆ0~32000ï¼‰
 
-static int front_wheel_steering_dir = 0; // Ç°ÂÖ×óÓÒ×ª£¬0´ú±í²»×ª£¬1´ú±íÏòÓÒ×ª£¬2´ú±íÏò×ó×ª
-static int rear_wheel_steering_dir = 0; // ºóÂÖ×óÓÒ×ª£¬0´ú±í²»×ª£¬1´ú±íÏòÓÒ×ª£¬2´ú±íÏò×ó×ª
+static int front_wheel_steering_dir = 0; // å‰è½®å·¦å³è½¬ï¼Œ0ä»£è¡¨ä¸è½¬ï¼Œ1ä»£è¡¨å‘å³è½¬ï¼Œ2ä»£è¡¨å‘å·¦è½¬
+static int rear_wheel_steering_dir = 0; // åè½®å·¦å³è½¬ï¼Œ0ä»£è¡¨ä¸è½¬ï¼Œ1ä»£è¡¨å‘å³è½¬ï¼Œ2ä»£è¡¨å‘å·¦è½¬
 
-static int front_motor_steering_dir = 0; // Ç°×ªÏòµç»úÕı·´×ª£¨Õı×ª£ºÂÖÌ¥ÓÒ×ª£»·´×ª£ºÂÖÌ¥×ó×ª£©£¬0´ú±íÍ£Ö¹£¬1´ú±íÕı×ª£¬2´ú±í·´×ª
-static int rear_motor_steering_dir = 0; // ºó×ªÏòµç»úÕı·´×ª£¨Õı×ª£ºÂÖÌ¥ÓÒ×ª£»·´×ª£ºÂÖÌ¥×ó×ª£©£¬0´ú±íÍ£Ö¹£¬1´ú±íÕı×ª£¬2´ú±í·´×ª
+static int front_motor_steering_dir = 0; // å‰è½¬å‘ç”µæœºæ­£åè½¬ï¼ˆæ­£è½¬ï¼šè½®èƒå³è½¬ï¼›åè½¬ï¼šè½®èƒå·¦è½¬ï¼‰ï¼Œ0ä»£è¡¨åœæ­¢ï¼Œ1ä»£è¡¨æ­£è½¬ï¼Œ2ä»£è¡¨åè½¬
+static int rear_motor_steering_dir = 0; // åè½¬å‘ç”µæœºæ­£åè½¬ï¼ˆæ­£è½¬ï¼šè½®èƒå³è½¬ï¼›åè½¬ï¼šè½®èƒå·¦è½¬ï¼‰ï¼Œ0ä»£è¡¨åœæ­¢ï¼Œ1ä»£è¡¨æ­£è½¬ï¼Œ2ä»£è¡¨åè½¬
 
-static float front_encoder_angle_previous = 0; // Ç°ÂÖ±àÂëÆ÷ÉÏÒ»Ê±¿Ì¶ÈÊı£¨0~360 deg£©
-static float rear_encoder_angle_previous = 0; // Ç°ÂÖ±àÂëÆ÷ÉÏÒ»Ê±¿Ì¶ÈÊı£¨0~360 deg£©
+static float front_encoder_angle_previous = 0; // å‰è½®ç¼–ç å™¨ä¸Šä¸€æ—¶åˆ»åº¦æ•°ï¼ˆ0~360 degï¼‰
+static float rear_encoder_angle_previous = 0; // å‰è½®ç¼–ç å™¨ä¸Šä¸€æ—¶åˆ»åº¦æ•°ï¼ˆ0~360 degï¼‰
 
-static const int encoder2wheel_gear_ratio = 125; // ±àÂëÆ÷£ºÂÖÌ¥µÄËÙ±È
+static const int encoder2wheel_gear_ratio = 125; // ç¼–ç å™¨ï¼šè½®èƒçš„é€Ÿæ¯”
 
-static float front_wheel_angle_previous = 0; // ÉÏÒ»Ê±¿ÌÇ°ÂÖ×ª½Ç£¨0~360 deg£©
-static float front_wheel_angle_realtime = 0; // µ±Ç°Ê±¿ÌÇ°ÂÖ×ª½Ç£¨0~360 deg£©
+static float front_wheel_angle_previous = 0; // ä¸Šä¸€æ—¶åˆ»å‰è½®è½¬è§’ï¼ˆ0~360 degï¼‰
+static float front_wheel_angle_realtime = 0; // å½“å‰æ—¶åˆ»å‰è½®è½¬è§’ï¼ˆ0~360 degï¼‰
 
-static float rear_wheel_angle_previous = 0; // ÉÏÒ»Ê±¿ÌºóÂÖ×ª½Ç£¨0~360 deg£©
-static float rear_wheel_angle_realtime = 0; // µ±Ç°Ê±¿ÌºóÂÖ×ª½Ç£¨0~360 deg£©
+static float rear_wheel_angle_previous = 0; // ä¸Šä¸€æ—¶åˆ»åè½®è½¬è§’ï¼ˆ0~360 degï¼‰
+static float rear_wheel_angle_realtime = 0; // å½“å‰æ—¶åˆ»åè½®è½¬è§’ï¼ˆ0~360 degï¼‰
 
 
-// Çı¶¯Ïà¹Ø
-static int find_rfid_A = 0; // ÊÇ·ñ¼ì²âµ½AµãµÄrfid£¬0´ú±í·ñ£¬1´ú±íÊÇ
-static int find_rfid_B = 0; // ÊÇ·ñ¼ì²âµ½BµãµÄrfid£¬0´ú±í·ñ£¬1´ú±íÊÇ
+// é©±åŠ¨ç›¸å…³
+static int find_rfid_A = 0; // æ˜¯å¦æ£€æµ‹åˆ°Aç‚¹çš„rfidï¼Œ0ä»£è¡¨å¦ï¼Œ1ä»£è¡¨æ˜¯
+static int find_rfid_B = 0; // æ˜¯å¦æ£€æµ‹åˆ°Bç‚¹çš„rfidï¼Œ0ä»£è¡¨å¦ï¼Œ1ä»£è¡¨æ˜¯
 
-static int veh_dir = 0; // ¼ÇÂ¼³µÁ¾ĞĞÊ»·½Ïò£¬0´ú±í´ÓAµ½B£¬1´ú±í´ÓBµ½A
+static int veh_dir = 0; // è®°å½•è½¦è¾†è¡Œé©¶æ–¹å‘ï¼Œ0ä»£è¡¨ä»Aåˆ°Bï¼Œ1ä»£è¡¨ä»Båˆ°A
 
-static int drivemotor_flag = 0; // Çı¶¯µç»úÕı·´×ª±êÖ¾£¬0´ú±í³µÁ¾Í£Ö¹£¬1´ú±í³µÁ¾ÏòÇ°£¨Çı¶¯µç»ú·´×ª£©£¬2´ú±í³µÁ¾Ïòºó£¨Çı¶¯µç»úÕı×ª£©
+static int drivemotor_flag = 0; // é©±åŠ¨ç”µæœºæ­£åè½¬æ ‡å¿—ï¼Œ0ä»£è¡¨è½¦è¾†åœæ­¢ï¼Œ1ä»£è¡¨è½¦è¾†å‘å‰ï¼ˆé©±åŠ¨ç”µæœºåè½¬ï¼‰ï¼Œ2ä»£è¡¨è½¦è¾†å‘åï¼ˆé©±åŠ¨ç”µæœºæ­£è½¬ï¼‰
 
-static float drivemotor_torque = 0; //Çı¶¯µç»ú×ª¾Ø
+static float drivemotor_torque = 0; //é©±åŠ¨ç”µæœºè½¬çŸ©
 
-static const float speed_motor_deadzone_calibration = 50; // Çı¶¯µç»ú¾²Ö¹×´Ì¬ÏÂÆğ²½µÄËÀÇø±ê¶¨Öµ
+static const float speed_motor_deadzone_calibration = 50; // é©±åŠ¨ç”µæœºé™æ­¢çŠ¶æ€ä¸‹èµ·æ­¥çš„æ­»åŒºæ ‡å®šå€¼
 
-static const float r_wheel = 0.34; // ³µÂÖ°ë¾¶£¬m
-static const float m_veh = 13000; // Õû³µÖÊÁ¿£¬kg
-static const float g = 9.8; // ÖØÁ¦¼ÓËÙ¶È
-static const float f_c = 0.018; // ¹ö¶¯Ä¦²ÁÏµÊı
-static const float i_1 = 3.11; // ¼õËÙ±È
-static const float i_0 = 5.857; // Ö÷¼õËÙ±È
-static const float yita_t = 0.85; // ´«¶¯Ğ§ÂÊ
+static const float r_wheel = 0.34; // è½¦è½®åŠå¾„ï¼Œm
+static const float m_veh = 13000; // æ•´è½¦è´¨é‡ï¼Œkg
+static const float g = 9.8; // é‡åŠ›åŠ é€Ÿåº¦
+static const float f_c = 0.018; // æ»šåŠ¨æ‘©æ“¦ç³»æ•°
+static const float i_1 = 3.11; // å‡é€Ÿæ¯”
+static const float i_0 = 5.857; // ä¸»å‡é€Ÿæ¯”
+static const float yita_t = 0.85; // ä¼ åŠ¨æ•ˆç‡
 
 
 
 
 float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre, float encoder_angle_rt, const int encoder_to_wheel_gear_ratio)
 {
-	float delta_encoder_angle = encoder_angle_rt - encoder_angle_pre; // TODO: Ğè½â¾ö0µ½360¡¢360µ½0Í»±äµÄÎÊÌâ
+	float delta_encoder_angle = encoder_angle_rt - encoder_angle_pre; // TODO: éœ€è§£å†³0åˆ°360ã€360åˆ°0çªå˜çš„é—®é¢˜
 
-	// TODO: ãĞÖµµÄÑ¡È¡
-	if (delta_encoder_angle < -240) // ±àÂëÆ÷·¢Éú360µ½0µÄÍ»±ä£¬ÂÖÌ¥ÏòÓÒ×ª
+	// TODO: é˜ˆå€¼çš„é€‰å–
+	if (delta_encoder_angle < -240) // ç¼–ç å™¨å‘ç”Ÿ360åˆ°0çš„çªå˜ï¼Œè½®èƒå‘å³è½¬
 	{
 		delta_encoder_angle = delta_encoder_angle + 360;
 	}
@@ -78,7 +78,7 @@ float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre, float e
 		delta_encoder_angle = delta_encoder_angle;
 	}
 
-	float wheel_angle_now = wheel_angle_pre + delta_encoder_angle / encoder_to_wheel_gear_ratio; // delta_encoder_angleÓĞÕı¸º£¬°üº¬ÁË×óÓÒ×ª
+	float wheel_angle_now = wheel_angle_pre + delta_encoder_angle / encoder_to_wheel_gear_ratio; // delta_encoder_angleæœ‰æ­£è´Ÿï¼ŒåŒ…å«äº†å·¦å³è½¬
 	
 	return wheel_angle_now;
 }
