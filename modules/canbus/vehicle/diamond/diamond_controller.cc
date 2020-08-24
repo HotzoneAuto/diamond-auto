@@ -260,7 +260,7 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        chassis_detail.diamond.id_0b19f0a8().set_k2_high_low_vol_control(01);
+        id_0x0b19f0a7_->set_k2_high_low_vol_control(01);	
 	sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
