@@ -159,6 +159,14 @@ void ControlComponent::GenerateCommand()
 			drivemotor_flag = 2;
 		*/
 
+		front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+		rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous, rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+		/*
+		TODO: 增加 获取当前时刻的编码器角度值
+		*/
+
+
 
 		if (/* motor_speed == 1 && */ drivemotor_flag == 1)  // 若驱动电机反转（车辆前进A到B）
 		{
@@ -264,12 +272,16 @@ void ControlComponent::GenerateCommand()
 			back_motor_steering_dir = 0; // 停止
 		}
 
-		// 更新前轮转角
+		// 更新前轮转角和编码器度数
 		front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous, front_encoder_angle_realtime, encoder2wheel_gear_ratio);
 		rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous, rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
 
 		front_wheel_angle_previous = front_wheel_angle_realtime;
 		rear_wheel_angle_previous = rear_wheel_angle_realtime;
+
+		front_encoder_angle_previous = front_encoder_angle_realtime;
+		rear_encoder_angle_previous = rear_encoder_angle_realtime;
+
 
 		control_cmd_writer_->Write(cmd);
 
