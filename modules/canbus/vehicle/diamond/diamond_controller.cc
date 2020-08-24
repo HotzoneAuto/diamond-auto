@@ -257,10 +257,8 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        p = fopen("/sys/class/gpio/gpio351/direction", "w");
-        fprintf(p, "%s", "high");
-        fclose(p);
-        sleep(3);
+        chassis_detail.diamond.id_0b19f0a8().set_k2_high_low_vol_control(01);
+	sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
         AERROR << "K2 up over 1818d0f3="
@@ -274,23 +272,17 @@ ErrorCode DiamondController::EnableAutoMode() {
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           AERROR << "K1 up";
-          p = fopen("/sys/class/gpio/gpio271/direction", "w");
-          fprintf(p, "%s", "high");
-          fclose(p);
-          sleep(3);
+          chassis_detail.diamond.id_0b19f0a8().set_k1_high_low_vol_control(01);
+	  sleep(3);
           AERROR << "K2 down";
-          p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          fprintf(p, "%s", "low");
-          fclose(p);
-        } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
+          chassis_detail.diamond.id_0b19f0a8().set_k2_high_low_vol_control(00); 
+	} else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
           sleep(3);
           AERROR << ">25 K2 down";
-          p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          fprintf(p, "%s", "low");
-          fclose(p);
-        }
+          chassis_detail.diamond.id_0b19f0a8().set_k1_high_low_vol_control(00); 
+	}
       } else {
         AERROR << "1818d0f3 bybatinsrerr REEOR!!";
       }
@@ -340,9 +332,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  p = fopen("/sys/class/gpio/gpio271/direction", "w");
-  fprintf(p, "%s", "low");
-  fclose(p);
+  chassis_detail.diamond.id_0b19f0a8().set_k1_high_low_vol_control(00); 
   AERROR << "K1 down";
   sleep(5);
 
