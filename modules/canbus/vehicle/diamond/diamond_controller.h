@@ -26,6 +26,7 @@
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/control/proto/control_cmd.pb.h"
+#include "modules/common/util/uart.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
