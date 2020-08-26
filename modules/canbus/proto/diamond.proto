@@ -359,6 +359,6 @@ message Diamond {
   optional Id_0x18eba1a5 id_0x18eba1a5 = 16; // report message
   // optional Id_0x02 id_0x02 = 17; // report message
   optional Id_0x01 id_0x01 = 17; // report message
-  optional ID_0x0B19F0A8 = 18; // control message
+  optional ID_0x0b19f0a8 id_0x0b19f0a8 = 18; // control message
   
 }
