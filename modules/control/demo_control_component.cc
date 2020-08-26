@@ -51,6 +51,11 @@ void ControlComponent::GenerateCommand()
 	veh_spd = chassis_.speed_mps()
 
 	// 获取前后编码器瞬时角度值
+	front_encoder_angle_realtime = chassis_.front_encoder_angle();
+	rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+
+	/*
+	// 获取前后编码器瞬时角度值
 	Id0x01 angle_sensor;
 	int ID_sensor = angle_sensor.angle_sensor_ID(0, 8);
 	double front_encoder_angle_realtime = 0;
@@ -64,6 +69,8 @@ void ControlComponent::GenerateCommand()
 	{
 		rear_encoder_angle_realtime = angle_sensor.angle_sensor_data(0, 8); // 后编码器当前的瞬时角度值，单位是deg
 	}
+	*/
+
 
 
 	// 初始化驱动电机死区
