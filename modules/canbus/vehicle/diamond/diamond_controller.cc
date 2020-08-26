@@ -177,15 +177,15 @@ Chassis DiamondController::chassis() {
   }
 
   if (diamond->id_0x1818d0f3().has_fbatvolt()) {
-    chassis_.set_bat_volt(static_cast<float>(
-        diamond->id_0x1818d0f3().fbatvolt()));
+    chassis_.set_bat_volt(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
   } else {
     chassis_.set_bat_volt(0);
   }
 
   if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
-    chassis_.set_motor_volt(static_cast<float>(
-        diamond->id_0x0c09a7f0().fmotvolt()));
+    chassis_.set_motor_volt(
+        static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
   } else {
     chassis_.set_motor_volt(0);
   }
@@ -197,18 +197,12 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
-  if (diamond->id_0x01().has_angle_sensor_front()) {
-    chassis_.set_front_wheel_angle(
-        static_cast<float>(diamond->id_0x01().angle_sensor_front()));
+  if (diamond->id_0x01().angle_sensor_id() == 1) {
+    chassis_.set_front_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
   } else {
-    chassis_.set_front_wheel_angle(0);
-  }
-
-  if (diamond->id_0x02().has_angle_sensor_rear()) {
-    chassis_.set_rear_wheel_angle(
-        static_cast<float>(diamond->id_0x02().angle_sensor_rear()));
-  } else {
-    chassis_.set_rear_wheel_angle(0);
+    chassis_.set_rear_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
   }
 
   return chassis_;
