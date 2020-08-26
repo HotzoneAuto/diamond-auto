@@ -17,7 +17,8 @@
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x01.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x02.h"
+// #include "modules/canbus/vehicle/diamond/protocol/id_0x02.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0B19F0A8.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
@@ -36,36 +37,40 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x1825d0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x18eba1a5.h"
 
-namespace apollo {
-namespace canbus {
-namespace diamond {
+namespace apollo
+{
+namespace canbus
+{
+namespace diamond
+{
 
-DiamondMessageManager::DiamondMessageManager() {
-  // Control Messages
-  // CAN 1
-  AddSendProtocolData<Id0x0c079aa7, true>();
-  AddSendProtocolData<Id0x0c19f0a7, true>();
-  // CAN 2
-  AddSendProtocolData<Id0x0cfff3a7, true>();
+DiamondMessageManager::DiamondMessageManager()
+{
+	// Control Messages
+	// CAN 1
+	AddSendProtocolData<Id0x0c079aa7, true>();
+	AddSendProtocolData<Id0x0c19f0a7, true>();
+	// CAN 2
+	AddSendProtocolData<Id0x0cfff3a7, true>();
 
-  // Report Messages
-  // CAN 1
-  AddRecvProtocolData<Id0x0c08a7f0, true>();
-  AddRecvProtocolData<Id0x0c09a7f0, true>();
-  AddRecvProtocolData<Id0x0c0ba7f0, true>();
-  AddRecvProtocolData<Id0x01, true>();
-  AddRecvProtocolData<Id0x02, true>();
-  // CAN 2
-  AddRecvProtocolData<Id0x1818d0f3, true>();
-  AddRecvProtocolData<Id0x1819d0f3, true>();
-  AddRecvProtocolData<Id0x181ad0f3, true>();
-  AddRecvProtocolData<Id0x181bd0f3, true>();
-  AddRecvProtocolData<Id0x181cd0f3, true>();
-  AddRecvProtocolData<Id0x181dd0f3, true>();
-  AddRecvProtocolData<Id0x181ed0f3, true>();
-  AddRecvProtocolData<Id0x181fd0f3, true>();
-  AddRecvProtocolData<Id0x1825d0f3, true>();
-  AddRecvProtocolData<Id0x18eba1a5, true>();
+	// Report Messages
+	// CAN 1
+	AddRecvProtocolData<Id0x0c08a7f0, true>();
+	AddRecvProtocolData<Id0x0c09a7f0, true>();
+	AddRecvProtocolData<Id0x0c0ba7f0, true>();
+	AddRecvProtocolData<Id0x01, true>();
+	AddRecvProtocolData<Id0x0B19F0A8, true>();
+	// CAN 2
+	AddRecvProtocolData<Id0x1818d0f3, true>();
+	AddRecvProtocolData<Id0x1819d0f3, true>();
+	AddRecvProtocolData<Id0x181ad0f3, true>();
+	AddRecvProtocolData<Id0x181bd0f3, true>();
+	AddRecvProtocolData<Id0x181cd0f3, true>();
+	AddRecvProtocolData<Id0x181dd0f3, true>();
+	AddRecvProtocolData<Id0x181ed0f3, true>();
+	AddRecvProtocolData<Id0x181fd0f3, true>();
+	AddRecvProtocolData<Id0x1825d0f3, true>();
+	AddRecvProtocolData<Id0x18eba1a5, true>();
 }
 
 DiamondMessageManager::~DiamondMessageManager() {}

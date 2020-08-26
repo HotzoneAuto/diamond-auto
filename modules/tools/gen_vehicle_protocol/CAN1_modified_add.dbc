@@ -1,0 +1,41 @@
+VERSION "HIPBNYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY/4/%%%/4/'%**4YYY///"
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+
+BS_:
+
+BU_:
+
+
+BO_ 1 ID_0x01: 8 Vector__XXX
+ SG_ Angle_sensor_front : 0|16@1+ (0.010986,0) [0|360] "deg" Vector__XXX
+
+BO_ 2 ID_0x02: 8 Vector__XXX
+ SG_ Angle_sensor_rear : 0|16@1+ (0.010986,0) [0|360] "deg" Vector__XXX
+
+BO_ 2333733032 ID_0x0B19F0A8: 8 Vector__XXX
+ SG_ K1_High_low_Vol_control : 0|8@1+ (1,0) [0|10] "V" Vector__XXX
+ SG_ K2_High_low_Vol_control : 8|8@1+ (1,0) [0|10] "V" Vector__XXX
+
+

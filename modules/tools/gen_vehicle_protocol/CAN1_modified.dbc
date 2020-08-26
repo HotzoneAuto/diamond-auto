@@ -97,10 +97,25 @@ BO_ 2350510247 ID_0x0C19F0A7: 8 Vector__XXX
  SG_ byMot1WorkMode : 48|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ byLife : 56|8@1+ (1,0) [0|255] "" Vector__XXX
 
+(*
 BO_ 1 ID_0x01: 8 Vector__XXX
  SG_ Angle_sensor_front : 0|16@1+ (0.010986,0) [0|360] "deg" Vector__XXX
 
 BO_ 2 ID_0x02: 8 Vector__XXX
  SG_ Angle_sensor_rear : 0|16@1+ (0.010986,0) [0|360] "deg" Vector__XXX
+*)
 
+BO_ 1 ID_0x01: 8 Vector__XXX
+ SG_ Angle_sensor_length : 0|8@1+ (1,0) [0|8] "" Vector__XXX
+ SG_ Angle_sensor_ID : 8|8@1+ (1,0) [0|8] "" Vector__XXX
+ SG_ Angle_sensor_mode : 16|8@1+ (1,0) [0|8] "" Vector__XXX
+ SG_ Angle_sensor_data : 24|16@1+ (0.010986,0) [0|360] "deg" Vector__XXX
+
+BO_ 2333733032 ID_0x0B19F0A8: 8 Vector__XXX
+ SG_ K1_High_low_Vol_control : 0|8@1+ (1,0) [0|10] "V" Vector__XXX
+ SG_ K2_High_low_Vol_control : 8|8@1+ (1,0) [0|10] "V" Vector__XXX
+
+
+CM_ SG_ 1 Angle_sensor_ID "Front 01,Rear 02";
+CM_ SG_ 1 Angle_sensor_mode "Auto 04";
 
