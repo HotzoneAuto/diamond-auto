@@ -31,10 +31,10 @@
 #include "modules/planning/proto/planning.pb.h"
 
 #include "modules/common/util/util.h"
+#include "modules/control/common/dependency_injector.h"
 #include "modules/control/controller/controller_agent.h"
 #include "modules/control/proto/preprocessor.pb.h"
 #include "modules/control/submodules/preprocessor_submodule.h"
-#include "modules/control/common/dependency_injector.h"
 
 /**
  * @namespace apollo::control

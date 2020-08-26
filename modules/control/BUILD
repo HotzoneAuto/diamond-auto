@@ -3,9 +3,30 @@ load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
 
+
+
+cc_binary(
+    name = "libcontrol_component.so",
+    linkshared = True,
+    linkstatic = False,
+    deps = [":control_component_lib"],
+)
+
+cc_library(
+    name = "control_component_lib",
+    srcs = ["demo_control_component.cc"],
+    hdrs = ["demo_control_component.h"],
+    copts = ['-DMODULE_NAME=\\"control\\"'],
+    deps = [
+        ":control_lib",
+        ":pid",
+    ],
+)
+
 cc_library(
     name = "control_lib",
     srcs = [],
+    hdrs = [],
     copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
         "//cyber",
@@ -19,21 +40,11 @@ cc_library(
 )
 
 cc_library(
-    name = "control_component_lib",
-    srcs = ["demo_control_component.cc"],
-    hdrs = ["demo_control_component.h"],
-    copts = ['-DMODULE_NAME=\\"control\\"'],
-    deps = [
-        ":control_lib",
-    ],
+    name = "pid",
+    srcs = [],
+    hdrs = ["diamondauto_control_pid.h"],
 )
 
-cc_binary(
-    name = "libcontrol_component.so",
-    linkshared = True,
-    linkstatic = False,
-    deps = [":control_component_lib"],
-)
 
 
 cpplint()

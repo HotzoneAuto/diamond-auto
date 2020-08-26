@@ -87,13 +87,9 @@ void LonController::CloseLogFile() {
     }
   }
 }
-void LonController::Stop() {
-  CloseLogFile();
-}
+void LonController::Stop() { CloseLogFile(); }
 
-LonController::~LonController() {
-  CloseLogFile();
-}
+LonController::~LonController() { CloseLogFile(); }
 
 Status LonController::Init(std::shared_ptr<DependencyInjector> injector,
                            const ControlConf *control_conf) {
@@ -379,9 +375,7 @@ Status LonController::Reset() {
   return Status::OK();
 }
 
-std::string LonController::Name() const {
-  return name_;
-}
+std::string LonController::Name() const { return name_; }
 
 void LonController::ComputeLongitudinalErrors(
     const TrajectoryAnalyzer *trajectory_analyzer, const double preview_time,
