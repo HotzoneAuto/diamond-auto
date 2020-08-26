@@ -545,7 +545,7 @@ void DiamondController::Steer_Front(double angle) {
     frq_converter_dir_write_cmd[5] = 0x01;
     frq_converter_dir_write_cmd[6] = 0x4C;
     frq_converter_dir_write_cmd[7] = 0x60;
-    int result_dir_positive = device_.Write(frq_converter_dir_write_cmd, 8);
+    int result_dir_positive = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
     ADEBUG << "Frequency converter direction write command send result is :" << result_dir_positive;
 
 	
@@ -557,7 +557,7 @@ void DiamondController::Steer_Front(double angle) {
     frq_converter_spd_write_cmd[5] = 0x10;
     frq_converter_spd_write_cmd[6] = 0x98;
     frq_converter_spd_write_cmd[7] = 0x9C;
-    int result_spd_positive = device_.Write(frq_converter_spd_write_cmd, 8);
+    int result_spd_positive = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
     ADEBUG << "Frequency converter speed write command send result is :" << result_spd_positive;
   }
   else if (angle < 0) //need turn left
@@ -573,7 +573,7 @@ void DiamondController::Steer_Front(double angle) {
     frq_converter_dir_write_cmd[5] = 0x02;
     frq_converter_dir_write_cmd[6] = 0x0C;
     frq_converter_dir_write_cmd[7] = 0x61;
-    int result_dir_negative = device_.Write(frq_converter_dir_write_cmd, 8);
+    int result_dir_negative = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
     ADEBUG << "Frequency converter direction write command send result is :" << result_dir_negative;
 
 	frq_converter_spd_write_cmd[0] = 0x0B;
@@ -584,7 +584,7 @@ void DiamondController::Steer_Front(double angle) {
     frq_converter_spd_write_cmd[5] = 0x10;
     frq_converter_spd_write_cmd[6] = 0x98;
     frq_converter_spd_write_cmd[7] = 0x9C;
-    int result_spd_negative = device_.Write(frq_converter_spd_write_cmd, 8);
+    int result_spd_negative = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
     ADEBUG << "Frequency converter speed write command send result is :" << result_spd_negative;
   }
   else // need stop turning
@@ -598,7 +598,7 @@ void DiamondController::Steer_Front(double angle) {
     frq_converter_dir_write_cmd[5] = 0x05;
     frq_converter_dir_write_cmd[6] = 0x4D;
     frq_converter_dir_write_cmd[7] = 0xA3;
-    int result_dir_zero = device_.Write(frq_converter_dir_write_cmd, 8);
+    int result_dir_zero = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
     ADEBUG << "Frequency converter direction write command send result is :" << result_dir_zero;
   }
 
@@ -664,7 +664,7 @@ void DiamondController::Steer_Rear(double angle) {
     frq_converter_dir_write_cmd[5] = 0x01;
     frq_converter_dir_write_cmd[6] = 0x4D;
     frq_converter_dir_write_cmd[7] = 0xD7;
-    int result_dir_positive = device_.Write(frq_converter_dir_write_cmd, 8);
+    int result_dir_positive = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
     ADEBUG << "Frequency converter direction write command send result is :" << result_dir_positive;
 
 	
@@ -676,7 +676,7 @@ void DiamondController::Steer_Rear(double angle) {
     frq_converter_spd_write_cmd[5] = 0x10;
     frq_converter_spd_write_cmd[6] = 0x99;
     frq_converter_spd_write_cmd[7] = 0x2B;
-    int result_spd_positive = device_.Write(frq_converter_spd_write_cmd, 8);
+    int result_spd_positive = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
     ADEBUG << "Frequency converter speed write command send result is :" << result_spd_positive;
   }
   else if (angle < 0) //need turn left
@@ -692,7 +692,7 @@ void DiamondController::Steer_Rear(double angle) {
     frq_converter_dir_write_cmd[5] = 0x02;
     frq_converter_dir_write_cmd[6] = 0x0D;
     frq_converter_dir_write_cmd[7] = 0xD6;
-    int result_dir_negative = device_.Write(frq_converter_dir_write_cmd, 8);
+    int result_dir_negative = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
     ADEBUG << "Frequency converter direction write command send result is :" << result_dir_negative;
 
 	frq_converter_spd_write_cmd[0] = 0x0C;
@@ -703,7 +703,7 @@ void DiamondController::Steer_Rear(double angle) {
     frq_converter_spd_write_cmd[5] = 0x10;
     frq_converter_spd_write_cmd[6] = 0x99;
     frq_converter_spd_write_cmd[7] = 0x2B;
-    int result_spd_negative = device_.Write(frq_converter_spd_write_cmd, 8);
+    int result_spd_negative = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
     ADEBUG << "Frequency converter speed write command send result is :" << result_spd_negative;
   }
   else // need stop turning
@@ -717,7 +717,7 @@ void DiamondController::Steer_Rear(double angle) {
     frq_converter_dir_write_cmd[5] = 0x05;
     frq_converter_dir_write_cmd[6] = 0x4C;
     frq_converter_dir_write_cmd[7] = 0x14;
-    int result_dir_zero = device_.Write(frq_converter_dir_write_cmd, 8);
+    int result_dir_zero = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
     ADEBUG << "Frequency converter direction write command send result is :" << result_dir_zero;
   }
 }

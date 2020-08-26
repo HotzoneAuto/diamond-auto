@@ -1,7 +1,6 @@
 ﻿#include "modules/control/demo_control_component.h"
 #include "modules/control/diamondauto_control_pid.h"
 #include "modules/control/diamondauto_control_wheel_angle_real.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x01.h"
 
 #include <string>
 #include "cyber/cyber.h"
@@ -297,7 +296,7 @@ void ControlComponent::GenerateCommand()
 			}
 		}
 		else{ // 若出现异常
-			motor_torque = pid_speed(veh_spd, 0，speed_motor_deadzone);
+			motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
 			front_motor_steering_dir = 0; // 停止
 			back_motor_steering_dir = 0; // 停止
 			cmd -> set_front_steering_target(0); 
