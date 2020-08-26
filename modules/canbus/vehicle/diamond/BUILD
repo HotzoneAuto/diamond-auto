@@ -43,6 +43,7 @@ cc_library(
     ],
     deps = [
         ":diamond_message_manager",
+        "//modules/common/util:uart",
         "//modules/drivers/canbus/can_comm:can_sender",
         "//modules/drivers/canbus/common:canbus_common",
         "//modules/canbus/proto:chassis_cc_proto",
