@@ -18,7 +18,7 @@
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x01.h"
 // #include "modules/canbus/vehicle/diamond/protocol/id_0x02.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0B19F0A8.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0b19f0a8.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
@@ -59,7 +59,7 @@ DiamondMessageManager::DiamondMessageManager()
 	AddRecvProtocolData<Id0x0c09a7f0, true>();
 	AddRecvProtocolData<Id0x0c0ba7f0, true>();
 	AddRecvProtocolData<Id0x01, true>();
-	AddRecvProtocolData<Id0x0B19F0A8, true>();
+	AddRecvProtocolData<Id0x0b19f0a8, true>();
 	// CAN 2
 	AddRecvProtocolData<Id0x1818d0f3, true>();
 	AddRecvProtocolData<Id0x1819d0f3, true>();

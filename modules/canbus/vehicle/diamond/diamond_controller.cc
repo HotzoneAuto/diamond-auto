@@ -234,20 +234,20 @@ Chassis DiamondController::chassis()
 		chassis_.set_bat_percentage(0);
 	}
 
-	if (diamond->id_0x01().has_angle_sensor_ID())
+	if (diamond->id_0x01().has_angle_sensor_id())
 	{
-		chassis_.set_angle_sensor_ID(
-		    static_cast<int>(diamond->id_0x01().angle_sensor_ID()));
+		chassis_.set_angle_sensor_id(
+		    static_cast<int>(diamond->id_0x01().angle_sensor_id()));
 	}
 	else
 	{
-		chassis_.set_angle_sensor_ID(0);
+		chassis_.set_angle_sensor_id(0);
 	}// 在控制逻辑中，若从A到B，认为是前进，则angle_sensor_ID = 1; 若从B到A，认为是后退，则angle_sensor_ID = 2
 	
 	if (diamond->id_0x01().has_angle_sensor_data())
 	{
 		chassis_.set_angle_sensor_data(
-			static_cast<double>(diamond->id_0x01.angle_sensor_data());
+			static_cast<double>(diamond->id_0x01().angle_sensor_data()));
 	}
 	else
 	{

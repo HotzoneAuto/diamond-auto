@@ -37,9 +37,10 @@ void Id0x01::Parse(const std::uint8_t* bytes, int32_t length,
                    ChassisDetail* chassis) const
 {
 	chassis->mutable_diamond()->mutable_id_0x01()->set_angle_sensor_data(angle_sensor_data(bytes, length));
+	chassis->mutable_diamond()->mutable_id_0x01()->set_angle_sensor_id(angle_sensor_id(bytes, length));
 }
 
-int Id0x01::angle_sensor_ID(const std::uint8_t* bytes, int32_t length)
+int Id0x01::angle_sensor_id(const std::uint8_t* bytes, int32_t length) const
 {
 	Byte t0(bytes + 1);
 	int32_t x = t0.get_byte(0, 8);
@@ -48,7 +49,8 @@ int Id0x01::angle_sensor_ID(const std::uint8_t* bytes, int32_t length)
 	return ret;
 }
 
-// config detail: {'name': 'angle_sensor_data', 'offset': 0.0, 'precision': 0.010986, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|360]', 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'deg'}
+// config detail: {'name': 'angle_sensor_data', 'offset': 0.0, 'precision': 0.010986, 'len': 16,
+// 'is_signed_var': False, 'physical_range': '[0|360]', 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'deg'}
 /*double Id0x01::angle_sensor_data(const std::uint8_t* bytes, int32_t length, int ID_sensor = Id0x01::angle_sensor_ID(0, 8)) const
 {
 	// int ID_sensor = Id0x01::angle_sensor_ID(0, 8);
@@ -80,7 +82,7 @@ int Id0x01::angle_sensor_ID(const std::uint8_t* bytes, int32_t length)
 	}
 }*/
 
-double Id0x01::angle_sensor_data(const std::uint8_t* bytes, int32_t length)
+double Id0x01::angle_sensor_data(const std::uint8_t* bytes, int32_t length) const
 {
 	Byte t0(bytes + 4);
 	int32_t x = t0.get_byte(0, 8);

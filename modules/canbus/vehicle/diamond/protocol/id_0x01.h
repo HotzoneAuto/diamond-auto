@@ -36,8 +36,8 @@ public:
 	           ChassisDetail* chassis) const override;
 
 private:
-	int angle_sensor_ID(const std::uint8_t* bytes, int32_t length);
-	double angle_sensor_data(const std::uint8_t* bytes, int32_t length);
+	int angle_sensor_id(const std::uint8_t* bytes, int32_t length) const;
+	double angle_sensor_data(const std::uint8_t* bytes, int32_t length) const;
 };
 
 }  // namespace diamond
