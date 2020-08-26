@@ -15,13 +15,13 @@ message Id_0x01 {
 // Report Message
   // [deg] [0|360]
   // optional double angle_sensor_front = 1;
-  optional int angle_sensor_length = 1;
-  optional int angle_sensor_ID = 2;
-  optional int angle_sensor_mode = 3;
+  optional int32 angle_sensor_length = 1;
+  optional int32 angle_sensor_ID = 2;
+  optional int32 angle_sensor_mode = 3;
   optional double angle_sensor_data = 4;
 }
 
-message ID_0x0B19F0A8 {
+message ID_0x0b19f0a8 {
 // Control Message
   optional double k1_high_low_vol_control = 1;
   // [] [0|10]
