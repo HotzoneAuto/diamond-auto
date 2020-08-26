@@ -1,6 +1,7 @@
 ﻿#include "modules/control/demo_control_component.h"
 #include "modules/control/diamondauto_control_pid.h"
 #include "modules/control/diamondauto_control_wheel_angle_real.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x01.h"
 
 #include <string>
 #include "cyber/cyber.h"
@@ -14,6 +15,7 @@ namespace control
 
 using apollo::cyber::Rate;
 using apollo::cyber::Time;
+using apollo::canbus::diamond;
 
 bool ControlComponent::Init()
 {
@@ -47,6 +49,22 @@ void ControlComponent::GenerateCommand()
 
 	// 获取当前车辆速度
 	veh_spd = chassis_.speed_mps()
+
+	// 获取前后编码器瞬时角度值
+	Id0x01 angle_sensor;
+	int ID_sensor = angle_sensor.angle_sensor_ID(0, 8);
+	double front_encoder_angle_realtime = 0;
+	double rear_encoder_angle_realtime = 0;
+
+	if (ID_sensor == 1)
+	{
+		front_encoder_angle_realtime = angle_sensor.angle_sensor_data(0, 8); // 前编码器当前的瞬时角度值，单位是deg
+	}
+	else if (ID_sensor == 2)
+	{
+		rear_encoder_angle_realtime = angle_sensor.angle_sensor_data(0, 8); // 后编码器当前的瞬时角度值，单位是deg
+	}
+
 
 	// 初始化驱动电机死区
 	if (veh_spd <= 0.1){ // TODO: 需更换成订阅canbus的车速数据
@@ -288,7 +306,6 @@ void ControlComponent::GenerateCommand()
 
 		front_encoder_angle_previous = front_encoder_angle_realtime;
 		rear_encoder_angle_previous = rear_encoder_angle_realtime;
-
 
 		control_cmd_writer_->Write(cmd);
 
