@@ -273,9 +273,10 @@ int Decoder128<vpoint>::decodeMsopPkt(const uint8_t *pkt,
 
         point.set_intensity(intensity);
         if (this->use_lidar_clock_) {
-          point.set_timestamp(pkt_time*kSecondToNanoFactor);
+          point.set_timestamp(pkt_time * kSecondToNanoFactor);
         } else {
-          point.set_timestamp(cyber::Time().Now().ToSecond()*kSecondToNanoFactor);
+          point.set_timestamp(cyber::Time().Now().ToSecond() *
+                              kSecondToNanoFactor);
         }
 
         if (std::isnan(intensity)) {
@@ -377,22 +378,18 @@ void Decoder128<vpoint>::loadCalibrationFile(std::string cali_path) {
   }
 }
 template <typename vpoint>
-int Decoder128<vpoint>::azimuthCalibration(float azimuth, int channel)
-{
-    int azi_ret;
+int Decoder128<vpoint>::azimuthCalibration(float azimuth, int channel) {
+  int azi_ret;
 
-    if (azimuth > 0.0 && azimuth < 3000.0)
-    {
+  if (azimuth > 0.0 && azimuth < 3000.0) {
     azimuth = azimuth + this->hori_angle_list_[channel] * 100 + 36000.0f;
-    }
-    else
-    {
-        azimuth = azimuth + this->hori_angle_list_[channel] * 100;
-    }
-    azi_ret = (int)azimuth;
-    azi_ret %= 36000;
+  } else {
+    azimuth = azimuth + this->hori_angle_list_[channel] * 100;
+  }
+  azi_ret = (int)azimuth;
+  azi_ret %= 36000;
 
-    return azi_ret;
+  return azi_ret;
 }
 }  // namespace robosense
 }  // namespace drivers

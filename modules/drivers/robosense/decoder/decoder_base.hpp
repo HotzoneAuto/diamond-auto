@@ -87,10 +87,9 @@ typedef struct {
   uint16_t start_angle;
   uint16_t end_angle;
 } __attribute__((packed)) RS_FOV;
-typedef struct
-{
-    uint8_t sign;
-    uint8_t value[2];
+typedef struct {
+  uint8_t sign;
+  uint8_t value[2];
 } __attribute__((packed)) RS_CorAngle;
 
 typedef struct {
@@ -141,7 +140,7 @@ typedef struct eRS_Param {
   float min_distance = 0.2f;
   float start_angle = 0.0f;
   float end_angle = 360.0f;
-  bool use_lidar_clock=false;
+  bool use_lidar_clock = false;
 } RS_Param;
 
 //----------------- Decoder ---------------------
@@ -205,7 +204,7 @@ DecoderBase<vpoint>::DecoderBase(const RS_Param &param) {
   max_distance_ = param.max_distance;
   min_distance_ = param.min_distance;
   cut_angle_ = param.cut_angle * 100;
-  use_lidar_clock_= param.use_lidar_clock;
+  use_lidar_clock_ = param.use_lidar_clock;
   if (cut_angle_ > 36000) {
     cut_angle_ = 0;
   }

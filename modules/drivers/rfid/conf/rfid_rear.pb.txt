@@ -1,0 +1,3 @@
+device_id: "ttyUSB1"
+output_channel:"/diamond/sensor/rfid/rear"
+enable_log: true

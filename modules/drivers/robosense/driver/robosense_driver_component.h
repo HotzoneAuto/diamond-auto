@@ -55,5 +55,3 @@ CYBER_REGISTER_COMPONENT(RobosenseComponent)
 }  // namespace robosense
 }  // namespace drivers
 }  // namespace apollo
-
-

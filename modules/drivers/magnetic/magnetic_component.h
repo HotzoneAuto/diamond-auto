@@ -8,6 +8,7 @@
 
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/util/uart.h"
+#include "modules/drivers/magnetic/proto/magnetic_device_conf.pb.h"
 #include "modules/drivers/proto/magnetic.pb.h"
 
 namespace apollo {
@@ -26,11 +27,11 @@ class MagneticComponent : public Component<> {
   ~MagneticComponent();
 
  private:
+  MagneticDeviceConf device_conf_;
   // TODO(wangying):
   // 1. config by udev
   // 2. or sudo usermod -aG dialout $USER
-  Uart device_ = Uart("ttyUSB0"); 
-
+  std::unique_ptr<Uart> device_ = nullptr;
   std::shared_ptr<Writer<Magnetic>> magnetic_writer_ = nullptr;
 
   std::future<void> async_action_;

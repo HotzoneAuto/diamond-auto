@@ -14,11 +14,11 @@
  * limitations under the License.
  *****************************************************************************/
 #pragma once
+#include "cyber/cyber.h"
 #include "modules/drivers/robosense/decoder/decoder_128.hpp"
 #include "modules/drivers/robosense/decoder/decoder_16.hpp"
 #include "modules/drivers/robosense/decoder/decoder_32.hpp"
 #include "modules/drivers/robosense/decoder/decoder_bp.hpp"
-#include "cyber/cyber.h"
 
 namespace apollo {
 namespace drivers {
@@ -26,32 +26,23 @@ namespace robosense {
 template <typename vpoint>
 class DecoderFactory {
  public:
-  inline static std::shared_ptr<DecoderBase<vpoint>> createDecoder(const std::string &lidar_type, const RS_Param &param) 
-      {
-    if (lidar_type == "RS16")
-     {
+  inline static std::shared_ptr<DecoderBase<vpoint>> createDecoder(
+      const std::string &lidar_type, const RS_Param &param) {
+    if (lidar_type == "RS16") {
       return std::make_shared<Decoder16<vpoint>>(param);
-    }
-    else if (lidar_type == "RS32") 
-    {
+    } else if (lidar_type == "RS32") {
       return std::make_shared<Decoder32<vpoint>>(param);
-    }
-    else if (lidar_type == "RSBP")
-     {
+    } else if (lidar_type == "RSBP") {
       return std::make_shared<DecoderBP<vpoint>>(param);
-    } 
-    
-    else if (lidar_type == "RS128") 
-    {
-      return std::make_shared<Decoder128<vpoint>>(param);
-    } 
-    else
-    {
-      return nullptr;
     }
 
+    else if (lidar_type == "RS128") {
+      return std::make_shared<Decoder128<vpoint>>(param);
+    } else {
+      return nullptr;
+    }
   }
-};  
+};
 
 }  // namespace robosense
 }  // namespace drivers

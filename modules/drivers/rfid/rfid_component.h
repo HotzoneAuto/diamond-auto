@@ -8,6 +8,7 @@
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/util/uart.h"
 #include "modules/drivers/proto/rfid.pb.h"
+#include "modules/drivers/rfid/proto/rfid_device_conf.pb.h"
 
 namespace apollo {
 namespace drivers {
@@ -27,8 +28,11 @@ class RfidComponent : public apollo::cyber::Component<> {
   ~RfidComponent();
 
  private:
-  // TODO(wangying): auto config by udev
-  Uart device_ = Uart("ttyUSB0");
+  RFIDDeviceConf device_conf_;
+
+  // TODO(all): auto config by udev
+  std::unique_ptr<Uart> device_ = nullptr;
+
   std::shared_ptr<Writer<RFID>> rfid_writer_ = nullptr;
 
   std::future<void> async_action_;
