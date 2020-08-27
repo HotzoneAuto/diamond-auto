@@ -260,12 +260,12 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        id_0x0b19f0a7_->set_k2_high_low_vol_control(01);	
-	sleep(3);
+        id_0x0b19f0a8_->set_k2_high_low_vol_control(01);	
+        sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
         AERROR << "K2 up over 1818d0f3="
-               << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
+            << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
         AERROR << "K2 up over 0c09a7f0="
                << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
         AERROR << "K2 up over 0c09a7f0="
@@ -275,16 +275,16 @@ ErrorCode DiamondController::EnableAutoMode() {
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           AERROR << "K1 up";
-          id_0x0b19f0a7_->set_k1_high_low_vol_control(01);
+          id_0x0b19f0a8_->set_k1_high_low_vol_control(01);
 	  sleep(3);
           AERROR << "K2 down";
-	  id_0x0b19f0a7_->set_k2_high_low_vol_control(00); 
+	  id_0x0b19f0a8_->set_k2_high_low_vol_control(00); 
 	} else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
           sleep(3);
           AERROR << ">25 K2 down";
-          id_0x0b19f0a7_->set_k1_high_low_vol_control(00);
+          id_0x0b19f0a8_->set_k1_high_low_vol_control(00);
 	}
       } else {
         AERROR << "1818d0f3 bybatinsrerr REEOR!!";
@@ -334,7 +334,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  id_0x0b19f0a7_->set_k1_high_low_vol_control(00);
+  id_0x0b19f0a8_->set_k1_high_low_vol_control(00);
   AERROR << "K1 down";
   sleep(5);
 
