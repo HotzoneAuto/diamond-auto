@@ -7,8 +7,8 @@
 #include "cyber/time/rate.h"
 
 #include "modules/common/adapters/adapter_gflags.h"
+#include "modules/control/control_wheel_angle_real.h"
 #include "modules/control/diamondauto_control_pid.h"
-#include "modules/control/diamondauto_control_wheel_angle_real.h"
 
 namespace apollo {
 namespace control {
@@ -71,7 +71,8 @@ void ControlComponent::GenerateCommand() {
   } else {
     speed_motor_deadzone =
         r_wheel * m_veh * g * f_c /
-        (i1 * i0 * yita_t);  // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
+        (i_1 * i_0 *
+         yita_t);  // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
   }
 
   // TODO:
@@ -213,8 +214,8 @@ void ControlComponent::GenerateCommand() {
         rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
 
     // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
-    front_lat_dev_mgs = magnetic_.front_lat_dev();
-    rear_lat_dev_mgs = magnetic_.rear_lat_dev();
+    front_lat_dev_mgs = magnetic_.lat_dev();
+    rear_lat_dev_mgs = -magnetic_.lat_dev();
 
     // 给定驱动电机反转命令（使车辆前进从A到B）
     if (/* motor_speed == 1 && */ drivemotor_flag == 1) {
@@ -270,7 +271,7 @@ void ControlComponent::GenerateCommand() {
         }
       }
     } else {  // 若出现异常
-      auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
+      // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
       front_motor_steering_dir = 0;  // 停止
       rear_motor_steering_dir = 0;   // 停止
       cmd->set_front_steering_switch(Chassis::STEERINGSTOP);

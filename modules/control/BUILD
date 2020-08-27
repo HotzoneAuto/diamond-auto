@@ -26,7 +26,7 @@ cc_library(
 cc_library(
     name = "control_lib",
     srcs = [],
-    hdrs = [],
+    hdrs = ["control_wheel_angle_real.h"],
     copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
         "//cyber",
@@ -34,6 +34,8 @@ cc_library(
         "//modules/common/time",
         "//modules/common/util",
         "//modules/control/proto:control_cmd_cc_proto",
+        "//modules/drivers/proto:magnetic_cc_proto",
+        "//modules/drivers/proto:rfid_cc_proto",
         "//modules/common/adapters:adapter_gflags",
         "@com_github_gflags_gflags//:gflags",
     ],

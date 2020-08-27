@@ -36,89 +36,87 @@ bool MagneticComponent::Init() {
 bool MagneticComponent::Check() { return true; }
 
 void MagneticComponent::Action() {
-  int count_front = 1;
-  static char buffer_front[7];
-  static char buf_front;
+  int count = 1;
+  static char buffer[7];
+  static char buf;
 
   while (!apollo::cyber::IsShutdown()) {
-    // Send whrit Data message
+    // Send read Data message
     // char msg_read_cmd = {0x01, 0x03, 0x00, 0x01, 0x00, 0x01, 0xd5, 0xca};
-    char front_msg_write_cmd[8];
-    front_msg_write_cmd[0] = 0x01;
-    front_msg_write_cmd[1] = 0x03;
-    front_msg_write_cmd[2] = 0x00;
-    front_msg_write_cmd[3] = 0x01;
-    front_msg_write_cmd[4] = 0x00;
-    front_msg_write_cmd[5] = 0x01;
-    front_msg_write_cmd[6] = 0xd5;
-    front_msg_write_cmd[7] = 0xca;
+    char msg_read_cmd[8];
+    msg_read_cmd[0] = 0x01;
+    msg_read_cmd[1] = 0x03;
+    msg_read_cmd[2] = 0x00;
+    msg_read_cmd[3] = 0x01;
+    msg_read_cmd[4] = 0x00;
+    msg_read_cmd[5] = 0x01;
+    msg_read_cmd[6] = 0xd5;
+    msg_read_cmd[7] = 0xca;
+    int result = device_.Write(msg_read_cmd, 8);
+    ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result;
 
-    int result_front = device_.Write(front_msg_write_cmd, 8);
-    ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result_front;
-
-    count_front = 1;
-    std::memset(buffer_front, 0, 10);
+    count = 1;
+    std::memset(buffer, 0, 10);
     while (1) {
-      int ret_front = device_.Read(&buf_front, 1);
-      if (ret_front == 1) {
-        if (buf_front == 0x01) {
+      int ret = device_.Read(&buf, 1);
+      if (ret == 1) {
+        if (buf == 0x01) {
           break;
         }
-        buffer_front[count_front] = buf_front;
-        count_front++;
+        buffer[count] = buf;
+        count++;
       }
     }
 
-    if (count_front == 7) {
+    if (count == 7) {
       apollo::drivers::Magnetic magnetic;
       auto header = magnetic.mutable_header();
       header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
       header->set_frame_id("magnetic");
 
-      AINFO << "RETURN ID buffer_front[3] : "
-            << static_cast<int>(buffer_front[3]);  // low 8
-      AINFO << "RETURN ID buffer_front[4] : "
-            << static_cast<int>(buffer_front[4]);  // high 8
+      AINFO << "RETURN ID buffer[3] : "
+            << static_cast<int>(buffer[3]);  // low 8
+      AINFO << "RETURN ID buffer[4] : "
+            << static_cast<int>(buffer[4]);  // high 8
 
-      std::string s_l_front = std::to_string(decToBin(buffer_front[4]));
-      std::string s_h_front = std::to_string(decToBin(buffer_front[3]));
+      std::string s_l = std::to_string(decToBin(buffer[4]));
+      std::string s_h = std::to_string(decToBin(buffer[3]));
 
-      while (s_l_front.size() < 8) {
-        s_l_front = '0' + s_l_front;
+      while (s_l.size() < 8) {
+        s_l = '0' + s_l;
       }
 
-      while (s_h_front.size() < 8) {
-        s_h_front = '0' + s_h_front;
+      while (s_h.size() < 8) {
+        s_h = '0' + s_h;
       }
 
-      char ss_front[16] = {0};
+      char ss[16] = {0};
       for (int i = 0; i < 16;
            i++)  // convert 0000 0001 0000 0000 to 0000 0000 1000 0000, make
                  // string each char in ss denote 1~16 in sequence.
       {
         if (i < 8) {
-          ss_front[i] = s_l_front[7 - i];
+          ss[i] = s_l[7 - i];
         } else
-          ss_front[i] = s_h_front[15 - i];
+          ss[i] = s_h[15 - i];
       }
 
-      int sum_activated_front = 0;
-      int sum_id_front = 0;
+      int sum_activated = 0;
+      int sum_id = 0;
       for (int i = 0; i < 16; i++) {
-        if (ss_front[i] == '1') {
-          sum_id_front += i + 1;
-          sum_activated_front += 1;
+        if (ss[i] == '1') {
+          sum_id += i + 1;
+          sum_activated += 1;
         }
       }
 
-      double front_lat_dev_mgs = 0;
-      front_lat_dev_mgs = double(sum_id_front) / double(sum_activated_front) - 8.5;
+      double lat_dev_mgs = 0;
+      lat_dev_mgs = double(sum_id) / double(sum_activated) - 8.5;
 
-      magnetic.set_front_lat_dev(static_cast<float>(front_lat_dev_mgs));
+      magnetic.set_lat_dev(static_cast<float>(lat_dev_mgs));
 
       magnetic_writer_->Write(magnetic);
     }
-
   }
 }
 

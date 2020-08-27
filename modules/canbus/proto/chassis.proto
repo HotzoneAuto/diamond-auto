@@ -110,4 +110,6 @@ message Chassis {
   optional float bat_volt = 35 [default = nan];
   optional float motor_volt = 36 [default = nan];
   optional float bat_percentage = 37 [default = nan];
+  optional float front_encoder_angle = 38 [default = nan];
+  optional float rear_encoder_angle = 39 [default = nan];
 }

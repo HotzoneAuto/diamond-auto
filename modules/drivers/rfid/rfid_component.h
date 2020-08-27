@@ -1,6 +1,5 @@
 
 #pragma once
-
 #include <memory>
 
 #include "cyber/class_loader/class_loader.h"

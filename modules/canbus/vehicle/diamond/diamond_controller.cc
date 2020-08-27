@@ -137,6 +137,8 @@ Chassis DiamondController::chassis() {
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
 
+  auto diamond = chassis_detail.mutable_diamond();
+
   // 21, 22, previously 1, 2
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
@@ -148,17 +150,17 @@ Chassis DiamondController::chassis() {
   // 3
 
   // 4 Motor torque nm
-  if (chassis_detail.diamond().id_0x0c08a7f0().has_fmottq()) {
+  if (diamond->id_0x0c08a7f0().has_fmottq()) {
     chassis_.set_motor_torque_nm(
-        static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0().fmottq()));
+        static_cast<float>(diamond->id_0x0c08a7f0().fmottq()));
   } else {
     chassis_.set_motor_torque_nm(0);
   }
 
   // 5
   // compute speed respect to motor torque
-  if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
-    auto speed = 0.001957 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
+  if (diamond->id_0x0c08a7f0().has_fmotspd()) {
+    auto speed = 0.001957 * diamond->id_0x0c08a7f0().fmotspd();
     chassis_.set_speed_mps(static_cast<float>(speed));
   } else {
     chassis_.set_speed_mps(0);
@@ -171,32 +173,40 @@ Chassis DiamondController::chassis() {
   chassis_.mutable_vehicle_id()->set_vin(params_.vin());
 
   // 8 engine rpm respect to motor speed by rpm
-  if (chassis_detail.diamond().id_0x0c08a7f0().has_fmotspd()) {
+  if (diamond->id_0x0c08a7f0().has_fmotspd()) {
     chassis_.set_motor_rpm(
-        static_cast<float>(chassis_detail.diamond().id_0x0c08a7f0().fmotspd()));
+        static_cast<float>(diamond->id_0x0c08a7f0().fmotspd()));
   } else {
     chassis_.set_motor_rpm(0);
   }
 
-  if (chassis_detail.diamond().id_0x1818d0f3().has_fbatvolt()) {
-    chassis_.set_bat_volt(static_cast<float>(
-        chassis_detail.diamond().id_0x1818d0f3().fbatvolt()));
+  if (diamond->id_0x1818d0f3().has_fbatvolt()) {
+    chassis_.set_bat_volt(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
   } else {
     chassis_.set_bat_volt(0);
   }
 
-  if (chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()) {
-    chassis_.set_motor_volt(static_cast<float>(
-        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()));
+  if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
+    chassis_.set_motor_volt(
+        static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
   } else {
     chassis_.set_motor_volt(0);
   }
 
-  if (chassis_detail.diamond().id_0x1818d0f3().has_fbatsoc()) {
+  if (diamond->id_0x1818d0f3().has_fbatsoc()) {
     chassis_.set_bat_percentage(
-        static_cast<float>(chassis_detail.diamond().id_0x1818d0f3().fbatsoc()));
+        static_cast<float>(diamond->id_0x1818d0f3().fbatsoc()));
   } else {
     chassis_.set_bat_percentage(0);
+  }
+
+  if (diamond->id_0x01().angle_sensor_id() == 1) {
+    chassis_.set_front_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
+  } else {
+    chassis_.set_rear_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
   }
 
   return chassis_;

@@ -110,7 +110,7 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
       double lat_dev_mgs = 0;
       lat_dev_mgs = double(sum_id) / double(sum_activated) - 8.5;
 
-      magnetic.set_front_lat_dev(static_cast<float>(lat_dev_mgs));
+      magnetic.set_lat_dev(static_cast<float>(lat_dev_mgs));
 
       magnetic_writer_->Write(magnetic);
     }

@@ -248,7 +248,7 @@ def _channel_cmd_hz(argv):
 
 
 def print_role(rolsattr_rawdata):
-    from cyber.proto.role_attributes_pb2 import RoleAttributes
+    from cyber.proto.role_attributes_py_pb2 import RoleAttributes
     try:
         msg = RoleAttributes()
         msg.ParseFromString(rolsattr_rawdata)
@@ -344,7 +344,7 @@ class CyberChannelecho(object):
         # print raw_data # str
 
         msgtype = cyber.ChannelUtils.get_msgtype(self.channel_name, 0)
-        print(cyber.ChannelUtils.get_debugstring_rawmsgdata(msgtype, raw_data))
+        print(cyber.ChannelUtils.get_debugstring_rawmsgdata("".join(map(chr, msgtype)), raw_data))
 
 
 def channel_echo(channel_name):

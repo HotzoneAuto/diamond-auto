@@ -11,11 +11,13 @@ using namespace std;
 
 // global
 // 转向相关
-static float front_encoder_angle_realtime = 0; // 前轮编码器瞬时度数（0~360 deg） 
+static float front_encoder_angle_realtime =
+    0;  // 前轮编码器瞬时度数（0~360 deg）
 // static float front_encoder_angle_origin = 0;
 // //前轮编码器原始读数（0~32000）
 
-static float rear_encoder_angle_realtime = 0; // 后轮编码器瞬时度数（0~360 deg） 
+static float rear_encoder_angle_realtime =
+    0;  // 后轮编码器瞬时度数（0~360 deg）
 // static float rear_encoder_angle_origin = 0;
 // //后轮编码器原始读数（0~32000）
 
@@ -44,7 +46,8 @@ static float rear_wheel_angle_realtime = 0;  // 当前时刻后轮转角（0~360
 
 // 驱动相关
 // static int find_rfid_A = 0; // 是否检测到A点的rfid，0代表否，1代表是
-// static int rfid_id = 0;  // 检测到rfid的ID，1代表检测到A，2代表检测到B，-1代表未检测到
+// static int rfid_id = 0;  //
+// 检测到rfid的ID，1代表检测到A，2代表检测到B，-1代表未检测到
 
 // static int veh_dir = 0; // 记录车辆行驶方向，0代表从A到B，1代表从B到A
 
