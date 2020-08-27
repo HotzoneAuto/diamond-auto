@@ -33,7 +33,8 @@ bool MagneticComponent::Init() {
   device_->SetOpt(9600, 8, 'N', 1);
 
   // Publish rfid station data
-  magnetic_writer_ = node_->CreateWriter<Magnetic>(FLAGS_magnetic_channel);
+  magnetic_writer_ =
+      node_->CreateWriter<Magnetic>(device_conf_.output_channel());
 
   // Async read
   async_action_ = cyber::Async(&MagneticComponent::Action, this);

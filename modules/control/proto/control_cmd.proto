@@ -32,10 +32,13 @@ message ControlCommand {
 
   // target non-directional steering rate, in percentage of full scale per
   // second [0, 100]
-  optional double steering_rate = 6;
+  optional double steering_rate = 5;
 
-  // target steering angle, in percentage of full scale [-100, 100]
-  optional double steering_target = 7;
+  // target front steering angle, in percentage of full scale [-100, 100]
+  optional apollo.canbus.Chassis.SteeringSwitch front_steering_switch = 6;
+  
+  // target rear steering angle, in percentage of full scale [-100, 100]
+  optional apollo.canbus.Chassis.SteeringSwitch rear_steering_switch = 7;
 
   // parking brake engage. true: engaged
   optional bool parking_brake = 8;
