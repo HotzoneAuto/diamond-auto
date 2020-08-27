@@ -35,10 +35,10 @@ message ControlCommand {
   optional double steering_rate = 5;
 
   // target front steering angle, in percentage of full scale [-100, 100]
-  optional double front_steering_switch = 6;
+  optional apollo.canbus.Chassis.SteeringSwitch front_steering_switch = 6;
   
   // target rear steering angle, in percentage of full scale [-100, 100]
-  optional double rear_steering_switch = 7;
+  optional apollo.canbus.Chassis.SteeringSwitch rear_steering_switch = 7;
 
   // parking brake engage. true: engaged
   optional bool parking_brake = 8;
