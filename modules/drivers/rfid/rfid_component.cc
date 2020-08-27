@@ -25,7 +25,7 @@ bool RfidComponent::Init() {
   device_->SetOpt(9600, 8, 'N', 1);
 
   // Publish rfid station data
-  rfid_writer_ = node_->CreateWriter<RFID>(FLAGS_rfid_topic);
+  rfid_writer_ = node_->CreateWriter<RFID>(device_conf_.output_channel());
 
   // Async read
   async_action_ = cyber::Async(&RfidComponent::Action, this);
