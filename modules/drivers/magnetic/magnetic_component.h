@@ -29,7 +29,9 @@ class MagneticComponent : public Component<> {
   // TODO(wangying):
   // 1. config by udev
   // 2. or sudo usermod -aG dialout $USER
-  Uart device_ = Uart("ttyUSB0"); 
+  Uart device_mgs_front = Uart("ttyUSB0"); 
+  Uart device_mgs_rear = Uart("ttyUSB1"); 
+
   std::shared_ptr<Writer<Magnetic>> magnetic_writer_ = nullptr;
 
   std::future<void> async_action_;

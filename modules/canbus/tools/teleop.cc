@@ -141,7 +141,7 @@ public:
 		double acc = 0;
 		double dec = 0;
 		double front_steering = 0;
-		double back_steering = 0;
+		double rear_steering = 0;
 		struct termios cooked_;
 		struct termios raw_;
 		int32_t kfd_ = 0;
@@ -265,23 +265,23 @@ public:
 				break;
 			case KEYCODE_LF1:  // left
 			case KEYCODE_LF2:
-				front_steering = control_command_.front_steering_target();
+				front_steering = control_command_.front_steering_switch();
 				front_steering = GetCommand(front_steering, FLAGS_steer_inc_delta);
-				back_steering = control_command_.back_steering_target();
-				back_steering = GetCommand(back_steering, FLAGS_steer_inc_delta);
-				control_command_.set_front_steering_target(front_steering);
-				control_command_.set_back_steering_target(back_steering);
+				rear_steering = control_command_.rear_steering_switch();
+				rear_steering = GetCommand(rear_steering, FLAGS_steer_inc_delta);
+				control_command_.set_front_steering_switch(front_steering);
+				control_command_.set_rear_steering_switch(rear_steering);
 				AINFO << "Front Steering Target = " << front_steering;
 				break;
 			case KEYCODE_RT1:  // right
 			case KEYCODE_RT2:
-				front_steering = control_command_.front_steering_target();
+				front_steering = control_command_.front_steering_switch();
 				front_steering = GetCommand(front_steering, -FLAGS_steer_inc_delta);
-				back_steering = control_command_.back_steering_target();
-				back_steering = GetCommand(back_steering, -FLAGS_steer_inc_delta);
-				control_command_.set_front_steering_target(front_steering);
-				control_command_.set_back_steering_target(back_steering);
-				AINFO << "Back Steering Target = " << back_steering;
+				rear_steering = control_command_.rear_steering_switch();
+				rear_steering = GetCommand(rear_steering, -FLAGS_steer_inc_delta);
+				control_command_.set_front_steering_switch(front_steering);
+				control_command_.set_rear_steering_switch(rear_steering);
+				AINFO << "rear Steering Target = " << rear_steering;
 				break;
 			case KEYCODE_PKBK:  // hand brake
 				parking_brake = !control_command_.parking_brake();
@@ -465,8 +465,8 @@ public:
 		control_command_.set_throttle(0.0);
 		control_command_.set_brake(0.0);
 		control_command_.set_steering_rate(0.0);
-		control_command_.set_front_steering_target(0.0);
-		control_command_.set_back_steering_target(0.0);
+		control_command_.set_front_steering_switch(Chassis::STEERINGSTOP);
+		control_command_.set_rear_steering_switch(Chassis::STEERINGSTOP);
 		control_command_.set_parking_brake(false);
 		control_command_.set_speed(0.0);
 		control_command_.set_acceleration(0.0);

@@ -490,118 +490,116 @@ void DiamondController::Steer(double angle) {
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Front(double angle) {
+void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
   
-  if (angle == 0)
-  {
-	// 向四合一下发报文,风机停转
-    id_0x0c079aa7_->set_bydcdccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcaccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcacwkst(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_byeapcmd(0xAA);
-    // DC/DC
-    id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-  }
-  else 
-  {
-	// 向四合一下发报文，风机启动
-    id_0x0c079aa7_->set_bydcdccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcaccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcacwkst(0x55);
-    // DC/AC
-    id_0x0c079aa7_->set_byeapcmd(0xAA);
-    // DC/DC
-    id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-  }
-
   char frq_converter_dir_write_cmd[8];
   char frq_converter_spd_write_cmd[8];
 
-  // 变频器通过485下发前转向电机正反转命令
-  if (angle > 0) //need turn right
-  {
-	/*
-	Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C 60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）	
-	*/    
-    frq_converter_dir_write_cmd[0] = 0x0B;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x01;
-    frq_converter_dir_write_cmd[6] = 0x4C;
-    frq_converter_dir_write_cmd[7] = 0x60;
-    int result_dir_positive = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :" << result_dir_positive;
+  switch (steering_switch){
+    case Chassis::STEERINGPOSITIVE:{
+      frq_converter_dir_write_cmd[0] = 0x0B;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x01;
+      frq_converter_dir_write_cmd[6] = 0x4C;
+      frq_converter_dir_write_cmd[7] = 0x60;
+      int result_dir_positive = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :" << result_dir_positive;
 
-	
-    frq_converter_spd_write_cmd[0] = 0x0B;
-    frq_converter_spd_write_cmd[1] = 0x06;
-    frq_converter_spd_write_cmd[2] = 0x20;
-    frq_converter_spd_write_cmd[3] = 0x00;
-    frq_converter_spd_write_cmd[4] = 0x27;
-    frq_converter_spd_write_cmd[5] = 0x10;
-    frq_converter_spd_write_cmd[6] = 0x98;
-    frq_converter_spd_write_cmd[7] = 0x9C;
-    int result_spd_positive = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-    ADEBUG << "Frequency converter speed write command send result is :" << result_spd_positive;
-  }
-  else if (angle < 0) //need turn left
-  {
-	/*
-	Xavier向前变频器发送：向前转向电机发送反转命令：0B 06 10 00 00 02 0C 61，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）	
-	*/
-    frq_converter_dir_write_cmd[0] = 0x0B;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x02;
-    frq_converter_dir_write_cmd[6] = 0x0C;
-    frq_converter_dir_write_cmd[7] = 0x61;
-    int result_dir_negative = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :" << result_dir_negative;
+      frq_converter_spd_write_cmd[0] = 0x0B;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x98;
+      frq_converter_spd_write_cmd[7] = 0x9C;
+      int result_spd_positive = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :" << result_spd_positive;
 
-	frq_converter_spd_write_cmd[0] = 0x0B;
-    frq_converter_spd_write_cmd[1] = 0x06;
-    frq_converter_spd_write_cmd[2] = 0x20;
-    frq_converter_spd_write_cmd[3] = 0x00;
-    frq_converter_spd_write_cmd[4] = 0x27;
-    frq_converter_spd_write_cmd[5] = 0x10;
-    frq_converter_spd_write_cmd[6] = 0x98;
-    frq_converter_spd_write_cmd[7] = 0x9C;
-    int result_spd_negative = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-    ADEBUG << "Frequency converter speed write command send result is :" << result_spd_negative;
-  }
-  else // need stop turning
-  {
-	// Xavier向前变频器发送：向前转向电机发送停转命令：0B 06 10 00 00 05 4D A3
-    frq_converter_dir_write_cmd[0] = 0x0B;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x05;
-    frq_converter_dir_write_cmd[6] = 0x4D;
-    frq_converter_dir_write_cmd[7] = 0xA3;
-    int result_dir_zero = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :" << result_dir_zero;
-  }
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    case Chassis::STEERINGNEGATIVE:{
+      frq_converter_dir_write_cmd[0] = 0x0B;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x02;
+      frq_converter_dir_write_cmd[6] = 0x0C;
+      frq_converter_dir_write_cmd[7] = 0x61;
+      int result_dir_negative = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :" << result_dir_negative;
 
+	    frq_converter_spd_write_cmd[0] = 0x0B;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x98;
+      frq_converter_spd_write_cmd[7] = 0x9C;
+      int result_spd_negative = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :" << result_spd_negative;
+
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    default:{
+      frq_converter_dir_write_cmd[0] = 0x0B;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x05;
+      frq_converter_dir_write_cmd[6] = 0x4D;
+      frq_converter_dir_write_cmd[7] = 0xA3;
+      int result_dir_zero = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :" << result_dir_zero;
+
+      // 风机停转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+      }
+    }
+  }
 }
 
 
@@ -609,116 +607,114 @@ void DiamondController::Steer_Front(double angle) {
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Rear(double angle) {
+void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
-  }
-  if (angle == 0)
-  {
-	// 向四合一下发报文，风机停转
-    id_0x0c079aa7_->set_bydcdccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcaccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcacwkst(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_byeapcmd(0xAA);
-    // DC/DC
-    id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-  }
-  else
-  {
-	// 向四合一下发报文，风机启动
-    id_0x0c079aa7_->set_bydcdccmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcaccmd(0x55);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcacwkst(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_byeapcmd(0xAA);
-    // DC/DC
-    id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-    // DC/AC
-    id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-  }
-
-
+    }
+  
   char frq_converter_dir_write_cmd[8];
   char frq_converter_spd_write_cmd[8];
 
-  // 变频器通过485下发后转向电机正反转命令
-  if (angle > 0) //need turn right
-  {
-	/*
-	Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）	
-	*/    
-    frq_converter_dir_write_cmd[0] = 0x0C;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x01;
-    frq_converter_dir_write_cmd[6] = 0x4D;
-    frq_converter_dir_write_cmd[7] = 0xD7;
-    int result_dir_positive = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :" << result_dir_positive;
+  switch (steering_switch){
+    case Chassis::STEERINGPOSITIVE:{
+      frq_converter_dir_write_cmd[0] = 0x0C;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x01;
+      frq_converter_dir_write_cmd[6] = 0x4D;
+      frq_converter_dir_write_cmd[7] = 0xD7;
+      int result_dir_positive = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :" << result_dir_positive;
 
-	
-    frq_converter_spd_write_cmd[0] = 0x0C;
-    frq_converter_spd_write_cmd[1] = 0x06;
-    frq_converter_spd_write_cmd[2] = 0x20;
-    frq_converter_spd_write_cmd[3] = 0x00;
-    frq_converter_spd_write_cmd[4] = 0x27;
-    frq_converter_spd_write_cmd[5] = 0x10;
-    frq_converter_spd_write_cmd[6] = 0x99;
-    frq_converter_spd_write_cmd[7] = 0x2B;
-    int result_spd_positive = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-    ADEBUG << "Frequency converter speed write command send result is :" << result_spd_positive;
-  }
-  else if (angle < 0) //need turn left
-  {
-	/*
-	Xavier向后变频器发送：向后转向电机发送反转命令：0C 06 10 00 00 02 0D D6，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）	
-	*/
-    frq_converter_dir_write_cmd[0] = 0x0C;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x02;
-    frq_converter_dir_write_cmd[6] = 0x0D;
-    frq_converter_dir_write_cmd[7] = 0xD6;
-    int result_dir_negative = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :" << result_dir_negative;
+      frq_converter_spd_write_cmd[0] = 0x0C;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x99;
+      frq_converter_spd_write_cmd[7] = 0x2B;
+      int result_spd_positive = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :" << result_spd_positive;
 
-	frq_converter_spd_write_cmd[0] = 0x0C;
-    frq_converter_spd_write_cmd[1] = 0x06;
-    frq_converter_spd_write_cmd[2] = 0x20;
-    frq_converter_spd_write_cmd[3] = 0x00;
-    frq_converter_spd_write_cmd[4] = 0x27;
-    frq_converter_spd_write_cmd[5] = 0x10;
-    frq_converter_spd_write_cmd[6] = 0x99;
-    frq_converter_spd_write_cmd[7] = 0x2B;
-    int result_spd_negative = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-    ADEBUG << "Frequency converter speed write command send result is :" << result_spd_negative;
-  }
-  else // need stop turning
-  {
-	// Xavier向后变频器发送：向后转向电机发送停转命令：0C 06 10 00 00 05 4C 14
-    frq_converter_dir_write_cmd[0] = 0x0C;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x05;
-    frq_converter_dir_write_cmd[6] = 0x4C;
-    frq_converter_dir_write_cmd[7] = 0x14;
-    int result_dir_zero = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :" << result_dir_zero;
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    case Chassis::STEERINGNEGATIVE:{
+      frq_converter_dir_write_cmd[0] = 0x0C;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x02;
+      frq_converter_dir_write_cmd[6] = 0x0D;
+      frq_converter_dir_write_cmd[7] = 0xD6;
+      int result_dir_negative = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :" << result_dir_negative;
+
+      frq_converter_spd_write_cmd[0] = 0x0C;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x99;
+      frq_converter_spd_write_cmd[7] = 0x2B;
+      int result_spd_negative = device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :" << result_spd_negative;
+
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    default:{
+      frq_converter_dir_write_cmd[0] = 0x0C;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x05;
+      frq_converter_dir_write_cmd[6] = 0x4C;
+      frq_converter_dir_write_cmd[7] = 0x14;
+      int result_dir_zero = device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :" << result_dir_zero;
+
+      // 风机停转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
   }
 }
 

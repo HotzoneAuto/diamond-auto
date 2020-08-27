@@ -39,7 +39,7 @@ static float rear_wheel_angle_realtime = 0; // 当前时刻后轮转角（0~360 
 
 // 驱动相关
 // static int find_rfid_A = 0; // 是否检测到A点的rfid，0代表否，1代表是
-static int find_rfid_B = 0; // 是否检测到B点的rfid，0代表否，1代表是
+static int rfid_id = 0; // 检测到rfid的ID，1代表检测到A，2代表检测到B，-1代表未检测到
 
 // static int veh_dir = 0; // 记录车辆行驶方向，0代表从A到B，1代表从B到A
 
@@ -51,13 +51,11 @@ static const float speed_motor_deadzone_calibration = 50; // 驱动电机静止�
 
 static const float r_wheel = 0.34; // 车轮半径，m
 static const float m_veh = 13000; // 整车质量，kg
-static const float g = 9.8; // 重力加速度
-static const float f_c = 0.018; // 滚动摩擦系数
-static const float i_1 = 3.11; // 减速比
-static const float i_0 = 5.857; // 主减速比
-static const float yita_t = 0.85; // 传动效率
-
-
+constexpr float g = 9.8; // 重力加速度
+constexpr float f_c = 0.018; // 滚动摩擦系数
+constexpr float i_1 = 3.11; // 减速比
+constexpr float i_0 = 5.857; // 主减速比
+constexpr float yita_t = 0.85; // 传动效率
 
 
 float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre, float encoder_angle_rt, const int encoder_to_wheel_gear_ratio)

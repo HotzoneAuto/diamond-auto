@@ -82,3 +82,5 @@ DECLARE_bool(use_osqp_solver);
 DECLARE_bool(use_control_submodules);
 
 DECLARE_bool(use_system_time_in_control);
+
+DECLARE_double(desired_v);

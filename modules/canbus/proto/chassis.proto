@@ -50,6 +50,12 @@ message Chassis {
     GEAR_NONE = 6;
   }
 
+  enum SteeringSwitch {
+    STEERINGSTOP = 0;
+    STEERINGPOSITIVE = 1;
+    STEERINGNEGATIVE = 2;
+  }
+
   // chassis also needs it own sending timestamp
   optional apollo.common.Header header = 3;
   // Engine speed in RPM.
