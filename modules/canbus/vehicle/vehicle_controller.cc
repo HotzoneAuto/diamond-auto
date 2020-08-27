@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,9 +134,13 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
       driving_mode_ == Chassis::AUTO_STEER_ONLY) {
     const double steering_rate_threshold = 1.0;
     if (control_command.steering_rate() > steering_rate_threshold) {
-      Steer(control_command.steering_target(), control_command.steering_rate());
+      // Steer(control_command.front_steering_switch(),
+      // control_command.steering_rate());
+      // Steer(control_command.rear_steering_switch(),
+      // control_command.steering_rate());
     } else {
-      Steer(control_command.steering_target());
+      Steer_Front(control_command.front_steering_switch());
+      Steer_Rear(control_command.rear_steering_switch());
     }
   }
 

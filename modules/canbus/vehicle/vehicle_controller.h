@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,6 +134,18 @@ class VehicleController {
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
+   */
+  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch) = 0;
+
+  /*
+   * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
+   * left:+, right:-
+   */
+  virtual void Steer_Rear(Chassis::SteeringSwitch steering_switch) = 0;
+
+  /*
+   * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
+   * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
    */
   virtual void Steer(double angle) = 0;
 
