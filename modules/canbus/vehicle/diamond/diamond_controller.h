@@ -59,7 +59,8 @@ class DiamondController final : public VehicleController {
    * @returns a copy of chassis. Use copy here to avoid multi-thread issues.
    */
   Chassis chassis() override;
-
+ void High_Vol_Control() ;
+ void Low_Vol_Control() ;
  private:
   // main logical function for operation the car enter or exit the auto driving
   void Emergency() override;

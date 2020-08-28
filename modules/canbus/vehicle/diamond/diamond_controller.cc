@@ -89,9 +89,17 @@ ErrorCode DiamondController::Init(
     return ErrorCode::CANBUS_ERROR;
   }
 
+  id_0x0b19f0a8_ = dynamic_cast<Id0x0b19f0a8*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0b19f0a8::ID));
+  if (id_0x0b19f0a8_ == nullptr) {
+    AERROR << "Id0x0b19f0a8 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
+  
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
   can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
+  can_sender_->AddMessage(Id0x0b19f0a8::ID, id_0x0b19f0a8_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
@@ -217,16 +225,10 @@ void DiamondController::Emergency() {
   set_driving_mode(Chassis::EMERGENCY_MODE);
   ResetProtocol();
 }
-bool High_Low_Vol_Control(){
+void DiamondController::High_Vol_Control(){
 
-	return true;
-} 
-ErrorCode DiamondController::EnableAutoMode() {
-  if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
-    AINFO << "already in COMPLETE_AUTO_DRIVE mode";
-    return ErrorCode::OK;
-  }
   /*=====================k1 k2 start==========================*/
+  AERROR << "star k1 k2";
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   AINFO << "0x0c0ba7f0 ="
@@ -236,42 +238,17 @@ ErrorCode DiamondController::EnableAutoMode() {
   AERROR << "0x1818d0f3 = "
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
   sleep(3);
-  AINFO << "0x0c0ba7f0 ="
-        << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-  AINFO << "0x0c09a7f0 ="
-        << chassis_detail.diamond().id_0x0c09a7f0().fmotrectcur();
-  AERROR << "0x1818d0f3 = "
-         << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  AERROR << "0x1818d0f3fbatcur = "
-         << chassis_detail.diamond().id_0x1818d0f3().fbatcur();
   if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() == 0) {
-    AINFO << "0x0c0ba7f0 ="
-          << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-    AINFO << "0x0c09a7f0 ="
-          << chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt();
     id_0x0cfff3a7_->set_bybatrlyoffcmd(0);
     id_0x0cfff3a7_->set_bybatrlycmd(1);
-    AERROR << "0x1818d0f3bybatnegrlysts=="
-           << chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts();
-
     if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() !=
             false or
         chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts() == 1) {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
-        AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
-               << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
         id_0x0b19f0a8_->set_k2_high_low_vol_control(01);	
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
-        AERROR << "K2 up over 1818d0f3="
-            << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-        AERROR << "K2 up over 0c09a7f0="
-               << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
-        AERROR << "K2 up over 0c09a7f0="
-               << chassis_detail.diamond().id_0x0c09a7f0().fmotrectcur();
-        AERROR << " 0x0c09a7f0 fmotvolt ="
-               << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           AERROR << "K1 up";
@@ -291,9 +268,37 @@ ErrorCode DiamondController::EnableAutoMode() {
       }
     }
   } else {
-    AERROR << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
+    AERROR << "0x0c0ba7f0==" << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
   }
   /*=====================k1 k2 end==========================*/
+} 
+void DiamondController::Low_Vol_Control(){
+    
+  //============k1 down start===========
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+  sleep(3);
+  AERROR << "1818d0f3 fbatcur="
+         << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
+  id_0x0b19f0a8_->set_k1_high_low_vol_control(00);
+  AERROR << "K1 down";
+  sleep(5);
+
+  if (chassis_detail.diamond().id_0x1818d0f3().fbatvolt() < 25) {
+    AERROR << "K1 down over";
+  } else {
+    AERROR << "1818d0f3 fbatcur="
+           << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
+  }
+  //===========k1 down end========
+    }
+ErrorCode DiamondController::EnableAutoMode() {
+  if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
+    AINFO << "already in COMPLETE_AUTO_DRIVE mode";
+    return ErrorCode::OK;
+  }
+  //High_Vol_Control();
+  id_0x0b19f0a8_->set_k2_high_low_vol_control(01); 
   // Driver Motor TODO(zongbao): test on board
   id_0x0c19f0a7_->set_fmot1targettq(0);
   id_0x0c19f0a7_->set_fmot1lmtvolt(800);
@@ -328,24 +333,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
   AINFO << "Switch to COMPLETE_MANUAL ok.";
-  //============k1 down start===========
-  ChassisDetail chassis_detail;
-  message_manager_->GetSensorData(&chassis_detail);
-  sleep(3);
-  AERROR << "1818d0f3 fbatcur="
-         << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  id_0x0b19f0a8_->set_k1_high_low_vol_control(00);
-  AERROR << "K1 down";
-  sleep(5);
-
-  if (chassis_detail.diamond().id_0x1818d0f3().fbatvolt() < 25) {
-    AERROR << "K1 down over";
-  } else {
-    AERROR << "1818d0f3 fbatcur="
-           << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  }
-
-  //===========k1 down end========
+  Low_Vol_Control();
   return ErrorCode::OK;
 }
 
