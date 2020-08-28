@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,6 +104,10 @@ ErrorCode DiamondController::Init(
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
 
+  // Initialize frequency converter
+  device_frequency_converter.SetOpt(9600, 8, 'N',
+                                    1);  // TODO: confirm 4 parameters.
+
   is_initialized_ = true;
   return ErrorCode::OK;
 }
@@ -184,15 +188,15 @@ Chassis DiamondController::chassis() {
   }
 
   if (diamond->id_0x1818d0f3().has_fbatvolt()) {
-    chassis_.set_bat_volt(static_cast<float>(
-        diamond->id_0x1818d0f3().fbatvolt()));
+    chassis_.set_bat_volt(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
   } else {
     chassis_.set_bat_volt(0);
   }
 
   if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
-    chassis_.set_motor_volt(static_cast<float>(
-        diamond->id_0x0c09a7f0().fmotvolt()));
+    chassis_.set_motor_volt(
+        static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
   } else {
     chassis_.set_motor_volt(0);
   }
@@ -204,18 +208,12 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
-  if (diamond->id_0x01().has_angle_sensor_front()) {
-    chassis_.set_front_wheel_angle(
-        static_cast<float>(diamond->id_0x01().angle_sensor_front()));
+  if (diamond->id_0x01().angle_sensor_id() == 1) {
+    chassis_.set_front_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
   } else {
-    chassis_.set_front_wheel_angle(0);
-  }
-
-  if (diamond->id_0x02().has_angle_sensor_rear()) {
-    chassis_.set_rear_wheel_angle(
-        static_cast<float>(diamond->id_0x02().angle_sensor_rear()));
-  } else {
-    chassis_.set_rear_wheel_angle(0);
+    chassis_.set_rear_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
   }
 
   return chassis_;
@@ -446,6 +444,7 @@ void DiamondController::Acceleration(double acc) {
    */
 }
 
+/*
 // diamond default, -470 ~ 470, left:+, right:-
 // need to be compatible with control module, so reverse
 // steering with old angle speed
@@ -456,7 +455,7 @@ void DiamondController::Steer(double angle) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  // const double real_angle = 360.0 * angle / 100.0;
+  // const double real_angle = 360.0 * angle / 100.0; //360 change to 45
   // reverse sign
   // id_0x0c079aa7_->set_bydcaccmd(real_angle);
   // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
@@ -473,6 +472,265 @@ void DiamondController::Steer(double angle) {
   id_0x0c079aa7_->set_bydcac2cmd(0x55);
   // DC/AC
   id_0x0c079aa7_->set_bydcac2wkst(0x55);
+}
+*/
+
+// diamond default, -470 ~ 470, left:+, right:-
+// need to be compatible with control module, so reverse
+// steering with old angle speed
+// angle:-99.99~0.00~99.99, unit:, left:-, right:+
+void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+      driving_mode() != Chassis::AUTO_STEER_ONLY) {
+    AINFO << "The current driving mode does not need to set steer.";
+    return;
+  }
+
+  char frq_converter_dir_write_cmd[8];
+  char frq_converter_spd_write_cmd[8];
+
+  switch (steering_switch) {
+    case Chassis::STEERINGPOSITIVE: {
+      frq_converter_dir_write_cmd[0] = 0x0B;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x01;
+      frq_converter_dir_write_cmd[6] = 0x4C;
+      frq_converter_dir_write_cmd[7] = 0x60;
+      int result_dir_positive =
+          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :"
+             << result_dir_positive;
+
+      frq_converter_spd_write_cmd[0] = 0x0B;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x98;
+      frq_converter_spd_write_cmd[7] = 0x9C;
+      int result_spd_positive =
+          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :"
+             << result_spd_positive;
+
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    case Chassis::STEERINGNEGATIVE: {
+      frq_converter_dir_write_cmd[0] = 0x0B;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x02;
+      frq_converter_dir_write_cmd[6] = 0x0C;
+      frq_converter_dir_write_cmd[7] = 0x61;
+      int result_dir_negative =
+          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :"
+             << result_dir_negative;
+
+      frq_converter_spd_write_cmd[0] = 0x0B;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x98;
+      frq_converter_spd_write_cmd[7] = 0x9C;
+      int result_spd_negative =
+          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :"
+             << result_spd_negative;
+
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    default: {
+      frq_converter_dir_write_cmd[0] = 0x0B;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x05;
+      frq_converter_dir_write_cmd[6] = 0x4D;
+      frq_converter_dir_write_cmd[7] = 0xA3;
+      int result_dir_zero =
+          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :"
+             << result_dir_zero;
+
+      // 风机停转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+  }
+}
+
+// diamond default, -470 ~ 470, left:+, right:-
+// need to be compatible with control module, so reverse
+// steering with old angle speed
+// angle:-99.99~0.00~99.99, unit:, left:-, right:+
+void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+      driving_mode() != Chassis::AUTO_STEER_ONLY) {
+    AINFO << "The current driving mode does not need to set steer.";
+    return;
+  }
+
+  char frq_converter_dir_write_cmd[8];
+  char frq_converter_spd_write_cmd[8];
+
+  switch (steering_switch) {
+    case Chassis::STEERINGPOSITIVE: {
+      frq_converter_dir_write_cmd[0] = 0x0C;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x01;
+      frq_converter_dir_write_cmd[6] = 0x4D;
+      frq_converter_dir_write_cmd[7] = 0xD7;
+      int result_dir_positive =
+          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :"
+             << result_dir_positive;
+
+      frq_converter_spd_write_cmd[0] = 0x0C;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x99;
+      frq_converter_spd_write_cmd[7] = 0x2B;
+      int result_spd_positive =
+          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :"
+             << result_spd_positive;
+
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    case Chassis::STEERINGNEGATIVE: {
+      frq_converter_dir_write_cmd[0] = 0x0C;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x02;
+      frq_converter_dir_write_cmd[6] = 0x0D;
+      frq_converter_dir_write_cmd[7] = 0xD6;
+      int result_dir_negative =
+          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :"
+             << result_dir_negative;
+
+      frq_converter_spd_write_cmd[0] = 0x0C;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x99;
+      frq_converter_spd_write_cmd[7] = 0x2B;
+      int result_spd_negative =
+          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      ADEBUG << "Frequency converter speed write command send result is :"
+             << result_spd_negative;
+
+      // 风机转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0x55);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+    default: {
+      frq_converter_dir_write_cmd[0] = 0x0C;
+      frq_converter_dir_write_cmd[1] = 0x06;
+      frq_converter_dir_write_cmd[2] = 0x10;
+      frq_converter_dir_write_cmd[3] = 0x00;
+      frq_converter_dir_write_cmd[4] = 0x00;
+      frq_converter_dir_write_cmd[5] = 0x05;
+      frq_converter_dir_write_cmd[6] = 0x4C;
+      frq_converter_dir_write_cmd[7] = 0x14;
+      int result_dir_zero =
+          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      ADEBUG << "Frequency converter direction write command send result is :"
+             << result_dir_zero;
+
+      // 风机停转
+      id_0x0c079aa7_->set_bydcdccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcaccmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+      // DC/DC
+      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+      // DC/AC
+      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+    }
+  }
+}
+
+void DiamondController::Steer(double angle) {
+  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+      driving_mode() != Chassis::AUTO_STEER_ONLY) {
+    AINFO << "The current driving mode does not need to set steer.";
+    return;
+  }
 }
 
 // steering with new angle speed

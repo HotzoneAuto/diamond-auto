@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,7 @@
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
 #include "modules/common/proto/error_code.pb.h"
+#include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
@@ -86,7 +87,13 @@ class DiamondController final : public VehicleController {
   void Acceleration(double acc) override;
 
   // steering with old angle speed
-  // angle:-99.99~0.00~99.99, unit:, left:+, right:-
+  // angle:-99.99~0.00~99.99, unit:, left:-, right:+
+  void Steer_Front(Chassis::SteeringSwitch steering_switch);
+
+  // steering with old angle speed
+  // angle:-99.99~0.00~99.99, unit:, left:-, right:+
+  void Steer_Rear(Chassis::SteeringSwitch steering_switch);
+
   void Steer(double angle) override;
 
   // steering with new angle speed
@@ -131,6 +138,10 @@ class DiamondController final : public VehicleController {
 
   std::mutex chassis_mask_mutex_;
   int32_t chassis_error_mask_ = 0;
+
+  // 变频器 485通信 设备
+  Uart device_frequency_converter =
+      Uart("ttyUSB0");  // TODO: define device name.
 };
 
 }  // namespace diamond

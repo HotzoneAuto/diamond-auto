@@ -69,9 +69,7 @@ MPCController::MPCController() : name_("MPC Controller") {
   AINFO << "Using " << name_;
 }
 
-MPCController::~MPCController() {
-  CloseLogFile();
-}
+MPCController::~MPCController() { CloseLogFile(); }
 
 bool MPCController::LoadControlConf(const ControlConf *control_conf) {
   if (!control_conf) {
@@ -255,13 +253,9 @@ double MPCController::Wheel2SteerPct(const double wheel_angle) {
   return wheel_angle / wheel_single_direction_max_degree_ * 100;
 }
 
-void MPCController::Stop() {
-  CloseLogFile();
-}
+void MPCController::Stop() { CloseLogFile(); }
 
-std::string MPCController::Name() const {
-  return name_;
-}
+std::string MPCController::Name() const { return name_; }
 
 void MPCController::LoadMPCGainScheduler(
     const MPCControllerConf &mpc_controller_conf) {

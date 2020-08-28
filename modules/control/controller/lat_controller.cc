@@ -85,9 +85,7 @@ LatController::LatController() : name_("LQR-based Lateral Controller") {
   AINFO << "Using " << name_;
 }
 
-LatController::~LatController() {
-  CloseLogFile();
-}
+LatController::~LatController() { CloseLogFile(); }
 
 bool LatController::LoadControlConf(const ControlConf *control_conf) {
   if (!control_conf) {
@@ -308,13 +306,9 @@ void LatController::LoadLatGainScheduler(
       << "Fail to load heading error gain scheduler";
 }
 
-void LatController::Stop() {
-  CloseLogFile();
-}
+void LatController::Stop() { CloseLogFile(); }
 
-std::string LatController::Name() const {
-  return name_;
-}
+std::string LatController::Name() const { return name_; }
 
 Status LatController::ComputeControlCommand(
     const localization::LocalizationEstimate *localization,

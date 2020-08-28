@@ -1,0 +1,3 @@
+device_id: "ttyUSB3"
+output_channel:"/diamond/sensor/magnetic/rear"
+enable_log: true
