@@ -181,7 +181,7 @@ Chassis DiamondController::chassis() {
   // 5
   // compute speed respect to motor torque
   if (diamond->id_0x0c08a7f0().has_fmotspd()) {
-    auto speed = 0.001957 * diamond->id_0x0c08a7f0().fmotspd();
+    auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
     chassis_.set_speed_mps(static_cast<float>(speed));
   } else {
     chassis_.set_speed_mps(0);
@@ -295,7 +295,7 @@ ErrorCode DiamondController::EnableAutoMode() {
         // p = fopen("/sys/class/gpio/gpio351/direction", "w");
         // fprintf(p, "%s", "high");
         // fclose(p);
-        id_0x00aa5701_->set_relay2(0x10);
+        id_0x00aa5701_->set_relay2(0x01);
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
