@@ -24,7 +24,6 @@ bool ControlComponent::Init() {
       });
 
   // Magnetic Reader
-  // TODO: check
   magnetic_reader_ = node_->CreateReader<Magnetic>(
       FLAGS_magnetic_channel,
       [this](const std::shared_ptr<Magnetic>& magnetic) {
@@ -32,7 +31,6 @@ bool ControlComponent::Init() {
       });
 
   // rfid Reader
-  // TODO: check
   rfid_reader_ = node_->CreateReader<RFID>(
       FLAGS_rfid_topic,
       [this](const std::shared_ptr<RFID>& rfid) { rfid_.CopyFrom(*rfid); });
@@ -178,6 +176,119 @@ void ControlComponent::GenerateCommand() {
   front_motor_steering_dir = 0;  //则前方转向电机停转
   rear_motor_steering_dir = 0;   //则后方转向电机停转
 
+  // 获取当前车辆速度
+  veh_spd = chassis_.speed_mps();
+
+  double front_encoder_angle_realtime = 0;
+  double rear_encoder_angle_realtime = 0;
+
+  // 初始化驱动电机死区
+  if (veh_spd <= 0.1) {  // TODO: 需更换成订阅canbus的车速数据
+    speed_motor_deadzone = speed_motor_deadzone_calibration;  // 标定值
+  } else {
+    speed_motor_deadzone =
+        r_wheel * m_veh * g * f_c /
+        (i_1 * i_0 * yita_t);  // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
+  }
+
+  // cmd -> set_front_steering_target(0);
+  // cmd -> set_back_steering_target(0); //初始时前后转向轮转角为0
+
+  // TODO:
+  // 突然断电停车后，需记录最后时刻的状态数据，包括前后轮转角；重新启动后再读取数据文件
+
+  //上过高压自检完成之后，进入自动驾驶模式后，车辆处于ready状态时
+  while (front_wheel_angle_realtime > 0.5)  // 待标定
+  {
+    front_motor_steering_dir = 2;
+    //则前方转向电机反转（即向左）
+    /*
+    Xavier向前变频器发送：向前转向电机发送反转命令：0B 06 10 00 00 02 0C
+    61，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+    同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA
+    AA，逆变器1工作，前转向电机风扇1工作
+    */
+    // TODO: 消息发送，刷新
+
+    front_wheel_angle_previous = front_wheel_angle_realtime;
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    rate.Sleep();
+  }
+
+  while (rear_wheel_angle_realtime > 0.5)  // 待标定
+  {
+    rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
+    /*
+    Xavier向后变频器发送：向后转向电机发送反转命令：0C 06 10 00 00 02 0D
+    D6，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+    同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA
+    AA，逆变器2工作，后转向电机风扇2工作
+    */
+    // TODO: 消息发送，刷新
+
+    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+    rear_wheel_angle_realtime = update_wheel_angle(
+        rear_wheel_angle_previous, rear_encoder_angle_previous,
+        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    rate.Sleep();
+  }
+
+  while (front_wheel_angle_realtime < -0.5)  // 待标定
+  {
+    front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
+    /*
+    Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C
+    60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+    同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA
+    AA，逆变器1工作，前转向电机风扇1工作
+    */
+    // TODO: 消息发送，刷新
+
+    front_wheel_angle_previous = front_wheel_angle_realtime;
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    rate.Sleep();
+  }
+
+  while (rear_wheel_angle_realtime < -0.5)  // 待标定
+  {
+    rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
+    /*
+    Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D
+    D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+    同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA
+    AA，逆变器2工作，后转向电机风扇2工作
+    */
+    // TODO: 消息发送，刷新
+
+    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+    rear_wheel_angle_realtime = update_wheel_angle(
+        rear_wheel_angle_previous, rear_encoder_angle_previous,
+        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    rate.Sleep();
+  }
+
+  // TODO: 补充下发命令代码
+  /*
+          Xavier向前变频器发送：向前转向电机发送停转命令：0B 06 10 00 00 05 4D
+     A3 同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA
+     AA，逆变器1停止工作，前转向电机风扇1停止工作
+  */
+  // TODO: 消息发送，刷新
+
+  /*
+          Xavier向后变频器发送：向后转向电机发送停转命令：0C 06 10 00 00 05 4C
+     14 同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA
+     AA，逆变器2停止工作，后转向电机风扇2停止工作
+  */
+  // TODO: 消息发送，刷新
+
+  front_motor_steering_dir = 0;  //则前方转向电机停转
+  rear_motor_steering_dir = 0;   //则后方转向电机停转
+
   while (true) {
     // TODO: Configuration
     // 先只看从A到B
@@ -293,6 +404,7 @@ void ControlComponent::GenerateCommand() {
     rear_encoder_angle_previous = rear_encoder_angle_realtime;
 
     control_cmd_writer_->Write(cmd);
+
     rate.Sleep();
   }
 }

@@ -5,7 +5,7 @@
 #include "cyber/service_discovery/topology_manager.h"
 
 int main(int argc, char *argv[]) {
-  std::cout<< "Cyber Graph" << std::endl;
+  std::cout << "Cyber Graph" << std::endl;
   apollo::cyber::Init(argv[0]);
   FLAGS_minloglevel = 3;
   FLAGS_alsologtostderr = 0;

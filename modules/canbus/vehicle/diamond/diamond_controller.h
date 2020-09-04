@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +25,8 @@
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
 #include "modules/common/proto/error_code.pb.h"
-#include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
+#include "modules/common/util/uart.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
@@ -87,13 +87,12 @@ class DiamondController final : public VehicleController {
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Front(Chassis::SteeringSwitch steering_switch);
+  void Steer_Front(Chassis::SteeringSwitch steering_switch,
+                   double front_steering_target);
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Rear(Chassis::SteeringSwitch steering_switch);
-
-  void Steer(double angle) override;
+  void Steer_Rear(Chassis::SteeringSwitch steering_switch) override;
 
   // steering with new angle speed
   // angle:-99.99~0.00~99.99, unit:, left:+, right:-
@@ -117,6 +116,9 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask();
   Chassis::ErrorCode chassis_error_code();
   void set_chassis_error_code(const Chassis::ErrorCode& error_code);
+  float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
+                           float encoder_angle_rt,
+                           const float encoder_to_wheel_gear_ratio);
 
  private:
   // control protocol
@@ -137,8 +139,22 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   // 变频器 485通信 设备
-  Uart device_frequency_converter =
-      Uart("ttyUSB0");  // TODO: define device name.
+  Uart device_front_frequency_converter =
+      Uart("ttyUSB2");  // TODO: define device name.
+  Uart device_rear_frequency_converter =
+      Uart("ttyUSB1");  // TODO: define device name.
+
+  float front_encoder_angle_previous = 0;
+
+  float front_encoder_angle_realtime = 0;
+  float rear_encoder_angle_previous = 0;
+
+  float rear_encoder_angle_realtime = 0;
+  const float encoder_to_wheel_gear_ratio = 125;
+  float front_wheel_angle_previous = 0;
+  float front_wheel_angle_realtime = 0;
+  float rear_wheel_angle_previous = 0;
+  float rear_wheel_angle_realtime = 0;
 };
 
 }  // namespace diamond
