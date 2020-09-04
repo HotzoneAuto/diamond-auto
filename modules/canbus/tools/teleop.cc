@@ -40,7 +40,6 @@ DEFINE_double(throttle_inc_delta, 2.0,
               "throttle pedal command delta percentage.");
 DEFINE_double(brake_inc_delta, 2.0, "brake pedal delta percentage");
 DEFINE_double(steer_inc_delta, 2.0, "steer delta percentage");
-// TODO(ALL) : switch the acceleration cmd or pedal cmd
 // default : use pedal cmd
 DEFINE_bool(
     use_acceleration, false,
@@ -63,10 +62,18 @@ const uint32_t KEYCODE_UP1 = 0x57;  // 'w'
 const uint32_t KEYCODE_UP2 = 0x77;  // 'w'
 const uint32_t KEYCODE_DN1 = 0x53;  // 'S'
 const uint32_t KEYCODE_DN2 = 0x73;  // 's'
+
+// Front wheel control
 const uint32_t KEYCODE_LF1 = 0x41;  // 'A'
 const uint32_t KEYCODE_LF2 = 0x61;  // 'a'
 const uint32_t KEYCODE_RT1 = 0x44;  // 'D'
 const uint32_t KEYCODE_RT2 = 0x64;  // 'd'
+
+// Rear wheel control
+const uint32_t KEYCODE_RWL1 = 0x5A;  // 'Z'
+const uint32_t KEYCODE_RWL2 = 0x7A;  // 'z'
+const uint32_t KEYCODE_RWR1 = 0x43;  // 'C'
+const uint32_t KEYCODE_RWR2 = 0x63;  // 'c'
 
 const uint32_t KEYCODE_PKBK = 0x50;  // hand brake or parking brake
 
@@ -136,7 +143,8 @@ class Teleop {
     double acc = 0;
     double dec = 0;
     double front_steering = 0;
-    // double rear_steering = 0;
+    double rear_steering = 0;
+    double torque = 0;
     struct termios cooked_;
     struct termios raw_;
     int32_t kfd_ = 0;
@@ -175,6 +183,8 @@ class Teleop {
             brake = control_command_.brake();
             throttle = control_command_.throttle();
           }
+          torque = control_command_.torque();
+          torque = GetCommand(torque, FLAGS_throttle_inc_delta);
           if (brake > 1e-6) {
             brake = GetCommand(brake, -FLAGS_brake_inc_delta);
             if (!FLAGS_use_acceleration) {
@@ -198,6 +208,7 @@ class Teleop {
           } else {
             AINFO << "Acceleration = " << control_command_.acceleration();
           }
+          control_command_.set_torque(torque);
           break;
         case KEYCODE_DN1:  // decelerate
         case KEYCODE_DN2:
@@ -205,6 +216,8 @@ class Teleop {
             brake = control_command_.brake();
             throttle = control_command_.throttle();
           }
+          torque = control_command_.torque();
+          torque = GetCommand(torque, -FLAGS_throttle_inc_delta);
           if (throttle > 1e-6) {
             throttle = GetCommand(throttle, -FLAGS_throttle_inc_delta);
             if (!FLAGS_use_acceleration) {
@@ -222,6 +235,7 @@ class Teleop {
               control_command_.set_acceleration(dec);
             }
           }
+          control_command_.set_torque(torque);
           if (!FLAGS_use_acceleration) {
             AINFO << "Throttle = " << control_command_.throttle()
                   << ", Brake = " << control_command_.brake();
@@ -229,25 +243,42 @@ class Teleop {
             AINFO << "Acceleration = " << control_command_.acceleration();
           }
           break;
-        case KEYCODE_LF1:  // left
+        case KEYCODE_LF1:  // Front wheel left
         case KEYCODE_LF2:
-          front_steering = control_command_.front_steering_switch();
           front_steering = GetCommand(front_steering, FLAGS_steer_inc_delta);
           control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
           control_command_.set_front_steering_switch_pre(front_steering);
-          AINFO << "Front Steering Target = " << front_steering;
+          control_command_.set_front_wheel_target(front_steering);
           break;
-        case KEYCODE_RT1:  // right
+        case KEYCODE_RT1:  // Front wheel right
         case KEYCODE_RT2:
-          front_steering = control_command_.front_steering_switch();
           front_steering = GetCommand(front_steering, -FLAGS_steer_inc_delta);
           control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
           control_command_.set_front_steering_switch_pre(front_steering);
+          control_command_.set_front_wheel_target(front_steering);
           if (front_steering != 0) {
             control_command_.set_front_steering_switch(
                 Chassis::STEERINGPOSITIVE);
           } else {
             control_command_.set_front_steering_switch(Chassis::STEERINGSTOP);
+          }
+          break;
+        case KEYCODE_RWL1:  // Rear wheel left
+        case KEYCODE_RWL2:
+          rear_steering = GetCommand(rear_steering, FLAGS_steer_inc_delta);
+          control_command_.set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
+          control_command_.set_rear_wheel_target(rear_steering);
+          break;
+        case KEYCODE_RWR1:  // Rear wheel right
+        case KEYCODE_RWR2:
+          rear_steering = GetCommand(rear_steering, -FLAGS_steer_inc_delta);
+          control_command_.set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
+          control_command_.set_rear_wheel_target(rear_steering);
+          if (rear_steering != 0) {
+            control_command_.set_rear_steering_switch(
+                Chassis::STEERINGPOSITIVE);
+          } else {
+            control_command_.set_rear_steering_switch(Chassis::STEERINGSTOP);
           }
           break;
         case KEYCODE_PKBK:  // hand brake

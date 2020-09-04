@@ -72,15 +72,14 @@ class DiamondController final : public VehicleController {
   ::apollo::common::ErrorCode EnableSteeringOnlyMode() override;
   ::apollo::common::ErrorCode EnableSpeedOnlyMode() override;
 
-  // NEUTRAL, REVERSE, DRIVE
-  void Gear(Chassis::GearPosition state) override;
-
   // brake with new acceleration
   // acceleration:0.00~99.99, unit:
   // acceleration_spd: 60 ~ 100, suggest: 90
   void Brake(double acceleration) override;
 
-  void Torque(double torque) override;
+  void Forward_Torque(double torque) override;
+
+  void Reverse_Torque(double torque) override;
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+

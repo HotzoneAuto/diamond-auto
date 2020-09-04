@@ -30,7 +30,6 @@ const int32_t Id0x00aa5701::ID = 0x00AA5701;
 Id0x00aa5701::Id0x00aa5701() { Reset(); }
 
 uint32_t Id0x00aa5701::GetPeriod() const {
-  // TODO(All) :  modify every protocol's period manually
   static const uint32_t PERIOD = 20 * 1000;
   return PERIOD;
 }
@@ -55,7 +54,6 @@ void Id0x00aa5701::UpdateData(uint8_t* data) {
 }
 
 void Id0x00aa5701::Reset() {
-  // TODO(All) :  you should check this manually
   relay1_ = 0;
   relay2_ = 0;
   relay3_ = 0;
