@@ -86,7 +86,8 @@ class DiamondController final : public VehicleController {
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Front(Chassis::SteeringSwitch steering_switch, double front_steering_target);
+  void Steer_Front(Chassis::SteeringSwitch steering_switch,
+                   double front_steering_target);
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
@@ -114,7 +115,9 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask();
   Chassis::ErrorCode chassis_error_code();
   void set_chassis_error_code(const Chassis::ErrorCode& error_code);
-  float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,float encoder_angle_rt,const float encoder_to_wheel_gear_ratio);
+  float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
+                           float encoder_angle_rt,
+                           const float encoder_to_wheel_gear_ratio);
 
  private:
   // control protocol
@@ -151,7 +154,6 @@ class DiamondController final : public VehicleController {
   float front_wheel_angle_realtime = 0;
   float rear_wheel_angle_previous = 0;
   float rear_wheel_angle_realtime = 0;
-
 };
 
 }  // namespace diamond

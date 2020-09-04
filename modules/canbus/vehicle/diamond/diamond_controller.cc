@@ -99,13 +99,11 @@ ErrorCode DiamondController::Init(
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
 
-
   // Initialize frequency converter
   device_front_frequency_converter.SetOpt(9600, 8, 'N',
-                                    1);  // TODO: confirm 4 parameters.
+                                          1);  // TODO: confirm 4 parameters.
   device_rear_frequency_converter.SetOpt(9600, 8, 'N',
-                                     1);  // TODO: confirm 4 parameters.
-
+                                         1);  // TODO: confirm 4 parameters.
 
   is_initialized_ = true;
   return ErrorCode::OK;
@@ -166,7 +164,7 @@ Chassis DiamondController::chassis() {
   // 5
   // compute speed respect to motor torque
   if (diamond->id_0x0c08a7f0().has_fmotspd()) {
-    auto speed = 0.006079* diamond->id_0x0c08a7f0().fmotspd();
+    auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
     chassis_.set_speed_mps(static_cast<float>(speed));
   } else {
     chassis_.set_speed_mps(0);
@@ -187,15 +185,15 @@ Chassis DiamondController::chassis() {
   }
 
   if (diamond->id_0x1818d0f3().has_fbatvolt()) {
-    chassis_.set_bat_volt(static_cast<float>(
-        diamond->id_0x1818d0f3().fbatvolt()));
+    chassis_.set_bat_volt(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
   } else {
     chassis_.set_bat_volt(0);
   }
 
   if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
-    chassis_.set_motor_volt(static_cast<float>(
-        diamond->id_0x0c09a7f0().fmotvolt()));
+    chassis_.set_motor_volt(
+        static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
   } else {
     chassis_.set_motor_volt(0);
   }
@@ -207,38 +205,38 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
-
   if (diamond->id_0x01().angle_sensor_id() == 1) {
-     chassis_.set_front_encoder_angle(
-         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-    if (std::isnan(chassis_.front_encoder_angle())){
+    chassis_.set_front_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
+    if (std::isnan(chassis_.front_encoder_angle())) {
       front_encoder_angle_realtime = front_encoder_angle_previous;
+    } else {
+      front_encoder_angle_realtime =
+          static_cast<float>(diamond->id_0x01().angle_sensor_data());
     }
-    else{
-      front_encoder_angle_realtime = static_cast<float>(diamond->id_0x01().angle_sensor_data());
-    }
-    front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous,
-        front_wheel_angle_realtime,encoder_to_wheel_gear_ratio);
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_wheel_angle_realtime, encoder_to_wheel_gear_ratio);
     chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
     front_encoder_angle_previous = front_encoder_angle_realtime;
     front_wheel_angle_previous = front_wheel_angle_realtime;
 
-   } else {
-     chassis_.set_rear_encoder_angle(
-         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-    if (std::isnan(chassis_.rear_encoder_angle())){
+  } else {
+    chassis_.set_rear_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
+    if (std::isnan(chassis_.rear_encoder_angle())) {
       rear_encoder_angle_realtime = rear_encoder_angle_previous;
+    } else {
+      rear_encoder_angle_realtime =
+          static_cast<float>(diamond->id_0x01().angle_sensor_data());
     }
-    else{
-      rear_encoder_angle_realtime = static_cast<float>(diamond->id_0x01().angle_sensor_data());
-    }
-    rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous,
-        rear_wheel_angle_realtime,encoder_to_wheel_gear_ratio);
+    rear_wheel_angle_realtime = update_wheel_angle(
+        rear_wheel_angle_previous, rear_encoder_angle_previous,
+        rear_wheel_angle_realtime, encoder_to_wheel_gear_ratio);
     chassis_.set_rear_wheel_angle(rear_wheel_angle_realtime);
     rear_encoder_angle_previous = rear_encoder_angle_realtime;
     rear_wheel_angle_previous = rear_wheel_angle_realtime;
-   }
-
+  }
 
   return chassis_;
 }
@@ -353,9 +351,9 @@ ErrorCode DiamondController::EnableAutoMode() {
   frq_converter_spd_write_cmd[6] = 0x98;
   frq_converter_spd_write_cmd[7] = 0x9C;
   int result_spd_positive =
-  device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
   ADEBUG << "Frequency converter speed write command send result is :"
-  << result_spd_positive;
+         << result_spd_positive;
 
   can_sender_->Update();
   const int32_t flag =
@@ -387,9 +385,9 @@ ErrorCode DiamondController::DisableAutoMode() {
   frq_converter_dir_write_cmd[6] = 0x4C;
   frq_converter_dir_write_cmd[7] = 0x14;
   int result_dir_zero =
-  device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_zero;
+         << result_dir_zero;
   sleep(0.2);
   // 风机停转
   id_0x0c079aa7_->set_bydcdccmd(0x55);
@@ -512,8 +510,6 @@ void DiamondController::Vehicle_Stop(){
   id_0x0c19f0a7_->set_bymot1workmode(129);
 }*/
 
-
-
 // confirm the car is driven by acceleration command or throttle/brake pedal
 // drive with acceleration/deceleration
 // acc:-7.0 ~ 5.0, unit:m/s^2
@@ -562,15 +558,17 @@ void DiamondController::Steer(double angle) {
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, double front_steering_target) {
+void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
+                                    double front_steering_target) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  
+
   p = fopen("/home/nvidia/out.txt", "a+");
-  fprintf(p, "%f\t%f\t%f\n",chassis_.front_wheel_angle(),chassis_.front_encoder_angle(),front_steering_target);
+  fprintf(p, "%f\t%f\t%f\n", chassis_.front_wheel_angle(),
+          chassis_.front_encoder_angle(), front_steering_target);
   fclose(p);
 
   char frq_converter_dir_write_cmd[8];
@@ -578,7 +576,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
-      if (abs(chassis_.front_wheel_angle()-front_steering_target) < 0.1){
+      if (abs(chassis_.front_wheel_angle() - front_steering_target) < 0.1) {
         // Stop steering
         frq_converter_dir_write_cmd[0] = 0x0B;
         frq_converter_dir_write_cmd[1] = 0x06;
@@ -588,10 +586,10 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
         frq_converter_dir_write_cmd[5] = 0x05;
         frq_converter_dir_write_cmd[6] = 0x4D;
         frq_converter_dir_write_cmd[7] = 0xA3;
-        int result_dir_zero =
-            device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+        int result_dir_zero = device_front_frequency_converter.Write(
+            frq_converter_dir_write_cmd, 8);
         ADEBUG << "Frequency converter direction write command send result is :"
-              << result_dir_zero;
+               << result_dir_zero;
 
         // 椋庢満鍋滆浆
         id_0x0c079aa7_->set_bydcdccmd(0xAA);
@@ -614,24 +612,25 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
       frq_converter_dir_write_cmd[5] = 0x01;
       frq_converter_dir_write_cmd[6] = 0x4C;
       frq_converter_dir_write_cmd[7] = 0x60;
-      int result_dir_positive =
-          device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      int result_dir_positive = device_front_frequency_converter.Write(
+          frq_converter_dir_write_cmd, 8);
       ADEBUG << "Frequency converter direction write command send result is :"
              << result_dir_positive;
-/*
-      frq_converter_spd_write_cmd[0] = 0x0B;
-      frq_converter_spd_write_cmd[1] = 0x06;
-      frq_converter_spd_write_cmd[2] = 0x20;
-      frq_converter_spd_write_cmd[3] = 0x00;
-      frq_converter_spd_write_cmd[4] = 0x27;
-      frq_converter_spd_write_cmd[5] = 0x10;
-      frq_converter_spd_write_cmd[6] = 0x98;
-      frq_converter_spd_write_cmd[7] = 0x9C;
-      int result_spd_positive =
-          device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-      ADEBUG << "Frequency converter speed write command send result is :"
-             << result_spd_positive;
-*/
+      /*
+            frq_converter_spd_write_cmd[0] = 0x0B;
+            frq_converter_spd_write_cmd[1] = 0x06;
+            frq_converter_spd_write_cmd[2] = 0x20;
+            frq_converter_spd_write_cmd[3] = 0x00;
+            frq_converter_spd_write_cmd[4] = 0x27;
+            frq_converter_spd_write_cmd[5] = 0x10;
+            frq_converter_spd_write_cmd[6] = 0x98;
+            frq_converter_spd_write_cmd[7] = 0x9C;
+            int result_spd_positive =
+                device_front_frequency_converter.Write(frq_converter_spd_write_cmd,
+         8); ADEBUG << "Frequency converter speed write command send result is
+         :"
+                   << result_spd_positive;
+      */
       // 风机转
       id_0x0c079aa7_->set_bydcdccmd(0x55);
       // DC/AC
@@ -648,7 +647,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
       break;
     }
     case Chassis::STEERINGNEGATIVE: {
-      if (abs(chassis_.front_wheel_angle()-front_steering_target) < 0.1){
+      if (abs(chassis_.front_wheel_angle() - front_steering_target) < 0.1) {
         // Stop steering
         frq_converter_dir_write_cmd[0] = 0x0B;
         frq_converter_dir_write_cmd[1] = 0x06;
@@ -658,10 +657,10 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
         frq_converter_dir_write_cmd[5] = 0x05;
         frq_converter_dir_write_cmd[6] = 0x4D;
         frq_converter_dir_write_cmd[7] = 0xA3;
-        int result_dir_zero =
-            device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+        int result_dir_zero = device_front_frequency_converter.Write(
+            frq_converter_dir_write_cmd, 8);
         ADEBUG << "Frequency converter direction write command send result is :"
-              << result_dir_zero;
+               << result_dir_zero;
 
         // 椋庢満鍋滆浆
         id_0x0c079aa7_->set_bydcdccmd(0xAA);
@@ -684,8 +683,8 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
       frq_converter_dir_write_cmd[5] = 0x02;
       frq_converter_dir_write_cmd[6] = 0x0C;
       frq_converter_dir_write_cmd[7] = 0x61;
-      int result_dir_negative =
-          device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      int result_dir_negative = device_front_frequency_converter.Write(
+          frq_converter_dir_write_cmd, 8);
       ADEBUG << "Frequency converter direction write command send result is :"
              << result_dir_negative;
 
@@ -697,8 +696,8 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
       frq_converter_spd_write_cmd[5] = 0x10;
       frq_converter_spd_write_cmd[6] = 0x98;
       frq_converter_spd_write_cmd[7] = 0x9C;
-      int result_spd_negative =
-          device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+      int result_spd_negative = device_front_frequency_converter.Write(
+          frq_converter_spd_write_cmd, 8);
       ADEBUG << "Frequency converter speed write command send result is :"
              << result_spd_negative;
 
@@ -725,8 +724,8 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
       frq_converter_dir_write_cmd[5] = 0x05;
       frq_converter_dir_write_cmd[6] = 0x4D;
       frq_converter_dir_write_cmd[7] = 0xA3;
-      int result_dir_zero =
-          device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+      int result_dir_zero = device_front_frequency_converter.Write(
+          frq_converter_dir_write_cmd, 8);
       ADEBUG << "Frequency converter direction write command send result is :"
              << result_dir_zero;
 
@@ -744,13 +743,9 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, dou
       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
       break;
     }
-    default:{
-      AINFO << "FRONT ";
-    }
+    default: { AINFO << "FRONT "; }
   }
-
 }
-
 
 // diamond default, -470 ~ 470, left:+, right:-
 // need to be compatible with control module, so reverse
@@ -762,7 +757,7 @@ void DiamondController::Steer_Rear(double angle) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-   char frq_converter_dir_write_cmd[8];
+  char frq_converter_dir_write_cmd[8];
   char frq_converter_spd_write_cmd[8];
 
   switch (steering_switch) {
@@ -878,7 +873,6 @@ void DiamondController::Steer_Rear(double angle) {
   }
 }
 
-
 // steering with new angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
 // angle_spd:0.00~99.99, unit:deg/s
@@ -888,10 +882,10 @@ void DiamondController::Steer(double angle, double angle_spd) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  //const double real_angle = 360 * angle / 100.0;
+  // const double real_angle = 360 * angle / 100.0;
 
-  //id_0x0c079aa7_->set_bydcaccmd(real_angle);
-  //id_0x0c079aa7_->set_bydcac2cmd(real_angle);
+  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
+  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
@@ -1032,22 +1026,23 @@ void DiamondController::set_chassis_error_code(
   chassis_error_code_ = error_code;
 }
 
-float DiamondController::update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
-    float encoder_angle_rt,const float encoder_to_wheel_gear_ratio ){
+float DiamondController::update_wheel_angle(
+    float wheel_angle_pre, float encoder_angle_pre, float encoder_angle_rt,
+    const float encoder_to_wheel_gear_ratio) {
   float delta_encoder_angle = encoder_angle_rt - encoder_angle_pre;
   if (delta_encoder_angle < -240.0)  // 编码器发生360到0的突变，轮胎向右转
   {
     delta_encoder_angle = delta_encoder_angle + 360.0;
-  } else if (delta_encoder_angle > 240.0)
-  {
+  } else if (delta_encoder_angle > 240.0) {
     delta_encoder_angle = delta_encoder_angle - 360.0;
   } else {
     delta_encoder_angle = delta_encoder_angle;
   }
   // delta_encoder_angle有正负，包含了左右转
-  float wheel_angle_now = wheel_angle_pre - delta_encoder_angle / encoder_to_wheel_gear_ratio;
-  wheel_angle_now = fmod(wheel_angle_now,360.0);
-  if (wheel_angle_now > 180.0){
+  float wheel_angle_now =
+      wheel_angle_pre - delta_encoder_angle / encoder_to_wheel_gear_ratio;
+  wheel_angle_now = fmod(wheel_angle_now, 360.0);
+  if (wheel_angle_now > 180.0) {
     wheel_angle_now = wheel_angle_now - 360.0;
   }
   return wheel_angle_now;

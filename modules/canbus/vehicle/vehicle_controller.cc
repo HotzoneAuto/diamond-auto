@@ -123,12 +123,12 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
     Gear(control_command.gear_location());
-    //Throttle_Front(control_command.front_throttle());
-    //Throttle_Rear(control_command.rear_throttle());
+    // Throttle_Front(control_command.front_throttle());
+    // Throttle_Rear(control_command.rear_throttle());
     Throttle(control_command.throttle());
     Acceleration(control_command.acceleration());
-    //Brake_Front(control_command.front_brake());
-    //Brake_Rear(control_command.rear_brake());
+    // Brake_Front(control_command.front_brake());
+    // Brake_Rear(control_command.rear_brake());
     Brake(control_command.brake());
     SetEpbBreak(control_command);
     SetLimits();
@@ -136,9 +136,9 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
 
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_STEER_ONLY) {
-    Steer_Front(control_command.front_steering_switch(),control_command.front_steering_switch_pre());
-    //Steer_Rear(control_command.rear_steering_switch());
-
+    Steer_Front(control_command.front_steering_switch(),
+                control_command.front_steering_switch_pre());
+    // Steer_Rear(control_command.rear_steering_switch());
   }
 
   if ((driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||

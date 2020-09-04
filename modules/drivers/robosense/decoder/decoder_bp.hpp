@@ -219,9 +219,10 @@ int DecoderBP<vpoint>::decodeMsopPkt(const uint8_t *pkt,
 
         point.set_intensity(intensity);
         if (this->use_lidar_clock_) {
-          point.set_timestamp(pkt_time*kSecondToNanoFactor);
+          point.set_timestamp(pkt_time * kSecondToNanoFactor);
         } else {
-          point.set_timestamp(cyber::Time().Now().ToSecond()*kSecondToNanoFactor);
+          point.set_timestamp(cyber::Time().Now().ToSecond() *
+                              kSecondToNanoFactor);
         }
         if (std::isnan(intensity)) {
           point.set_intensity(0);

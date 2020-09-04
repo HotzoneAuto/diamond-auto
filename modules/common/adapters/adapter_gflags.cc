@@ -20,7 +20,8 @@ DEFINE_bool(enable_adapter_dump, false,
             "Whether enable dumping the messages to "
             "/tmp/adapters/<topic_name>/<seq_num>.txt for debugging purposes.");
 DEFINE_string(gps_topic, "/diamond/sensor/gnss/odometry", "GPS topic name");
-DEFINE_string(imu_topic, "/diamond/sensor/gnss/corrected_imu", "IMU topic name");
+DEFINE_string(imu_topic, "/diamond/sensor/gnss/corrected_imu",
+              "IMU topic name");
 DEFINE_string(raw_imu_topic, "/diamond/sensor/imu", "Raw IMU topic name");
 DEFINE_string(chassis_topic, "/diamond/canbus/chassis", "chassis topic name");
 DEFINE_string(chassis_detail_topic, "/diamond/canbus/chassis_detail",
@@ -92,7 +93,8 @@ DEFINE_string(perception_obstacle_topic, "/diamond/perception/obstacles",
               "perception obstacle topic name");
 DEFINE_string(drive_event_topic, "/diamond/drive_event",
               "drive event topic name");
-DEFINE_string(traffic_light_detection_topic, "/diamond/perception/traffic_light",
+DEFINE_string(traffic_light_detection_topic,
+              "/diamond/perception/traffic_light",
               "traffic light detection topic name");
 DEFINE_string(perception_lane_mask_segmentation_topic,
               "/diamond/perception/lane_mask",
@@ -116,8 +118,10 @@ DEFINE_string(system_status_topic, "/diamond/monitor/system_status",
               "System status topic name");
 DEFINE_string(static_info_topic, "/diamond/monitor/static_info",
               "Static info topic name");
-DEFINE_string(mobileye_topic, "/diamond/sensor/mobileye", "mobileye topic name");
-DEFINE_string(smartereye_obstacles_topic, "/diamond/sensor/smartereye/obstacles",
+DEFINE_string(mobileye_topic, "/diamond/sensor/mobileye",
+              "mobileye topic name");
+DEFINE_string(smartereye_obstacles_topic,
+              "/diamond/sensor/smartereye/obstacles",
               "smartereye obstacles topic name");
 DEFINE_string(smartereye_lanemark_topic, "/diamond/sensor/smartereye/lanemark",
               "smartereye lanemark topic name");
@@ -199,7 +203,8 @@ DEFINE_string(localization_msf_status, "/diamond/localization/msf_status",
               "msf localization status");
 DEFINE_string(relative_map_topic, "/diamond/relative_map", "relative map");
 DEFINE_string(navigation_topic, "/diamond/navigation", "navigation");
-DEFINE_string(hmi_status_topic, "/diamond/hmi/status", "HMI status topic name.");
+DEFINE_string(hmi_status_topic, "/diamond/hmi/status",
+              "HMI status topic name.");
 DEFINE_string(audio_capture_topic, "/diamond/hmi/audio_capture",
               "HMI audio capture topic name.");
 DEFINE_string(v2x_obstacle_topic, "/diamond/v2x/obstacles",
@@ -229,5 +234,6 @@ DEFINE_string(latency_reporting_topic, "/diamond/common/latency_reports",
 
 DEFINE_string(monitor_log_topic, "/diamond/monitor", "monitor log topic.");
 DEFINE_string(rfid_topic, "/diamond/sensor/rfid", "RFID sensor topic.");
-DEFINE_string(magnetic_channel, "/diamond/sensor/magnetic", "magnetic sensor topic.");
+DEFINE_string(magnetic_channel, "/diamond/sensor/magnetic",
+              "magnetic sensor topic.");
 DEFINE_string(navigation_channel, "/diamond/navigation", "navagation topic.");

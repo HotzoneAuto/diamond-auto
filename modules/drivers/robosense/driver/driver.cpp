@@ -161,8 +161,7 @@ void RobosenseDriver::preparePointsMsg(std::shared_ptr<PointCloud> &msg) {
   msg->mutable_header()->set_lidar_timestamp(cyber::Time().Now().ToSecond() *
                                              kSecondToNanoFactor);
   const auto timestamp =
-      msg->point(static_cast<int>(msg->point_size()) - 1)
-          .timestamp();
+      msg->point(static_cast<int>(msg->point_size()) - 1).timestamp();
   msg->set_measurement_time(static_cast<double>(timestamp) / 1e9);
 }
 

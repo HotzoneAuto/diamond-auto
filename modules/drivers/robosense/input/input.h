@@ -47,7 +47,7 @@ enum InputState {
 
 class Input {
  public:
-  Input(const uint16_t &msop_port,const uint16_t &difop_port);
+  Input(const uint16_t &msop_port, const uint16_t &difop_port);
   ~Input();
   InputState getPacket(uint8_t *pkt, uint32_t timeout);
 

@@ -7,31 +7,33 @@
 #include "cyber/component/component.h"
 
 #include "modules/canbus/proto/chassis.pb.h"
-#include "modules/control/proto/control_cmd.pb.h"
 #include "modules/common/adapters/adapter_gflags.h"
-
+#include "modules/control/proto/control_cmd.pb.h"
 
 namespace apollo {
 namespace control {
 
-using apollo::cyber::Component;
 using apollo::canbus::Chassis;
 using apollo::control::ControlCommand;
+using apollo::cyber::Component;
 
-class ControlComponent: public Component<> {
-public:
+class ControlComponent : public Component<> {
+ public:
   // ControlComponent();
   bool Init() override;
   void GenerateCommand();
   ~ControlComponent();
 
-private:
+ private:
   Chassis chassis_;
 
-  std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
-  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::Magnetic>> magnetic_reader_;
+  std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>>
+      chassis_reader_;
+  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::Magnetic>>
+      magnetic_reader_;
   std::shared_ptr<apollo::cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
-  std::shared_ptr<apollo::cyber::Writer<apollo::canbus::Chassis>> chassis_writer_;
+  std::shared_ptr<apollo::cyber::Writer<apollo::canbus::Chassis>>
+      chassis_writer_;
 
   std::shared_ptr<apollo::cyber::Writer<ControlCommand>> control_cmd_writer_;
 

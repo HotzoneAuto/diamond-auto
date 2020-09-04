@@ -175,10 +175,10 @@ ErrorCode SocketCanClientRaw::Send(const std::vector<CanFrame> &frames,
              << CANBUS_MESSAGE_LENGTH << ").";
       return ErrorCode::CAN_CLIENT_ERROR_SEND_FAILED;
     }
-    if(frames[i].id > 2048) {
+    if (frames[i].id > 2048) {
       send_frames_[i].can_id = CAN_EFF_FLAG | frames[i].id;
     } else {
-       // SFF frame
+      // SFF frame
       send_frames_[i].can_id = frames[i].id;
     }
     send_frames_[i].can_dlc = frames[i].len;
@@ -227,7 +227,7 @@ ErrorCode SocketCanClientRaw::Receive(std::vector<CanFrame> *const frames,
              << CANBUS_MESSAGE_LENGTH << ").";
       return ErrorCode::CAN_CLIENT_ERROR_RECV_FAILED;
     }
-    if(recv_frames_[i].can_id > 2048){
+    if (recv_frames_[i].can_id > 2048) {
       cf.id = recv_frames_[i].can_id & CAN_EFF_MASK;
     } else {
       cf.id = recv_frames_[i].can_id;

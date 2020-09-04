@@ -16,29 +16,29 @@
 
 #pragma once
 
-#include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 class Id0x01 : public ::apollo::drivers::canbus::ProtocolData<
-                    ::apollo::canbus::ChassisDetail> {
+                   ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
   Id0x01();
   void Parse(const std::uint8_t* bytes, int32_t length,
-                     ChassisDetail* chassis) const override;
+             ChassisDetail* chassis) const override;
 
  private:
-
-  // config detail: {'name': 'Angle_sensor_front', 'offset': 0.0, 'precision': 0.010986, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|360]', 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'deg'}
-  double angle_sensor_front(const std::uint8_t* bytes, const int32_t length) const;
+  // config detail: {'name': 'Angle_sensor_front', 'offset': 0.0, 'precision':
+  // 0.010986, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|360]',
+  // 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'deg'}
+  double angle_sensor_front(const std::uint8_t* bytes,
+                            const int32_t length) const;
 };
 
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-
