@@ -1,0 +1,1789 @@
+diff --cc modules/control/demo_control_component.cc
+index 96be500,9ecfd21..0000000
+--- a/modules/control/demo_control_component.cc
++++ b/modules/control/demo_control_component.cc
+@@@ -1,306 -1,128 +1,385 @@@
+- ﻿#include "modules/control/demo_control_component.h"
++ #include "modules/control/demo_control_component.h"
+ -#include "modules/control/diamond_control_pid.h"
+  
+  #include <string>
+ +#include "math.h"
+ +
+  #include "cyber/cyber.h"
+  #include "cyber/time/rate.h"
+ -#include "math.h"
+  
+ -namespace apollo
+ -{
+ -namespace control
+ -{
+ +#include "modules/common/adapters/adapter_gflags.h"
+ +#include "modules/control/control_wheel_angle_real.h"
+ +#include "modules/control/diamondauto_control_pid.h"
+ +
+++#include "fstream"
+ +namespace apollo {
+ +namespace control {
+  
+  using apollo::cyber::Rate;
+  using apollo::cyber::Time;
+  
+ -bool ControlComponent::Init()
+ -{
+ -	// Reader
+ -	chassis_reader_ = node_->CreateReader<Chassis>(
+ -	                      FLAGS_chassis_topic, [this](const std::shared_ptr<Chassis>& chassis)
+ -	{
+ -		chassis_.CopyFrom(*chassis);
+ -	});
+ +bool ControlComponent::Init() {
+ +  // Chassis Reader
+ +  chassis_reader_ = node_->CreateReader<Chassis>(
+ +      FLAGS_chassis_topic, [this](const std::shared_ptr<Chassis>& chassis) {
+ +        chassis_.CopyFrom(*chassis);
+ +      });
+ +
+ +  // Magnetic Reader
+ +  // TODO: check
+ +  magnetic_reader_ = node_->CreateReader<Magnetic>(
+ +      FLAGS_magnetic_channel,
+ +      [this](const std::shared_ptr<Magnetic>& magnetic) {
+ +        magnetic_.CopyFrom(*magnetic);
+ +      });
+  
+ -	// create Writer
+ -	control_cmd_writer_ = node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
+ +  // rfid Reader
+ +  // TODO: check
+ +  rfid_reader_ = node_->CreateReader<RFID>(
+ +      FLAGS_rfid_topic,
+ +      [this](const std::shared_ptr<RFID>& rfid) { rfid_.CopyFrom(*rfid); });
+  
+ -	// compute control message in aysnc
+ -	async_action_ = cyber::Async(&ControlComponent::GenerateCommand, this);
+ +  // create Writer
+ +  control_cmd_writer_ =
+ +      node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
+- 
+++  
+++  chassis_writer_ =
+++      node_->CreateWriter<Chassis>(FLAGS_chassis_topic);
+ +  // compute control message in aysnc
+ +  async_action_ = cyber::Async(&ControlComponent::GenerateCommand, this);
+  
+ -	return true;
+ +  return true;
+  }
+  
+  // write to channel
+ -void ControlComponent::GenerateCommand()
+ -{
+ -	auto cmd = std::make_shared<ControlCommand>();
+ -
+ -	// frequency, TODO: reset
+ -	Rate rate(20.0);
+ -	
+ -	// 初始化前后磁导航检测到的偏差值
+ -	float front_lat_dev_mgs = 0;  // TODO: lateral_dev_mgs need to changed according to MGS module.
+ -	float back_lat_dev_mgs = 0;
+ -	
+ -	int find_rfid_des = 0; //记录是否检测到终点的rfid
+ -	int dir = 0; //记录行驶方向, 0代表从A到B, 1代表从B到A
+ -	
+ -	// TODO：发送扭矩，PID天闯
+ -	int motor_flag = 0; //控制驱动电机正反转
+ -	float motor_speed = 0; //驱动电机转速
+ -	float motor_torque = 0; //驱动电机转矩
+ -	
+ -	int front_steering_dir = 0; //控制前方转向电机正反转
+ -	int back_steering_dir = 0; //控制后方转向电机正反转
+ -	
+ -	float front_steering_speed = 0; //rpm，前方转向电机转速
+ -	float back_steering_speed = 0; //rpm，后方转向电机转速
+ -	
+ -	cmd -> set_front_steering_target(0);
+ -	cmd -> set_back_steering_target(0); //初始时前后转向电机转角为0
+ -	
+ -	while (true)
+ -	{
+ -		if (find_rfid_des == 1) //检测到终点rfid
+ -			motor_torque = pid_speed(0); //PID控制目标是驱动电机停转
+ -			// 以0为车速目标，向canbus发送经过PID后的转矩
+ -		else if (find_rfid_des == 0) //未检测到终点rfid
+ -			motor_torque = pid_speed(1); //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
+ -			// 以1为车速目标，向canbus发送经过PID后的转矩
+ -			
+ -		// 遥控，人工给输入
+ -		if (dir == 0) //若行驶方向从A到B（前进）
+ -			motor_flag = 0;
+ -		else if (dir == 1) //若行驶方向从B到A（后退）
+ -			motor_flag = 1;
+ -
+ -		if (/* motor_speed == 1 && */ motor_flag == 0)  // 若驱动电机正转（前进）
+ -		{
+ -			back_steering_dir = 2; //后方转向电机不转
+ -			if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
+ -			{
+ -				front_steering_dir = 0; //则前方转向电机正转（即向右）
+ -				cmd -> set_front_steering_target(10); //转向量为10，待标定
+ -			}
+ -			else if (frong_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
+ -			{
+ -				front_steering_dir = 1; //则前方转向电机反转（即向左）
+ -				cmd -> set_front_steering_target(10); //转向量为10，待标定
+ -			}
+ -			else
+ -				front_steering_dir = 2; //前方转向电机不转
+ -		}
+ -		else if (/* motor_speed == 1*/ motor_flag == 1)  // 若驱动电机反转（倒车）
+ -		{
+ -			front_steering_dir = 2; //前方转向电机不转
+ -			if (back_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
+ -			{
+ -				back_steering_dir = 0; //则后方转向电机正转（即向右）
+ -				cmd -> set_back_steering_target(10); //转向量为10
+ -			}
+ -			else if (frong_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
+ -			{
+ -				back_steering_dir = 1; //则后方转向电机反转（即向左）
+ -				cmd -> set_back_steering_target(10); //转向量为10
+ -			}
+ -			else
+ -				back_steering_dir = 2; //后方转向电机不转
+ -		}
+ -		else{// 若出现异常
+ -			motor_speed = 0;
+ -			front_steering_dir = 2;
+ -			back_steering_dir = 2;
+ -		}
+ -
+ -		control_cmd_writer_->Write(cmd);
+ -		rate.Sleep();
+ -	}
+ +void ControlComponent::GenerateCommand() {
+ +  auto cmd = std::make_shared<ControlCommand>();
+- 
+++  auto chassis_wheel_angle = std::make_shared<Chassis>();
+ +  // frequency
+ +  Rate rate(100.0);
+ +
+++  //static int MANUAL_BRAKE_SIGNAL = 0;
+++
+ +  float front_lat_dev_mgs = 0;
+ +  float rear_lat_dev_mgs = 0;
+ +
+ +  // 获取当前车辆速度
+ +  veh_spd = chassis_.speed_mps();
+ +
+ +  // 获取前后编码器瞬时角度值
+-   front_encoder_angle_realtime = chassis_.front_encoder_angle();
+-   rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+- 
+++  if (isnan(chassis_.front_encoder_angle())){
+++    front_encoder_angle_realtime = front_encoder_angle_previous;
+++  }
+++  else{
+++    front_encoder_angle_realtime = chassis_.front_encoder_angle();    
+++  }
+++  if (isnan(chassis_.rear_encoder_angle())){
+++    rear_encoder_angle_realtime = rear_encoder_angle_previous;
+++  }
+++  else{
+++    rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+++  }
+ +  // 初始化驱动电机死区
+ +  if (veh_spd <= 0.1) {
+ +    speed_motor_deadzone =
+ +        speed_motor_deadzone_calibration;  // TODO: 落地后标定值
+ +  } else {
+ +    speed_motor_deadzone =
+ +        r_wheel * m_veh * g * f_c /
+ +        (i_1 * i_0 *
+ +         yita_t);  // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
+ +  }
+ +
+ +  // TODO:
+ +  // 突然断电停车后，需记录最后时刻的状态数据，包括前后轮转角；重新启动后再读取数据文件
+ +
+ +  // TODO: 在while判断前需要知道轮胎初始偏移角度，暂时先给0。
+ +  front_wheel_angle_realtime = 0;
+ +  rear_wheel_angle_realtime = 0;
+ +
+ +  //上过高压自检完成之后，进入自动驾驶模式后，车辆处于ready状态时
+ +  while (front_wheel_angle_realtime > 0.5)  // 待标定
+ +  {
+ +    front_motor_steering_dir = 2;
+ +    cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+- 
+++    cmd->set_front_wheel_target(-10.0);
+ +    // 获取编码器瞬时角度值
+-     front_encoder_angle_realtime = chassis_.front_encoder_angle();
+++    // front_encoder_angle_realtime = chassis_.front_encoder_angle();
+ +
+ +    front_wheel_angle_realtime = update_wheel_angle(
+ +        front_wheel_angle_previous, front_encoder_angle_previous,
+ +        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +
+ +    front_wheel_angle_previous = front_wheel_angle_realtime;
+ +    front_encoder_angle_previous = front_encoder_angle_realtime;
+ +  }
+ +
+ +  while (rear_wheel_angle_realtime > 0.5)  // 待标定
+ +  {
+ +    rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
+ +    cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
+- 
+++    cmd->set_rear_wheel_target(-10.0);
+ +    // 获取编码器瞬时角度值
+-     rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+++    // rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+ +
+ +    rear_wheel_angle_realtime = update_wheel_angle(
+ +        rear_wheel_angle_previous, rear_encoder_angle_previous,
+ +        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +
+ +    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+ +    rear_encoder_angle_previous = rear_encoder_angle_realtime;
+ +  }
+ +
+ +  while (front_wheel_angle_realtime < -0.5)  // 待标定
+ +  {
+ +    front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
+ +    /*
+ +    Xavier向前变频器发送：向前转向电机发送正转命令：0B 06 10 00 00 01 4C
+ +    60，同时发送额定转速命令：0B 06 20 00 27 10 98 9C （也可调速，后期标定）
+ +    同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA 55 AA AA AA
+ +    AA，逆变器1工作，前转向电机风扇1工作
+ +    */
+ +    // TODO: 消息发送，刷新
+ +    cmd->set_front_steering_switch(Chassis::STEERINGPOSITIVE);
+- 
+++    cmd->set_front_wheel_target(10.0);
+ +    // 获取编码器瞬时角度值
+-     front_encoder_angle_realtime = chassis_.front_encoder_angle();
+++    // front_encoder_angle_realtime = chassis_.front_encoder_angle();
+ +
+ +    front_wheel_angle_realtime = update_wheel_angle(
+ +        front_wheel_angle_previous, front_encoder_angle_previous,
+ +        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +
+ +    front_wheel_angle_previous = front_wheel_angle_realtime;
+ +    front_encoder_angle_previous = front_encoder_angle_realtime;
+ +  }
+ +
+ +  while (rear_wheel_angle_realtime < -0.5)  // 待标定
+ +  {
+ +    rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
+ +    /*
+ +    Xavier向后变频器发送：向后转向电机发送正转命令：0C 06 10 00 00 01 4D
+ +    D7，同时发送额定转速命令：0C 06 20 00 27 10 99 2B （也可调速，后期标定）
+ +    同时Xavier向四合一 id_0x0C079AA7 发送 AA AA 55 AA AA AA AA
+ +    AA，逆变器2工作，后转向电机风扇2工作
+ +    */
+ +    // TODO: 消息发送，刷新
+ +    cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
+- 
+++    cmd->set_rear_wheel_target(10.0);
+ +    // 获取编码器瞬时角度值
+-     rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+++    // rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+ +
+ +    rear_wheel_angle_realtime = update_wheel_angle(
+ +        rear_wheel_angle_previous, rear_encoder_angle_previous,
+ +        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +
+ +    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+ +    rear_encoder_angle_previous = rear_encoder_angle_realtime;
+ +  }
+- 
+++  ofstream out("out.txt",ios::app);
+++  out << front_encoder_angle_realtime << "\t\t" << rear_wheel_angle_realtime << "\n";
+++  out.close();
+ +  /*
+ +          Xavier向前变频器发送：向前转向电机发送停转命令：0B 06 10 00 00 05 4D
+ +     A3 同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA
+ +     AA，逆变器1停止工作，前转向电机风扇1停止工作
+ +  */
+-   cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
+++  //cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
+ +
+ +  /*
+ +          Xavier向后变频器发送：向后转向电机发送停转命令：0C 06 10 00 00 05 4C
+ +     14 同时Xavier向四合一id_0x0C079AA7 发送 AA AA AA AA AA AA AA
+ +     AA，逆变器2停止工作，后转向电机风扇2停止工作
+ +  */
+ +  cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
+ +
+ +  front_motor_steering_dir = 0;  //则前方转向电机停转
+ +  rear_motor_steering_dir = 0;   //则后方转向电机停转
+ +
+ +  while (true) {
+ +    // TODO: Configuration
+-     // 先只看从A到B
+++    // 手动给定，0代表停止，1代表从A到B，2代表从B到A
+ +    drivemotor_flag = 1;
+ +
+-     if (rfid_.id() == 2) {  //检测到B点rfid
+-       drivemotor_torque = pid_speed(
+-           veh_spd, 0, speed_motor_deadzone);  // PID控制目标是驱动电机停转
+-       cmd->set_throttle(static_cast<float>(drivemotor_torque));
+-     }
+-     // 以0为车速目标，向canbus发送经过PID后的转矩
+- 
+-     else {  //未检测到B点rfid
+-       drivemotor_torque = pid_speed(
+-           veh_spd, FLAGS_desired_v,
+-           speed_motor_deadzone);  //驱动电机驱动汽车以1m/s运动，这是PID目标，尽可能接近1
+-       drivemotor_torque = 50.0;
+-       cmd->set_throttle(static_cast<float>(drivemotor_torque));
+-     }
+-     // 以1为车速目标，向canbus发送经过PID后的转矩
+++    switch (drivemotor_flag){
+++      // 从A到B
+++      case 1:{
+++        if (rfid_.id() == 2){
+++        // TODO: 制动转矩，需改成标定值
+++          drivemotor_torque = 50;
+++          cmd->set_front_brake(drivemotor_torque);
+++        }
+++        else{
+++          drivemotor_torque = pid_speed(veh_spd, FLAGS_desired_v,speed_motor_deadzone);
+++          cmd->set_front_throttle(drivemotor_torque);
+++        }
+++
+++        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
+++        break;
+++      }
+++
+++      // 从B到A
+++      case 2:{
+++        if (rfid_.id() == 1){
+++          // TODO: 制动转矩，需改成标定值
+++          drivemotor_torque = 50;
+++          cmd->set_rear_brake(drivemotor_torque);
+++        }
+++        else{
+++          drivemotor_torque = pid_speed(veh_spd, FLAGS_desired_v,speed_motor_deadzone);
+++          cmd->set_rear_throttle(drivemotor_torque);
+++        }
+++
+++        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
+++        break;
+++      }
+ +
+++      // 停止状态
+++      case 0:{
+++        cmd->set_front_throttle(0);
+++        cmd->set_rear_throttle(0);
+++
+++        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
+++        break;
+++      }
+++    }
+++    
+ +    /*
+ +    // 遥控，人工给输入
+ +    if (veh_dir == 0) //若行驶方向从A到B（前进，A是第2辆车处，B是机械臂处）
+ +            drivemotor_flag = 1;
+ +    else if (veh_dir == 1) //若行驶方向从B到A（后退）
+ +            drivemotor_flag = 2;
+ +    */
+ +
+ +    front_wheel_angle_realtime = update_wheel_angle(
+ +        front_wheel_angle_previous, front_encoder_angle_previous,
+ +        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +    rear_wheel_angle_realtime = update_wheel_angle(
+ +        rear_wheel_angle_previous, rear_encoder_angle_previous,
+ +        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+++    
+++    // 检测到轮胎转角超过30°，转向电机停转
+++    if (abs(front_wheel_angle_realtime) > 30){
+++      front_motor_steering_dir = 0;  
+++      cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
+++    }    
+++    
+++    if (abs(rear_wheel_angle_realtime) > 30){
+++      rear_motor_steering_dir = 0; 
+++      cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
+++    }
+++
+++    
+++    /*
+++    // TODO：收到人工介入制动信号进行制动
+++    // TODO: manual_brake_signal:定义新通道专门用于自动控制下的人工交互
+++    MANUAL_BRAKE_SIGNAL = chassis_.manual_brake_signal();
+++    if ( MANUAL_BRAKE_SIGNAL != 0 ){
+++      // TODO: 制动转矩，需改成标定值
+++      drivemotor_torque = 50;
+++      cmd->set_brake(drivemotor_torque);
+++    }*/
+ +
+ +    // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
+++    // TODO: 检查，共用了一个数据
+ +    front_lat_dev_mgs = magnetic_.lat_dev();
+ +    rear_lat_dev_mgs = -magnetic_.lat_dev();
+ +
+ +    // 给定驱动电机反转命令（使车辆前进从A到B）
+ +    if (/* motor_speed == 1 && */ drivemotor_flag == 1) {
+ +      rear_motor_steering_dir = 0;   //后方转向电机不转
+ +      if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
+ +      {
+ +        front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
+ +        cmd->set_front_steering_switch(Chassis::STEERINGPOSITIVE);
+++        cmd->set_front_wheel_target(10.0);
+ +      } else if (front_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
+ +      {
+ +        front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
+ +        cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+++        cmd->set_front_wheel_target(-10.0);
+ +      } else {
+ +        if (front_wheel_angle_realtime >= 0.5)  // 当前前轮转角为正，向右偏
+ +        {
+ +          front_motor_steering_dir = 2;  // 前方转向电机反转（向左）
+ +          cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+++          cmd->set_front_wheel_target(-10.0);
+ +        } else if ((front_wheel_angle_realtime > -0.5) &&
+ +                   (front_wheel_angle_realtime < 0.5)) {
+ +          front_motor_steering_dir = 0;  // 前方转向电机停转
+ +          cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
+ +        } else  // 当前前轮转角为负，向左偏
+ +        {
+ +          front_motor_steering_dir = 1;  // 前方转向电机正转（向右）
+ +          cmd->set_front_steering_switch(Chassis::STEERINGPOSITIVE);
+++          cmd->set_front_wheel_target(10.0);
+ +        }
+ +      }
+ +    } else if (/* motor_speed == 1*/ drivemotor_flag ==
+ +               2)  // 若驱动电机正转（倒车，车辆从B到A）
+ +    {
+ +      front_motor_steering_dir = 0;  //前方转向电机不转
+ +      if (rear_lat_dev_mgs < -4.5)   //若后方磁导航检测出车偏左
+ +      {
+ +        rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
+ +        cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
+++        cmd->set_rear_wheel_target(10.0);
+ +      } else if (rear_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
+ +      {
+ +        rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
+ +        cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
+++        cmd->set_rear_wheel_target(-10.0);
+ +      } else {
+ +        if (rear_wheel_angle_realtime >= 0.5)  // 当前后轮转角为正，向右偏
+ +        {
+ +          rear_motor_steering_dir = 2;  // 后方转向电机反转（向左）
+++          cmd->set_rear_wheel_target(-10.0);
+ +          cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
+ +        } else if ((rear_wheel_angle_realtime > -0.5) &&
+ +                   (rear_wheel_angle_realtime < 0.5)) {
+ +          rear_motor_steering_dir = 0;  // 后方转向电机停转
+ +          cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
+ +        } else  // 当前后轮转角为负，向左偏
+ +        {
+ +          rear_motor_steering_dir = 1;  // 后方转向电机正转（向右）
+++          cmd->set_rear_wheel_target(10.0);
+ +          cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
+ +        }
+ +      }
+ +    } else {  // 若出现异常
+ +      // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
+ +      front_motor_steering_dir = 0;  // 停止
+ +      rear_motor_steering_dir = 0;   // 停止
+ +      cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
+ +      cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
+ +    }
+ +
+ +    // 更新轮胎转角和编码器度数
+ +    front_wheel_angle_realtime = update_wheel_angle(
+ +        front_wheel_angle_previous, front_encoder_angle_previous,
+ +        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +    rear_wheel_angle_realtime = update_wheel_angle(
+ +        rear_wheel_angle_previous, rear_encoder_angle_previous,
+ +        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+ +
+ +    front_wheel_angle_previous = front_wheel_angle_realtime;
+ +    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+ +
+ +    front_encoder_angle_previous = front_encoder_angle_realtime;
+ +    rear_encoder_angle_previous = rear_encoder_angle_realtime;
+++    
+++    chassis_wheel_angle->set_front_wheel_angle(front_wheel_angle_realtime);
+++    chassis_wheel_angle->set_rear_wheel_angle(rear_wheel_angle_realtime);
+++
+++    chassis_writer_->Write(chassis_wheel_angle);
+ +
+ +    control_cmd_writer_->Write(cmd);
+ +    rate.Sleep();
+ +  }
+  }
+  
+ -ControlComponent::~ControlComponent()
+ -{
+ -	// back chassis handle
+ -	async_action_.wait();
+ +ControlComponent::~ControlComponent() {
+ +  // back chassis handle
+ +  async_action_.wait();
+  }
+  
+  }  // namespace control
+diff --cc modules/control/diamondauto_control_pid.h
+index 261b667,53f1d84..0000000
+mode 100644,100644..100755
+--- a/modules/control/diamondauto_control_pid.h
++++ b/modules/control/diamondauto_control_pid.h
+@@@ -1,11 -1,9 +1,11 @@@
+- ﻿#pragma once
+ -#ifndef _DIAMONDAUTO_CONTROL_H_
+ -#define _DIAMONDAUTO_CONTROL_H_
+++#pragma once
+  
+  #include <stdlib.h>
+ -#include <iostream>
+  #include <cmath>
+ +#include <iostream>
+ +
+ +namespace apollo {
+ +namespace control {
+  
+  using namespace std;
+  
+@@@ -31,39 -29,213 +31,33 @@@ static float veh_spd = 0
+  
+  static float speed_motor_deadzone = 0;
+  
+ -static float pid_integral = 0; // ����pid�ۻ���
+ -static float pid_error = 0; 
+ +static float pid_integral = 0;
+ +static float pid_error = 0;
+  static float pid_error_pre = 0;
+ -static float fmottq = 0;
+ -static float canbus_veh_spd = 0;
+ -static int veh_mode = 0;
+ -
+ -// void pid_steering(float & e2, float & e1, float & e); // ת��PID���ƣ�PID�����������ת�٣���ת����
+ -// float steer_motor(float error); // ���������Ӧ�������˶��������һʱ�̵Ĵŵ���ƫ��
+ -// void pid_speed(float desire_v); // �����ٶ�PID���ƣ�PID�����������ת�أ����������
+ -
+ -void Init()
+ -{
+ -	cout<<"��ʼ��......"<<endl<<endl;
+ -};
+ -
+ -void Self_check()
+ -{
+ -	cout<<"����״̬�Լ�......"<<endl<<endl;
+ -};
+ -
+ -
+ -/*void pid_steering(float & e2, float & e1, float & e)
+ -{
+ -	cout<<"����ǰ�Ĵŵ���ƫ�"<<e2<<"��"<<e1<<"��"<<e<<endl;
+ -
+ -	delta_u_steer = kp_steer*(e-e1)+ki_steer*(e)+kd_steer*(e-2*e1+e2); // pid����Ŀ���������
+ -	
+ -	u_steer = u_pre_steer + delta_u_steer;
+ -
+ -	cout<<"PID�����ת�����Ŀ�������"<<u_steer<<endl;
+ -
+ -	u_pre_steer = u_steer;
+ -
+ -	// �жϵ������ת
+ -	if (e>0)
+ -	{
+ -		cout<<"ת����Ӧ��ת"<<endl;
+ -		steer_direction = 1; 
+ -	}
+ -	else if (e<0)
+ -	{
+ -		cout<<"ת����Ӧ��ת"<<endl;
+ -		steer_direction = -1;
+ -	}
+ -	else
+ -	{
+ -		cout<<"ת����Ӧֱ��"<<endl;
+ -		steer_direction = 0;
+ -	}
+ -
+ -	e2 = e1;
+ -	e1 = e;
+ -	e = steer_motor(e);
+ -	
+ -	cout<<"����PID���ڣ��µĴŵ���ƫ�����У�"<<e2<<"��"<<e1<<"��"<<e<<endl;
+ -			
+ -};
+ -*/
+ -
+ -/* float steer_motor(float e)
+ -{
+ -	if (steer_direction == 1) // ��ת
+ -	{
+ -		cout<<"�����ת"<<endl;
+ -		// CANͨѶ��ת������ת���		
+ -	}
+ -	else if(steer_direction == -1) // ��ת
+ -	{
+ -		cout<<"�����ת"<<endl;
+ -		// CANͨѶ��ת������ת���		
+ -	}
+ -	
+ -
+ -	// ���ģ�ͣ��� pid ������ �� ת�������ת�٣�
+ -	steer_motor_spd = u_steer;// ���д��
+ -
+ -
+ -	// ���ٻ�����ת�������ת�� ͨ�����ٻ��� �� ��̥ת���ٶȣ�
+ -	tire_steer_spd = steer_motor_spd/20;
+ -	
+ -
+ -	// �˶����£���̥ת���ٶ� �� ��̥ת��(��λ�ƴ�����)�������������˶���״̬����
+ -	steer_angle = steer_angle + tire_steer_spd;//��λ�ƴ���������
+ -	
+ -
+ -	// �µ�ƫ���⣺�ŵ�����������⵱ǰƫ��
+ -	cout<<"��̥ת�ǣ�"<<steer_angle<<endl;
+ -		
+ -	float error_new;
+ -	error_new = e+sin(steer_angle*3.1415926/180)*veh_spd*100*0.05; //0.05s����һ��
+ -	// cout<<"�µ�ƫ�"<<error_new<<endl;
+ -	return error_new;
+ -};
+ -*/
+ -
+ -void simple_steering(float & e)
+ -{
+ -	if (e>4.5 || e<-4.5)
+ -	{
+ -		// �·���ת������ʼת���ź�
+ -		cout<<"ת������ʼת"<<endl;
+ -	}
+ -	else 
+ -	{
+ -		// �·���ת����ֹͣת���ź�	
+ -		cout<<"ת����ֹͣת"<<endl;
+ -	}
+ +// static float fmottq = 0;
+ +// static float canbus_veh_spd = 0;
+ +// static int veh_mode = 0;
+  
+ -}
+ +float pid_speed(float veh_spd, float desire_v, float spd_motor_deadzone) {
+-   cout << "pid中的期望速度" << desire_v << endl;
+ +  // veh_spd = chassis_->speed_mps();
+-   pid_error = desire_v - veh_spd;  // pid输入为当前车速误差
+-   cout << "纵向速度偏差" << pid_error << endl;
+++  pid_error = desire_v - veh_spd; 
+  
+ +  pid_integral += pid_error;
+  
+ -void rule_steering(float & e)
+ -{
+ -	// �ж�ǰ��ת��������ת
+ -	if (e>4.5)
+ -	{
+ -		cout<<"ת����Ӧ��ת"<<endl; //����ƫ��ģ�鷴����ֵ���е���
+ -		steer_direction = 1; 
+ -	}
+ -	else if (e<-4.5)
+ -	{
+ -		cout<<"ת����Ӧ��ת"<<endl;
+ -		steer_direction = 2;
+ -	}
+ -	else
+ -	{
+ -		cout<<"ת����Ӧֱ��"<<endl;
+ -		steer_direction = 0;
+ -	}
+ -
+ -	// ������ת�źŷ���CANͨѶ
+ -
+ -	// ǰ��ת��������CAN��������ת�ź�
+ -
+ -	if (steer_direction == 1) // ��ת
+ -	{
+ -		cout<<"�����ת"<<endl;
+ -		// CANͨѶ��ת������ת���	
+ -
+ -		if (e>=6)
+ -		{
+ -			steer_motor_spd = 1435; // ���ݾ����������Ҫ��
+ -		}
+ -		else if (e>=3)
+ -		{
+ -			steer_motor_spd = 1435;	
+ -		}
+ -		else
+ -		{
+ -			steer_motor_spd = 1435;	
+ -		}
+ -	}
+ -	else if(steer_direction == 2) // ��ת
+ -	{
+ -		cout<<"�����ת"<<endl;
+ -		// CANͨѶ��ת������ת���	
+ -
+ -		if (e<=-6)
+ -		{
+ -			steer_motor_spd = 1435;	// ת�����ת��1435rpm��Ŀǰ���ɿأ����ڳ��Կɿ��У��ת������70sת1Ȧ������0.857rpm
+ -		}
+ -		else if (e<=-3)
+ -		{
+ -			steer_motor_spd = 1435;	
+ -		}
+ -		else
+ -		{
+ -			steer_motor_spd = 1435;	
+ -		}
+ -	}
+ -
+ -	cout<<"ת�ٵ��ת��Ϊ"<<steer_motor_spd<<endl;
+ -	
+ -	e = e/2; // �˴�Ӧ���Ǵŵ���������ʵʱ���յ���ƫ��
+ -
+ -	cout<<"�µĴŵ���ƫ��Ϊ��"<<e<<endl;
+ -}
+ +  u_torque = spd_motor_deadzone + kp_speed * pid_error +
+ +             ki_speed * pid_integral + kd_speed * (pid_error - pid_error_pre);
+  
+-   cout << "PID输出给驱动电机的控制量（转矩）：" << u_torque << endl;
+ -float pid_speed(float desire_v) // Ŀ������pid���ת��
+ -{
+ -	cout<<"pid�е������ٶȣ�"<<desire_v<<endl;
+ -	pid_error = desire_v - veh_spd;  // pid����Ϊ��ǰ�������
+ -	cout<< "�����ٶ�ƫ�"<<pid_error<<endl;
+  
+ -	pid_integral += pid_error;
+ -	
+ -	// speed_motor_errorӦ����һ���������ٶ���ص�ǰ���������������ٶȿ������һ�����ٶ������µ�Ŀ��ת��ֵ
+ -	// speed_motor_errorӦ��������Ŀ��ת��
+ -	u_torque = speed_motor_deadzone + kp_speed*pid_error + ki_speed*pid_integral + kd_speed*(pid_error-pid_error_pre);
+ +  // veh_spd = canbus_veh_spd;
+  
+-   cout << "当前车速" << veh_spd << endl;
+ -	cout<<"PID�������������Ŀ�����(ת��)��"<<u_torque<<endl;
+ +  pid_error_pre = pid_error;
+  
+ -	veh_spd = canbus_veh_spd; // ���ٸ��£���Ҫ���ݸ���������Ŀ����������������Ӧ��	
+ -	
+ -	cout<<"��ǰ���٣�"<<veh_spd<<endl;
+ -	pid_error_pre  = pid_error;	 
+ -	
+ -	return u_torque;
+ -	
+ -	// ��u_torqueͨ��CANͨѶ���͸��������
+ +  return u_torque;
+  
+-   // 将u_torque通过CAN通讯发送给驱动电机
+ -	// u_pre_torque = u_torque;
+  
+ -	// ��CANbus�����ĳ��ٸ�����ǰ����
+ -}
+ +  // u_pre_torque = u_torque;
+  
+-   // 将CANbus反馈的车速付给当前车速
+ +}
+  
+ -#endif
+ +}  // namespace control
+ +}  // namespace apollo
+diff --cc modules/control/proto/control_cmd.proto
+index 29273df,b2055a6..0000000
+--- a/modules/control/proto/control_cmd.proto
++++ b/modules/control/proto/control_cmd.proto
+@@@ -32,13 -32,13 +32,14 @@@ message ControlCommand 
+  
+    // target non-directional steering rate, in percentage of full scale per
+    // second [0, 100]
+ -  optional double steering_rate = 6;
+ +  optional double steering_rate = 5;
+  
+    // target front steering angle, in percentage of full scale [-100, 100]
+ -  optional double front_steering_target = 7;
+ +  optional apollo.canbus.Chassis.SteeringSwitch front_steering_switch = 6;
+++  //optional double front_steering_switch = 6;
+    
+ -  // target back steering angle, in percentage of full scale [-100, 100]
+ -  optional double back_steering_target = 7;
+ +  // target rear steering angle, in percentage of full scale [-100, 100]
+ +  optional apollo.canbus.Chassis.SteeringSwitch rear_steering_switch = 7;
+  
+    // parking brake engage. true: engaged
+    optional bool parking_brake = 8;
+@@@ -62,7 -62,7 +63,15 @@@
+    optional PadMessage pad_msg = 25;
+    optional apollo.common.EngageAdvice engage_advice = 26;
+    optional bool is_in_safe_mode = 27 [default = false];
+--
+++  
+++  optional double front_throttle = 28;
+++  optional double rear_throttle = 29;
+++  optional double front_brake = 30;
+++  optional double rear_brake = 31;
+++  
+++  optional double front_wheel_target = 32 [default = nan];
+++  optional double rear_wheel_target = 33 [default = nan];
+++  optional double front_steering_switch_pre = 34 [default=0];
+  }
+  
+  message SimpleLongitudinalDebug {
+diff --git a/docker/scripts/cyber_start.sh b/docker/scripts/cyber_start.sh
+index dfb0701..ded21f3 100755
+--- a/docker/scripts/cyber_start.sh
++++ b/docker/scripts/cyber_start.sh
+@@ -21,7 +21,8 @@ source "${APOLLO_ROOT_DIR}/scripts/apollo.bashrc"
+ # CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
+ 
+ VERSION_X86_64="diamond-auto-x86_64-18.04-20200727_1838"
+-VERSION_AARCH64="diamond-auto-aarch64-18.04-20200729_1004"
++#VERSION_AARCH64="diamond-auto-aarch64-18.04-20200729_1004"
++VERSION_AARCH64="diamond-auto-aarch64-18.04-20200827_1424"
+ VERSION_LOCAL_CYBER="local_cyber_dev"
+ CYBER_CONTAINER="apollo_cyber_${USER}"
+ CYBER_INSIDE="in_cyber_docker"
+diff --git a/modules/canbus/proto/chassis.proto b/modules/canbus/proto/chassis.proto
+index 0f40ea9..eec1fc1 100644
+--- a/modules/canbus/proto/chassis.proto
++++ b/modules/canbus/proto/chassis.proto
+@@ -112,4 +112,8 @@ message Chassis {
+   optional float bat_percentage = 37 [default = nan];
+   optional float front_encoder_angle = 38 [default = nan];
+   optional float rear_encoder_angle = 39 [default = nan];
++
++  optional double front_wheel_angle = 40 [default = nan];
++  optional double rear_wheel_angle = 41 [default = nan];
++
+ }
+diff --git a/modules/canbus/tools/teleop.cc b/modules/canbus/tools/teleop.cc
+index d19de77..7324bc1 100644
+--- a/modules/canbus/tools/teleop.cc
++++ b/modules/canbus/tools/teleop.cc
+@@ -7,8 +7,6 @@
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+@@ -59,7 +57,7 @@ using apollo::cyber::Writer;
+ 
+ const uint32_t KEYCODE_O = 0x4F;  // '0'
+ 
+-const uint32_t KEYCODE_UP1 = 0x57;  // 'w'
++const uint32_t KEYCODE_UP1 = 0x57;  // 'W'
+ const uint32_t KEYCODE_UP2 = 0x77;  // 'w'
+ const uint32_t KEYCODE_DN1 = 0x53;  // 'S'
+ const uint32_t KEYCODE_DN2 = 0x73;  // 's'
+@@ -67,8 +65,10 @@ const uint32_t KEYCODE_LF1 = 0x41;  // 'A'
+ const uint32_t KEYCODE_LF2 = 0x61;  // 'a'
+ const uint32_t KEYCODE_RT1 = 0x44;  // 'D'
+ const uint32_t KEYCODE_RT2 = 0x64;  // 'd'
++//const uint32_t KEYCODE_RT2 = 0x;  // 'Z'
++//const uint32_t KEYCODE_RT2 = 0x;  // 'z'
+ 
+-const uint32_t KEYCODE_PKBK = 0x50;  // hand brake or parking brake
++const uint32_t KEYCODE_PKBK = 0x50;  //'P' hand brake or parking brake
+ 
+ // set throttle, gear, and brake
+ const uint32_t KEYCODE_SETT1 = 0x54;  // 'T'
+@@ -78,7 +78,6 @@ const uint32_t KEYCODE_SETG2 = 0x67;  // 'g'
+ const uint32_t KEYCODE_SETB1 = 0x42;  // 'B'
+ const uint32_t KEYCODE_SETB2 = 0x62;  // 'b'
+ const uint32_t KEYCODE_ZERO = 0x30;   // '0'
+-
+ const uint32_t KEYCODE_SETQ1 = 0x51;  // 'Q'
+ const uint32_t KEYCODE_SETQ2 = 0x71;  // 'q'
+ 
+@@ -112,7 +111,7 @@ class Teleop {
+     printf("                     2 GEAR_REVERSE\n");
+     printf("                     3 GEAR_PARKING\n");
+     printf("                     4 GEAR_LOW\n");
+-    printf("                     5 GEAR_INVALID\n");
++    printf("                     5 Gapollo.canbus.Chassis.SteeringSwitchEAR_INVALID\n");
+     printf("                     6 GEAR_NONE\n");
+     printf("\n-----------------------------------------------------------\n");
+     printf("Throttle/Speed up:  [%c]     |  Set Throttle:       [%c]+Num\n",
+@@ -136,7 +135,8 @@ class Teleop {
+     double acc = 0;
+     double dec = 0;
+     double front_steering = 0;
+-    double rear_steering = 0;
++    //double front_steering_switch = 0;
++    //double rear_steering = 0;
+     struct termios cooked_;
+     struct termios raw_;
+     int32_t kfd_ = 0;
+@@ -233,21 +233,24 @@ class Teleop {
+         case KEYCODE_LF2:
+           front_steering = control_command_.front_steering_switch();
+           front_steering = GetCommand(front_steering, FLAGS_steer_inc_delta);
+-          rear_steering = control_command_.rear_steering_switch();
+-          rear_steering = GetCommand(rear_steering, FLAGS_steer_inc_delta);
++          //control_command_.set_front_steering_switch(front_steering);
++          control_command_.set_front_steering_switch_pre(front_steering);
+           control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+-          // control_command_.set_rear_steering_switch(rear_steering);
+           AINFO << "Front Steering Target = " << front_steering;
++
+           break;
+         case KEYCODE_RT1:  // right
+         case KEYCODE_RT2:
+           front_steering = control_command_.front_steering_switch();
+           front_steering = GetCommand(front_steering, -FLAGS_steer_inc_delta);
+-          rear_steering = control_command_.rear_steering_switch();
+-          rear_steering = GetCommand(rear_steering, -FLAGS_steer_inc_delta);
+-          control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+-          // control_command_.set_rear_steering_switch(rear_steering);
+-          AINFO << "rear Steering Target = " << rear_steering;
++          control_command_.set_front_steering_switch_pre(front_steering);
++          if(front_steering!=0){
++          control_command_.set_front_steering_switch(Chassis::STEERINGPOSITIVE);
++          }else{
++          control_command_.set_front_steering_switch(Chassis::STEERINGSTOP);
++              }
++          //control_command_.set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
++          AINFO << "rear Steering Target = " << front_steering;
+           break;
+         case KEYCODE_PKBK:  // hand brake
+           parking_brake = !control_command_.parking_brake();
+@@ -289,7 +292,8 @@ class Teleop {
+           }
+           level = c - KEYCODE_ZERO;
+           control_command_.set_throttle(0.0);
+-          control_command_.set_brake(level * 10.0);
++          control_command_.set_brake(0.0);
++          //control_command_.set_brake(level * 10.0);
+           AINFO << "Throttle = " << control_command_.throttle()
+                 << ", Brake = " << control_command_.brake();
+           break;
+@@ -408,12 +412,13 @@ class Teleop {
+     control_command_.set_brake(0.0);
+     control_command_.set_steering_rate(0.0);
+     control_command_.set_front_steering_switch(Chassis::STEERINGSTOP);
+-    control_command_.set_rear_steering_switch(Chassis::STEERINGSTOP);
++    //control_command_.set_rear_steering_switch(Chassis::STEERINGSTOP);
++    control_command_.set_front_steering_switch_pre(0.0);
+     control_command_.set_parking_brake(false);
+     control_command_.set_speed(0.0);
+     control_command_.set_acceleration(0.0);
+     control_command_.set_engine_on_off(false);
+-    // control_command_.set_driving_mode(Chassis::COMPLETE_MANUAL);
++    //control_command_.set_driving_mode(Chassis::COMPLETE_MANUAL);
+     control_command_.set_gear_location(Chassis::GEAR_INVALID);
+     control_command_.mutable_signal()->set_turn_signal(
+         VehicleSignal::TURN_NONE);
+diff --git a/modules/canbus/vehicle/diamond/diamond_controller.cc b/modules/canbus/vehicle/diamond/diamond_controller.cc
+index 0f5b7f9..a7fb3dc 100644
+--- a/modules/canbus/vehicle/diamond/diamond_controller.cc
++++ b/modules/canbus/vehicle/diamond/diamond_controller.cc
+@@ -19,6 +19,7 @@
+ #include "modules/common/proto/vehicle_signal.pb.h"
+ 
+ #include <stdio.h>
++#include <cmath>
+ #include <cstdio>
+ #include "cyber/common/log.h"
+ #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
+@@ -26,6 +27,7 @@
+ #include "modules/common/time/time.h"
+ #include "modules/drivers/canbus/can_comm/can_sender.h"
+ #include "modules/drivers/canbus/can_comm/protocol_data.h"
++
+ namespace apollo {
+ namespace canbus {
+ namespace diamond {
+@@ -98,8 +100,14 @@ ErrorCode DiamondController::Init(
+   AINFO << "DiamondController is initialized.";
+ 
+   // Initialize frequency converter
+-  device_frequency_converter.SetOpt(9600, 8, 'N',
++  device_front_frequency_converter.SetOpt(9600, 8, 'N',
++                                    1);  // TODO: confirm 4 parameters.
++  device_rear_frequency_converter.SetOpt(9600, 8, 'N',
+                                     1);  // TODO: confirm 4 parameters.
++  //chassis_reader_ = node_->CreateReader<Chassis>(
++  //    FLAGS_chassis_topic, [this](const std::shared_ptr<Chassis>& chassis) {
++  //      chassis_.CopyFrom(*chassis);
++  //    });
+ 
+   is_initialized_ = true;
+   return ErrorCode::OK;
+@@ -160,7 +168,7 @@ Chassis DiamondController::chassis() {
+   // 5
+   // compute speed respect to motor torque
+   if (diamond->id_0x0c08a7f0().has_fmotspd()) {
+-    auto speed = 0.001957 * diamond->id_0x0c08a7f0().fmotspd();
++    auto speed = 0.006079* diamond->id_0x0c08a7f0().fmotspd();
+     chassis_.set_speed_mps(static_cast<float>(speed));
+   } else {
+     chassis_.set_speed_mps(0);
+@@ -200,15 +208,48 @@ Chassis DiamondController::chassis() {
+   } else {
+     chassis_.set_bat_percentage(0);
+   }
+-
++
+   if (diamond->id_0x01().angle_sensor_id() == 1) {
+     chassis_.set_front_encoder_angle(
+         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
++    if (std::isnan(chassis_.front_encoder_angle())){
++      front_encoder_angle_realtime = front_encoder_angle_previous;
++    }
++    else{
++      front_encoder_angle_realtime = static_cast<float>(diamond->id_0x01().angle_sensor_data());
++    }
++    front_wheel_angle_realtime = update_wheel_angle(front_wheel_angle_previous, front_encoder_angle_previous,
++        front_wheel_angle_realtime,encoder_to_wheel_gear_ratio);
++    chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
++    front_encoder_angle_previous = front_encoder_angle_realtime;
++    front_wheel_angle_previous = front_wheel_angle_realtime;
++
+   } else {
+     chassis_.set_rear_encoder_angle(
+         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
++    if (std::isnan(chassis_.rear_encoder_angle())){
++      rear_encoder_angle_realtime = rear_encoder_angle_previous;
++    }
++    else{
++      rear_encoder_angle_realtime = static_cast<float>(diamond->id_0x01().angle_sensor_data());
++    }
++    rear_wheel_angle_realtime = update_wheel_angle(rear_wheel_angle_previous, rear_encoder_angle_previous,
++        rear_wheel_angle_realtime,encoder_to_wheel_gear_ratio);
++    chassis_.set_rear_wheel_angle(rear_wheel_angle_realtime);
++    rear_encoder_angle_previous = rear_encoder_angle_realtime;
++    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+   }
+-
++  /*
++  if (diamond->id_0x01().angle_sensor_id() == 1) {
++    chassis_.set_front_encoder_angle(encoder_to_wheel_gear_ratio
++        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
++  }
++  */
++  /*else {
++    chassis_.set_rear_encoder_angle(
++        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
++  }*/
++
+   return chassis_;
+ }
+ 
+@@ -305,13 +346,27 @@ ErrorCode DiamondController::EnableAutoMode() {
+   id_0x0c19f0a7_->set_bylife(0);
+ 
+   // Steering Motor
+-  id_0x0c079aa7_->set_bydcdccmd(0xAA);
++  id_0x0c079aa7_->set_bydcdccmd(0x55);
+   id_0x0c079aa7_->set_bydcaccmd(0xAA);
+   id_0x0c079aa7_->set_bydcacwkst(0xAA);
+   id_0x0c079aa7_->set_byeapcmd(0xAA);
+   id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+-
++
++  char frq_converter_spd_write_cmd[8];
++  frq_converter_spd_write_cmd[0] = 0x0B;
++  frq_converter_spd_write_cmd[1] = 0x06;
++  frq_converter_spd_write_cmd[2] = 0x20;
++  frq_converter_spd_write_cmd[3] = 0x00;
++  frq_converter_spd_write_cmd[4] = 0x27;
++  frq_converter_spd_write_cmd[5] = 0x10;
++  frq_converter_spd_write_cmd[6] = 0x98;
++  frq_converter_spd_write_cmd[7] = 0x9C;
++  int result_spd_positive =
++  device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
++  ADEBUG << "Frequency converter speed write command send result is :"
++  << result_spd_positive;
++
+   can_sender_->Update();
+   const int32_t flag =
+       CHECK_RESPONSE_STEER_UNIT_FLAG | CHECK_RESPONSE_SPEED_UNIT_FLAG;
+@@ -332,6 +387,33 @@ ErrorCode DiamondController::DisableAutoMode() {
+   set_driving_mode(Chassis::COMPLETE_MANUAL);
+   set_chassis_error_code(Chassis::NO_ERROR);
+   AINFO << "Switch to COMPLETE_MANUAL ok.";
++  char frq_converter_dir_write_cmd[8];
++  frq_converter_dir_write_cmd[0] = 0x0C;
++  frq_converter_dir_write_cmd[1] = 0x06;
++  frq_converter_dir_write_cmd[2] = 0x10;
++  frq_converter_dir_write_cmd[3] = 0x00;
++  frq_converter_dir_write_cmd[4] = 0x00;
++  frq_converter_dir_write_cmd[5] = 0x05;
++  frq_converter_dir_write_cmd[6] = 0x4C;
++  frq_converter_dir_write_cmd[7] = 0x14;
++  int result_dir_zero =
++  device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++  ADEBUG << "Frequency converter direction write command send result is :"
++             << result_dir_zero;
++  sleep(0.2);
++  // 风机停转
++  id_0x0c079aa7_->set_bydcdccmd(0x55);
++  // DC/AC
++  id_0x0c079aa7_->set_bydcaccmd(0xAA);
++  // DC/AC
++  id_0x0c079aa7_->set_bydcacwkst(0xAA);
++  // DC/AC
++  id_0x0c079aa7_->set_byeapcmd(0xAA);
++  // DC/DC
++  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
++  // DC/AC
++  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++
+   //============k1 down start===========
+   ChassisDetail chassis_detail;
+   message_manager_->GetSensorData(&chassis_detail);
+@@ -363,20 +445,6 @@ ErrorCode DiamondController::EnableSteeringOnlyMode() {
+     return ErrorCode::OK;
+   }
+   // Steering Motor
+-  // DC/DC
+-  // id_0x0c079aa7_->set_bydcdccmd(0x55);
+-  // DC/AC
+-  id_0x0c079aa7_->set_bydcaccmd(0x55);
+-  // DC/AC
+-  // id_0x0c079aa7_->set_bydcacwkst(0x55);
+-  // DC/AC
+-  // id_0x0c079aa7_->set_byeapcmd(0x55);
+-
+-  // DC/DC
+-  id_0x0c079aa7_->set_bydcac2cmd(0x55);
+-  // DC/AC
+-  // id_0x0c079aa7_->set_bydcac2wkst(0x55);
+-
+   can_sender_->Update();
+   if (!CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, true)) {
+     AERROR << "Failed to switch to AUTO_STEER_ONLY mode.";
+@@ -423,7 +491,7 @@ void DiamondController::Gear(Chassis::GearPosition gear_position) {
+ // acceleration:0.0 ~ 7.0, unit:m/s^2
+ // acceleration_spd:60 ~ 100, suggest: 90
+ // -> pedal
+-void DiamondController::Brake(double pedal) {
++void DiamondController::Brake(double acceleration) {
+   // double real_value = params_.max_acc() * acceleration / 100;
+   // TODO(All) :  Update brake value based on mode
+   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+@@ -431,26 +499,31 @@ void DiamondController::Brake(double pedal) {
+     AINFO << "The current drive mode does not need to set brake pedal.";
+     return;
+   }
+-
+-  // id_0x0c19f0a7_->set_bymot1workmode(148);
+ }
+-
+ // drive with old acceleration
+ // gas:0.00~99.99 unit:
+-void DiamondController::Throttle(double pedal) {
++void DiamondController::Throttle(double throttle) {
+   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
+     AINFO << "The current drive mode does not need to set throttle pedal.";
+     return;
+   }
+ 
+-  id_0x0c19f0a7_->set_fmot1targettq(pedal);
++  id_0x0c19f0a7_->set_fmot1targettq(throttle);
+   // motor torque mode
+   id_0x0c19f0a7_->set_bymot1workmode(146);
+   // motor speed mode
+   // id_0x0c19f0a7_->set_bymot1workmode(178);
+ }
+ 
++/*
++// when vehicle stops.
++void DiamondController::Vehicle_Stop(){
++  id_0x0c19f0a7_->set_bymot1workmode(129);
++}*/
++
++
++
+ // confirm the car is driven by acceleration command or throttle/brake pedal
+ // drive with acceleration/deceleration
+ // acc:-7.0 ~ 5.0, unit:m/s^2
+@@ -499,18 +572,53 @@ void DiamondController::Steer(double angle) {
+ // need to be compatible with control module, so reverse
+ // steering with old angle speed
+ // angle:-99.99~0.00~99.99, unit:, left:-, right:+
+-void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
++void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch, double front_steering_target) {
+   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+       driving_mode() != Chassis::AUTO_STEER_ONLY) {
+     AINFO << "The current driving mode does not need to set steer.";
+     return;
+   }
+ 
++  p = fopen("/home/nvidia/out.txt", "a+");
++  fprintf(p, "%f\t%f\t%f\n",chassis_.front_wheel_angle(),chassis_.front_encoder_angle(),front_steering_target);
++  fclose(p);
+   char frq_converter_dir_write_cmd[8];
+-  char frq_converter_spd_write_cmd[8];
+-
++  //char frq_converter_spd_write_cmd[8];
++
+   switch (steering_switch) {
+     case Chassis::STEERINGPOSITIVE: {
++      //if (steering_switch == steering_switch_pre){
++      //  break;
++      //}
++      if (abs(chassis_.front_wheel_angle()-front_steering_target) < 0.1){
++        // Stop steering
++        frq_converter_dir_write_cmd[0] = 0x0B;
++        frq_converter_dir_write_cmd[1] = 0x06;
++        frq_converter_dir_write_cmd[2] = 0x10;
++        frq_converter_dir_write_cmd[3] = 0x00;
++        frq_converter_dir_write_cmd[4] = 0x00;
++        frq_converter_dir_write_cmd[5] = 0x05;
++        frq_converter_dir_write_cmd[6] = 0x4D;
++        frq_converter_dir_write_cmd[7] = 0xA3;
++        int result_dir_zero =
++            device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++        ADEBUG << "Frequency converter direction write command send result is :"
++              << result_dir_zero;
++
++        // 风机停转
++        id_0x0c079aa7_->set_bydcdccmd(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_bydcaccmd(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_bydcacwkst(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_byeapcmd(0xAA);
++        // DC/DC
++        id_0x0c079aa7_->set_bydcac2cmd(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      }
++
+       frq_converter_dir_write_cmd[0] = 0x0B;
+       frq_converter_dir_write_cmd[1] = 0x06;
+       frq_converter_dir_write_cmd[2] = 0x10;
+@@ -520,10 +628,11 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_dir_write_cmd[6] = 0x4C;
+       frq_converter_dir_write_cmd[7] = 0x60;
+       int result_dir_positive =
+-          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++          device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+       ADEBUG << "Frequency converter direction write command send result is :"
+              << result_dir_positive;
+-
++      /*
++      sleep(1);
+       frq_converter_spd_write_cmd[0] = 0x0B;
+       frq_converter_spd_write_cmd[1] = 0x06;
+       frq_converter_spd_write_cmd[2] = 0x20;
+@@ -533,24 +642,59 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_spd_write_cmd[6] = 0x98;
+       frq_converter_spd_write_cmd[7] = 0x9C;
+       int result_spd_positive =
+-          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
++          device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+       ADEBUG << "Frequency converter speed write command send result is :"
+              << result_spd_positive;
+-
++      */
+       // 风机转
+-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
++      id_0x0c079aa7_->set_bydcdccmd(0x55);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcaccmd(0xAA);
+       // DC/AC
+-      id_0x0c079aa7_->set_bydcacwkst(0x55);
++      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_byeapcmd(0xAA);
+       // DC/DC
+       id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      sleep(1);
++      break;
+     }
+     case Chassis::STEERINGNEGATIVE: {
++      //if (steering_switch == steering_switch_pre){
++      //  break;
++      //}
++
++      if (abs(chassis_.front_wheel_angle()-front_steering_target) < 0.1){
++        // Stop steering
++        frq_converter_dir_write_cmd[0] = 0x0B;
++        frq_converter_dir_write_cmd[1] = 0x06;
++        frq_converter_dir_write_cmd[2] = 0x10;
++        frq_converter_dir_write_cmd[3] = 0x00;
++        frq_converter_dir_write_cmd[4] = 0x00;
++        frq_converter_dir_write_cmd[5] = 0x05;
++        frq_converter_dir_write_cmd[6] = 0x4D;
++        frq_converter_dir_write_cmd[7] = 0xA3;
++        int result_dir_zero =
++            device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++        ADEBUG << "Frequency converter direction write command send result is :"
++              << result_dir_zero;
++
++        // 风机停转
++        id_0x0c079aa7_->set_bydcdccmd(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_bydcaccmd(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_bydcacwkst(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_byeapcmd(0xAA);
++        // DC/DC
++        id_0x0c079aa7_->set_bydcac2cmd(0xAA);
++        // DC/AC
++        id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      }
++
+       frq_converter_dir_write_cmd[0] = 0x0B;
+       frq_converter_dir_write_cmd[1] = 0x06;
+       frq_converter_dir_write_cmd[2] = 0x10;
+@@ -560,10 +704,11 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_dir_write_cmd[6] = 0x0C;
+       frq_converter_dir_write_cmd[7] = 0x61;
+       int result_dir_negative =
+-          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++          device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+       ADEBUG << "Frequency converter direction write command send result is :"
+              << result_dir_negative;
+-
++      /*
++      sleep(1);
+       frq_converter_spd_write_cmd[0] = 0x0B;
+       frq_converter_spd_write_cmd[1] = 0x06;
+       frq_converter_spd_write_cmd[2] = 0x20;
+@@ -573,24 +718,29 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_spd_write_cmd[6] = 0x98;
+       frq_converter_spd_write_cmd[7] = 0x9C;
+       int result_spd_negative =
+-          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
++          device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+       ADEBUG << "Frequency converter speed write command send result is :"
+              << result_spd_negative;
+-
++      */
+       // 风机转
+-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
++      id_0x0c079aa7_->set_bydcdccmd(0x55);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcaccmd(0xAA);
+       // DC/AC
+-      id_0x0c079aa7_->set_bydcacwkst(0x55);
++      id_0x0c079aa7_->set_bydcacwkst(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_byeapcmd(0xAA);
+       // DC/DC
+       id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      sleep(1);
++      break;
+     }
+-    default: {
++    case Chassis::STEERINGSTOP:{
++      //if (steering_switch == steering_switch_pre){
++      //  break;
++      //}
+       frq_converter_dir_write_cmd[0] = 0x0B;
+       frq_converter_dir_write_cmd[1] = 0x06;
+       frq_converter_dir_write_cmd[2] = 0x10;
+@@ -600,12 +750,11 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_dir_write_cmd[6] = 0x4D;
+       frq_converter_dir_write_cmd[7] = 0xA3;
+       int result_dir_zero =
+-          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++          device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+       ADEBUG << "Frequency converter direction write command send result is :"
+              << result_dir_zero;
+-
+       // 风机停转
+-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
++      id_0x0c079aa7_->set_bydcdccmd(0x55);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcaccmd(0xAA);
+       // DC/AC
+@@ -616,8 +765,14 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch) {
+       id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      //sleep(2);
++      break;
++      }
++      default:{
++          //AINFO << "Steer_Front";
++          break;
++      }
+     }
+-  }
+ }
+ 
+ // diamond default, -470 ~ 470, left:+, right:-
+@@ -645,7 +800,7 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_dir_write_cmd[6] = 0x4D;
+       frq_converter_dir_write_cmd[7] = 0xD7;
+       int result_dir_positive =
+-          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++          device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+       ADEBUG << "Frequency converter direction write command send result is :"
+              << result_dir_positive;
+ 
+@@ -658,12 +813,12 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_spd_write_cmd[6] = 0x99;
+       frq_converter_spd_write_cmd[7] = 0x2B;
+       int result_spd_positive =
+-          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
++          device_rear_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+       ADEBUG << "Frequency converter speed write command send result is :"
+              << result_spd_positive;
+ 
+       // 风机转
+-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
++      id_0x0c079aa7_->set_bydcdccmd(0x55);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcaccmd(0x55);
+       // DC/AC
+@@ -674,6 +829,7 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      break;
+     }
+     case Chassis::STEERINGNEGATIVE: {
+       frq_converter_dir_write_cmd[0] = 0x0C;
+@@ -685,7 +841,7 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_dir_write_cmd[6] = 0x0D;
+       frq_converter_dir_write_cmd[7] = 0xD6;
+       int result_dir_negative =
+-          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++          device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+       ADEBUG << "Frequency converter direction write command send result is :"
+              << result_dir_negative;
+ 
+@@ -698,12 +854,12 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_spd_write_cmd[6] = 0x99;
+       frq_converter_spd_write_cmd[7] = 0x2B;
+       int result_spd_negative =
+-          device_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
++          device_rear_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+       ADEBUG << "Frequency converter speed write command send result is :"
+              << result_spd_negative;
+ 
+       // 风机转
+-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
++      id_0x0c079aa7_->set_bydcdccmd(0x55);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcaccmd(0x55);
+       // DC/AC
+@@ -714,8 +870,9 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
++      break;
+     }
+-    default: {
++    case Chassis::STEERINGSTOP: {
+       frq_converter_dir_write_cmd[0] = 0x0C;
+       frq_converter_dir_write_cmd[1] = 0x06;
+       frq_converter_dir_write_cmd[2] = 0x10;
+@@ -725,12 +882,12 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       frq_converter_dir_write_cmd[6] = 0x4C;
+       frq_converter_dir_write_cmd[7] = 0x14;
+       int result_dir_zero =
+-          device_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
++          device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+       ADEBUG << "Frequency converter direction write command send result is :"
+              << result_dir_zero;
+-
++      sleep(0.2);
+       // 风机停转
+-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
++      id_0x0c079aa7_->set_bydcdccmd(0x55);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcaccmd(0xAA);
+       // DC/AC
+@@ -741,7 +898,12 @@ void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+       id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+       // DC/AC
+       id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+-    }
++      break;
++      }
++      default:{
++          //AINFO << "Steer_rear";
++      break;
++      }
+   }
+ }
+ 
+@@ -762,10 +924,10 @@ void DiamondController::Steer(double angle, double angle_spd) {
+     AINFO << "The current driving mode does not need to set steer.";
+     return;
+   }
+-  // const double real_angle = 360 * angle / 100.0;
++  //const double real_angle = 360 * angle / 100.0;
+ 
+-  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
+-  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
++  //id_0x0c079aa7_->set_bydcaccmd(real_angle);
++  //id_0x0c079aa7_->set_bydcac2cmd(real_angle);
+ }
+ 
+ void DiamondController::SetEpbBreak(const ControlCommand& command) {
+@@ -906,6 +1068,26 @@ void DiamondController::set_chassis_error_code(
+   chassis_error_code_ = error_code;
+ }
+ 
++float DiamondController::update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
++    float encoder_angle_rt,const float encoder_to_wheel_gear_ratio ){
++  float delta_encoder_angle = encoder_angle_rt - encoder_angle_pre;
++  if (delta_encoder_angle < -240.0)  // 编码器发生360到0的突变，轮胎向右转
++  {
++    delta_encoder_angle = delta_encoder_angle + 360.0;
++  } else if (delta_encoder_angle > 240.0)
++  {
++    delta_encoder_angle = delta_encoder_angle - 360.0;
++  } else {
++    delta_encoder_angle = delta_encoder_angle;
++  }
++  // delta_encoder_angle有正负，包含了左右转
++  float wheel_angle_now = wheel_angle_pre - delta_encoder_angle / encoder_to_wheel_gear_ratio;
++  wheel_angle_now = fmod(wheel_angle_now,360.0);
++  if (wheel_angle_now > 180.0){
++    wheel_angle_now = wheel_angle_now - 360.0;
++  }
++  return wheel_angle_now;
++}
+ }  // namespace diamond
+ }  // namespace canbus
+ }  // namespace apollo
+diff --git a/modules/canbus/vehicle/diamond/diamond_controller.h b/modules/canbus/vehicle/diamond/diamond_controller.h
+index 2c51a3d..cfd5374 100644
+--- a/modules/canbus/vehicle/diamond/diamond_controller.h
++++ b/modules/canbus/vehicle/diamond/diamond_controller.h
+@@ -75,10 +75,14 @@ class DiamondController final : public VehicleController {
+   // brake with new acceleration
+   // acceleration:0.00~99.99, unit:
+   // acceleration_spd: 60 ~ 100, suggest: 90
++  // void Brake_Front(double pedal) override;
++  // void Brake_Rear(double pedal) override;
+   void Brake(double acceleration) override;
+ 
+   // drive with old acceleration
+   // gas:0.00~99.99 unit:
++  // void Throttle_Front(double pedal) override;
++  // void Throttle_Rear(double pedal) override;
+   void Throttle(double throttle) override;
+ 
+   // drive with acceleration/deceleration
+@@ -87,7 +91,7 @@ class DiamondController final : public VehicleController {
+ 
+   // steering with old angle speed
+   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
+-  void Steer_Front(Chassis::SteeringSwitch steering_switch);
++  void Steer_Front(Chassis::SteeringSwitch steering_switch, double front_steering_target);
+ 
+   // steering with old angle speed
+   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
+@@ -117,6 +121,7 @@ class DiamondController final : public VehicleController {
+   int32_t chassis_error_mask();
+   Chassis::ErrorCode chassis_error_code();
+   void set_chassis_error_code(const Chassis::ErrorCode& error_code);
++  float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,float encoder_angle_rt,const float encoder_to_wheel_gear_ratio);
+ 
+  private:
+   // control protocol
+@@ -136,9 +141,34 @@ class DiamondController final : public VehicleController {
+   std::mutex chassis_mask_mutex_;
+   int32_t chassis_error_mask_ = 0;
+ 
++  //enum Chassis::SteeringSwitch steering_switch_pre=0;
++
+   // 变频器 485通信 设备
+-  Uart device_frequency_converter =
+-      Uart("ttyUSB0");  // TODO: define device name.
++  Uart device_front_frequency_converter =
++      Uart("ttyUSB2");  // TODO: define device name.
++  // 后变频器
++  Uart device_rear_frequency_converter =
++      Uart("ttyUSB1");  // TODO: define device name.
++
++  //std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
++  // 前轮编码器上一时刻度数（0~360 deg）
++  float front_encoder_angle_previous = 0;
++
++  float front_encoder_angle_realtime = 0;
++  // 前轮编码器上一时刻度数（0~360 deg）
++  float rear_encoder_angle_previous = 0;
++
++  float rear_encoder_angle_realtime = 0;
++  // 编码器：轮胎的速比
++  const float encoder_to_wheel_gear_ratio = 125;
++  // 上一时刻前轮转角（0~360 deg）
++  float front_wheel_angle_previous = 0;
++  // 当前时刻前轮转角（0~360 deg）
++  float front_wheel_angle_realtime = 0;
++  // 上一时刻后轮转角（0~360 deg）
++  float rear_wheel_angle_previous = 0;
++  // 当前时刻后轮转角（0~360 deg）
++  float rear_wheel_angle_realtime = 0;
+ };
+ 
+ }  // namespace diamond
+diff --git a/modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.cc b/modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.cc
+index cf362d4..61f6d63 100644
+--- a/modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.cc
++++ b/modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.cc
+@@ -46,7 +46,7 @@ void Id0x0c079aa7::UpdateData(uint8_t* data) {
+ 
+ void Id0x0c079aa7::Reset() {
+   // TODO(All) :  you should check this manually
+-  bydcdccmd_ = 0xAA;
++  bydcdccmd_ = 0x55;
+   bydcaccmd_ = 0xAA;
+   bydcacwkst_ = 0xAA;
+   byeapcmd_ = 0xAA;
+diff --git a/modules/canbus/vehicle/vehicle_controller.cc b/modules/canbus/vehicle/vehicle_controller.cc
+index e8514ec..c5cc90b 100644
+--- a/modules/canbus/vehicle/vehicle_controller.cc
++++ b/modules/canbus/vehicle/vehicle_controller.cc
+@@ -123,8 +123,12 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
+   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
+       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
+     Gear(control_command.gear_location());
++    //Throttle_Front(control_command.front_throttle());
++    //Throttle_Rear(control_command.rear_throttle());
+     Throttle(control_command.throttle());
+     Acceleration(control_command.acceleration());
++    //Brake_Front(control_command.front_brake());
++    //Brake_Rear(control_command.rear_brake());
+     Brake(control_command.brake());
+     SetEpbBreak(control_command);
+     SetLimits();
+@@ -132,16 +136,9 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
+ 
+   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
+       driving_mode_ == Chassis::AUTO_STEER_ONLY) {
+-    const double steering_rate_threshold = 1.0;
+-    if (control_command.steering_rate() > steering_rate_threshold) {
+-      // Steer(control_command.front_steering_switch(),
+-      // control_command.steering_rate());
+-      // Steer(control_command.rear_steering_switch(),
+-      // control_command.steering_rate());
+-    } else {
+-      Steer_Front(control_command.front_steering_switch());
+-      Steer_Rear(control_command.rear_steering_switch());
+-    }
++      Steer_Front(control_command.front_steering_switch(),control_command.front_steering_switch_pre());
++      //Steer_Rear(control_command.rear_steering_switch());
++
+   }
+ 
+   if ((driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
+diff --git a/modules/canbus/vehicle/vehicle_controller.h b/modules/canbus/vehicle/vehicle_controller.h
+index f7ed250..83c29ac 100644
+--- a/modules/canbus/vehicle/vehicle_controller.h
++++ b/modules/canbus/vehicle/vehicle_controller.h
+@@ -33,6 +33,7 @@
+ #include "modules/drivers/canbus/can_comm/can_sender.h"
+ #include "modules/drivers/canbus/can_comm/message_manager.h"
+ #include "modules/drivers/canbus/can_comm/protocol_data.h"
++//#include "modules/canbus/vehicle/diamond/diamond_controller.h"
+ 
+ /**
+  * @namespace apollo::canbus
+@@ -135,7 +136,7 @@ class VehicleController {
+    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
+    * left:+, right:-
+    */
+-  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch) = 0;
++  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch,double front_steering_target) = 0;
+ 
+   /*
+    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
+diff --git a/modules/control/control_wheel_angle_real.h b/modules/control/control_wheel_angle_real.h
+index 01d1f1c..b2c705c 100644
+--- a/modules/control/control_wheel_angle_real.h
++++ b/modules/control/control_wheel_angle_real.h
+@@ -11,13 +11,11 @@ using namespace std;
+ 
+ // global
+ // 转向相关
+-static float front_encoder_angle_realtime =
+-    0;  // 前轮编码器瞬时度数（0~360 deg）
+-// static float front_encoder_angle_origin = 0;
++static float front_encoder_angle_realtime =    0;  // 前轮编码器瞬时度数（0~360 deg）
++//static float front_encoder_angle_origin = 0;
+ // //前轮编码器原始读数（0~32000）
+ 
+-static float rear_encoder_angle_realtime =
+-    0;  // 后轮编码器瞬时度数（0~360 deg）
++static float rear_encoder_angle_realtime =    0;  // 后轮编码器瞬时度数（0~360 deg）
+ // static float rear_encoder_angle_origin = 0;
+ // //后轮编码器原始读数（0~32000）
+ 
+@@ -26,15 +24,11 @@ static float rear_encoder_angle_realtime =
+ // rear_wheel_steering_dir = 0; //
+ // 后轮左右转，0代表不转，1代表向右转，2代表向左转
+ 
+-static int front_motor_steering_dir =
+-    0;  // 前转向电机正反转（正转：轮胎右转；反转：轮胎左转），0代表停止，1代表正转，2代表反转
+-static int rear_motor_steering_dir =
+-    0;  // 后转向电机正反转（正转：轮胎右转；反转：轮胎左转），0代表停止，1代表正转，2代表反转
++static int front_motor_steering_dir =    0;  // 前转向电机正反转（正转：轮胎右转；反转：轮胎左转），0代表停止，1代表正转，2代表反转
++static int rear_motor_steering_dir =    0;  // 后转向电机正反转（正转：轮胎右转；反转：轮胎左转），0代表停止，1代表正转，2代表反转
+ 
+-static float front_encoder_angle_previous =
+-    0;  // 前轮编码器上一时刻度数（0~360 deg）
+-static float rear_encoder_angle_previous =
+-    0;  // 前轮编码器上一时刻度数（0~360 deg）
++static float front_encoder_angle_previous =0;  // 前轮编码器上一时刻度数（0~360 deg）
++static float rear_encoder_angle_previous =    0;  // 前轮编码器上一时刻度数（0~360 deg）
+ 
+ static const int encoder2wheel_gear_ratio = 125;  // 编码器：轮胎的速比
+ 
+@@ -51,13 +45,11 @@ static float rear_wheel_angle_realtime = 0;  // 当前时刻后轮转角（0~360
+ 
+ // static int veh_dir = 0; // 记录车辆行驶方向，0代表从A到B，1代表从B到A
+ 
+-static int drivemotor_flag =
+-    0;  // 驱动电机正反转标志，0代表车辆停止，1代表车辆向前（驱动电机反转），2代表车辆向后（驱动电机正转）
++static int drivemotor_flag =0;  // 驱动电机正反转标志，0代表车辆停止，1代表车辆向前（驱动电机反转），2代表车辆向后（驱动电机正转）
+ 
+ static float drivemotor_torque = 0;  //驱动电机转矩
+ 
+-static const float speed_motor_deadzone_calibration =
+-    50;  // 驱动电机静止状态下起步的死区标定值
++static const float speed_motor_deadzone_calibration =    50;  // 驱动电机静止状态下起步的死区标定值
+ 
+ static const float r_wheel = 0.34;  // 车轮半径，m
+ static const float m_veh = 13000;   // 整车质量，kg
+@@ -94,4 +86,4 @@ float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
+ }
+ 
+ }  // namespace control
+-}  // namespace apollo
+\ No newline at end of file
++}  // namespace apollo
+diff --git a/modules/control/demo_control_component.h b/modules/control/demo_control_component.h
+index bbf774f..bd01246 100644
+--- a/modules/control/demo_control_component.h
++++ b/modules/control/demo_control_component.h
+@@ -32,14 +32,14 @@ class ControlComponent : public Component<> {
+   Chassis chassis_;
+   Magnetic magnetic_;
+   RFID rfid_;
+-  std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
+-  std::shared_ptr<cyber::Reader<apollo::drivers::Magnetic>> magnetic_reader_;
+-  std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
+-  std::shared_ptr<cyber::Writer<ControlCommand>> control_cmd_writer_;
+-
++  std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
++  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::Magnetic>> magnetic_reader_;
++  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
++  std::shared_ptr<apollo::cyber::Writer<ControlCommand>> control_cmd_writer_;
++  std::shared_ptr<apollo::cyber::Writer<apollo::canbus::Chassis>> chassis_writer_;
+   std::future<void> async_action_;
+ };
+ 
+ CYBER_REGISTER_COMPONENT(ControlComponent)
+ }  // namespace control
+-}  // namespace apollo
+\ No newline at end of file
++}  // namespace apollo
