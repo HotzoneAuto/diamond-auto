@@ -502,15 +502,6 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
   return ErrorCode::OK;
 }
 
-// NEUTRAL, REVERSE, DRIVE
-void DiamondController::Gear(Chassis::GearPosition gear_position) {
-  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
-      driving_mode() != Chassis::AUTO_SPEED_ONLY) {
-    AINFO << "This drive mode no need to set gear.";
-    return;
-  }
-}
-
 // brake with new acceleration
 // acceleration:0.00~99.99, unit:
 // acceleration:0.0 ~ 7.0, unit:m/s^2
@@ -525,20 +516,29 @@ void DiamondController::Brake(double acceleration) {
     return;
   }
 }
-// drive with old acceleration
-// gas:0.00~99.99 unit:
-void DiamondController::Torque(double torque) {
+
+void DiamondController::Forward_Torque(double torque) {
+  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
+      driving_mode() != Chassis::AUTO_SPEED_ONLY) {
+    AINFO << "The current drive mode does not need to set throttle pedal.";
+    return;
+  }
+  AINFO << "Forward mode.";
+  id_0x0c19f0a7_->set_fmot1targettq(torque);
+  id_0x0c19f0a7_->set_bymot1workmode(146);
+}
+
+void DiamondController::Reverse_Torque(double torque) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
 
-  id_0x0c19f0a7_->set_fmot1targettq(torque);
-  // motor torque mode
-  id_0x0c19f0a7_->set_bymot1workmode(146);
-  // motor speed mode
-  // id_0x0c19f0a7_->set_bymot1workmode(178);
+  // reverse mode
+  AINFO << "Reverse mode.";
+  id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
+  id_0x0c19f0a7_->set_bymot1workmode(138);
 }
 
 /*
@@ -546,7 +546,6 @@ void DiamondController::Torque(double torque) {
 void DiamondController::Vehicle_Stop(){
   id_0x0c19f0a7_->set_bymot1workmode(129);
 }*/
-
 
 // diamond default, -470 ~ 470, left:+, right:-
 // need to be compatible with control module, so reverse
@@ -560,17 +559,38 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
     return;
   }
 
+  char frq_converter_dir_write_cmd[8];
+
+  // Check wheel angle
+  // TODO(all): config
+  if (chassis_.front_wheel_angle() - 30.0 > 1e-6 ||
+      chassis_.front_wheel_angle() + 30.0 < 1e-6) {
+    frq_converter_dir_write_cmd[0] = 0x0B;
+    frq_converter_dir_write_cmd[1] = 0x06;
+    frq_converter_dir_write_cmd[2] = 0x10;
+    frq_converter_dir_write_cmd[3] = 0x00;
+    frq_converter_dir_write_cmd[4] = 0x00;
+    frq_converter_dir_write_cmd[5] = 0x05;
+    frq_converter_dir_write_cmd[6] = 0x4D;
+    frq_converter_dir_write_cmd[7] = 0xA3;
+    int result_dir_zero =
+        device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+    ADEBUG << "Frequency converter direction write command send result is :"
+           << result_dir_zero;
+    return;
+  }
+
   // p = fopen("/home/nvidia/out.txt", "a+");
   // fprintf(p, "%f\t%f\t%f\n", chassis_.front_wheel_angle(),
   //         chassis_.front_encoder_angle(), front_steering_target);
   // fclose(p);
 
-  char frq_converter_dir_write_cmd[8];
   char frq_converter_spd_write_cmd[8];
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
-      if (abs(chassis_.front_wheel_angle() - front_steering_target) < 0.1) {
+      if (std::abs(chassis_.front_wheel_angle() - front_steering_target) <
+          0.1) {
         // Stop steering
         frq_converter_dir_write_cmd[0] = 0x0B;
         frq_converter_dir_write_cmd[1] = 0x06;
@@ -585,7 +605,6 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
         ADEBUG << "Frequency converter direction write command send result is :"
                << result_dir_zero;
 
-        // 椋庢満鍋滆浆
         id_0x0c079aa7_->set_bydcdccmd(0xAA);
         // DC/AC
         id_0x0c079aa7_->set_bydcaccmd(0xAA);

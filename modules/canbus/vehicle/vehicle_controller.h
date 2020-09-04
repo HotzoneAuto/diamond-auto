@@ -110,11 +110,6 @@ class VehicleController {
   virtual common::ErrorCode EnableSpeedOnlyMode() = 0;
 
   /*
-   * @brief NEUTRAL, REVERSE, DRIVE
-   */
-  virtual void Gear(Chassis::GearPosition state) = 0;
-
-  /*
    * @brief detail function for auto driving brake with new acceleration
    * acceleration:0.00~99.99, unit:%
    */
@@ -124,8 +119,9 @@ class VehicleController {
    * @brief drive with old acceleration gas:0.00~99.99 unit:%
    */
 
-  virtual void Torque(double torque) = 0;
+  virtual void Forward_Torque(double torque) = 0;
 
+  virtual void Reverse_Torque(double torque) = 0;
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
