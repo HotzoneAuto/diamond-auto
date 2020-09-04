@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/control/proto/control_cmd.pb.h"
+#include "modules/common/util/uart.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
@@ -91,7 +92,7 @@ class DiamondController final : public VehicleController {
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Rear(double angle) override;
+  void Steer_Rear(Chassis::SteeringSwitch steering_switch) override;
 
   // steering with new angle speed
   // angle:-99.99~0.00~99.99, unit:, left:+, right:-

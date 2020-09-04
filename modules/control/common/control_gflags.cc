@@ -121,3 +121,5 @@ DEFINE_bool(use_control_submodules, false,
 
 DEFINE_bool(use_system_time_in_control, true,
             "use system time for time latency in control module");
+
+DEFINE_double(desired_v, 1.0, "desired vehicle speed");

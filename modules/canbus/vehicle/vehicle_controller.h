@@ -33,7 +33,6 @@
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/message_manager.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
-//#include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
 /**
  * @namespace apollo::canbus
@@ -143,7 +142,13 @@ class VehicleController {
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
    */
-  virtual void Steer_Rear(double angle) = 0;
+  virtual void Steer_Rear(Chassis::SteeringSwitch steering_switch) = 0;
+
+  /*
+   * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
+   * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
+   */
+  // virtual void Steer(double angle) = 0;
 
   /*
    * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
@@ -151,7 +156,7 @@ class VehicleController {
    */
   virtual void Steer(double angle, double angle_spd) = 0;
 
-  /*
+/*
    * @brief set Electrical Park Brake
    */
   virtual void SetEpbBreak(const control::ControlCommand &command) = 0;

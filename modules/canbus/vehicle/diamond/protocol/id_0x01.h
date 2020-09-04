@@ -32,11 +32,27 @@ class Id0x01 : public ::apollo::drivers::canbus::ProtocolData<
              ChassisDetail* chassis) const override;
 
  private:
-  // config detail: {'name': 'Angle_sensor_front', 'offset': 0.0, 'precision':
-  // 0.010986, 'len': 16, 'is_signed_var': False, 'physical_range': '[0|360]',
-  // 'bit': 0, 'type': 'double', 'order': 'intel', 'physical_unit': 'deg'}
-  double angle_sensor_front(const std::uint8_t* bytes,
-                            const int32_t length) const;
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Angle_sensor_length', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|8]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int angle_sensor_length(const std::uint8_t* bytes,
+                          const int32_t length) const;
+
+  // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Angle_sensor_ID', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|8]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int angle_sensor_id(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Angle_sensor_mode', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|8]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int angle_sensor_mode(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 16, 'name':
+  // 'Angle_sensor_data', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|360]', 'physical_unit': 'deg', 'precision': 0.010986, 'type': 'double'}
+  double angle_sensor_data(const std::uint8_t* bytes,
+                           const int32_t length) const;
 };
 
 }  // namespace diamond

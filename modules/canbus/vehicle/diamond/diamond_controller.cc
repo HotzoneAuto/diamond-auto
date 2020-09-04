@@ -751,7 +751,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Rear(double angle) {
+void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";

@@ -23,6 +23,7 @@ cc_library(
         "//cyber",
         "//modules/common/util:uart",
         "//modules/drivers/proto:magnetic_cc_proto",
+        "//modules/drivers/magnetic/proto:magnetic_device_conf_cc_proto",
         "//modules/common/adapters:adapter_gflags",
         "@com_github_gflags_gflags//:gflags",
     ],

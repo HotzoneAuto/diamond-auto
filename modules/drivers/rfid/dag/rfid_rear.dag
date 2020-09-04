@@ -4,6 +4,7 @@ module_config {
         class_name : "RfidComponent"
         config {
             name: "rfid"
+            config_file_path : "/apollo/modules/drivers/rfid/conf/rfid_rear.pb.txt"
         }
     }
 }

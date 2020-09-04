@@ -35,10 +35,10 @@ message ControlCommand {
   optional double steering_rate = 5;
 
   // target front steering angle, in percentage of full scale [-100, 100]
-  optional double front_steering_target = 6;
+  optional apollo.canbus.Chassis.SteeringSwitch front_steering_switch = 6;
   
-  // target back steering angle, in percentage of full scale [-100, 100]
-  optional double back_steering_target = 7;
+  // target rear steering angle, in percentage of full scale [-100, 100]
+  optional apollo.canbus.Chassis.SteeringSwitch rear_steering_switch = 7;
 
   // parking brake engage. true: engaged
   optional bool parking_brake = 8;
@@ -62,6 +62,15 @@ message ControlCommand {
   optional PadMessage pad_msg = 25;
   optional apollo.common.EngageAdvice engage_advice = 26;
   optional bool is_in_safe_mode = 27 [default = false];
+
+  optional double front_throttle = 28;
+  optional double rear_throttle = 29;
+  optional double front_brake = 30;
+  optional double rear_brake = 31;
+  
+  optional double front_wheel_target = 32 [default = nan];
+  optional double rear_wheel_target = 33 [default = nan];
+  optional double front_steering_switch_pre = 34 [default=0];
 
 }
 

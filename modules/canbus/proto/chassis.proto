@@ -50,7 +50,7 @@ message Chassis {
     GEAR_NONE = 6;
   }
 
-    enum SteeringSwitch {
+  enum SteeringSwitch {
     STEERINGSTOP = 0;
     STEERINGPOSITIVE = 1;
     STEERINGNEGATIVE = 2;

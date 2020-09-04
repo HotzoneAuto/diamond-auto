@@ -1,0 +1,3 @@
+device_id: "ttyUSB2"
+output_channel:"/diamond/sensor/magnetic/front"
+enable_log: true

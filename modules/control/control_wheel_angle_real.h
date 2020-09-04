@@ -13,16 +13,18 @@ using namespace std;
 // 转向相关
 static float front_encoder_angle_realtime =
     0;  // 前轮编码器瞬时度数（0~360 deg）
-static float front_encoder_angle_origin = 0;  //前轮编码器原始读数（0~32000）
+// static float front_encoder_angle_origin = 0;
+// //前轮编码器原始读数（0~32000）
 
 static float rear_encoder_angle_realtime =
     0;  // 后轮编码器瞬时度数（0~360 deg）
-static float rear_encoder_angle_origin = 0;  //后轮编码器原始读数（0~32000）
+// static float rear_encoder_angle_origin = 0;
+// //后轮编码器原始读数（0~32000）
 
-static int front_wheel_steering_dir =
-    0;  // 前轮左右转，0代表不转，1代表向右转，2代表向左转
-static int rear_wheel_steering_dir =
-    0;  // 后轮左右转，0代表不转，1代表向右转，2代表向左转
+// static int front_wheel_steering_dir = 0; //
+// 前轮左右转，0代表不转，1代表向右转，2代表向左转 static int
+// rear_wheel_steering_dir = 0; //
+// 后轮左右转，0代表不转，1代表向右转，2代表向左转
 
 static int front_motor_steering_dir =
     0;  // 前转向电机正反转（正转：轮胎右转；反转：轮胎左转），0代表停止，1代表正转，2代表反转
@@ -43,10 +45,11 @@ static float rear_wheel_angle_previous = 0;  // 上一时刻后轮转角（0~360
 static float rear_wheel_angle_realtime = 0;  // 当前时刻后轮转角（0~360 deg）
 
 // 驱动相关
-static int find_rfid_A = 0;  // 是否检测到A点的rfid，0代表否，1代表是
-static int find_rfid_B = 0;  // 是否检测到B点的rfid，0代表否，1代表是
+// static int find_rfid_A = 0; // 是否检测到A点的rfid，0代表否，1代表是
+// static int rfid_id = 0;  //
+// 检测到rfid的ID，1代表检测到A，2代表检测到B，-1代表未检测到
 
-static int veh_dir = 0;  // 记录车辆行驶方向，0代表从A到B，1代表从B到A
+// static int veh_dir = 0; // 记录车辆行驶方向，0代表从A到B，1代表从B到A
 
 static int drivemotor_flag =
     0;  // 驱动电机正反转标志，0代表车辆停止，1代表车辆向前（驱动电机反转），2代表车辆向后（驱动电机正转）
@@ -58,11 +61,11 @@ static const float speed_motor_deadzone_calibration =
 
 static const float r_wheel = 0.34;  // 车轮半径，m
 static const float m_veh = 13000;   // 整车质量，kg
-static const float g = 9.8;         // 重力加速度
-static const float f_c = 0.018;     // 滚动摩擦系数
-static const float i_1 = 3.11;      // 减速比
-static const float i_0 = 5.857;     // 主减速比
-static const float yita_t = 0.85;   // 传动效率
+constexpr float g = 9.8;            // 重力加速度
+constexpr float f_c = 0.018;        // 滚动摩擦系数
+constexpr float i_1 = 3.11;         // 减速比
+constexpr float i_0 = 5.857;        // 主减速比
+constexpr float yita_t = 0.85;      // 传动效率
 
 float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
                          float encoder_angle_rt,
