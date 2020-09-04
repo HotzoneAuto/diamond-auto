@@ -31,6 +31,9 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x03.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x04.h"
 
 namespace apollo {
 namespace canbus {
