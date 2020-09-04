@@ -16,34 +16,40 @@
 
 #pragma once
 
-#include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/can_comm/protocol_data.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 class Id0x03 : public ::apollo::drivers::canbus::ProtocolData<
-                    ::apollo::canbus::ChassisDetail> {
+                   ::apollo::canbus::ChassisDetail> {
  public:
   static const int32_t ID;
   Id0x03();
   void Parse(const std::uint8_t* bytes, int32_t length,
-                     ChassisDetail* chassis) const override;
+             ChassisDetail* chassis) const override;
   uint32_t GetPeriod() const override;
 
   void UpdateData(uint8_t* data) override;
 
   void Reset() override;
 
-  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   Id0x03* set_front_mgs(int front_mgs);
 
  private:
-  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   void set_p_front_mgs(uint8_t* data, int front_mgs);
 
-  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int front_mgs(const std::uint8_t* bytes, const int32_t length) const;
   int front_mgs_;
 };
@@ -51,5 +57,3 @@ class Id0x03 : public ::apollo::drivers::canbus::ProtocolData<
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
-
-

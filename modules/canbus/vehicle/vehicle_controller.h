@@ -123,19 +123,16 @@ class VehicleController {
   /*
    * @brief drive with old acceleration gas:0.00~99.99 unit:%
    */
-  virtual void Throttle(double throttle) = 0;
 
-  /*
-   * @brief drive with new acceleration/deceleration:-7.0~7.0, unit:m/s^2,
-   * acc:-7.0~7.0, unit:m/s^2
-   */
-  virtual void Acceleration(double acc) = 0;
+  virtual void Torque(double torque) = 0;
+
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
    */
-  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch) = 0;
+  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch,
+                           double front_steering_target) = 0;
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
@@ -147,7 +144,7 @@ class VehicleController {
    * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
    */
-  virtual void Steer(double angle) = 0;
+  // virtual void Steer(double angle) = 0;
 
   /*
    * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,

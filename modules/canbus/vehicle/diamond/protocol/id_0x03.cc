@@ -29,7 +29,7 @@ using ::apollo::drivers::canbus::Byte;
 
 const int32_t Id0x03::ID = 0x03;
 
-Id0x03::Id0x03() {Reset();}
+Id0x03::Id0x03() { Reset(); }
 
 uint32_t Id0x03::GetPeriod() const {
   // TODO(All) :  modify every protocol's period manually
@@ -37,24 +37,22 @@ uint32_t Id0x03::GetPeriod() const {
   return PERIOD;
 }
 
-void Id0x03::UpdateData(uint8_t* data) {
-  set_p_front_mgs(data, front_mgs_);
-}
+void Id0x03::UpdateData(uint8_t* data) { set_p_front_mgs(data, front_mgs_); }
 
 void Id0x03::Reset() {
   // TODO(All) :  you should check this manually
   front_mgs_ = 0;
 }
 
-Id0x03* Id0x03::set_front_mgs(
-    int front_mgs) {
+Id0x03* Id0x03::set_front_mgs(int front_mgs) {
   front_mgs_ = front_mgs;
   return this;
- }
+}
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x03::set_p_front_mgs(uint8_t* data,
-    int front_mgs) {
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+// 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x03::set_p_front_mgs(uint8_t* data, int front_mgs) {
   front_mgs = ProtocolData::BoundedValue(0, 0, front_mgs);
   int x = front_mgs;
   uint8_t t = 0;
@@ -69,13 +67,15 @@ void Id0x03::set_p_front_mgs(uint8_t* data,
   to_set1.set_value(t, 0, 8);
 }
 
-
 void Id0x03::Parse(const std::uint8_t* bytes, int32_t length,
-                         ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x03()->set_front_mgs(front_mgs(bytes, length));
+                   ChassisDetail* chassis) const {
+  chassis->mutable_diamond()->mutable_id_0x03()->set_front_mgs(
+      front_mgs(bytes, length));
 }
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'front_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+// 'front_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::front_mgs(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(0, 8);

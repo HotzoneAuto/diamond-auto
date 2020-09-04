@@ -27,7 +27,7 @@ namespace diamond {
 
 using ::apollo::drivers::canbus::Byte;
 
-Id0x04::Id0x04() {Reset();}
+Id0x04::Id0x04() { Reset(); }
 const int32_t Id0x04::ID = 0x04;
 
 uint32_t Id0x04::GetPeriod() const {
@@ -36,24 +36,22 @@ uint32_t Id0x04::GetPeriod() const {
   return PERIOD;
 }
 
-void Id0x04::UpdateData(uint8_t* data) {
-  set_p_rear_mgs(data, rear_mgs_);
-}
+void Id0x04::UpdateData(uint8_t* data) { set_p_rear_mgs(data, rear_mgs_); }
 
 void Id0x04::Reset() {
   // TODO(All) :  you should check this manually
   rear_mgs_ = 0;
 }
 
-Id0x04* Id0x04::set_rear_mgs(
-    int rear_mgs) {
+Id0x04* Id0x04::set_rear_mgs(int rear_mgs) {
   rear_mgs_ = rear_mgs;
   return this;
- }
+}
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'Rear_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x04::set_p_rear_mgs(uint8_t* data,
-    int rear_mgs) {
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+// 'Rear_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x04::set_p_rear_mgs(uint8_t* data, int rear_mgs) {
   rear_mgs = ProtocolData::BoundedValue(0, 0, rear_mgs);
   int x = rear_mgs;
   uint8_t t = 0;
@@ -69,11 +67,14 @@ void Id0x04::set_p_rear_mgs(uint8_t* data,
 }
 
 void Id0x04::Parse(const std::uint8_t* bytes, int32_t length,
-                         ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x04()->set_rear_mgs(rear_mgs(bytes, length));
+                   ChassisDetail* chassis) const {
+  chassis->mutable_diamond()->mutable_id_0x04()->set_rear_mgs(
+      rear_mgs(bytes, length));
 }
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'rear_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+// 'rear_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x04::rear_mgs(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(0, 8);

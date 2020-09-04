@@ -74,15 +74,15 @@ void Id0x00aa5701::Reset() {
   relay16_ = 0;
 }
 
-Id0x00aa5701* Id0x00aa5701::set_relay1(
-    int relay1) {
+Id0x00aa5701* Id0x00aa5701::set_relay1(int relay1) {
   relay1_ = relay1;
   return this;
- }
+}
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 4, 'name': 'Relay1', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay1(uint8_t* data,
-    int relay1) {
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 4, 'name': 'Relay1',
+// 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit':
+// '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay1(uint8_t* data, int relay1) {
   relay1 = ProtocolData::BoundedValue(0, 1, relay1);
   int x = relay1;
 
@@ -90,16 +90,15 @@ void Id0x00aa5701::set_p_relay1(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay2(
-    int relay2) {
+Id0x00aa5701* Id0x00aa5701::set_relay2(int relay2) {
   relay2_ = relay2;
   return this;
- }
+}
 
-// config detail: {'bit': 4, 'is_signed_var': False, 'len': 4, 'name': 'Relay2', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay2(uint8_t* data,
-    int relay2) {
+// config detail: {'bit': 4, 'is_signed_var': False, 'len': 4, 'name': 'Relay2',
+// 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit':
+// '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay2(uint8_t* data, int relay2) {
   relay2 = ProtocolData::BoundedValue(0, 1, relay2);
   int x = relay2;
 
@@ -107,16 +106,15 @@ void Id0x00aa5701::set_p_relay2(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay3(
-    int relay3) {
+Id0x00aa5701* Id0x00aa5701::set_relay3(int relay3) {
   relay3_ = relay3;
   return this;
- }
+}
 
-// config detail: {'bit': 8, 'is_signed_var': False, 'len': 4, 'name': 'Relay3', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay3(uint8_t* data,
-    int relay3) {
+// config detail: {'bit': 8, 'is_signed_var': False, 'len': 4, 'name': 'Relay3',
+// 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit':
+// '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay3(uint8_t* data, int relay3) {
   relay3 = ProtocolData::BoundedValue(0, 1, relay3);
   int x = relay3;
 
@@ -124,16 +122,15 @@ void Id0x00aa5701::set_p_relay3(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay4(
-    int relay4) {
+Id0x00aa5701* Id0x00aa5701::set_relay4(int relay4) {
   relay4_ = relay4;
   return this;
- }
+}
 
-// config detail: {'bit': 12, 'is_signed_var': False, 'len': 4, 'name': 'Relay4', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay4(uint8_t* data,
-    int relay4) {
+// config detail: {'bit': 12, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay4', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay4(uint8_t* data, int relay4) {
   relay4 = ProtocolData::BoundedValue(0, 1, relay4);
   int x = relay4;
 
@@ -141,16 +138,15 @@ void Id0x00aa5701::set_p_relay4(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay5(
-    int relay5) {
+Id0x00aa5701* Id0x00aa5701::set_relay5(int relay5) {
   relay5_ = relay5;
   return this;
- }
+}
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 4, 'name': 'Relay5', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay5(uint8_t* data,
-    int relay5) {
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay5', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay5(uint8_t* data, int relay5) {
   relay5 = ProtocolData::BoundedValue(0, 1, relay5);
   int x = relay5;
 
@@ -158,16 +154,15 @@ void Id0x00aa5701::set_p_relay5(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay6(
-    int relay6) {
+Id0x00aa5701* Id0x00aa5701::set_relay6(int relay6) {
   relay6_ = relay6;
   return this;
- }
+}
 
-// config detail: {'bit': 20, 'is_signed_var': False, 'len': 4, 'name': 'Relay6', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay6(uint8_t* data,
-    int relay6) {
+// config detail: {'bit': 20, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay6', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay6(uint8_t* data, int relay6) {
   relay6 = ProtocolData::BoundedValue(0, 1, relay6);
   int x = relay6;
 
@@ -175,16 +170,15 @@ void Id0x00aa5701::set_p_relay6(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay7(
-    int relay7) {
+Id0x00aa5701* Id0x00aa5701::set_relay7(int relay7) {
   relay7_ = relay7;
   return this;
- }
+}
 
-// config detail: {'bit': 24, 'is_signed_var': False, 'len': 4, 'name': 'Relay7', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay7(uint8_t* data,
-    int relay7) {
+// config detail: {'bit': 24, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay7', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay7(uint8_t* data, int relay7) {
   relay7 = ProtocolData::BoundedValue(0, 1, relay7);
   int x = relay7;
 
@@ -192,16 +186,15 @@ void Id0x00aa5701::set_p_relay7(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay8(
-    int relay8) {
+Id0x00aa5701* Id0x00aa5701::set_relay8(int relay8) {
   relay8_ = relay8;
   return this;
- }
+}
 
-// config detail: {'bit': 28, 'is_signed_var': False, 'len': 4, 'name': 'Relay8', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay8(uint8_t* data,
-    int relay8) {
+// config detail: {'bit': 28, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay8', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay8(uint8_t* data, int relay8) {
   relay8 = ProtocolData::BoundedValue(0, 1, relay8);
   int x = relay8;
 
@@ -209,16 +202,15 @@ void Id0x00aa5701::set_p_relay8(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay9(
-    int relay9) {
+Id0x00aa5701* Id0x00aa5701::set_relay9(int relay9) {
   relay9_ = relay9;
   return this;
- }
+}
 
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 4, 'name': 'Relay9', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay9(uint8_t* data,
-    int relay9) {
+// config detail: {'bit': 32, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay9', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay9(uint8_t* data, int relay9) {
   relay9 = ProtocolData::BoundedValue(0, 1, relay9);
   int x = relay9;
 
@@ -226,16 +218,15 @@ void Id0x00aa5701::set_p_relay9(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay10(
-    int relay10) {
+Id0x00aa5701* Id0x00aa5701::set_relay10(int relay10) {
   relay10_ = relay10;
   return this;
- }
+}
 
-// config detail: {'bit': 36, 'is_signed_var': False, 'len': 4, 'name': 'Relay10', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay10(uint8_t* data,
-    int relay10) {
+// config detail: {'bit': 36, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay10', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay10(uint8_t* data, int relay10) {
   relay10 = ProtocolData::BoundedValue(0, 1, relay10);
   int x = relay10;
 
@@ -243,16 +234,15 @@ void Id0x00aa5701::set_p_relay10(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay11(
-    int relay11) {
+Id0x00aa5701* Id0x00aa5701::set_relay11(int relay11) {
   relay11_ = relay11;
   return this;
- }
+}
 
-// config detail: {'bit': 40, 'is_signed_var': False, 'len': 4, 'name': 'Relay11', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay11(uint8_t* data,
-    int relay11) {
+// config detail: {'bit': 40, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay11', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay11(uint8_t* data, int relay11) {
   relay11 = ProtocolData::BoundedValue(0, 1, relay11);
   int x = relay11;
 
@@ -260,16 +250,15 @@ void Id0x00aa5701::set_p_relay11(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay12(
-    int relay12) {
+Id0x00aa5701* Id0x00aa5701::set_relay12(int relay12) {
   relay12_ = relay12;
   return this;
- }
+}
 
-// config detail: {'bit': 44, 'is_signed_var': False, 'len': 4, 'name': 'Relay12', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay12(uint8_t* data,
-    int relay12) {
+// config detail: {'bit': 44, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay12', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay12(uint8_t* data, int relay12) {
   relay12 = ProtocolData::BoundedValue(0, 1, relay12);
   int x = relay12;
 
@@ -277,16 +266,15 @@ void Id0x00aa5701::set_p_relay12(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay13(
-    int relay13) {
+Id0x00aa5701* Id0x00aa5701::set_relay13(int relay13) {
   relay13_ = relay13;
   return this;
- }
+}
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 4, 'name': 'Relay13', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay13(uint8_t* data,
-    int relay13) {
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay13', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay13(uint8_t* data, int relay13) {
   relay13 = ProtocolData::BoundedValue(0, 1, relay13);
   int x = relay13;
 
@@ -294,16 +282,15 @@ void Id0x00aa5701::set_p_relay13(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay14(
-    int relay14) {
+Id0x00aa5701* Id0x00aa5701::set_relay14(int relay14) {
   relay14_ = relay14;
   return this;
- }
+}
 
-// config detail: {'bit': 52, 'is_signed_var': False, 'len': 4, 'name': 'Relay14', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay14(uint8_t* data,
-    int relay14) {
+// config detail: {'bit': 52, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay14', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay14(uint8_t* data, int relay14) {
   relay14 = ProtocolData::BoundedValue(0, 1, relay14);
   int x = relay14;
 
@@ -311,16 +298,15 @@ void Id0x00aa5701::set_p_relay14(uint8_t* data,
   to_set.set_value(x, 4, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay15(
-    int relay15) {
+Id0x00aa5701* Id0x00aa5701::set_relay15(int relay15) {
   relay15_ = relay15;
   return this;
- }
+}
 
-// config detail: {'bit': 56, 'is_signed_var': False, 'len': 4, 'name': 'Relay15', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay15(uint8_t* data,
-    int relay15) {
+// config detail: {'bit': 56, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay15', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay15(uint8_t* data, int relay15) {
   relay15 = ProtocolData::BoundedValue(0, 1, relay15);
   int x = relay15;
 
@@ -328,16 +314,15 @@ void Id0x00aa5701::set_p_relay15(uint8_t* data,
   to_set.set_value(x, 0, 4);
 }
 
-
-Id0x00aa5701* Id0x00aa5701::set_relay16(
-    int relay16) {
+Id0x00aa5701* Id0x00aa5701::set_relay16(int relay16) {
   relay16_ = relay16;
   return this;
- }
+}
 
-// config detail: {'bit': 60, 'is_signed_var': False, 'len': 4, 'name': 'Relay16', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-void Id0x00aa5701::set_p_relay16(uint8_t* data,
-    int relay16) {
+// config detail: {'bit': 60, 'is_signed_var': False, 'len': 4, 'name':
+// 'Relay16', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|1]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+void Id0x00aa5701::set_p_relay16(uint8_t* data, int relay16) {
   relay16 = ProtocolData::BoundedValue(0, 1, relay16);
   int x = relay16;
 

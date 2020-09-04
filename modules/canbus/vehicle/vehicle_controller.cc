@@ -123,8 +123,7 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
     Gear(control_command.gear_location());
-    Throttle(control_command.throttle());
-    Acceleration(control_command.acceleration());
+    Torque(control_command.throttle());
     Brake(control_command.brake());
     SetEpbBreak(control_command);
     SetLimits();
@@ -132,16 +131,9 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
 
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_STEER_ONLY) {
-    const double steering_rate_threshold = 1.0;
-    if (control_command.steering_rate() > steering_rate_threshold) {
-      // Steer(control_command.front_steering_switch(),
-      // control_command.steering_rate());
-      // Steer(control_command.rear_steering_switch(),
-      // control_command.steering_rate());
-    } else {
-      Steer_Front(control_command.front_steering_switch());
-      Steer_Rear(control_command.rear_steering_switch());
-    }
+    Steer_Front(control_command.front_steering_switch(),
+                control_command.front_steering_switch_pre());
+    // Steer_Rear(control_command.rear_steering_switch());
   }
 
   if ((driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
