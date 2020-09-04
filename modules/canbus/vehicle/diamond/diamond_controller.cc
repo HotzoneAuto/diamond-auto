@@ -326,7 +326,7 @@ ErrorCode DiamondController::EnableAutoMode() {
         // p = fopen("/sys/class/gpio/gpio351/direction", "w");
         // fprintf(p, "%s", "high");
         // fclose(p);
-        id_0x00aa5701_->set_relay2(0x10);
+        id_0x00aa5701_->set_relay2(0x01);
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
