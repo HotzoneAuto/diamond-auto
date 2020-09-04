@@ -27,8 +27,13 @@ public:
 
 private:
   Chassis chassis_;
-  std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
-  std::shared_ptr<cyber::Writer<ControlCommand>> control_cmd_writer_;
+
+  std::shared_ptr<apollo::cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
+  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::Magnetic>> magnetic_reader_;
+  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
+  std::shared_ptr<apollo::cyber::Writer<apollo::canbus::Chassis>> chassis_writer_;
+
+  std::shared_ptr<apollo::cyber::Writer<ControlCommand>> control_cmd_writer_;
 
   std::future<void> async_action_;
 };

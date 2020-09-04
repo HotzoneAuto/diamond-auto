@@ -33,6 +33,7 @@
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/message_manager.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
+//#include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
 /**
  * @namespace apollo::canbus
@@ -135,7 +136,7 @@ class VehicleController {
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
    */
-  virtual void Steer_Front(double angle) = 0;
+  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch,double front_steering_target) = 0;
 
     /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,

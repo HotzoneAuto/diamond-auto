@@ -86,7 +86,7 @@ class DiamondController final : public VehicleController {
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Front(double angle) override;
+  void Steer_Front(Chassis::SteeringSwitch steering_switch, double front_steering_target);
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
@@ -114,6 +114,7 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask();
   Chassis::ErrorCode chassis_error_code();
   void set_chassis_error_code(const Chassis::ErrorCode& error_code);
+  float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,float encoder_angle_rt,const float encoder_to_wheel_gear_ratio);
 
  private:
   // control protocol
@@ -134,7 +135,22 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   // 变频器 485通信 设备
-  Uart device_frequency_converter = Uart("ttyUSB0"); // TODO: define device name.
+  Uart device_front_frequency_converter =
+      Uart("ttyUSB2");  // TODO: define device name.
+  Uart device_rear_frequency_converter =
+      Uart("ttyUSB1");  // TODO: define device name.
+
+  float front_encoder_angle_previous = 0;
+
+  float front_encoder_angle_realtime = 0;
+  float rear_encoder_angle_previous = 0;
+
+  float rear_encoder_angle_realtime = 0;
+  const float encoder_to_wheel_gear_ratio = 125;
+  float front_wheel_angle_previous = 0;
+  float front_wheel_angle_realtime = 0;
+  float rear_wheel_angle_previous = 0;
+  float rear_wheel_angle_realtime = 0;
 
 };
 
