@@ -24,6 +24,7 @@ message LatencyStats {
 // next id : 27
 message ControlCommand {
   optional apollo.common.Header header = 1;
+  optional double torque = 2;
   // target throttle in percentage [0, 100]
   optional double throttle = 3;
 

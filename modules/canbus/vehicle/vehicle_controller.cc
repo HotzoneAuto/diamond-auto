@@ -123,12 +123,7 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
     Gear(control_command.gear_location());
-    // Throttle_Front(control_command.front_throttle());
-    // Throttle_Rear(control_command.rear_throttle());
-    Throttle(control_command.throttle());
-    Acceleration(control_command.acceleration());
-    // Brake_Front(control_command.front_brake());
-    // Brake_Rear(control_command.rear_brake());
+    Torque(control_command.throttle());
     Brake(control_command.brake());
     SetEpbBreak(control_command);
     SetLimits();

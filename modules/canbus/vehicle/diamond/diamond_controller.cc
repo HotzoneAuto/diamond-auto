@@ -42,7 +42,6 @@ const int32_t kMaxFailAttempt = 10;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
-FILE* p = NULL;
 
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,
@@ -92,9 +91,33 @@ ErrorCode DiamondController::Init(
     return ErrorCode::CANBUS_ERROR;
   }
 
+  id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
+      message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
+  if (id_0x00aa5701_ == nullptr) {
+    AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
+
+  id_0x03_ = dynamic_cast<Id0x03*>(
+      message_manager_->GetMutableProtocolDataById(Id0x03::ID));
+  if (id_0x03_ == nullptr) {
+    AERROR << "Id0x03 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
+
+  id_0x04_ = dynamic_cast<Id0x04*>(
+      message_manager_->GetMutableProtocolDataById(Id0x04::ID));
+  if (id_0x04_ == nullptr) {
+    AERROR << "Id0x04 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
+
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
   can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
+  can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
+  can_sender_->AddMessage(Id0x03::ID, id_0x03_, false);
+  can_sender_->AddMessage(Id0x04::ID, id_0x04_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
@@ -238,6 +261,22 @@ Chassis DiamondController::chassis() {
     rear_wheel_angle_previous = rear_wheel_angle_realtime;
   }
 
+  // Magnetic sensor data
+  // front
+  if (diamond->id_0x03().has_front_mgs()) {
+    chassis_.set_front_lat_dev(
+        static_cast<float>(diamond->id_0x03().front_mgs()));
+  } else {
+    chassis_.set_front_lat_dev(0);
+  }
+  // rear
+  if (diamond->id_0x04().has_rear_mgs()) {
+    chassis_.set_rear_lat_dev(
+        static_cast<float>(diamond->id_0x04().rear_mgs()));
+  } else {
+    chassis_.set_rear_lat_dev(0);
+  }
+
   return chassis_;
 }
 
@@ -284,9 +323,10 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        p = fopen("/sys/class/gpio/gpio351/direction", "w");
-        fprintf(p, "%s", "high");
-        fclose(p);
+        // p = fopen("/sys/class/gpio/gpio351/direction", "w");
+        // fprintf(p, "%s", "high");
+        // fclose(p);
+        id_0x00aa5701_->set_relay2(0x01);
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
@@ -301,22 +341,25 @@ ErrorCode DiamondController::EnableAutoMode() {
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           AERROR << "K1 up";
-          p = fopen("/sys/class/gpio/gpio271/direction", "w");
-          fprintf(p, "%s", "high");
-          fclose(p);
+          // p = fopen("/sys/class/gpio/gpio271/direction", "w");
+          // fprintf(p, "%s", "high");
+          // fclose(p);
+          id_0x00aa5701_->set_relay1(0x01);
           sleep(3);
           AERROR << "K2 down";
-          p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          fprintf(p, "%s", "low");
-          fclose(p);
+          // p = fopen("/sys/class/gpio/gpio351/direction", "w");
+          // fprintf(p, "%s", "low");
+          // fclose(p);
+          id_0x00aa5701_->set_relay2(0);
         } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
           sleep(3);
           AERROR << ">25 K2 down";
-          p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          fprintf(p, "%s", "low");
-          fclose(p);
+          // p = fopen("/sys/class/gpio/gpio351/direction", "w");
+          // fprintf(p, "%s", "low");
+          // fclose(p);
+          id_0x00aa5701_->set_relay2(0);
         }
       } else {
         AERROR << "1818d0f3 bybatinsrerr REEOR!!";
@@ -408,18 +451,12 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  p = fopen("/sys/class/gpio/gpio271/direction", "w");
-  fprintf(p, "%s", "low");
-  fclose(p);
+  // p = fopen("/sys/class/gpio/gpio271/direction", "w");
+  // fprintf(p, "%s", "low");
+  // fclose(p);
+  id_0x00aa5701_->set_relay1(0);
   AERROR << "K1 down";
   sleep(5);
-
-  if (chassis_detail.diamond().id_0x1818d0f3().fbatvolt() < 25) {
-    AERROR << "K1 down over";
-  } else {
-    AERROR << "1818d0f3 fbatcur="
-           << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  }
 
   //===========k1 down end========
   return ErrorCode::OK;
@@ -490,14 +527,14 @@ void DiamondController::Brake(double acceleration) {
 }
 // drive with old acceleration
 // gas:0.00~99.99 unit:
-void DiamondController::Throttle(double throttle) {
+void DiamondController::Torque(double torque) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
 
-  id_0x0c19f0a7_->set_fmot1targettq(throttle);
+  id_0x0c19f0a7_->set_fmot1targettq(torque);
   // motor torque mode
   id_0x0c19f0a7_->set_bymot1workmode(146);
   // motor speed mode
@@ -510,49 +547,6 @@ void DiamondController::Vehicle_Stop(){
   id_0x0c19f0a7_->set_bymot1workmode(129);
 }*/
 
-// confirm the car is driven by acceleration command or throttle/brake pedal
-// drive with acceleration/deceleration
-// acc:-7.0 ~ 5.0, unit:m/s^2
-void DiamondController::Acceleration(double acc) {
-  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE ||
-      driving_mode() != Chassis::AUTO_SPEED_ONLY) {
-    AINFO << "The current drive mode does not need to set acceleration.";
-    return;
-  }
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-   */
-}
-
-/*
-// diamond default, -470 ~ 470, left:+, right:-
-// need to be compatible with control module, so reverse
-// steering with old angle speed
-// angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer(double angle) {
-  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
-      driving_mode() != Chassis::AUTO_STEER_ONLY) {
-    AINFO << "The current driving mode does not need to set steer.";
-    return;
-  }
-  // const double real_angle = 360.0 * angle / 100.0; //360 change to 45
-  // reverse sign
-  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
-  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
-  // DC/DC
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcaccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcacwkst(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_byeapcmd(0x55);
-
-  // DC/DC
-  id_0x0c079aa7_->set_bydcac2cmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcac2wkst(0x55);
-}
-*/
 
 // diamond default, -470 ~ 470, left:+, right:-
 // need to be compatible with control module, so reverse
@@ -566,10 +560,10 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
     return;
   }
 
-  p = fopen("/home/nvidia/out.txt", "a+");
-  fprintf(p, "%f\t%f\t%f\n", chassis_.front_wheel_angle(),
-          chassis_.front_encoder_angle(), front_steering_target);
-  fclose(p);
+  // p = fopen("/home/nvidia/out.txt", "a+");
+  // fprintf(p, "%f\t%f\t%f\n", chassis_.front_wheel_angle(),
+  //         chassis_.front_encoder_angle(), front_steering_target);
+  // fclose(p);
 
   char frq_converter_dir_write_cmd[8];
   char frq_converter_spd_write_cmd[8];

@@ -188,7 +188,8 @@ void ControlComponent::GenerateCommand() {
   } else {
     speed_motor_deadzone =
         r_wheel * m_veh * g * f_c /
-        (i_1 * i_0 * yita_t);  // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
+        (i_1 * i_0 *
+         yita_t);  // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
   }
 
   // cmd -> set_front_steering_target(0);

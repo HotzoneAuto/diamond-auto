@@ -84,14 +84,14 @@ ErrorCode SocketCanClientRaw::Start() {
     int hex_value[] = {0x0C09A79B, 0x0C0AA79C, 0x0C09A7F0, 0x0C08A7F0,
                        0x0C0BA7F0, 0x1818D0F3, 0x1819D0F3, 0x181AD0F3,
                        0x181BD0F3, 0x181CD0F3, 0x181DD0F3, 0x181ED0F3,
-                       0x181FD0F3, 0x1825D0F3, 0x18EBA1A5};
+                       0x181FD0F3, 0x1825D0F3, 0x18EBA1A5, 0x00AA5401};
     for (int i = 0; i < sizeof(hex_value) / sizeof(hex_value[0]); ++i) {
       filter[i].can_id = hex_value[i];
       filter[i].can_mask = CAN_EFF_MASK;
     }
 
     // Stardard frame filter
-    for (int i = 15; i < 17; ++i) {
+    for (int i = 15; i < 19; ++i) {
       filter[i].can_id = 0x0 + (i - 14);
       filter[i].can_mask = CAN_SFF_MASK;
     }

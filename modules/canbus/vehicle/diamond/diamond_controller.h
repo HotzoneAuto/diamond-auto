@@ -25,9 +25,12 @@
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
 #include "modules/common/proto/error_code.pb.h"
-#include "modules/control/proto/control_cmd.pb.h"
 #include "modules/common/util/uart.h"
+#include "modules/control/proto/control_cmd.pb.h"
 
+#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x03.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x04.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
@@ -77,13 +80,7 @@ class DiamondController final : public VehicleController {
   // acceleration_spd: 60 ~ 100, suggest: 90
   void Brake(double acceleration) override;
 
-  // drive with old acceleration
-  // gas:0.00~99.99 unit:
-  void Throttle(double throttle) override;
-
-  // drive with acceleration/deceleration
-  // acc:-7.0~5.0 unit:m/s^2
-  void Acceleration(double acc) override;
+  void Torque(double torque) override;
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
@@ -122,11 +119,12 @@ class DiamondController final : public VehicleController {
 
  private:
   // control protocol
-  // CAN1
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
-  // CAN2
   Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
+  Id0x00aa5701* id_0x00aa5701_ = nullptr;
+  Id0x03* id_0x03_ = nullptr;
+  Id0x04* id_0x04_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;

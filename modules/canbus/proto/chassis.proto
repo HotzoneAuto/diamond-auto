@@ -114,6 +114,8 @@ message Chassis {
   optional float rear_encoder_angle = 39 [default = nan];
   optional double front_wheel_angle = 40 [default = nan];
   optional double rear_wheel_angle = 41 [default = nan];
-
+  // Magnetic sensor data
+  optional float front_lat_dev = 42;
+  optional float rear_lat_dev = 43;
 
 }
