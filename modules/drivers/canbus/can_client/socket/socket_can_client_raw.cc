@@ -91,7 +91,7 @@ ErrorCode SocketCanClientRaw::Start() {
     }
 
     // Stardard frame filter
-    for (int i = 15; i < 17; ++i) {
+    for (int i = 15; i < 19; ++i) {
       filter[i].can_id = 0x0 + (i - 14);
       filter[i].can_mask = CAN_SFF_MASK;
     }
