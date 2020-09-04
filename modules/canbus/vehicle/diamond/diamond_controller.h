@@ -120,11 +120,12 @@ class DiamondController final : public VehicleController {
 
  private:
   // control protocol
-  // CAN1
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
-  // CAN2
   Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
+  Id0x00aa5701* id_0x00aa5701_ = nullptr;
+  Id0x03* id_0x03_ = nullptr;
+  Id0x04* id_0x04_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;

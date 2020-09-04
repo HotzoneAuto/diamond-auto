@@ -18,8 +18,6 @@
 
 #include "modules/common/proto/vehicle_signal.pb.h"
 
-#include <stdio.h>
-#include <cstdio>
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
@@ -40,7 +38,6 @@ const int32_t kMaxFailAttempt = 10;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
-FILE* p = NULL;
 
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,
@@ -89,10 +86,34 @@ ErrorCode DiamondController::Init(
     AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
+  
+  id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>
+          (message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
+  if (id_0x00aa5701_ == nullptr) {
+     AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
+     return ErrorCode::CANBUS_ERROR;
+  }
+
+  id_0x03_ = dynamic_cast<Id0x03*>
+          (message_manager_->GetMutableProtocolDataById(Id0x03::ID));
+  if (id_0x03_ == nullptr) {
+     AERROR << "Id0x03 does not exist in the DiamondMessageManager!";
+     return ErrorCode::CANBUS_ERROR;
+  }
+
+  id_0x04_ = dynamic_cast<Id0x04*>
+          (message_manager_->GetMutableProtocolDataById(Id0x04::ID));
+  if (id_0x04_ == nullptr) {
+     AERROR << "Id0x04 does not exist in the DiamondMessageManager!";
+     return ErrorCode::CANBUS_ERROR;
+  }
 
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
   can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
+  can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
+  can_sender_->AddMessage(Id0x03::ID, id_0x03_, false);
+  can_sender_->AddMessage(Id0x04::ID, id_0x04_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
@@ -209,6 +230,22 @@ Chassis DiamondController::chassis() {
         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
   }
 
+  // Magnetic sensor data 
+  // front
+  if (diamond->id_0x03().has_front_mgs()) {
+    chassis_.set_front_lat_dev(
+        static_cast<float>(diamond->id_0x03().front_mgs()));
+  } else {
+    chassis_.set_front_lat_dev(0);
+  }
+  // rear
+  if (diamond->id_0x04().has_rear_mgs()) {
+    chassis_.set_rear_lat_dev(
+        static_cast<float>(diamond->id_0x04().rear_mgs()));
+  } else {
+    chassis_.set_rear_lat_dev(0);
+  }
+
   return chassis_;
 }
 
@@ -255,9 +292,10 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        p = fopen("/sys/class/gpio/gpio351/direction", "w");
-        fprintf(p, "%s", "high");
-        fclose(p);
+        // p = fopen("/sys/class/gpio/gpio351/direction", "w");
+        // fprintf(p, "%s", "high");
+        // fclose(p);
+        id_0x00aa5701_->set_relay2(0x10);
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
@@ -272,22 +310,25 @@ ErrorCode DiamondController::EnableAutoMode() {
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           AERROR << "K1 up";
-          p = fopen("/sys/class/gpio/gpio271/direction", "w");
-          fprintf(p, "%s", "high");
-          fclose(p);
+          // p = fopen("/sys/class/gpio/gpio271/direction", "w");
+          // fprintf(p, "%s", "high");
+          // fclose(p);
+          id_0x00aa5701_->set_relay1(0x01);
           sleep(3);
           AERROR << "K2 down";
-          p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          fprintf(p, "%s", "low");
-          fclose(p);
+          // p = fopen("/sys/class/gpio/gpio351/direction", "w");
+          // fprintf(p, "%s", "low");
+          // fclose(p);
+          id_0x00aa5701_->set_relay2(0);
         } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
           sleep(3);
           AERROR << ">25 K2 down";
-          p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          fprintf(p, "%s", "low");
-          fclose(p);
+          // p = fopen("/sys/class/gpio/gpio351/direction", "w");
+          // fprintf(p, "%s", "low");
+          // fclose(p);
+          id_0x00aa5701_->set_relay2(0);
         }
       } else {
         AERROR << "1818d0f3 bybatinsrerr REEOR!!";
@@ -338,18 +379,12 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  p = fopen("/sys/class/gpio/gpio271/direction", "w");
-  fprintf(p, "%s", "low");
-  fclose(p);
+  // p = fopen("/sys/class/gpio/gpio271/direction", "w");
+  // fprintf(p, "%s", "low");
+  // fclose(p);
+  id_0x00aa5701_->set_relay1(0);
   AERROR << "K1 down";
   sleep(5);
-
-  if (chassis_detail.diamond().id_0x1818d0f3().fbatvolt() < 25) {
-    AERROR << "K1 down over";
-  } else {
-    AERROR << "1818d0f3 fbatcur="
-           << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  }
 
   //===========k1 down end========
   return ErrorCode::OK;

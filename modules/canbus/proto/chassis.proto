@@ -112,4 +112,8 @@ message Chassis {
   optional float bat_percentage = 37 [default = nan];
   optional float front_encoder_angle = 38 [default = nan];
   optional float rear_encoder_angle = 39 [default = nan];
+
+  // Magnetic sensor data
+  optional float front_lat_dev = 40;
+  optional float rear_lat_dev = 41;
 }
