@@ -22,14 +22,14 @@ bool ControlComponent::Init() {
       FLAGS_chassis_topic, [this](const std::shared_ptr<Chassis>& chassis) {
         chassis_.CopyFrom(*chassis);
       });
-
+  /*
   // Magnetic Reader
   magnetic_reader_ = node_->CreateReader<Magnetic>(
       FLAGS_magnetic_channel,
       [this](const std::shared_ptr<Magnetic>& magnetic) {
         magnetic_.CopyFrom(*magnetic);
       });
-
+  */
   // rfid Reader
   rfid_reader_ = node_->CreateReader<RFID>(
       FLAGS_rfid_topic,
@@ -52,8 +52,8 @@ void ControlComponent::GenerateCommand() {
   // frequency
   Rate rate(100.0);
 
-  float front_lat_dev_mgs = 0;
-  float rear_lat_dev_mgs = 0;
+  float front_lat_dev_mgs = 0.0;
+  float rear_lat_dev_mgs = 0.0;
 
   // 获取当前车辆速度
   veh_spd = chassis_.speed_mps();
@@ -326,8 +326,8 @@ void ControlComponent::GenerateCommand() {
         rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
 
     // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
-    front_lat_dev_mgs = magnetic_.lat_dev();
-    rear_lat_dev_mgs = -magnetic_.lat_dev();
+    front_lat_dev_mgs = chassis_.front_lat_dev();
+    rear_lat_dev_mgs = chassis_.rear_lat_dev();
 
     // 给定驱动电机反转命令（使车辆前进从A到B）
     if (/* motor_speed == 1 && */ drivemotor_flag == 1) {

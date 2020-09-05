@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <cmath>
+#include <string>
 #include <cstdio>
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -264,15 +265,43 @@ Chassis DiamondController::chassis() {
   // Magnetic sensor data
   // front
   if (diamond->id_0x03().has_front_mgs()) {
-    chassis_.set_front_lat_dev(
-        static_cast<float>(diamond->id_0x03().front_mgs()));
+    int bin1 = decToBin(diamond->id_0x03().front_mgs()));
+    std::string s1 = std::to_string(bin1);
+    while(bin1.size() < 16){
+      s1 = '0' + s1;
+    }
+    int sum_activated1 = 0;
+      int sum_id1 = 0;
+      for (int i = 0; i < 16; i++) {
+        if (s1[i] == '1') {
+          sum_id1 += 16 - i;
+          sum_activated1 += 1;
+        }
+      }
+    float front_lat_dev_mgs = 0.0;
+    front_lat_dev_mgs = static_cast<float>(sum_id1) / static_cast<float>(sum_activated1) - 8.5;
+    chassis_.set_front_lat_dev(front_lat_dev_mgs);
   } else {
     chassis_.set_front_lat_dev(0);
   }
   // rear
   if (diamond->id_0x04().has_rear_mgs()) {
-    chassis_.set_rear_lat_dev(
-        static_cast<float>(diamond->id_0x04().rear_mgs()));
+    int bin2 = decToBin(diamond->id_0x03().rear_mgs()));
+    std::string s2 = std::to_string(bin2);
+    while(bin2.size() < 16){
+      s2 = '0' + s2;
+    }
+    int sum_activated2 = 0;
+      int sum_id2 = 0;
+      for (int i = 0; i < 16; i++) {
+        if (s2[i] == '1') {
+          sum_id2 += 16 - i;
+          sum_activated2 += 1;
+        }
+      }
+    float rear_lat_dev_mgs = 0.0;
+    rear_lat_dev_mgs = static_cast<float>(sum_id2) / static_cast<float>(sum_activated2) - 8.5;
+    chassis_.set_rear_lat_dev(rear_lat_dev_mgs);
   } else {
     chassis_.set_rear_lat_dev(0);
   }
@@ -1059,6 +1088,17 @@ float DiamondController::update_wheel_angle(
     wheel_angle_now = wheel_angle_now - 360.0;
   }
   return wheel_angle_now;
+}
+
+int DiamondController::decToBin(
+    int dec) {
+  int result = 0, temp = dec, j = 1;
+  while (temp) {
+    result = result + j * (temp % 2);
+    temp = temp / 2;
+    j = j * 10;
+  }
+  return result;
 }
 }  // namespace diamond
 }  // namespace canbus

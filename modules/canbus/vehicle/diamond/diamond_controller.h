@@ -115,6 +115,7 @@ class DiamondController final : public VehicleController {
   float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
                            float encoder_angle_rt,
                            const float encoder_to_wheel_gear_ratio);
+  int decToBin(int dec);
 
  private:
   // control protocol
