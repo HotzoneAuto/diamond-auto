@@ -48,7 +48,7 @@ bool ControlComponent::Init() {
 // write to channel
 void ControlComponent::GenerateCommand() {
   auto cmd = std::make_shared<ControlCommand>();
-  
+
   // frequency
   Rate rate(100.0);
 
@@ -148,7 +148,7 @@ void ControlComponent::GenerateCommand() {
     // 获取编码器瞬时角度值
     // front_encoder_angle_realtime = chassis_.front_encoder_angle();
 
-    //front_wheel_angle_realtime = chassis_.front_wheel_angle();
+    // front_wheel_angle_realtime = chassis_.front_wheel_angle();
 
     /*
     front_wheel_angle_realtime = update_wheel_angle(
@@ -194,16 +194,16 @@ void ControlComponent::GenerateCommand() {
     // TODO: Configuration
     // 手动给定，0代表停止，1代表从A到B，2代表从B到A
     drivemotor_flag = 1;
-    switch (drivemotor_flag){
+    switch (drivemotor_flag) {
       // 从A到B
-      case 1:{
-        if (rfid_.id() == 2){
-        // TODO: 制动转矩，需改成标定值
+      case 1: {
+        if (rfid_.id() == 2) {
+          // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 50;
           cmd->set_front_brake(drivemotor_torque);
-        }
-        else{
-          drivemotor_torque = pid_speed(veh_spd, FLAGS_desired_v,speed_motor_deadzone);
+        } else {
+          drivemotor_torque =
+              pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
           cmd->set_front_throttle(drivemotor_torque);
         }
 
@@ -212,14 +212,14 @@ void ControlComponent::GenerateCommand() {
       }
 
       // 从B到A
-      case 2:{
-        if (rfid_.id() == 1){
+      case 2: {
+        if (rfid_.id() == 1) {
           // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 50;
           cmd->set_rear_brake(drivemotor_torque);
-        }
-        else{
-          drivemotor_torque = pid_speed(veh_spd, FLAGS_desired_v,speed_motor_deadzone);
+        } else {
+          drivemotor_torque =
+              pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
           cmd->set_rear_throttle(drivemotor_torque);
         }
 
@@ -228,7 +228,7 @@ void ControlComponent::GenerateCommand() {
       }
 
       // 停止状态
-      case 0:{
+      case 0: {
         cmd->set_front_throttle(0);
         cmd->set_rear_throttle(0);
 
@@ -258,12 +258,12 @@ void ControlComponent::GenerateCommand() {
     rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
 
     // 检测到轮胎转角超过30°，转向电机停转
-    if (abs(front_wheel_angle_realtime) > 30){
+    if (abs(front_wheel_angle_realtime) > 30) {
       // front_motor_steering_dir = 0;
       cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
     }
 
-    if (abs(rear_wheel_angle_realtime) > 30){
+    if (abs(rear_wheel_angle_realtime) > 30) {
       // rear_motor_steering_dir = 0;
       cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
     }
@@ -279,9 +279,8 @@ void ControlComponent::GenerateCommand() {
     }
     */
 
-
-    switch(FLAGS_magnetic_enable){
-      case 1:{
+    switch (FLAGS_magnetic_enable) {
+      case 1: {
         // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
         // TODO: 检查，共用了一个数据
         front_lat_dev_mgs = chassis_.front_lat_dev();
@@ -308,7 +307,7 @@ void ControlComponent::GenerateCommand() {
               cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
               cmd->set_front_wheel_target(0.0);
             } else if ((front_wheel_angle_realtime > -0.5) &&
-                      (front_wheel_angle_realtime < 0.5)) {
+                       (front_wheel_angle_realtime < 0.5)) {
               // front_motor_steering_dir = 0;  // 前方转向电机停转
               cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
             } else  // 当前前轮转角为负，向左偏
@@ -322,7 +321,7 @@ void ControlComponent::GenerateCommand() {
         {
           // front_motor_steering_dir = 0;  //前方转向电机不转
           cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
-          if (rear_lat_dev_mgs < -4.5)   //若后方磁导航检测出车偏左
+          if (rear_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
             cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
@@ -339,7 +338,7 @@ void ControlComponent::GenerateCommand() {
               cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
               cmd->set_rear_wheel_target(0);
             } else if ((rear_wheel_angle_realtime > -0.5) &&
-                      (rear_wheel_angle_realtime < 0.5)) {
+                       (rear_wheel_angle_realtime < 0.5)) {
               // rear_motor_steering_dir = 0;  // 后方转向电机停转
               cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
             } else  // 当前后轮转角为负，向左偏
@@ -348,9 +347,8 @@ void ControlComponent::GenerateCommand() {
               cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
               cmd->set_rear_wheel_target(0);
             }
-          } 
-	} 
-	else {  // 若出现异常
+          }
+        } else {  // 若出现异常
           // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
           // front_motor_steering_dir = 0;  // 停止
           // rear_motor_steering_dir = 0;   // 停止
@@ -359,13 +357,13 @@ void ControlComponent::GenerateCommand() {
         }
         break;
       }
-      case 0:{
+      case 0: {
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;
           cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
           cmd->set_front_steering_switch(manual_front_steering_switch);
           cmd->set_front_wheel_target(manual_front_wheel_target);
-        } else if (drivemotor_flag == 2){
+        } else if (drivemotor_flag == 2) {
           // front_motor_steering_dir = 0;
           cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
           cmd->set_rear_steering_switch(manual_rear_steering_switch);
@@ -378,9 +376,8 @@ void ControlComponent::GenerateCommand() {
         }
         break;
       }
-      default:{}
+      default: {}
     }
-
 
     /*
     // 更新轮胎转角和编码器度数

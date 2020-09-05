@@ -36,7 +36,7 @@ class ControlComponent : public Component<> {
   std::shared_ptr<cyber::Reader<apollo::drivers::Magnetic>> magnetic_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
   std::shared_ptr<cyber::Writer<ControlCommand>> control_cmd_writer_;
-  
+
   Chassis::SteeringSwitch manual_front_steering_switch = Chassis::STEERINGSTOP;
   double manual_front_wheel_target = 0;
   Chassis::SteeringSwitch manual_rear_steering_switch = Chassis::STEERINGSTOP;

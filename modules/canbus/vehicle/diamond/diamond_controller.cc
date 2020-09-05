@@ -638,7 +638,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
       frq_converter_spd_write_cmd[6] = 0x98;
       frq_converter_spd_write_cmd[7] = 0x9C;
       int result_spd_positive = device_front_frequency_converter.Write(
-          frq_converter_spd_write_cmd,8); 
+          frq_converter_spd_write_cmd,8);
       ADEBUG << "Frequency converter speed write command send result is :"
              << result_spd_positive;
       */
