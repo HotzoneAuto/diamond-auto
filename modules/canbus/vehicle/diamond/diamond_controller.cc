@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 #include <cmath>
-#include <string>
+
 #include <cstdio>
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -265,43 +265,13 @@ Chassis DiamondController::chassis() {
   // Magnetic sensor data
   // front
   if (diamond->id_0x03().has_front_mgs()) {
-    int bin1 = decToBin(diamond->id_0x03().front_mgs()));
-    std::string s1 = std::to_string(bin1);
-    while(bin1.size() < 16){
-      s1 = '0' + s1;
-    }
-    int sum_activated1 = 0;
-      int sum_id1 = 0;
-      for (int i = 0; i < 16; i++) {
-        if (s1[i] == '1') {
-          sum_id1 += 16 - i;
-          sum_activated1 += 1;
-        }
-      }
-    float front_lat_dev_mgs = 0.0;
-    front_lat_dev_mgs = static_cast<float>(sum_id1) / static_cast<float>(sum_activated1) - 8.5;
-    chassis_.set_front_lat_dev(front_lat_dev_mgs);
+    chassis_.set_front_lat_dev(getLatdev(diamond->id_0x03().has_front_mgs()));    
   } else {
     chassis_.set_front_lat_dev(0);
   }
   // rear
   if (diamond->id_0x04().has_rear_mgs()) {
-    int bin2 = decToBin(diamond->id_0x03().rear_mgs()));
-    std::string s2 = std::to_string(bin2);
-    while(bin2.size() < 16){
-      s2 = '0' + s2;
-    }
-    int sum_activated2 = 0;
-      int sum_id2 = 0;
-      for (int i = 0; i < 16; i++) {
-        if (s2[i] == '1') {
-          sum_id2 += 16 - i;
-          sum_activated2 += 1;
-        }
-      }
-    float rear_lat_dev_mgs = 0.0;
-    rear_lat_dev_mgs = static_cast<float>(sum_id2) / static_cast<float>(sum_activated2) - 8.5;
-    chassis_.set_rear_lat_dev(rear_lat_dev_mgs);
+    chassis_.set_rear_lat_dev(getLatdev(diamond->id_0x04().has_rear_mgs()));  
   } else {
     chassis_.set_rear_lat_dev(0);
   }
@@ -1090,15 +1060,29 @@ float DiamondController::update_wheel_angle(
   return wheel_angle_now;
 }
 
-int DiamondController::decToBin(
+float DiamondController::getLatdev(
     int dec) {
-  int result = 0, temp = dec, j = 1;
+  int bin = 0, temp = dec, j = 1;
   while (temp) {
-    result = result + j * (temp % 2);
+    bin = bin + j * (temp % 2);
     temp = temp / 2;
     j = j * 10;
   }
-  return result;
+  std::string s = std::to_string(bin);
+  while(s.size() < 16){
+    s = '0' + s;
+  }
+  int sum_activated = 0;
+  int sum_id = 0;
+  for (int i = 0; i < 16; i++) {
+    if (s[i] == '1') {
+      sum_id += 16 - i;
+      sum_activated += 1;
+    }
+  }
+  float lat_dev_mgs = 0.0;
+  lat_dev_mgs = static_cast<float>(sum_id) / static_cast<float>(sum_activated) - 8.5;
+  return lat_dev_mgs;
 }
 }  // namespace diamond
 }  // namespace canbus
