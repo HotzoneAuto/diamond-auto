@@ -584,12 +584,12 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
   //         chassis_.front_encoder_angle(), front_steering_target);
   // fclose(p);
 
-  char frq_converter_spd_write_cmd[8];
+  // char frq_converter_spd_write_cmd[8];
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       if (std::abs(chassis_.front_wheel_angle() - front_steering_target) <
-          0.1) {
+          0.5) {
         // Stop steering
         frq_converter_dir_write_cmd[0] = 0x0B;
         frq_converter_dir_write_cmd[1] = 0x06;
@@ -629,19 +629,18 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
       ADEBUG << "Frequency converter direction write command send result is :"
              << result_dir_positive;
       /*
-            frq_converter_spd_write_cmd[0] = 0x0B;
-            frq_converter_spd_write_cmd[1] = 0x06;
-            frq_converter_spd_write_cmd[2] = 0x20;
-            frq_converter_spd_write_cmd[3] = 0x00;
-            frq_converter_spd_write_cmd[4] = 0x27;
-            frq_converter_spd_write_cmd[5] = 0x10;
-            frq_converter_spd_write_cmd[6] = 0x98;
-            frq_converter_spd_write_cmd[7] = 0x9C;
-            int result_spd_positive =
-                device_front_frequency_converter.Write(frq_converter_spd_write_cmd,
-         8); ADEBUG << "Frequency converter speed write command send result is
-         :"
-                   << result_spd_positive;
+      frq_converter_spd_write_cmd[0] = 0x0B;
+      frq_converter_spd_write_cmd[1] = 0x06;
+      frq_converter_spd_write_cmd[2] = 0x20;
+      frq_converter_spd_write_cmd[3] = 0x00;
+      frq_converter_spd_write_cmd[4] = 0x27;
+      frq_converter_spd_write_cmd[5] = 0x10;
+      frq_converter_spd_write_cmd[6] = 0x98;
+      frq_converter_spd_write_cmd[7] = 0x9C;
+      int result_spd_positive = device_front_frequency_converter.Write(
+          frq_converter_spd_write_cmd,8);
+      ADEBUG << "Frequency converter speed write command send result is :"
+             << result_spd_positive;
       */
       // 风机转
       id_0x0c079aa7_->set_bydcdccmd(0x55);
@@ -699,7 +698,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
           frq_converter_dir_write_cmd, 8);
       ADEBUG << "Frequency converter direction write command send result is :"
              << result_dir_negative;
-
+      /*
       frq_converter_spd_write_cmd[0] = 0x0B;
       frq_converter_spd_write_cmd[1] = 0x06;
       frq_converter_spd_write_cmd[2] = 0x20;
@@ -712,7 +711,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
           frq_converter_spd_write_cmd, 8);
       ADEBUG << "Frequency converter speed write command send result is :"
              << result_spd_negative;
-
+      */
       // 风机转
       id_0x0c079aa7_->set_bydcdccmd(0x55);
       // DC/AC
