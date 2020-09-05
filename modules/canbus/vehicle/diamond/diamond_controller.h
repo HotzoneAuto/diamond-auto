@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <thread>
+#include <cmath>
 
 #include "modules/canbus/vehicle/vehicle_controller.h"
 
@@ -38,6 +39,37 @@
 namespace apollo {
 namespace canbus {
 namespace diamond {
+
+float front_encoder_angle_pre_pre = 0;
+float rear_encoder_angle_pre_pre = 0;
+float front_encoder_angle_filtered_rt = 0;
+float rear_encoder_angle_filtered_rt = 0;
+float front_encoder_angle_filtered_pre = 0;
+float rear_encoder_angle_filtered_pre = 0;
+float front_encoder_angle_filtered_pre_pre = 0;
+float rear_encoder_angle_filtered_pre_pre = 0;
+
+float biliner(
+    float fc, float fs, float encoder_angle_rt,
+    float encoder_angle_pre, float encoder_angle_pre_pre,
+    float encoder_angle_filtered_pre, 
+    float encoder_angle_filtered_pre_pre){
+  int i = 0;
+  float W, Wc, t;
+  W = 2 * 3.1415926 * fc / fs;
+  Wc = 2 * fs * tan(W/2);
+  t = 2 * fs / Wc;
+
+  float encoder_angle_filtered_rt = 0;
+  encoder_angle_filtered_rt = (encoder_angle_rt + 
+      2 * encoder_angle_pre + encoder_angle_pre_pre-
+      (2-2*t*t)*encoder_angle_filtered_pre-
+      (1-1.414*t+t*t)*encoder_angle_filtered_pre_pre)/(t*t+1.414*t+1);
+  
+  return encoder_angle_filtered_rt;
+}
+
+
 
 float getLatdev(int dec) {
   int bin = 0, temp = dec, j = 1;
