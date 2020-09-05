@@ -39,6 +39,30 @@ namespace apollo {
 namespace canbus {
 namespace diamond {
 
+float getLatdev(int dec) {
+  int bin = 0, temp = dec, j = 1;
+  while (temp) {
+    bin = bin + j * (temp % 2);
+    temp = temp / 2;
+    j = j * 10;
+  }
+  std::string s = std::to_string(bin);
+  while (s.size() < 16) {
+    s = '0' + s;
+  }
+  int sum_activated = 0;
+  int sum_id = 0;
+  for (int i = 0; i < 16; i++) {
+    if (s[i] == '1') {
+      sum_id += 16 - i;
+      sum_activated += 1;
+    }
+  }
+  auto lat_dev_mgs =
+      static_cast<float>(sum_id) / static_cast<float>(sum_activated) - 8.5;
+  return lat_dev_mgs;
+}
+
 class DiamondController final : public VehicleController {
  public:
   explicit DiamondController(){};
@@ -115,7 +139,6 @@ class DiamondController final : public VehicleController {
   float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
                            float encoder_angle_rt,
                            const float encoder_to_wheel_gear_ratio);
-  int decToBin(int dec);
 
  private:
   // control protocol
