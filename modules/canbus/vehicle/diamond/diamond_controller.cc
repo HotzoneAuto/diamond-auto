@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <cmath>
+
 #include <cstdio>
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -264,15 +265,13 @@ Chassis DiamondController::chassis() {
   // Magnetic sensor data
   // front
   if (diamond->id_0x03().has_front_mgs()) {
-    chassis_.set_front_lat_dev(
-        static_cast<float>(diamond->id_0x03().front_mgs()));
+    chassis_.set_front_lat_dev(getLatdev(diamond->id_0x03().front_mgs()));
   } else {
     chassis_.set_front_lat_dev(0);
   }
   // rear
   if (diamond->id_0x04().has_rear_mgs()) {
-    chassis_.set_rear_lat_dev(
-        static_cast<float>(diamond->id_0x04().rear_mgs()));
+    chassis_.set_rear_lat_dev(getLatdev(diamond->id_0x04().rear_mgs()));
   } else {
     chassis_.set_rear_lat_dev(0);
   }
@@ -1059,6 +1058,7 @@ float DiamondController::update_wheel_angle(
   }
   return wheel_angle_now;
 }
+
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
