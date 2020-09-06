@@ -231,20 +231,19 @@ Chassis DiamondController::chassis() {
 
   if (diamond->id_0x01().angle_sensor_id() == 1) {
     if (std::isnan(diamond->id_0x01().angle_sensor_data())) {
-      front_encoder_angle_realtime = front_encoder_angle_previous;      
+      front_encoder_angle_realtime = front_encoder_angle_previous;
     } else {
       front_encoder_angle_realtime =
           static_cast<float>(diamond->id_0x01().angle_sensor_data());
     }
-    
+
     front_encoder_angle_filtered_rt = biliner(
-        fc, fs, front_encoder_angle_realtime,
-        front_encoder_angle_previous, front_encoder_angle_pre_pre,
-        front_encoder_angle_filtered_pre,
+        fc, fs, front_encoder_angle_realtime, front_encoder_angle_previous,
+        front_encoder_angle_pre_pre, front_encoder_angle_filtered_pre,
         front_encoder_angle_filtered_pre_pre);
     chassis_.set_front_encoder_angle(
-        static_cast<float>(front_encoder_angle_filtered_rt));    
-    
+        static_cast<float>(front_encoder_angle_filtered_rt));
+
     front_wheel_angle_realtime = update_wheel_angle(
         front_wheel_angle_previous, front_encoder_angle_filtered_pre,
         front_encoder_angle_filtered_rt, encoder_to_wheel_gear_ratio);
@@ -259,20 +258,19 @@ Chassis DiamondController::chassis() {
     front_encoder_angle_filtered_pre = front_encoder_angle_filtered_rt;
   } else {
     if (std::isnan(diamond->id_0x01().angle_sensor_data())) {
-      rear_encoder_angle_realtime = rear_encoder_angle_previous;      
+      rear_encoder_angle_realtime = rear_encoder_angle_previous;
     } else {
       rear_encoder_angle_realtime =
           static_cast<float>(diamond->id_0x01().angle_sensor_data());
     }
-    
+
     rear_encoder_angle_filtered_rt = biliner(
-        fc, fs, rear_encoder_angle_realtime,
-        rear_encoder_angle_previous, rear_encoder_angle_pre_pre,
-        rear_encoder_angle_filtered_pre,
-       rear_encoder_angle_filtered_pre_pre);
+        fc, fs, rear_encoder_angle_realtime, rear_encoder_angle_previous,
+        rear_encoder_angle_pre_pre, rear_encoder_angle_filtered_pre,
+        rear_encoder_angle_filtered_pre_pre);
     chassis_.set_rear_encoder_angle(
-        static_cast<float>(rear_encoder_angle_filtered_rt));    
-    
+        static_cast<float>(rear_encoder_angle_filtered_rt));
+
     rear_wheel_angle_realtime = update_wheel_angle(
         rear_wheel_angle_previous, rear_encoder_angle_filtered_pre,
         rear_encoder_angle_filtered_rt, encoder_to_wheel_gear_ratio);
