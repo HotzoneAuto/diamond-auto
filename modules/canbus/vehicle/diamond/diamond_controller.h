@@ -49,8 +49,8 @@ float rear_encoder_angle_filtered_pre = 0;
 float front_encoder_angle_filtered_pre_pre = 0;
 float rear_encoder_angle_filtered_pre_pre = 0;
 
-float fc = 100.0; // TODO: reset
-float fs = 1000/15;
+float fc = 200; // TODO: reset
+float fs = 1000/10;
 
 float biliner(
     float fc, float fs, float encoder_angle_rt,
