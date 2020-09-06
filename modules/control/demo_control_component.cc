@@ -17,19 +17,18 @@ using apollo::cyber::Rate;
 using apollo::cyber::Time;
 
 bool ControlComponent::Init() {
+  ACHECK(
+      cyber::common::GetProtoFromFile(FLAGS_control_conf_file, &control_conf_))
+      << "Unable to load control conf file: " + FLAGS_control_conf_file;
+
+  AINFO << "Conf file: " << FLAGS_control_conf_file << " is loaded.";
+
   // Chassis Reader
   chassis_reader_ = node_->CreateReader<Chassis>(
       FLAGS_chassis_topic, [this](const std::shared_ptr<Chassis>& chassis) {
         chassis_.CopyFrom(*chassis);
       });
-  /*
-  // Magnetic Reader
-  magnetic_reader_ = node_->CreateReader<Magnetic>(
-      FLAGS_magnetic_channel,
-      [this](const std::shared_ptr<Magnetic>& magnetic) {
-        magnetic_.CopyFrom(*magnetic);
-      });
-  */
+
   // rfid Reader
   rfid_reader_ = node_->CreateReader<RFID>(
       FLAGS_rfid_topic,
@@ -39,7 +38,7 @@ bool ControlComponent::Init() {
   control_cmd_writer_ =
       node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
 
-  // compute control message in aysnc
+  // compute control message in aysnc thread
   async_action_ = cyber::Async(&ControlComponent::GenerateCommand, this);
 
   return true;
@@ -361,13 +360,13 @@ void ControlComponent::GenerateCommand() {
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;
           cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
-          cmd->set_front_steering_switch(manual_front_steering_switch);
-          cmd->set_front_wheel_target(manual_front_wheel_target);
+          cmd->set_front_steering_switch(control_conf_.manual_front_steering_switch());
+          cmd->set_front_wheel_target(control_conf_.manual_front_wheel_target());
         } else if (drivemotor_flag == 2) {
           // front_motor_steering_dir = 0;
           cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
-          cmd->set_rear_steering_switch(manual_rear_steering_switch);
-          cmd->set_rear_wheel_target(manual_rear_wheel_target);
+          cmd->set_rear_steering_switch(control_conf_.manual_rear_steering_switch());
+          cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
         } else {
           // front_motor_steering_dir = 0;
           // rear_motor_steering_dir = 0;
