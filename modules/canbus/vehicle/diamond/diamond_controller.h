@@ -49,12 +49,15 @@ float rear_encoder_angle_filtered_pre = 0;
 float front_encoder_angle_filtered_pre_pre = 0;
 float rear_encoder_angle_filtered_pre_pre = 0;
 
+float fc = 100.0; // TODO: reset
+float fs = 1000/15;
+
 float biliner(
     float fc, float fs, float encoder_angle_rt,
     float encoder_angle_pre, float encoder_angle_pre_pre,
     float encoder_angle_filtered_pre, 
     float encoder_angle_filtered_pre_pre){
-  int i = 0;
+  //int i = 0;
   float W, Wc, t;
   W = 2 * 3.1415926 * fc / fs;
   Wc = 2 * fs * tan(W/2);
