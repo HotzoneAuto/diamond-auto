@@ -240,7 +240,7 @@ Chassis DiamondController::chassis() {
     }
     front_wheel_angle_realtime = update_wheel_angle(
         front_wheel_angle_previous, front_encoder_angle_previous,
-        front_wheel_angle_realtime, encoder_to_wheel_gear_ratio);
+        front_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
     chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
     front_encoder_angle_previous = front_encoder_angle_realtime;
     front_wheel_angle_previous = front_wheel_angle_realtime;
@@ -256,7 +256,7 @@ Chassis DiamondController::chassis() {
     }
     rear_wheel_angle_realtime = update_wheel_angle(
         rear_wheel_angle_previous, rear_encoder_angle_previous,
-        rear_wheel_angle_realtime, encoder_to_wheel_gear_ratio);
+        rear_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
     chassis_.set_rear_wheel_angle(rear_wheel_angle_realtime);
     rear_encoder_angle_previous = rear_encoder_angle_realtime;
     rear_wheel_angle_previous = rear_wheel_angle_realtime;
