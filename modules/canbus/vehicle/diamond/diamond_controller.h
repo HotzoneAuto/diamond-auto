@@ -107,16 +107,19 @@ class DiamondController final : public VehicleController {
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void SteerFront(Chassis::SteeringSwitch steering_switch,
-                  double front_steering_target);
+  void SteerFront(double front_steering_target);
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void SteerRear(Chassis::SteeringSwitch steering_switch) override;
+  void SteerRear(double rear_steering_target) override;
 
   void FrontSteerStop();
   void FrontSteerPositive();
   void FrontSteerNegative();
+
+  void RearSteerStop();
+  void RearSteerPositive();
+  void RearSteerNegative();
 
   // steering with new angle speed
   // angle:-99.99~0.00~99.99, unit:, left:+, right:-

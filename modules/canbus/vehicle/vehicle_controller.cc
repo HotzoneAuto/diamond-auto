@@ -134,9 +134,8 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
 
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_STEER_ONLY) {
-    SteerFront(control_command.front_steering_switch(),
-               control_command.front_steering_switch_pre());
-    // Steer_Rear(control_command.rear_steering_switch());
+    SteerFront(control_command.front_wheel_target());
+    SteerRear(control_command.rear_wheel_target());
   }
 
   if ((driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
