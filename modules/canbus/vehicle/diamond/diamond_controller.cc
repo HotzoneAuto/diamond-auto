@@ -16,15 +16,14 @@
 
 #include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
-#include "modules/common/proto/vehicle_signal.pb.h"
-
 #include <stdio.h>
 #include <cmath>
-
 #include <cstdio>
+
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
+#include "modules/common/proto/vehicle_signal.pb.h"
 #include "modules/common/time/time.h"
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
@@ -153,7 +152,6 @@ Chassis DiamondController::chassis() {
 
   auto diamond = chassis_detail.mutable_diamond();
 
-  // 21, 22, previously 1, 2
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
@@ -161,9 +159,7 @@ Chassis DiamondController::chassis() {
   chassis_.set_driving_mode(driving_mode());
   chassis_.set_error_code(chassis_error_code());
 
-  // 3
-
-  // 4 Motor torque nm
+  // 3 Motor torque nm
   if (diamond->id_0x0c08a7f0().has_fmottq()) {
     chassis_.set_motor_torque_nm(
         static_cast<float>(diamond->id_0x0c08a7f0().fmottq()));
@@ -171,8 +167,7 @@ Chassis DiamondController::chassis() {
     chassis_.set_motor_torque_nm(0);
   }
 
-  // 5
-  // compute speed respect to motor torque
+  // 4 compute speed respect to motor torque
   if (diamond->id_0x0c08a7f0().has_fmotspd()) {
     auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
     chassis_.set_speed_mps(static_cast<float>(speed));
@@ -180,13 +175,13 @@ Chassis DiamondController::chassis() {
     chassis_.set_speed_mps(0);
   }
 
-  // 7
+  // 5
   chassis_.set_fuel_range_m(0);
 
-  // vehicle id
+  // 6 vehicle id
   chassis_.mutable_vehicle_id()->set_vin(params_.vin());
 
-  // 8 engine rpm respect to motor speed by rpm
+  // 7 engine rpm respect to motor speed by rpm
   if (diamond->id_0x0c08a7f0().has_fmotspd()) {
     chassis_.set_motor_rpm(
         static_cast<float>(diamond->id_0x0c08a7f0().fmotspd()));
@@ -265,6 +260,15 @@ Chassis DiamondController::chassis() {
 
   // Magnetic sensor data
   // front
+  // Send messages before receive
+  std::string cmd = "cansend can0 003#0102030405010000";
+  const int ret = std::system(cmd.c_str());
+  if (ret == 0) {
+    AINFO << "SUCCESS: " << cmd;
+  } else {
+    AERROR << "FAILED(" << ret << "): " << cmd;
+  }
+
   if (diamond->id_0x03().has_front_mgs()) {
     auto dev = getLatdev(diamond->id_0x03().front_mgs());
     if (!std::isnan(dev)) {
@@ -274,6 +278,13 @@ Chassis DiamondController::chassis() {
     chassis_.set_front_lat_dev(0);
   }
   // rear
+  std::string cmd4 = "cansend can0 004#0102030405010000";
+  const int ret4 = std::system(cmd4.c_str());
+  if (ret4 == 0) {
+    AINFO << "SUCCESS: " << cmd4;
+  } else {
+    AERROR << "FAILED(" << ret4 << "): " << cmd4;
+  }
   if (diamond->id_0x04().has_rear_mgs()) {
     auto dev = getLatdev(diamond->id_0x04().rear_mgs());
     if (!std::isnan(dev)) {

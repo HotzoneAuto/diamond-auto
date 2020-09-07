@@ -16,14 +16,21 @@
 
 #pragma once
 
+#include <stdio.h>
+#include <stdlib.h> /* system, NULL, EXIT_FAILURE */
 #include <memory>
+#include <string>
+#include <string_view>
 #include <thread>
 
-#include "modules/canbus/vehicle/vehicle_controller.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
 
 #include "modules/canbus/proto/canbus_conf.pb.h"
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
+#include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
