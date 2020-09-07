@@ -387,7 +387,7 @@ ErrorCode DiamondController::EnableAutoMode() {
   }
 #endif
   /*=====================k1 k2 end==========================*/
-  // Driver Motor TODO(zongbao): test on board
+  // Driver Motor
   id_0x0c19f0a7_->set_fmot1targettq(0);
   id_0x0c19f0a7_->set_fmot1lmtvolt(800);
   id_0x0c19f0a7_->set_fmot1lmtcur(250);
@@ -402,6 +402,7 @@ ErrorCode DiamondController::EnableAutoMode() {
   id_0x0c079aa7_->set_bydcac2cmd(0xAA);
   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 
+  // Steering const speed
   char frq_converter_spd_write_cmd[8];
   frq_converter_spd_write_cmd[0] = 0x0B;
   frq_converter_spd_write_cmd[1] = 0x06;
@@ -439,18 +440,6 @@ ErrorCode DiamondController::DisableAutoMode() {
   // Steering stop command
   FrontSteerStop();
   sleep(0.2);
-  // 风机停转
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcaccmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  // DC/DC
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 
   //============k1 down start===========
 #if 0
@@ -560,8 +549,8 @@ void DiamondController::Vehicle_Stop(){
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
-                                    double front_steering_target) {
+void DiamondController::SteerFront(Chassis::SteeringSwitch steering_switch,
+                                   double front_steering_target) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -569,7 +558,11 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
   }
 
   // set stop if target is 0
-  if (front_steering_target < 1e-6) {
+  if (front_steering_target > 1e-6) {
+    steering_switch = Chassis::STEERINGNEGATIVE;
+  } else if (front_steering_target < 1e-6) {
+    steering_switch = Chassis::STEERINGNEGATIVE;
+  } else {
     steering_switch = Chassis::STEERINGSTOP;
   }
 
@@ -588,18 +581,6 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
           0.5) {
         // Stop steering
         FrontSteerStop();
-
-        id_0x0c079aa7_->set_bydcdccmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcaccmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcacwkst(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_byeapcmd(0xAA);
-        // DC/DC
-        id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcac2wkst(0xAA);
         break;
       }*/
       FrontSteerPositive();
@@ -655,18 +636,6 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
     }
     case Chassis::STEERINGSTOP: {
       FrontSteerStop();
-      // 风机停转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
       break;
     }
     default: { AINFO << "FRONT "; }
@@ -677,7 +646,7 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+void DiamondController::SteerRear(Chassis::SteeringSwitch steering_switch) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -815,6 +784,18 @@ void DiamondController::Steer(double angle, double angle_spd) {
 }
 
 void DiamondController::FrontSteerStop() {
+  // 风机停转
+  id_0x0c079aa7_->set_bydcdccmd(0x55);
+  // DC/AC
+  id_0x0c079aa7_->set_bydcaccmd(0xAA);
+  // DC/AC
+  id_0x0c079aa7_->set_bydcacwkst(0xAA);
+  // DC/AC
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  // DC/DC
+  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+  // DC/AC
+  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
   char frq_converter_dir_write_cmd[8];
   frq_converter_dir_write_cmd[0] = 0x0B;
   frq_converter_dir_write_cmd[1] = 0x06;

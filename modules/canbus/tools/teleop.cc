@@ -246,14 +246,14 @@ class Teleop {
         case KEYCODE_LF1:  // Front wheel left
         case KEYCODE_LF2:
           front_steering = GetCommand(front_steering, FLAGS_steer_inc_delta);
-          control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+          // control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
           control_command_.set_front_steering_switch_pre(front_steering);
           control_command_.set_front_wheel_target(front_steering);
           break;
         case KEYCODE_RT1:  // Front wheel right
         case KEYCODE_RT2:
           front_steering = GetCommand(front_steering, -FLAGS_steer_inc_delta);
-          control_command_.set_front_steering_switch(Chassis::STEERINGPOSITIVE);
+          // control_command_.set_front_steering_switch(Chassis::STEERINGPOSITIVE);
           control_command_.set_front_steering_switch_pre(front_steering);
           control_command_.set_front_wheel_target(front_steering);
           break;

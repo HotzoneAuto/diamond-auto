@@ -127,14 +127,14 @@ class VehicleController {
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
    */
-  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch,
-                           double front_steering_target) = 0;
+  virtual void SteerFront(Chassis::SteeringSwitch steering_switch,
+                          double front_steering_target) = 0;
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
    */
-  virtual void Steer_Rear(Chassis::SteeringSwitch steering_switch) = 0;
+  virtual void SteerRear(Chassis::SteeringSwitch steering_switch) = 0;
 
   /*
    * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
