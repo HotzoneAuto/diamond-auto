@@ -16,21 +16,26 @@
 
 #pragma once
 
+#include <stdio.h>
+#include <stdlib.h> /* system, NULL, EXIT_FAILURE */
 #include <memory>
+#include <string>
+#include <string_view>
 #include <thread>
 
-#include "modules/canbus/vehicle/vehicle_controller.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
 
 #include "modules/canbus/proto/canbus_conf.pb.h"
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/proto/vehicle_parameter.pb.h"
+#include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x03.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x04.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
@@ -99,25 +104,29 @@ class DiamondController final : public VehicleController {
   // brake with new acceleration
   // acceleration:0.00~99.99, unit:
   // acceleration_spd: 60 ~ 100, suggest: 90
-  void Brake(double acceleration) override;
+  void Brake(double torque, double brake) override;
 
-  void Forward_Torque(double torque) override;
+  void ForwardTorque(double torque) override;
 
-  void Reverse_Torque(double torque) override;
-
-  // steering with old angle speed
-  // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Front(Chassis::SteeringSwitch steering_switch,
-                   double front_steering_target);
+  void ReverseTorque(double torque) override;
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void Steer_Rear(Chassis::SteeringSwitch steering_switch) override;
+  void SteerFront(double front_steering_target);
 
-  // steering with new angle speed
-  // angle:-99.99~0.00~99.99, unit:, left:+, right:-
-  // angle_spd:0.00~99.99, unit:deg/s
-  void Steer(double angle, double angle_spd) override;
+  // steering with old angle speed
+  // angle:-99.99~0.00~99.99, unit:, left:-, right:+
+  void SteerRear(double rear_steering_target) override;
+
+  void FrontSteerStop();
+  void FrontSteerPositive();
+  void FrontSteerNegative();
+
+  void RearSteerStop();
+  void RearSteerPositive();
+  void RearSteerNegative();
+
+  void SetBatCharging();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -146,8 +155,6 @@ class DiamondController final : public VehicleController {
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
   Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
   Id0x00aa5701* id_0x00aa5701_ = nullptr;
-  Id0x03* id_0x03_ = nullptr;
-  Id0x04* id_0x04_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
@@ -160,10 +167,8 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   // 变频器 485通信 设备
-  Uart device_front_frequency_converter =
-      Uart("ttyUSB2");  // TODO: define device name.
-  Uart device_rear_frequency_converter =
-      Uart("ttyUSB1");  // TODO: define device name.
+  Uart device_front_frequency_converter = Uart("ttyUSB2");
+  Uart device_rear_frequency_converter = Uart("ttyUSB1");
 
   float front_encoder_angle_previous = 0;
 

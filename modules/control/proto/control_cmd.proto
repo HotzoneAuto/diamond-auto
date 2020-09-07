@@ -21,7 +21,6 @@ message LatencyStats {
   optional bool total_time_exceeded = 3;
 }
 
-// next id : 27
 message ControlCommand {
   optional apollo.common.Header header = 1;
   optional double torque = 2;

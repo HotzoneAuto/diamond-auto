@@ -113,40 +113,27 @@ class VehicleController {
    * @brief detail function for auto driving brake with new acceleration
    * acceleration:0.00~99.99, unit:%
    */
-  virtual void Brake(double acceleration) = 0;
+  virtual void Brake(double torque, double brake) = 0;
 
   /*
    * @brief drive with old acceleration gas:0.00~99.99 unit:%
    */
 
-  virtual void Forward_Torque(double torque) = 0;
+  virtual void ForwardTorque(double torque) = 0;
 
-  virtual void Reverse_Torque(double torque) = 0;
-
-  /*
-   * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
-   * left:+, right:-
-   */
-  virtual void Steer_Front(Chassis::SteeringSwitch steering_switch,
-                           double front_steering_target) = 0;
+  virtual void ReverseTorque(double torque) = 0;
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
    * left:+, right:-
    */
-  virtual void Steer_Rear(Chassis::SteeringSwitch steering_switch) = 0;
+  virtual void SteerFront(double front_steering_target) = 0;
 
   /*
-   * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
-   * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
+   * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
+   * left:+, right:-
    */
-  // virtual void Steer(double angle) = 0;
-
-  /*
-   * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
-   * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
-   */
-  virtual void Steer(double angle, double angle_spd) = 0;
+  virtual void SteerRear(double rear_steering_target) = 0;
 
   /*
    * @brief set Electrical Park Brake

@@ -16,14 +16,38 @@ message Id_0x01 {
 
 message Id_0x03 {
 // Report Message
-  // [] [0|0]
+  // [] [0|65536]
   optional int32 front_mgs = 1;
+  // [] [0|10]
+  optional int32 format0_fr = 2;
+  // [] [0|10]
+  optional int32 format1_fr = 3;
+  // [] [0|10]
+  optional int32 format2_fr = 4;
+  // [] [0|10]
+  optional int32 format3_fr = 5;
+  // [] [0|10]
+  optional int32 format4_fr = 6;
+  // [] [0|10]
+  optional int32 format5_fr = 7;
 }
 
 message Id_0x04 {
 // Report Message
-  // [] [0|0]
+  // [] [0|65536]
   optional int32 rear_mgs = 1;
+  // [] [0|10]
+  optional int32 format0_re = 2;
+  // [] [0|10]
+  optional int32 format1_re = 3;
+  // [] [0|10]
+  optional int32 format2_re = 4;
+  // [] [0|10]
+  optional int32 format3_re = 5;
+  // [] [0|10]
+  optional int32 format4_re = 6;
+  // [] [0|10]
+  optional int32 format5_re = 7;
 }
 
 message Id_0x0c079aa7 {

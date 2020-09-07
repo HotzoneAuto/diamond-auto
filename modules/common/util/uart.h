@@ -36,7 +36,7 @@ class Uart {
   ~Uart();
 
   int SetOpt(int speed, int bits, char event, int stop);
-  int Write(char* buf, int size);
+  int Write(unsigned char* buf, int size);
   int Read(char* buf, int size);
   int GetFd();
 

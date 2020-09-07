@@ -79,7 +79,7 @@ ErrorCode SocketCanClientRaw::Start() {
 
   // 1. for non virtual busses, set receive message_id filter, ie white list
   if (interface_ != CANCardParameter::VIRTUAL) {
-    struct can_filter filter[17];
+    struct can_filter filter[21];
     // TODO(ALL):REMOVE TO CONFIG Extend frame filter
     int hex_value[] = {0x0C09A79B, 0x0C0AA79C, 0x0C09A7F0, 0x0C08A7F0,
                        0x0C0BA7F0, 0x1818D0F3, 0x1819D0F3, 0x181AD0F3,
@@ -92,7 +92,7 @@ ErrorCode SocketCanClientRaw::Start() {
 
     // Stardard frame filter
     for (int i = 15; i < 19; ++i) {
-      filter[i].can_id = 0x00 + (i - 14);
+      filter[i].can_id = 0x0 + (i - 14);
       filter[i].can_mask = CAN_SFF_MASK;
     }
 

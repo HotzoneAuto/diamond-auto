@@ -16,15 +16,14 @@
 
 #include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
-#include "modules/common/proto/vehicle_signal.pb.h"
-
 #include <stdio.h>
 #include <cmath>
-
 #include <cstdio>
+
 #include "cyber/common/log.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
+#include "modules/common/proto/vehicle_signal.pb.h"
 #include "modules/common/time/time.h"
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
@@ -34,240 +33,220 @@ namespace canbus {
 namespace diamond {
 
 using ::apollo::common::ErrorCode;
-    using ::apollo::control::ControlCommand;
-    using ::apollo::drivers::canbus::ProtocolData;
+using ::apollo::control::ControlCommand;
+using ::apollo::drivers::canbus::ProtocolData;
 
-    namespace {
+namespace {
 
-    const int32_t kMaxFailAttempt = 10;
-    const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
-    const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
-    }  // namespace
-    FILE* p = nullptr;
+const int32_t kMaxFailAttempt = 10;
+static constexpr double kEpsilon = 1e-6;
+const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
+const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
+}  // namespace
 
-    ErrorCode DiamondController::Init(
-        const VehicleParameter& params,
-        CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
-        MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
-      if (is_initialized_) {
-        AINFO << "DiamondController has already been initiated.";
-        return ErrorCode::CANBUS_ERROR;
-      }
+FILE* p = nullptr;
 
-      params_.CopyFrom(params);
-      if (!params_.has_driving_mode()) {
-        AERROR << "Vehicle conf pb not set driving_mode.";
-        return ErrorCode::CANBUS_ERROR;
-      }
+ErrorCode DiamondController::Init(
+    const VehicleParameter& params,
+    CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
+    MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
+  if (is_initialized_) {
+    AINFO << "DiamondController has already been initiated.";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      if (can_sender == nullptr) {
-        return ErrorCode::CANBUS_ERROR;
-      }
-      can_sender_ = can_sender;
+  params_.CopyFrom(params);
+  if (!params_.has_driving_mode()) {
+    AERROR << "Vehicle conf pb not set driving_mode.";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      if (message_manager == nullptr) {
-        AERROR << "protocol manager is null.";
-        return ErrorCode::CANBUS_ERROR;
-      }
-      message_manager_ = message_manager;
+  if (can_sender == nullptr) {
+    return ErrorCode::CANBUS_ERROR;
+  }
+  can_sender_ = can_sender;
 
-      // sender part
-      id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>(
-          message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
-      if (id_0x0c079aa7_ == nullptr) {
-        AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  if (message_manager == nullptr) {
+    AERROR << "protocol manager is null.";
+    return ErrorCode::CANBUS_ERROR;
+  }
+  message_manager_ = message_manager;
 
-      id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>(
-          message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
-      if (id_0x0c19f0a7_ == nullptr) {
-        AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  // sender part
+  id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
+  if (id_0x0c079aa7_ == nullptr) {
+    AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
-          message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
-      if (id_0x0cfff3a7_ == nullptr) {
-        AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
+  if (id_0x0c19f0a7_ == nullptr) {
+    AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
-          message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
-      if (id_0x00aa5701_ == nullptr) {
-        AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
+  if (id_0x0cfff3a7_ == nullptr) {
+    AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x03_ = dynamic_cast<Id0x03*>(
-          message_manager_->GetMutableProtocolDataById(Id0x03::ID));
-      if (id_0x03_ == nullptr) {
-        AERROR << "Id0x03 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
+      message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
+  if (id_0x00aa5701_ == nullptr) {
+    AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x04_ = dynamic_cast<Id0x04*>(
-          message_manager_->GetMutableProtocolDataById(Id0x04::ID));
-      if (id_0x04_ == nullptr) {
-        AERROR << "Id0x04 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
+  can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
+  can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
+  can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
 
-      can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
-      can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
-      can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
-      can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
-      can_sender_->AddMessage(Id0x03::ID, id_0x03_, false);
-      can_sender_->AddMessage(Id0x04::ID, id_0x04_, false);
+  // need sleep to ensure all messages received
+  AINFO << "DiamondController is initialized.";
 
-      // need sleep to ensure all messages received
-      AINFO << "DiamondController is initialized.";
+  // Initialize frequency converter
+  device_front_frequency_converter.SetOpt(9600, 8, 'N', 1);
+  device_rear_frequency_converter.SetOpt(9600, 8, 'N', 1);
 
-      // Initialize frequency converter
-      device_front_frequency_converter.SetOpt(9600, 8, 'N',
-                                              1);  // TODO: confirm 4 parameters.
-      device_rear_frequency_converter.SetOpt(9600, 8, 'N',
-                                             1);  // TODO: confirm 4 parameters.
+  is_initialized_ = true;
+  return ErrorCode::OK;
+}
 
-      is_initialized_ = true;
-      return ErrorCode::OK;
+DiamondController::~DiamondController() {}
+
+bool DiamondController::Start() {
+  if (!is_initialized_) {
+    AERROR << "DiamondController has NOT been initiated.";
+    return false;
+  }
+  const auto& update_func = [this] { SecurityDogThreadFunc(); };
+  thread_.reset(new std::thread(update_func));
+
+  return true;
+}
+
+void DiamondController::Stop() {
+  if (!is_initialized_) {
+    AERROR << "DiamondController stops or starts improperly!";
+    return;
+  }
+
+  if (thread_ != nullptr && thread_->joinable()) {
+    thread_->join();
+    thread_.reset();
+    AINFO << "DiamondController stopped.";
+  }
+}
+
+Chassis DiamondController::chassis() {
+  chassis_.Clear();
+
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+
+  auto diamond = chassis_detail.mutable_diamond();
+
+  if (driving_mode() == Chassis::EMERGENCY_MODE) {
+    set_chassis_error_code(Chassis::NO_ERROR);
+  }
+
+  chassis_.set_driving_mode(driving_mode());
+  chassis_.set_error_code(chassis_error_code());
+
+  // 3 Motor torque nm
+  if (diamond->id_0x0c08a7f0().has_fmottq()) {
+    chassis_.set_motor_torque_nm(
+        static_cast<float>(diamond->id_0x0c08a7f0().fmottq()));
+  } else {
+    chassis_.set_motor_torque_nm(0);
+  }
+
+  // 4 compute speed respect to motor torque
+  if (diamond->id_0x0c08a7f0().has_fmotspd()) {
+    auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
+    chassis_.set_speed_mps(static_cast<float>(speed));
+  } else {
+    chassis_.set_speed_mps(0);
+  }
+
+  // 5
+  chassis_.set_fuel_range_m(0);
+
+  // 6 vehicle id
+  chassis_.mutable_vehicle_id()->set_vin(params_.vin());
+
+  // 7 engine rpm respect to motor speed by rpm
+  if (diamond->id_0x0c08a7f0().has_fmotspd()) {
+    chassis_.set_motor_rpm(
+        static_cast<float>(diamond->id_0x0c08a7f0().fmotspd()));
+  } else {
+    chassis_.set_motor_rpm(0);
+  }
+
+  if (diamond->id_0x1818d0f3().has_fbatvolt()) {
+    chassis_.set_bat_volt(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
+  } else {
+    chassis_.set_bat_volt(0);
+  }
+
+  if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
+    chassis_.set_motor_volt(
+        static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
+  } else {
+    chassis_.set_motor_volt(0);
+  }
+
+  if (diamond->id_0x1818d0f3().has_fbatsoc()) {
+    chassis_.set_bat_percentage(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatsoc()));
+  } else {
+    chassis_.set_bat_percentage(0);
+  }
+
+  if (diamond->id_0x01().angle_sensor_id() == 1) {
+    chassis_.set_front_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
+    if (std::isnan(chassis_.front_encoder_angle())) {
+      front_encoder_angle_realtime = front_encoder_angle_previous;
+    } else {
+      // if (diamond->id_0x01().angle_sensor_data() > 360.0){
+      //  front_encoder_angle_realtime = 360.0;
+      //} else if (diamond->id_0x01().angle_sensor_data() < 0.0){
+      //  front_encoder_angle_realtime = 0.0;
+      //} else{
+      front_encoder_angle_realtime =
+          static_cast<float>(diamond->id_0x01().angle_sensor_data());
+      //}
     }
-
-    DiamondController::~DiamondController() {}
-
-    bool DiamondController::Start() {
-      if (!is_initialized_) {
-        AERROR << "DiamondController has NOT been initiated.";
-        return false;
-      }
-      const auto& update_func = [this] { SecurityDogThreadFunc(); };
-      thread_.reset(new std::thread(update_func));
-
-      return true;
-    }
-
-    void DiamondController::Stop() {
-      if (!is_initialized_) {
-        AERROR << "DiamondController stops or starts improperly!";
-        return;
-      }
-
-      if (thread_ != nullptr && thread_->joinable()) {
-        thread_->join();
-        thread_.reset();
-        AINFO << "DiamondController stopped.";
-      }
-    }
-
-    Chassis DiamondController::chassis() {
-      chassis_.Clear();
-
-      ChassisDetail chassis_detail;
-      message_manager_->GetSensorData(&chassis_detail);
-
-      auto diamond = chassis_detail.mutable_diamond();
-
-      // 21, 22, previously 1, 2
-      if (driving_mode() == Chassis::EMERGENCY_MODE) {
-        set_chassis_error_code(Chassis::NO_ERROR);
-      }
-
-      chassis_.set_driving_mode(driving_mode());
-      chassis_.set_error_code(chassis_error_code());
-
-      // 3
-
-      // 4 Motor torque nm
-      if (diamond->id_0x0c08a7f0().has_fmottq()) {
-        chassis_.set_motor_torque_nm(
-            static_cast<float>(diamond->id_0x0c08a7f0().fmottq()));
-      } else {
-        chassis_.set_motor_torque_nm(0);
-      }
-
-      // 5
-      // compute speed respect to motor torque
-      if (diamond->id_0x0c08a7f0().has_fmotspd()) {
-        auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
-        chassis_.set_speed_mps(static_cast<float>(speed));
-      } else {
-        chassis_.set_speed_mps(0);
-      }
-
-      // 7
-      chassis_.set_fuel_range_m(0);
-
-      // vehicle id
-      chassis_.mutable_vehicle_id()->set_vin(params_.vin());
-
-      // 8 engine rpm respect to motor speed by rpm
-      if (diamond->id_0x0c08a7f0().has_fmotspd()) {
-        chassis_.set_motor_rpm(
-            static_cast<float>(diamond->id_0x0c08a7f0().fmotspd()));
-      } else {
-        chassis_.set_motor_rpm(0);
-      }
-
-      if (diamond->id_0x1818d0f3().has_fbatvolt()) {
-        chassis_.set_bat_volt(
-            static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
-      } else {
-        chassis_.set_bat_volt(0);
-      }
-
-      if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
-        chassis_.set_motor_volt(
-            static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
-      } else {
-        chassis_.set_motor_volt(0);
-      }
-
-      if (diamond->id_0x1818d0f3().has_fbatsoc()) {
-        chassis_.set_bat_percentage(
-            static_cast<float>(diamond->id_0x1818d0f3().fbatsoc()));
-      } else {
-        chassis_.set_bat_percentage(0);
-      }
-
-      if (diamond->id_0x01().angle_sensor_id() == 1) {
-        chassis_.set_front_encoder_angle(
-            static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-        if (std::isnan(chassis_.front_encoder_angle())) {
-          front_encoder_angle_realtime = front_encoder_angle_previous;
-        } else {
-          //if (diamond->id_0x01().angle_sensor_data() > 360.0){
-          //  front_encoder_angle_realtime = 360.0;
-          //} else if (diamond->id_0x01().angle_sensor_data() < 0.0){
-          //  front_encoder_angle_realtime = 0.0;
-          //} else{
-            front_encoder_angle_realtime =
-              static_cast<float>(diamond->id_0x01().angle_sensor_data());
-          //}
-        }
-        front_wheel_angle_realtime = update_wheel_angle(
-            front_wheel_angle_previous, front_encoder_angle_previous,
-            front_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
-        chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
-        front_encoder_angle_previous = front_encoder_angle_realtime;
-        front_wheel_angle_previous = front_wheel_angle_realtime;
-        p = fopen("/home/nvidia/out.txt", "a+");
-        fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
-        chassis_.front_encoder_angle());
-        fclose(p);
-      } else {
-        chassis_.set_rear_encoder_angle(
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
+    chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
+    front_encoder_angle_previous = front_encoder_angle_realtime;
+    front_wheel_angle_previous = front_wheel_angle_realtime;
+    p = fopen("/home/nvidia/out.txt", "a+");
+    fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
+            chassis_.front_encoder_angle());
+    fclose(p);
+  } else {
+    chassis_.set_rear_encoder_angle(
         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
     if (std::isnan(chassis_.rear_encoder_angle())) {
       rear_encoder_angle_realtime = rear_encoder_angle_previous;
     } else {
-      if (diamond->id_0x01().angle_sensor_data() > 360.0){
+      if (diamond->id_0x01().angle_sensor_data() > 360.0) {
         rear_encoder_angle_realtime = 360.0;
-      } else if (diamond->id_0x01().angle_sensor_data() < 0.0){
+      } else if (diamond->id_0x01().angle_sensor_data() < 0.0) {
         rear_encoder_angle_realtime = 0.0;
       } else {
         rear_encoder_angle_realtime =
-          static_cast<float>(diamond->id_0x01().angle_sensor_data());
+            static_cast<float>(diamond->id_0x01().angle_sensor_data());
       }
     }
     rear_wheel_angle_realtime = update_wheel_angle(
@@ -280,14 +259,36 @@ using ::apollo::common::ErrorCode;
 
   // Magnetic sensor data
   // front
+  // Send messages before receive
+  std::string cmd = "cansend can0 003#0102030405010000";
+  const int ret = std::system(cmd.c_str());
+  if (ret == 0) {
+    AINFO << "SUCCESS: " << cmd;
+  } else {
+    AERROR << "FAILED(" << ret << "): " << cmd;
+  }
+
   if (diamond->id_0x03().has_front_mgs()) {
-    chassis_.set_front_lat_dev(getLatdev(diamond->id_0x03().front_mgs()));
+    auto dev = getLatdev(diamond->id_0x03().front_mgs());
+    if (!std::isnan(dev)) {
+      chassis_.set_front_lat_dev(dev);
+    }
   } else {
     chassis_.set_front_lat_dev(0);
   }
   // rear
+  std::string cmd4 = "cansend can0 004#0102030405010000";
+  const int ret4 = std::system(cmd4.c_str());
+  if (ret4 == 0) {
+    AINFO << "SUCCESS: " << cmd4;
+  } else {
+    AERROR << "FAILED(" << ret4 << "): " << cmd4;
+  }
   if (diamond->id_0x04().has_rear_mgs()) {
-    chassis_.set_rear_lat_dev(getLatdev(diamond->id_0x04().rear_mgs()));
+    auto dev = getLatdev(diamond->id_0x04().rear_mgs());
+    if (!std::isnan(dev)) {
+      chassis_.set_rear_lat_dev(dev);
+    }
   } else {
     chassis_.set_rear_lat_dev(0);
   }
@@ -305,6 +306,7 @@ ErrorCode DiamondController::EnableAutoMode() {
     return ErrorCode::OK;
   }
   /*=====================k1 k2 start==========================*/
+#if 0
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   AINFO << "0x0c0ba7f0 ="
@@ -383,8 +385,9 @@ ErrorCode DiamondController::EnableAutoMode() {
   } else {
     AERROR << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
   }
+#endif
   /*=====================k1 k2 end==========================*/
-  // Driver Motor TODO(zongbao): test on board
+  // Driver Motor
   id_0x0c19f0a7_->set_fmot1targettq(0);
   id_0x0c19f0a7_->set_fmot1lmtvolt(800);
   id_0x0c19f0a7_->set_fmot1lmtcur(250);
@@ -392,24 +395,11 @@ ErrorCode DiamondController::EnableAutoMode() {
   id_0x0c19f0a7_->set_bylife(0);
 
   // Steering Motor
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  id_0x0c079aa7_->set_bydcaccmd(0xAA);
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 
-  char frq_converter_spd_write_cmd[8];
-  frq_converter_spd_write_cmd[0] = 0x0B;
-  frq_converter_spd_write_cmd[1] = 0x06;
-  frq_converter_spd_write_cmd[2] = 0x20;
-  frq_converter_spd_write_cmd[3] = 0x00;
-  frq_converter_spd_write_cmd[4] = 0x27;
-  frq_converter_spd_write_cmd[5] = 0x10;
-  frq_converter_spd_write_cmd[6] = 0x98;
-  frq_converter_spd_write_cmd[7] = 0x9C;
-  int result_spd_positive =
-      device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+  // Steering const speed
+  unsigned char spd_cmd[8] = {0x0B, 0x06, 0x20, 0x00, 0x27, 0x10, 0x98, 0x9C};
+  int result_spd_positive = device_front_frequency_converter.Write(spd_cmd, 8);
   ADEBUG << "Frequency converter speed write command send result is :"
          << result_spd_positive;
 
@@ -433,34 +423,12 @@ ErrorCode DiamondController::DisableAutoMode() {
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
   AINFO << "Switch to COMPLETE_MANUAL ok.";
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0C;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x05;
-  frq_converter_dir_write_cmd[6] = 0x4C;
-  frq_converter_dir_write_cmd[7] = 0x14;
-  int result_dir_zero =
-      device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_zero;
+  // Steering stop command
+  FrontSteerStop();
   sleep(0.2);
-  // 风机停转
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcaccmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  // DC/DC
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 
   //============k1 down start===========
+#if 0
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   sleep(3);
@@ -472,7 +440,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   id_0x00aa5701_->set_relay1(0);
   AERROR << "K1 down";
   sleep(5);
-
+#endif
   //===========k1 down end========
   return ErrorCode::OK;
 }
@@ -517,180 +485,92 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
   return ErrorCode::OK;
 }
 
-// brake with new acceleration
-// acceleration:0.00~99.99, unit:
-// acceleration:0.0 ~ 7.0, unit:m/s^2
-// acceleration_spd:60 ~ 100, suggest: 90
-// -> pedal
-void DiamondController::Brake(double acceleration) {
+// brake with new torque
+void DiamondController::Brake(double torque, double brake) {
   // double real_value = params_.max_acc() * acceleration / 100;
-  // TODO(All) :  Update brake value based on mode
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set brake pedal.";
     return;
   }
+
+  // set Brake by tarque
+  if (torque > kEpsilon) {
+    id_0x0c19f0a7_->set_bymot1workmode(140);
+  } else {
+    id_0x0c19f0a7_->set_bymot1workmode(148);
+  }
+
+  id_0x0c19f0a7_->set_fmot1targettq(std::abs(brake));
 }
 
-void DiamondController::Forward_Torque(double torque) {
+void DiamondController::ForwardTorque(double torque) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
-  AINFO << "Forward mode.";
   id_0x0c19f0a7_->set_fmot1targettq(torque);
   id_0x0c19f0a7_->set_bymot1workmode(138);
 }
 
-void DiamondController::Reverse_Torque(double torque) {
+void DiamondController::ReverseTorque(double torque) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
 
-  // reverse mode
-  AINFO << "Reverse mode.";
-  AERROR << "Reverse mode and torque:" << torque << " abs value: " << std::abs(torque);
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
   id_0x0c19f0a7_->set_bymot1workmode(146);
 }
 
-/*
-// when vehicle stops.
-void DiamondController::Vehicle_Stop(){
-  id_0x0c19f0a7_->set_bymot1workmode(129);
-}*/
-
-// diamond default, -470 ~ 470, left:+, right:-
+// diamond default, -30 ~ 30, left:+, right:-
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
-                                    double front_steering_target) {
+void DiamondController::SteerFront(double front_steering_target) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
+  auto steering_switch = Chassis::STEERINGSTOP;
 
-  char frq_converter_dir_write_cmd[8];
+  // set steering switch by target
+  if (front_steering_target > 0.1) {
+    steering_switch = Chassis::STEERINGNEGATIVE;
+  } else if (std::abs(front_steering_target) < 0.1) {
+    steering_switch = Chassis::STEERINGSTOP;
+  } else {
+    steering_switch = Chassis::STEERINGPOSITIVE;
+  }
 
   // Check wheel angle
-  // TODO(all): config
-  if (chassis_.front_wheel_angle() - 30.0 > 1e-6 ||
-      chassis_.front_wheel_angle() + 30.0 < 1e-6) {
-    frq_converter_dir_write_cmd[0] = 0x0B;
-    frq_converter_dir_write_cmd[1] = 0x06;
-    frq_converter_dir_write_cmd[2] = 0x10;
-    frq_converter_dir_write_cmd[3] = 0x00;
-    frq_converter_dir_write_cmd[4] = 0x00;
-    frq_converter_dir_write_cmd[5] = 0x05;
-    frq_converter_dir_write_cmd[6] = 0x4D;
-    frq_converter_dir_write_cmd[7] = 0xA3;
-    int result_dir_zero =
-        device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-    ADEBUG << "Frequency converter direction write command send result is :"
-           << result_dir_zero;
-    return;
-  }
-  /*
-  p = fopen("/home/nvidia/out.txt", "a+");
-  fprintf(p, "%f\t%f\t%f\n", chassis_.front_wheel_angle(),
-          chassis_.front_encoder_angle(), front_steering_target);
-  fclose(p);
-  */
-  // char frq_converter_spd_write_cmd[8];
+  // TODO(all): config and enbale later
+  // if (chassis_.front_wheel_angle() - 30.0 > kEpsilon ||
+  //     chassis_.front_wheel_angle() + 30.0 < kEpsilon) {
+  //   FrontSteerStop();
+  //   return;
+  // }
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
+      /*
       if (std::abs(chassis_.front_wheel_angle() - front_steering_target) <
           0.5) {
         // Stop steering
-        frq_converter_dir_write_cmd[0] = 0x0B;
-        frq_converter_dir_write_cmd[1] = 0x06;
-        frq_converter_dir_write_cmd[2] = 0x10;
-        frq_converter_dir_write_cmd[3] = 0x00;
-        frq_converter_dir_write_cmd[4] = 0x00;
-        frq_converter_dir_write_cmd[5] = 0x05;
-        frq_converter_dir_write_cmd[6] = 0x4D;
-        frq_converter_dir_write_cmd[7] = 0xA3;
-        int result_dir_zero = device_front_frequency_converter.Write(
-            frq_converter_dir_write_cmd, 8);
-        ADEBUG << "Frequency converter direction write command send result is :"
-               << result_dir_zero;
-
-        id_0x0c079aa7_->set_bydcdccmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcaccmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcacwkst(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_byeapcmd(0xAA);
-        // DC/DC
-        id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-      }
-      frq_converter_dir_write_cmd[0] = 0x0B;
-      frq_converter_dir_write_cmd[1] = 0x06;
-      frq_converter_dir_write_cmd[2] = 0x10;
-      frq_converter_dir_write_cmd[3] = 0x00;
-      frq_converter_dir_write_cmd[4] = 0x00;
-      frq_converter_dir_write_cmd[5] = 0x01;
-      frq_converter_dir_write_cmd[6] = 0x4C;
-      frq_converter_dir_write_cmd[7] = 0x60;
-      int result_dir_positive = device_front_frequency_converter.Write(
-          frq_converter_dir_write_cmd, 8);
-      ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_positive;
-      /*
-      frq_converter_spd_write_cmd[0] = 0x0B;
-      frq_converter_spd_write_cmd[1] = 0x06;
-      frq_converter_spd_write_cmd[2] = 0x20;
-      frq_converter_spd_write_cmd[3] = 0x00;
-      frq_converter_spd_write_cmd[4] = 0x27;
-      frq_converter_spd_write_cmd[5] = 0x10;
-      frq_converter_spd_write_cmd[6] = 0x98;
-      frq_converter_spd_write_cmd[7] = 0x9C;
-      int result_spd_positive = device_front_frequency_converter.Write(
-          frq_converter_spd_write_cmd,8);
-      ADEBUG << "Frequency converter speed write command send result is :"
-             << result_spd_positive;
-      */
-      // 风机转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-      sleep(1);
+        FrontSteerStop();
+        break;
+      }*/
+      FrontSteerPositive();
       break;
     }
     case Chassis::STEERINGNEGATIVE: {
+      /*
       if (abs(chassis_.front_wheel_angle() - front_steering_target) < 0.1) {
         // Stop steering
-        frq_converter_dir_write_cmd[0] = 0x0B;
-        frq_converter_dir_write_cmd[1] = 0x06;
-        frq_converter_dir_write_cmd[2] = 0x10;
-        frq_converter_dir_write_cmd[3] = 0x00;
-        frq_converter_dir_write_cmd[4] = 0x00;
-        frq_converter_dir_write_cmd[5] = 0x05;
-        frq_converter_dir_write_cmd[6] = 0x4D;
-        frq_converter_dir_write_cmd[7] = 0xA3;
-        int result_dir_zero = device_front_frequency_converter.Write(
-            frq_converter_dir_write_cmd, 8);
-        ADEBUG << "Frequency converter direction write command send result is :"
-               << result_dir_zero;
-
-        // 椋庢満鍋滆浆
+        FrontSteerStop();
         id_0x0c079aa7_->set_bydcdccmd(0xAA);
         // DC/AC
         id_0x0c079aa7_->set_bydcaccmd(0xAA);
@@ -702,73 +582,13 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
         id_0x0c079aa7_->set_bydcac2cmd(0xAA);
         // DC/AC
         id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-      }
-      frq_converter_dir_write_cmd[0] = 0x0B;
-      frq_converter_dir_write_cmd[1] = 0x06;
-      frq_converter_dir_write_cmd[2] = 0x10;
-      frq_converter_dir_write_cmd[3] = 0x00;
-      frq_converter_dir_write_cmd[4] = 0x00;
-      frq_converter_dir_write_cmd[5] = 0x02;
-      frq_converter_dir_write_cmd[6] = 0x0C;
-      frq_converter_dir_write_cmd[7] = 0x61;
-      int result_dir_negative = device_front_frequency_converter.Write(
-          frq_converter_dir_write_cmd, 8);
-      ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_negative;
-      /*
-      frq_converter_spd_write_cmd[0] = 0x0B;
-      frq_converter_spd_write_cmd[1] = 0x06;
-      frq_converter_spd_write_cmd[2] = 0x20;
-      frq_converter_spd_write_cmd[3] = 0x00;
-      frq_converter_spd_write_cmd[4] = 0x27;
-      frq_converter_spd_write_cmd[5] = 0x10;
-      frq_converter_spd_write_cmd[6] = 0x98;
-      frq_converter_spd_write_cmd[7] = 0x9C;
-      int result_spd_negative = device_front_frequency_converter.Write(
-          frq_converter_spd_write_cmd, 8);
-      ADEBUG << "Frequency converter speed write command send result is :"
-             << result_spd_negative;
-      */
-      // 风机转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+        break;
+      }*/
+      FrontSteerNegative();
       break;
     }
     case Chassis::STEERINGSTOP: {
-      frq_converter_dir_write_cmd[0] = 0x0B;
-      frq_converter_dir_write_cmd[1] = 0x06;
-      frq_converter_dir_write_cmd[2] = 0x10;
-      frq_converter_dir_write_cmd[3] = 0x00;
-      frq_converter_dir_write_cmd[4] = 0x00;
-      frq_converter_dir_write_cmd[5] = 0x05;
-      frq_converter_dir_write_cmd[6] = 0x4D;
-      frq_converter_dir_write_cmd[7] = 0xA3;
-      int result_dir_zero = device_front_frequency_converter.Write(
-          frq_converter_dir_write_cmd, 8);
-      ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_zero;
-
-      // 风机停转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+      FrontSteerStop();
       break;
     }
     default: { AINFO << "FRONT "; }
@@ -779,141 +599,112 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-void DiamondController::Steer_Rear(Chassis::SteeringSwitch steering_switch) {
+void DiamondController::SteerRear(double rear_steering_target) {
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  char frq_converter_dir_write_cmd[8];
-  char frq_converter_spd_write_cmd[8];
+
+  auto steering_switch = Chassis::STEERINGSTOP;
+
+  // set steering switch by target
+  if (rear_steering_target > 0.1) {
+    steering_switch = Chassis::STEERINGNEGATIVE;
+  } else if (std::abs(rear_steering_target) < 0.1) {
+    steering_switch = Chassis::STEERINGSTOP;
+  } else {
+    steering_switch = Chassis::STEERINGPOSITIVE;
+  }
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
-      frq_converter_dir_write_cmd[0] = 0x0C;
-      frq_converter_dir_write_cmd[1] = 0x06;
-      frq_converter_dir_write_cmd[2] = 0x10;
-      frq_converter_dir_write_cmd[3] = 0x00;
-      frq_converter_dir_write_cmd[4] = 0x00;
-      frq_converter_dir_write_cmd[5] = 0x01;
-      frq_converter_dir_write_cmd[6] = 0x4D;
-      frq_converter_dir_write_cmd[7] = 0xD7;
-      int result_dir_positive =
-          device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-      ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_positive;
-
-      frq_converter_spd_write_cmd[0] = 0x0C;
-      frq_converter_spd_write_cmd[1] = 0x06;
-      frq_converter_spd_write_cmd[2] = 0x20;
-      frq_converter_spd_write_cmd[3] = 0x00;
-      frq_converter_spd_write_cmd[4] = 0x27;
-      frq_converter_spd_write_cmd[5] = 0x10;
-      frq_converter_spd_write_cmd[6] = 0x99;
-      frq_converter_spd_write_cmd[7] = 0x2B;
-      int result_spd_positive =
-          device_rear_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-      ADEBUG << "Frequency converter speed write command send result is :"
-             << result_spd_positive;
-
-      // 风机转
-      id_0x0c079aa7_->set_bydcdccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+      RearSteerPositive();
       break;
     }
     case Chassis::STEERINGNEGATIVE: {
-      frq_converter_dir_write_cmd[0] = 0x0C;
-      frq_converter_dir_write_cmd[1] = 0x06;
-      frq_converter_dir_write_cmd[2] = 0x10;
-      frq_converter_dir_write_cmd[3] = 0x00;
-      frq_converter_dir_write_cmd[4] = 0x00;
-      frq_converter_dir_write_cmd[5] = 0x02;
-      frq_converter_dir_write_cmd[6] = 0x0D;
-      frq_converter_dir_write_cmd[7] = 0xD6;
-      int result_dir_negative =
-          device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-      ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_negative;
-
-      frq_converter_spd_write_cmd[0] = 0x0C;
-      frq_converter_spd_write_cmd[1] = 0x06;
-      frq_converter_spd_write_cmd[2] = 0x20;
-      frq_converter_spd_write_cmd[3] = 0x00;
-      frq_converter_spd_write_cmd[4] = 0x27;
-      frq_converter_spd_write_cmd[5] = 0x10;
-      frq_converter_spd_write_cmd[6] = 0x99;
-      frq_converter_spd_write_cmd[7] = 0x2B;
-      int result_spd_negative =
-          device_rear_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
-      ADEBUG << "Frequency converter speed write command send result is :"
-             << result_spd_negative;
-
-      // 风机转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+      RearSteerNegative();
       break;
     }
-    default: {
-      frq_converter_dir_write_cmd[0] = 0x0C;
-      frq_converter_dir_write_cmd[1] = 0x06;
-      frq_converter_dir_write_cmd[2] = 0x10;
-      frq_converter_dir_write_cmd[3] = 0x00;
-      frq_converter_dir_write_cmd[4] = 0x00;
-      frq_converter_dir_write_cmd[5] = 0x05;
-      frq_converter_dir_write_cmd[6] = 0x4C;
-      frq_converter_dir_write_cmd[7] = 0x14;
-      int result_dir_zero =
-          device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
-      ADEBUG << "Frequency converter direction write command send result is :"
-             << result_dir_zero;
-
-      // 风机停转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-    }
+    default: { RearSteerStop(); }
   }
 }
 
-// steering with new angle speed
-// angle:-99.99~0.00~99.99, unit:, left:-, right:+
-// angle_spd:0.00~99.99, unit:deg/s
-void DiamondController::Steer(double angle, double angle_spd) {
-  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
-      driving_mode() != Chassis::AUTO_STEER_ONLY) {
-    AINFO << "The current driving mode does not need to set steer.";
-    return;
-  }
-  // const double real_angle = 360 * angle / 100.0;
+void DiamondController::FrontSteerStop() {
+  SetBatCharging();
 
-  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
-  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
+  unsigned char cmd[8] = {0x0B, 0x06, 0x06, 0x00, 0x00, 0x05, 0x4D, 0xA3};
+
+  int result_dir_zero = device_front_frequency_converter.Write(cmd, 8);
+  ADEBUG << "Frequency converter direction write command send result is :"
+         << result_dir_zero;
+}
+
+void DiamondController::FrontSteerPositive() {
+  unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4C, 0x60};
+
+  int result_dir_positive = device_front_frequency_converter.Write(cmd, 8);
+  ADEBUG << "Frequency converter direction write command send result is :"
+         << result_dir_positive;
+  sleep(1);
+  SetBatCharging();
+}
+
+void DiamondController::FrontSteerNegative() {
+  unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0C, 0x61};
+  int result_dir_negative = device_front_frequency_converter.Write(cmd, 8);
+  ADEBUG << "Frequency converter direction write command send result is :"
+         << result_dir_negative;
+  sleep(1);
+  SetBatCharging();
+}
+
+void DiamondController::RearSteerStop() {
+  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x05, 0x4C, 0x14};
+
+  int result_dir_zero = device_rear_frequency_converter.Write(cmd, 8);
+  ADEBUG << "Frequency converter direction write command send result is :"
+         << result_dir_zero;
+  SetBatCharging();
+}
+
+void DiamondController::RearSteerPositive() {
+  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4D, 0xD7};
+
+  int result_dir_positive = device_rear_frequency_converter.Write(cmd, 8);
+  ADEBUG << "Frequency converter direction write command send result is :"
+         << result_dir_positive;
+  sleep(1);
+  id_0x0c079aa7_->set_bydcdccmd(0xAA);
+  id_0x0c079aa7_->set_bydcaccmd(0x55);
+  id_0x0c079aa7_->set_bydcacwkst(0xAA);
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+}
+
+void DiamondController::RearSteerNegative() {
+  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0D, 0xD6};
+
+  int result_dir_negative = device_rear_frequency_converter.Write(cmd, 8);
+  ADEBUG << "Frequency converter direction write command send result is :"
+         << result_dir_negative;
+  sleep(1);
+  id_0x0c079aa7_->set_bydcdccmd(0x55);
+  id_0x0c079aa7_->set_bydcaccmd(0x55);
+  id_0x0c079aa7_->set_bydcacwkst(0xAA);
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+}
+
+void DiamondController::SetBatCharging() {
+  id_0x0c079aa7_->set_bydcdccmd(0x55);
+  id_0x0c079aa7_->set_bydcaccmd(0xAA);
+  id_0x0c079aa7_->set_bydcacwkst(0xAA);
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
@@ -944,16 +735,6 @@ void DiamondController::SetHorn(const ControlCommand& command) {
 
 void DiamondController::SetTurningSignal(const ControlCommand& command) {
   // Set Turn Signal
-  /* ADD YOUR OWN CAR CHASSIS OPERATION
-  auto signal = command.signal().turn_signal();
-  if (signal == Signal::TURN_LEFT) {
-    turnsignal_68_->set_turn_left();
-  } else if (signal == Signal::TURN_RIGHT) {
-    turnsignal_68_->set_turn_right();
-  } else {
-    turnsignal_68_->set_turn_none();
-  }
-  */
 }
 
 void DiamondController::ResetProtocol() {

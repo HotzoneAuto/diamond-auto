@@ -360,12 +360,15 @@ void ControlComponent::GenerateCommand() {
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;
           cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
-          cmd->set_front_steering_switch(control_conf_.manual_front_steering_switch());
-          cmd->set_front_wheel_target(control_conf_.manual_front_wheel_target());
+          cmd->set_front_steering_switch(
+              control_conf_.manual_front_steering_switch());
+          cmd->set_front_wheel_target(
+              control_conf_.manual_front_wheel_target());
         } else if (drivemotor_flag == 2) {
           // front_motor_steering_dir = 0;
           cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
-          cmd->set_rear_steering_switch(control_conf_.manual_rear_steering_switch());
+          cmd->set_rear_steering_switch(
+              control_conf_.manual_rear_steering_switch());
           cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
         } else {
           // front_motor_steering_dir = 0;

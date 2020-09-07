@@ -30,28 +30,42 @@ class Id0x03 : public ::apollo::drivers::canbus::ProtocolData<
   Id0x03();
   void Parse(const std::uint8_t* bytes, int32_t length,
              ChassisDetail* chassis) const override;
-  uint32_t GetPeriod() const override;
-
-  void UpdateData(uint8_t* data) override;
-
-  void Reset() override;
-
-  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
-  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
-  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-  Id0x03* set_front_mgs(int front_mgs);
 
  private:
   // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
-  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
-  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
-  void set_p_front_mgs(uint8_t* data, int front_mgs);
-
-  // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
-  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
-  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range':
+  // '[0|65536]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
   int front_mgs(const std::uint8_t* bytes, const int32_t length) const;
-  int front_mgs_;
+
+  // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Format0_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int format0_fr(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Format1_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int format1_fr(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Format2_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int format2_fr(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Format3_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int format3_fr(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Format4_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int format4_fr(const std::uint8_t* bytes, const int32_t length) const;
+
+  // config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name':
+  // 'Format5_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+  // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+  int format5_fr(const std::uint8_t* bytes, const int32_t length) const;
 };
 
 }  // namespace diamond
