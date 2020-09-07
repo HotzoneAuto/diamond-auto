@@ -138,10 +138,10 @@ class Teleop {
   void KeyboardLoopThreadFunc() {
     char c = 0;
     int32_t level = 0;
-    double brake = 0;
-    double throttle = 0;
-    double acc = 0;
-    double dec = 0;
+    // double brake = 0;
+    // double throttle = 0;
+    // double acc = 0;
+    // double dec = 0;
     double front_steering = 0;
     double rear_steering = 0;
     double torque = 0;
@@ -179,29 +179,26 @@ class Teleop {
       switch (c) {
         case KEYCODE_UP1:  // accelerate
         case KEYCODE_UP2:
-          if (!FLAGS_use_acceleration) {
-            brake = control_command_.brake();
-            throttle = control_command_.throttle();
-          }
+          // brake = control_command_.brake();
           torque = control_command_.torque();
           torque = GetCommand(torque, FLAGS_throttle_inc_delta);
-          if (brake > 1e-6) {
-            brake = GetCommand(brake, -FLAGS_brake_inc_delta);
-            if (!FLAGS_use_acceleration) {
-              control_command_.set_brake(brake);
-            } else {
-              dec = brake / 100 * vehicle_params_.max_deceleration();
-              control_command_.set_acceleration(dec);
-            }
-          } else {
-            throttle = GetCommand(throttle, FLAGS_throttle_inc_delta);
-            if (!FLAGS_use_acceleration) {
-              control_command_.set_throttle(throttle);
-            } else {
-              acc = throttle / 100 * vehicle_params_.max_acceleration();
-              control_command_.set_acceleration(acc);
-            }
-          }
+          // if (brake > 1e-6) {
+          //   brake = GetCommand(brake, -FLAGS_brake_inc_delta);
+          //   if (!FLAGS_use_acceleration) {
+          //     control_command_.set_brake(brake);
+          //   } else {
+          //     dec = brake / 100 * vehicle_params_.max_deceleration();
+          //     control_command_.set_acceleration(dec);
+          //   }
+          // } else {
+          //   throttle = GetCommand(throttle, FLAGS_throttle_inc_delta);
+          //   if (!FLAGS_use_acceleration) {
+          //     control_command_.set_throttle(throttle);
+          //   } else {
+          //     acc = throttle / 100 * vehicle_params_.max_acceleration();
+          //     control_command_.set_acceleration(acc);
+          //   }
+          // }
           if (!FLAGS_use_acceleration) {
             AINFO << "Throttle = " << control_command_.throttle()
                   << ", Brake = " << control_command_.brake();
@@ -212,29 +209,27 @@ class Teleop {
           break;
         case KEYCODE_DN1:  // decelerate
         case KEYCODE_DN2:
-          if (!FLAGS_use_acceleration) {
-            brake = control_command_.brake();
-            throttle = control_command_.throttle();
-          }
+          // brake = control_command_.brake();
+          // throttle = control_command_.throttle();
           torque = control_command_.torque();
           torque = GetCommand(torque, -FLAGS_throttle_inc_delta);
-          if (throttle > 1e-6) {
-            throttle = GetCommand(throttle, -FLAGS_throttle_inc_delta);
-            if (!FLAGS_use_acceleration) {
-              control_command_.set_throttle(throttle);
-            } else {
-              acc = throttle / 100 * vehicle_params_.max_acceleration();
-              control_command_.set_acceleration(acc);
-            }
-          } else {
-            brake = GetCommand(brake, FLAGS_brake_inc_delta);
-            if (!FLAGS_use_acceleration) {
-              control_command_.set_brake(brake);
-            } else {
-              dec = brake / 100 * vehicle_params_.max_deceleration();
-              control_command_.set_acceleration(dec);
-            }
-          }
+          // if (throttle > 1e-6) {
+          //   throttle = GetCommand(throttle, -FLAGS_throttle_inc_delta);
+          //   if (!FLAGS_use_acceleration) {
+          //     control_command_.set_throttle(throttle);
+          //   } else {
+          //     acc = throttle / 100 * vehicle_params_.max_acceleration();
+          //     control_command_.set_acceleration(acc);
+          //   }
+          // } else {
+          //   brake = GetCommand(brake, FLAGS_brake_inc_delta);
+          //   if (!FLAGS_use_acceleration) {
+          //     control_command_.set_brake(brake);
+          //   } else {
+          //     dec = brake / 100 * vehicle_params_.max_deceleration();
+          //     control_command_.set_acceleration(dec);
+          //   }
+          // }
           control_command_.set_torque(torque);
           if (!FLAGS_use_acceleration) {
             AINFO << "Throttle = " << control_command_.throttle()
@@ -304,9 +299,9 @@ class Teleop {
             exit(-1);
           }
           level = c - KEYCODE_ZERO;
-          control_command_.set_throttle(0.0);
+          // control_command_.set_torque(0.0);
           control_command_.set_brake(level * 10.0);
-          AINFO << "Throttle = " << control_command_.throttle()
+          AINFO << "Torque = " << control_command_.torque()
                 << ", Brake = " << control_command_.brake();
           break;
         case KEYCODE_SETQ1:

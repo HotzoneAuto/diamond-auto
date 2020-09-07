@@ -122,12 +122,18 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
 
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
-    if (control_command.torque() > 1e-6) {
-      ForwardTorque(control_command.torque());
+    // Brake firstly
+    if (control_command.has_brake() && control_command.brake() > 1e-6) {
+      Brake(control_command.torque(), control_command.brake());
     } else {
-      ReverseTorque(control_command.torque());
+      // Torque direction
+      if (control_command.torque() > 1e-6) {
+        ForwardTorque(control_command.torque());
+      } else {
+        ReverseTorque(control_command.torque());
+      }
     }
-    Brake(control_command.brake());
+
     SetEpbBreak(control_command);
     SetLimits();
   }

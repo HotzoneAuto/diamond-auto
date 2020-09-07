@@ -113,7 +113,7 @@ class VehicleController {
    * @brief detail function for auto driving brake with new acceleration
    * acceleration:0.00~99.99, unit:%
    */
-  virtual void Brake(double acceleration) = 0;
+  virtual void Brake(double torque, double brake) = 0;
 
   /*
    * @brief drive with old acceleration gas:0.00~99.99 unit:%

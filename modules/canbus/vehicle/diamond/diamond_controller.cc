@@ -500,19 +500,23 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
   return ErrorCode::OK;
 }
 
-// brake with new acceleration
-// acceleration:0.00~99.99, unit:
-// acceleration:0.0 ~ 7.0, unit:m/s^2
-// acceleration_spd:60 ~ 100, suggest: 90
-// -> pedal
-void DiamondController::Brake(double acceleration) {
+// brake with new torque
+void DiamondController::Brake(double torque, double brake) {
   // double real_value = params_.max_acc() * acceleration / 100;
-  // TODO(All) :  Update brake value based on mode
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set brake pedal.";
     return;
   }
+
+  // set Brake by tarque
+  if (torque > 1e-6) {
+    id_0x0c19f0a7_->set_bymot1workmode(140);
+  } else {
+    id_0x0c19f0a7_->set_bymot1workmode(148);
+  }
+
+  id_0x0c19f0a7_->set_fmot1targettq(std::abs(brake));
 }
 
 void DiamondController::ForwardTorque(double torque) {

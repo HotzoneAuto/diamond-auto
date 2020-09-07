@@ -104,7 +104,7 @@ class DiamondController final : public VehicleController {
   // brake with new acceleration
   // acceleration:0.00~99.99, unit:
   // acceleration_spd: 60 ~ 100, suggest: 90
-  void Brake(double acceleration) override;
+  void Brake(double torque, double brake) override;
 
   void ForwardTorque(double torque) override;
 
