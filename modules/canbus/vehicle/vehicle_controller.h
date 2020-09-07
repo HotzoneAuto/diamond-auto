@@ -136,18 +136,6 @@ class VehicleController {
   virtual void SteerRear(double rear_steering_target) = 0;
 
   /*
-   * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
-   * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
-   */
-  // virtual void Steer(double angle) = 0;
-
-  /*
-   * @brief steering with new angle speed angle:-99.99~0.00~99.99, unit:%,
-   * left:+, right:- angle_spd:0.00~99.99, unit:deg/s
-   */
-  virtual void Steer(double angle, double angle_spd) = 0;
-
-  /*
    * @brief set Electrical Park Brake
    */
   virtual void SetEpbBreak(const control::ControlCommand &command) = 0;

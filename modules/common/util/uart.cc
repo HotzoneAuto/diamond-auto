@@ -153,7 +153,7 @@ int Uart::SetOpt(int speed, int bits, char event, int stop) {
   return 0;
 }
 
-int Uart::Write(char* buf, int size) {
+int Uart::Write(unsigned char* buf, int size) {
   if (fd < 0) {
     return -1;
     AERROR << "Uart Init failed";

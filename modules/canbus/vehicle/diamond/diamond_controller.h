@@ -126,10 +126,7 @@ class DiamondController final : public VehicleController {
   void RearSteerPositive();
   void RearSteerNegative();
 
-  // steering with new angle speed
-  // angle:-99.99~0.00~99.99, unit:, left:+, right:-
-  // angle_spd:0.00~99.99, unit:deg/s
-  void Steer(double angle, double angle_spd) override;
+  void SetBatCharging();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
