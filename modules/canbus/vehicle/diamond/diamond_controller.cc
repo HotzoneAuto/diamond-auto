@@ -266,13 +266,19 @@ Chassis DiamondController::chassis() {
   // Magnetic sensor data
   // front
   if (diamond->id_0x03().has_front_mgs()) {
-    chassis_.set_front_lat_dev(getLatdev(diamond->id_0x03().front_mgs()));
+    auto dev = getLatdev(diamond->id_0x03().front_mgs());
+    if (!std::isnan(dev)) {
+      chassis_.set_front_lat_dev(dev);
+    }
   } else {
     chassis_.set_front_lat_dev(0);
   }
   // rear
   if (diamond->id_0x04().has_rear_mgs()) {
-    chassis_.set_rear_lat_dev(getLatdev(diamond->id_0x04().rear_mgs()));
+    auto dev = getLatdev(diamond->id_0x04().rear_mgs());
+    if (!std::isnan(dev)) {
+      chassis_.set_rear_lat_dev(dev);
+    }
   } else {
     chassis_.set_rear_lat_dev(0);
   }

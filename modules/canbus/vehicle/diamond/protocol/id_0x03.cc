@@ -31,17 +31,26 @@ Id0x03::Id0x03() {}
 const int32_t Id0x03::ID = 0x03;
 
 void Id0x03::Parse(const std::uint8_t* bytes, int32_t length,
-                         ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x03()->set_front_mgs(front_mgs(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format0_fr(format0_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format1_fr(format1_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format2_fr(format2_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format3_fr(format3_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format4_fr(format4_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format5_fr(format5_fr(bytes, length));
+                   ChassisDetail* chassis) const {
+  chassis->mutable_diamond()->mutable_id_0x03()->set_front_mgs(
+      front_mgs(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x03()->set_format0_fr(
+      format0_fr(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x03()->set_format1_fr(
+      format1_fr(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x03()->set_format2_fr(
+      format2_fr(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x03()->set_format3_fr(
+      format3_fr(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x03()->set_format4_fr(
+      format4_fr(bytes, length));
+  chassis->mutable_diamond()->mutable_id_0x03()->set_format5_fr(
+      format5_fr(bytes, length));
 }
 
-// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name': 'front_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65536]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
+// 'front_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|65536]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::front_mgs(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(0, 8);
@@ -55,7 +64,9 @@ int Id0x03::front_mgs(const std::uint8_t* bytes, int32_t length) const {
   return ret;
 }
 
-// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'format0_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':
+// 'format0_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::format0_fr(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
@@ -64,7 +75,9 @@ int Id0x03::format0_fr(const std::uint8_t* bytes, int32_t length) const {
   return ret;
 }
 
-// config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name': 'format1_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
+// 'format1_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::format1_fr(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
@@ -73,7 +86,9 @@ int Id0x03::format1_fr(const std::uint8_t* bytes, int32_t length) const {
   return ret;
 }
 
-// config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name': 'format2_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 16, 'is_signed_var': False, 'len': 8, 'name':
+// 'format2_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::format2_fr(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
@@ -82,7 +97,9 @@ int Id0x03::format2_fr(const std::uint8_t* bytes, int32_t length) const {
   return ret;
 }
 
-// config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name': 'format3_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 24, 'is_signed_var': False, 'len': 8, 'name':
+// 'format3_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::format3_fr(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 8);
@@ -91,7 +108,9 @@ int Id0x03::format3_fr(const std::uint8_t* bytes, int32_t length) const {
   return ret;
 }
 
-// config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name': 'format4_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 32, 'is_signed_var': False, 'len': 8, 'name':
+// 'format4_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::format4_fr(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
@@ -100,7 +119,9 @@ int Id0x03::format4_fr(const std::uint8_t* bytes, int32_t length) const {
   return ret;
 }
 
-// config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name': 'format5_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]', 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
+// config detail: {'bit': 40, 'is_signed_var': False, 'len': 8, 'name':
+// 'format5_fr', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|10]',
+// 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::format5_fr(const std::uint8_t* bytes, int32_t length) const {
   Byte t0(bytes + 5);
   int32_t x = t0.get_byte(0, 8);
