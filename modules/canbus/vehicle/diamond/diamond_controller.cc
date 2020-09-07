@@ -101,26 +101,10 @@ ErrorCode DiamondController::Init(
     return ErrorCode::CANBUS_ERROR;
   }
 
-  id_0x03_ = dynamic_cast<Id0x03*>(
-      message_manager_->GetMutableProtocolDataById(Id0x03::ID));
-  if (id_0x03_ == nullptr) {
-    AERROR << "Id0x03 does not exist in the DiamondMessageManager!";
-    return ErrorCode::CANBUS_ERROR;
-  }
-
-  id_0x04_ = dynamic_cast<Id0x04*>(
-      message_manager_->GetMutableProtocolDataById(Id0x04::ID));
-  if (id_0x04_ == nullptr) {
-    AERROR << "Id0x04 does not exist in the DiamondMessageManager!";
-    return ErrorCode::CANBUS_ERROR;
-  }
-
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
   can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
   can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
-  can_sender_->AddMessage(Id0x03::ID, id_0x03_, false);
-  can_sender_->AddMessage(Id0x04::ID, id_0x04_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";

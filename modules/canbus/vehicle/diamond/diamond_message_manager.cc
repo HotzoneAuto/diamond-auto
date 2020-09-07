@@ -44,8 +44,6 @@ namespace diamond {
 
 DiamondMessageManager::DiamondMessageManager() {
   // Control Messages
-  AddSendProtocolData<Id0x03, true>();
-  AddSendProtocolData<Id0x04, true>();
   AddSendProtocolData<Id0x0c079aa7, true>();
   AddSendProtocolData<Id0x0c19f0a7, true>();
   AddSendProtocolData<Id0x0cfff3a7, true>();

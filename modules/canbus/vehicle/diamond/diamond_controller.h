@@ -29,8 +29,6 @@
 #include "modules/control/proto/control_cmd.pb.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x03.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x04.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
@@ -153,8 +151,6 @@ class DiamondController final : public VehicleController {
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
   Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
   Id0x00aa5701* id_0x00aa5701_ = nullptr;
-  Id0x03* id_0x03_ = nullptr;
-  Id0x04* id_0x04_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
