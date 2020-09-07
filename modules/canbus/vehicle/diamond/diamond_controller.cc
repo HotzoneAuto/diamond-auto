@@ -39,6 +39,7 @@ using ::apollo::drivers::canbus::ProtocolData;
 namespace {
 
 const int32_t kMaxFailAttempt = 10;
+static constexpr double kEpsilon = 1e-6;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
@@ -109,9 +110,7 @@ ErrorCode DiamondController::Init(
   AINFO << "DiamondController is initialized.";
 
   // Initialize frequency converter
-  // TODO: confirm 4 parameters.
   device_front_frequency_converter.SetOpt(9600, 8, 'N', 1);
-  // TODO: confirm 4 parameters.
   device_rear_frequency_converter.SetOpt(9600, 8, 'N', 1);
 
   is_initialized_ = true;
@@ -496,7 +495,7 @@ void DiamondController::Brake(double torque, double brake) {
   }
 
   // set Brake by tarque
-  if (torque > 1e-6) {
+  if (torque > kEpsilon) {
     id_0x0c19f0a7_->set_bymot1workmode(140);
   } else {
     id_0x0c19f0a7_->set_bymot1workmode(148);
@@ -549,8 +548,8 @@ void DiamondController::SteerFront(double front_steering_target) {
 
   // Check wheel angle
   // TODO(all): config and enbale later
-  // if (chassis_.front_wheel_angle() - 30.0 > 1e-6 ||
-  //     chassis_.front_wheel_angle() + 30.0 < 1e-6) {
+  // if (chassis_.front_wheel_angle() - 30.0 > kEpsilon ||
+  //     chassis_.front_wheel_angle() + 30.0 < kEpsilon) {
   //   FrontSteerStop();
   //   return;
   // }
