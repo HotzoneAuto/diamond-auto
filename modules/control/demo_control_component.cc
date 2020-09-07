@@ -99,7 +99,6 @@ void ControlComponent::GenerateCommand() {
   while (front_wheel_angle_realtime > 0.5)  // 待标定
   {
     // front_motor_steering_dir = 2;
-    cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
     cmd->set_front_wheel_target(-10.0);
 
     // 获取编码器瞬时角度值
@@ -120,7 +119,6 @@ void ControlComponent::GenerateCommand() {
   while (rear_wheel_angle_realtime > 0.5)  // 待标定
   {
     // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
-    cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
     cmd->set_rear_wheel_target(-10.0);
 
     // 获取编码器瞬时角度值
@@ -141,7 +139,6 @@ void ControlComponent::GenerateCommand() {
   while (front_wheel_angle_realtime < -0.5)  // 待标定
   {
     // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
-    cmd->set_front_steering_switch(Chassis::STEERINGPOSITIVE);
     cmd->set_front_wheel_target(10.0);
 
     // 获取编码器瞬时角度值
@@ -162,7 +159,6 @@ void ControlComponent::GenerateCommand() {
   while (rear_wheel_angle_realtime < -0.5)  // 待标定
   {
     // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
-    cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
     cmd->set_rear_wheel_target(10.0);
 
     // 获取编码器瞬时角度值
@@ -180,10 +176,8 @@ void ControlComponent::GenerateCommand() {
     */
   }
 
-  cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
   // cmd->set_front_wheel_target(0.0);
 
-  cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
   // cmd->set_rear_wheel_target(0.0);
 
   // front_motor_steering_dir = 0;  //则前方转向电机停转
@@ -199,11 +193,11 @@ void ControlComponent::GenerateCommand() {
         if (rfid_.id() == 2) {
           // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 50;
-          cmd->set_front_brake(drivemotor_torque);
+          cmd->set_brake(drivemotor_torque);
         } else {
           drivemotor_torque =
               pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
-          cmd->set_front_throttle(drivemotor_torque);
+          cmd->set_torque(drivemotor_torque);
         }
 
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
@@ -215,11 +209,11 @@ void ControlComponent::GenerateCommand() {
         if (rfid_.id() == 1) {
           // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 50;
-          cmd->set_rear_brake(drivemotor_torque);
+          cmd->set_brake(drivemotor_torque);
         } else {
           drivemotor_torque =
               pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
-          cmd->set_rear_throttle(drivemotor_torque);
+          cmd->set_torque(drivemotor_torque);
         }
 
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
@@ -228,8 +222,7 @@ void ControlComponent::GenerateCommand() {
 
       // 停止状态
       case 0: {
-        cmd->set_front_throttle(0);
-        cmd->set_rear_throttle(0);
+        cmd->set_torque(0);
 
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
         break;
@@ -259,12 +252,10 @@ void ControlComponent::GenerateCommand() {
     // 检测到轮胎转角超过30°，转向电机停转
     if (abs(front_wheel_angle_realtime) > 30) {
       // front_motor_steering_dir = 0;
-      cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
     }
 
     if (abs(rear_wheel_angle_realtime) > 30) {
       // rear_motor_steering_dir = 0;
-      cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
     }
 
     /*
@@ -288,62 +279,50 @@ void ControlComponent::GenerateCommand() {
         // 给定驱动电机反转命令（使车辆前进从A到B）
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;   //后方转向电机不转
-          cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
           if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
-            cmd->set_front_steering_switch(Chassis::STEERINGPOSITIVE);
             cmd->set_front_wheel_target(10.0);
           } else if (front_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
           {
             // front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
-            cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
             cmd->set_front_wheel_target(-10.0);
           } else {
             if (front_wheel_angle_realtime >= 0.5)  // 当前前轮转角为正，向右偏
             {
               // front_motor_steering_dir = 2;  // 前方转向电机反转（向左）
-              cmd->set_front_steering_switch(Chassis::STEERINGNEGATIVE);
               cmd->set_front_wheel_target(0.0);
             } else if ((front_wheel_angle_realtime > -0.5) &&
                        (front_wheel_angle_realtime < 0.5)) {
               // front_motor_steering_dir = 0;  // 前方转向电机停转
-              cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
             } else  // 当前前轮转角为负，向左偏
             {
               // front_motor_steering_dir = 1;  // 前方转向电机正转（向右）
-              cmd->set_front_steering_switch(Chassis::STEERINGPOSITIVE);
               cmd->set_front_wheel_target(0.0);
             }
           }
         } else if (drivemotor_flag == 2)  // 若驱动电机正转（倒车，车辆从B到A）
         {
           // front_motor_steering_dir = 0;  //前方转向电机不转
-          cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
           if (rear_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
-            cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
             cmd->set_rear_wheel_target(10.0);
           } else if (rear_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
           {
             // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
-            cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
             cmd->set_rear_wheel_target(-10.0);
           } else {
             if (rear_wheel_angle_realtime >= 0.5)  // 当前后轮转角为正，向右偏
             {
               // rear_motor_steering_dir = 2;  // 后方转向电机反转（向左）
-              cmd->set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
               cmd->set_rear_wheel_target(0);
             } else if ((rear_wheel_angle_realtime > -0.5) &&
                        (rear_wheel_angle_realtime < 0.5)) {
               // rear_motor_steering_dir = 0;  // 后方转向电机停转
-              cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
             } else  // 当前后轮转角为负，向左偏
             {
               // rear_motor_steering_dir = 1;  // 后方转向电机正转（向右）
-              cmd->set_rear_steering_switch(Chassis::STEERINGPOSITIVE);
               cmd->set_rear_wheel_target(0);
             }
           }
@@ -351,30 +330,24 @@ void ControlComponent::GenerateCommand() {
           // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
           // front_motor_steering_dir = 0;  // 停止
           // rear_motor_steering_dir = 0;   // 停止
-          cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
-          cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
         }
         break;
       }
       case 0: {
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;
-          cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
           cmd->set_front_steering_switch(
               control_conf_.manual_front_steering_switch());
           cmd->set_front_wheel_target(
               control_conf_.manual_front_wheel_target());
         } else if (drivemotor_flag == 2) {
           // front_motor_steering_dir = 0;
-          cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
           cmd->set_rear_steering_switch(
               control_conf_.manual_rear_steering_switch());
           cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
         } else {
           // front_motor_steering_dir = 0;
           // rear_motor_steering_dir = 0;
-          cmd->set_front_steering_switch(Chassis::STEERINGSTOP);
-          cmd->set_rear_steering_switch(Chassis::STEERINGSTOP);
         }
         break;
       }
