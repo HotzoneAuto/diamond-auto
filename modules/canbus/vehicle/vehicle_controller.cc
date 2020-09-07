@@ -123,9 +123,9 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
     if (control_command.torque() > 1e-6) {
-      Forward_Torque(control_command.torque());
+      ForwardTorque(control_command.torque());
     } else {
-      Reverse_Torque(control_command.torque());
+      ReverseTorque(control_command.torque());
     }
     Brake(control_command.brake());
     SetEpbBreak(control_command);

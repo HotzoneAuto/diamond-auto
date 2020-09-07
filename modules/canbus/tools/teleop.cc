@@ -253,15 +253,9 @@ class Teleop {
         case KEYCODE_RT1:  // Front wheel right
         case KEYCODE_RT2:
           front_steering = GetCommand(front_steering, -FLAGS_steer_inc_delta);
-          control_command_.set_front_steering_switch(Chassis::STEERINGNEGATIVE);
+          control_command_.set_front_steering_switch(Chassis::STEERINGPOSITIVE);
           control_command_.set_front_steering_switch_pre(front_steering);
           control_command_.set_front_wheel_target(front_steering);
-          if (front_steering != 0) {
-            control_command_.set_front_steering_switch(
-                Chassis::STEERINGPOSITIVE);
-          } else {
-            control_command_.set_front_steering_switch(Chassis::STEERINGSTOP);
-          }
           break;
         case KEYCODE_RWL1:  // Rear wheel left
         case KEYCODE_RWL2:
@@ -274,12 +268,6 @@ class Teleop {
           rear_steering = GetCommand(rear_steering, -FLAGS_steer_inc_delta);
           control_command_.set_rear_steering_switch(Chassis::STEERINGNEGATIVE);
           control_command_.set_rear_wheel_target(rear_steering);
-          if (rear_steering != 0) {
-            control_command_.set_rear_steering_switch(
-                Chassis::STEERINGPOSITIVE);
-          } else {
-            control_command_.set_rear_steering_switch(Chassis::STEERINGSTOP);
-          }
           break;
         case KEYCODE_PKBK:  // hand brake
           parking_brake = !control_command_.parking_brake();

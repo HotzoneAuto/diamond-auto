@@ -119,9 +119,9 @@ class VehicleController {
    * @brief drive with old acceleration gas:0.00~99.99 unit:%
    */
 
-  virtual void Forward_Torque(double torque) = 0;
+  virtual void ForwardTorque(double torque) = 0;
 
-  virtual void Reverse_Torque(double torque) = 0;
+  virtual void ReverseTorque(double torque) = 0;
 
   /*
    * @brief steering with old angle speed angle:-99.99~0.00~99.99, unit:%,
