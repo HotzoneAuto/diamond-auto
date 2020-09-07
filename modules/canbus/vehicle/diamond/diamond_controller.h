@@ -171,7 +171,7 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_previous = 0;
 
   float rear_encoder_angle_realtime = 0;
-  const float encoder_to_wheel_gear_ratio = 125;
+  const float encoder_to_wheel_gear_ratio = 124.5;
   float front_wheel_angle_previous = 0;
   float front_wheel_angle_realtime = 0;
   float rear_wheel_angle_previous = 0;

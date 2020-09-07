@@ -53,7 +53,7 @@ Id0x03* Id0x03::set_front_mgs(int front_mgs) {
 // 'Front_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
 // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 void Id0x03::set_p_front_mgs(uint8_t* data, int front_mgs) {
-  front_mgs = ProtocolData::BoundedValue(0, 0, front_mgs);
+  front_mgs = ProtocolData::BoundedValue(0, 65535, front_mgs);
   int x = front_mgs;
   uint8_t t = 0;
 
@@ -77,10 +77,10 @@ void Id0x03::Parse(const std::uint8_t* bytes, int32_t length,
 // 'front_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
 // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x03::front_mgs(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 7);
+  Byte t0(bytes + 6);
   int32_t x = t0.get_byte(0, 8);
 
-  Byte t1(bytes + 6);
+  Byte t1(bytes + 7);
   int32_t t = t1.get_byte(0, 8);
   x <<= 8;
   x |= t;

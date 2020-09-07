@@ -52,7 +52,7 @@ Id0x04* Id0x04::set_rear_mgs(int rear_mgs) {
 // 'Rear_MGS', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
 // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 void Id0x04::set_p_rear_mgs(uint8_t* data, int rear_mgs) {
-  rear_mgs = ProtocolData::BoundedValue(0, 0, rear_mgs);
+  rear_mgs = ProtocolData::BoundedValue(0, 65535, rear_mgs);
   int x = rear_mgs;
   uint8_t t = 0;
 
@@ -76,10 +76,10 @@ void Id0x04::Parse(const std::uint8_t* bytes, int32_t length,
 // 'rear_mgs', 'offset': 0.0, 'order': 'intel', 'physical_range': '[0|0]',
 // 'physical_unit': '', 'precision': 1.0, 'type': 'int'}
 int Id0x04::rear_mgs(const std::uint8_t* bytes, int32_t length) const {
-  Byte t0(bytes + 7);
+  Byte t0(bytes + 6);
   int32_t x = t0.get_byte(0, 8);
 
-  Byte t1(bytes + 6);
+  Byte t1(bytes + 7);
   int32_t t = t1.get_byte(0, 8);
   x <<= 8;
   x |= t;
