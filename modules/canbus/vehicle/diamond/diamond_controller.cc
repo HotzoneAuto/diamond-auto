@@ -453,6 +453,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 
   //============k1 down start===========
+#if 0
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   sleep(3);
@@ -464,7 +465,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   id_0x00aa5701_->set_relay1(0);
   AERROR << "K1 down";
   sleep(5);
-
+#endif
   //===========k1 down end========
   return ErrorCode::OK;
 }
@@ -569,10 +570,8 @@ void DiamondController::Steer_Front(Chassis::SteeringSwitch steering_switch,
 
   // set stop if target is 0
   if (front_steering_target < 1e-6) {
-    front_steering_target = Chassis::STEERINGSTOP;
+    steering_switch = Chassis::STEERINGSTOP;
   }
-
-
 
   // Check wheel angle
   // TODO(all): config and enbale later
