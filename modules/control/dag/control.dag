@@ -5,6 +5,7 @@ module_config {
         class_name : "ControlComponent"
         config {
             name: "control"
+            flag_file_path: "/apollo/modules/control/conf/control.conf"
         }
     }
 }

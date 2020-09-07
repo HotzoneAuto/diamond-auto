@@ -63,4 +63,10 @@ message ControlConf {
   optional double minimum_speed_protection = 36;
 
   optional double max_path_remain_when_stopped = 37 [default = 0.3];
+
+  optional double manual_front_wheel_target = 38; 
+  optional double manual_rear_wheel_target = 39;
+  optional apollo.canbus.Chassis.SteeringSwitch manual_front_steering_switch = 40;
+  optional apollo.canbus.Chassis.SteeringSwitch manual_rear_steering_switch = 41;
+
 }
