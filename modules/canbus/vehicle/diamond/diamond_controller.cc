@@ -558,12 +558,12 @@ void DiamondController::SteerFront(Chassis::SteeringSwitch steering_switch,
   }
 
   // set stop if target is 0
-  if (front_steering_target > 1e-6) {
+  if (front_steering_target > 0.1) {
     steering_switch = Chassis::STEERINGNEGATIVE;
-  } else if (front_steering_target < 1e-6) {
-    steering_switch = Chassis::STEERINGNEGATIVE;
-  } else {
+  } else if (std::abs(front_steering_target) < 0.1) {
     steering_switch = Chassis::STEERINGSTOP;
+  } else {
+    steering_switch = Chassis::STEERINGPOSITIVE;
   }
 
   // Check wheel angle
@@ -825,6 +825,7 @@ void DiamondController::FrontSteerPositive() {
       device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
+  sleep(1);
 }
 
 void DiamondController::FrontSteerNegative() {
@@ -841,6 +842,7 @@ void DiamondController::FrontSteerNegative() {
       device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
+  sleep(1);
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
