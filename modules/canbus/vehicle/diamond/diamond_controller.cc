@@ -34,240 +34,241 @@ namespace canbus {
 namespace diamond {
 
 using ::apollo::common::ErrorCode;
-    using ::apollo::control::ControlCommand;
-    using ::apollo::drivers::canbus::ProtocolData;
+using ::apollo::control::ControlCommand;
+using ::apollo::drivers::canbus::ProtocolData;
 
-    namespace {
+namespace {
 
-    const int32_t kMaxFailAttempt = 10;
-    const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
-    const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
-    }  // namespace
-    FILE* p = nullptr;
+const int32_t kMaxFailAttempt = 10;
+const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
+const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
+}  // namespace
 
-    ErrorCode DiamondController::Init(
-        const VehicleParameter& params,
-        CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
-        MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
-      if (is_initialized_) {
-        AINFO << "DiamondController has already been initiated.";
-        return ErrorCode::CANBUS_ERROR;
-      }
+FILE* p = nullptr;
 
-      params_.CopyFrom(params);
-      if (!params_.has_driving_mode()) {
-        AERROR << "Vehicle conf pb not set driving_mode.";
-        return ErrorCode::CANBUS_ERROR;
-      }
+ErrorCode DiamondController::Init(
+    const VehicleParameter& params,
+    CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
+    MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
+  if (is_initialized_) {
+    AINFO << "DiamondController has already been initiated.";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      if (can_sender == nullptr) {
-        return ErrorCode::CANBUS_ERROR;
-      }
-      can_sender_ = can_sender;
+  params_.CopyFrom(params);
+  if (!params_.has_driving_mode()) {
+    AERROR << "Vehicle conf pb not set driving_mode.";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      if (message_manager == nullptr) {
-        AERROR << "protocol manager is null.";
-        return ErrorCode::CANBUS_ERROR;
-      }
-      message_manager_ = message_manager;
+  if (can_sender == nullptr) {
+    return ErrorCode::CANBUS_ERROR;
+  }
+  can_sender_ = can_sender;
 
-      // sender part
-      id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>(
-          message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
-      if (id_0x0c079aa7_ == nullptr) {
-        AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  if (message_manager == nullptr) {
+    AERROR << "protocol manager is null.";
+    return ErrorCode::CANBUS_ERROR;
+  }
+  message_manager_ = message_manager;
 
-      id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>(
-          message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
-      if (id_0x0c19f0a7_ == nullptr) {
-        AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  // sender part
+  id_0x0c079aa7_ = dynamic_cast<Id0x0c079aa7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c079aa7::ID));
+  if (id_0x0c079aa7_ == nullptr) {
+    AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
-          message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
-      if (id_0x0cfff3a7_ == nullptr) {
-        AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
+  if (id_0x0c19f0a7_ == nullptr) {
+    AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
-          message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
-      if (id_0x00aa5701_ == nullptr) {
-        AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
+  if (id_0x0cfff3a7_ == nullptr) {
+    AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x03_ = dynamic_cast<Id0x03*>(
-          message_manager_->GetMutableProtocolDataById(Id0x03::ID));
-      if (id_0x03_ == nullptr) {
-        AERROR << "Id0x03 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
+      message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
+  if (id_0x00aa5701_ == nullptr) {
+    AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      id_0x04_ = dynamic_cast<Id0x04*>(
-          message_manager_->GetMutableProtocolDataById(Id0x04::ID));
-      if (id_0x04_ == nullptr) {
-        AERROR << "Id0x04 does not exist in the DiamondMessageManager!";
-        return ErrorCode::CANBUS_ERROR;
-      }
+  id_0x03_ = dynamic_cast<Id0x03*>(
+      message_manager_->GetMutableProtocolDataById(Id0x03::ID));
+  if (id_0x03_ == nullptr) {
+    AERROR << "Id0x03 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
-      can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
-      can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
-      can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
-      can_sender_->AddMessage(Id0x03::ID, id_0x03_, false);
-      can_sender_->AddMessage(Id0x04::ID, id_0x04_, false);
+  id_0x04_ = dynamic_cast<Id0x04*>(
+      message_manager_->GetMutableProtocolDataById(Id0x04::ID));
+  if (id_0x04_ == nullptr) {
+    AERROR << "Id0x04 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
 
-      // need sleep to ensure all messages received
-      AINFO << "DiamondController is initialized.";
+  can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
+  can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
+  can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
+  can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
+  can_sender_->AddMessage(Id0x03::ID, id_0x03_, false);
+  can_sender_->AddMessage(Id0x04::ID, id_0x04_, false);
 
-      // Initialize frequency converter
-      device_front_frequency_converter.SetOpt(9600, 8, 'N',
-                                              1);  // TODO: confirm 4 parameters.
-      device_rear_frequency_converter.SetOpt(9600, 8, 'N',
-                                             1);  // TODO: confirm 4 parameters.
+  // need sleep to ensure all messages received
+  AINFO << "DiamondController is initialized.";
 
-      is_initialized_ = true;
-      return ErrorCode::OK;
+  // Initialize frequency converter
+  // TODO: confirm 4 parameters.
+  device_front_frequency_converter.SetOpt(9600, 8, 'N', 1);
+  // TODO: confirm 4 parameters.
+  device_rear_frequency_converter.SetOpt(9600, 8, 'N', 1);
+
+  is_initialized_ = true;
+  return ErrorCode::OK;
+}
+
+DiamondController::~DiamondController() {}
+
+bool DiamondController::Start() {
+  if (!is_initialized_) {
+    AERROR << "DiamondController has NOT been initiated.";
+    return false;
+  }
+  const auto& update_func = [this] { SecurityDogThreadFunc(); };
+  thread_.reset(new std::thread(update_func));
+
+  return true;
+}
+
+void DiamondController::Stop() {
+  if (!is_initialized_) {
+    AERROR << "DiamondController stops or starts improperly!";
+    return;
+  }
+
+  if (thread_ != nullptr && thread_->joinable()) {
+    thread_->join();
+    thread_.reset();
+    AINFO << "DiamondController stopped.";
+  }
+}
+
+Chassis DiamondController::chassis() {
+  chassis_.Clear();
+
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+
+  auto diamond = chassis_detail.mutable_diamond();
+
+  // 21, 22, previously 1, 2
+  if (driving_mode() == Chassis::EMERGENCY_MODE) {
+    set_chassis_error_code(Chassis::NO_ERROR);
+  }
+
+  chassis_.set_driving_mode(driving_mode());
+  chassis_.set_error_code(chassis_error_code());
+
+  // 3
+
+  // 4 Motor torque nm
+  if (diamond->id_0x0c08a7f0().has_fmottq()) {
+    chassis_.set_motor_torque_nm(
+        static_cast<float>(diamond->id_0x0c08a7f0().fmottq()));
+  } else {
+    chassis_.set_motor_torque_nm(0);
+  }
+
+  // 5
+  // compute speed respect to motor torque
+  if (diamond->id_0x0c08a7f0().has_fmotspd()) {
+    auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
+    chassis_.set_speed_mps(static_cast<float>(speed));
+  } else {
+    chassis_.set_speed_mps(0);
+  }
+
+  // 7
+  chassis_.set_fuel_range_m(0);
+
+  // vehicle id
+  chassis_.mutable_vehicle_id()->set_vin(params_.vin());
+
+  // 8 engine rpm respect to motor speed by rpm
+  if (diamond->id_0x0c08a7f0().has_fmotspd()) {
+    chassis_.set_motor_rpm(
+        static_cast<float>(diamond->id_0x0c08a7f0().fmotspd()));
+  } else {
+    chassis_.set_motor_rpm(0);
+  }
+
+  if (diamond->id_0x1818d0f3().has_fbatvolt()) {
+    chassis_.set_bat_volt(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
+  } else {
+    chassis_.set_bat_volt(0);
+  }
+
+  if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
+    chassis_.set_motor_volt(
+        static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
+  } else {
+    chassis_.set_motor_volt(0);
+  }
+
+  if (diamond->id_0x1818d0f3().has_fbatsoc()) {
+    chassis_.set_bat_percentage(
+        static_cast<float>(diamond->id_0x1818d0f3().fbatsoc()));
+  } else {
+    chassis_.set_bat_percentage(0);
+  }
+
+  if (diamond->id_0x01().angle_sensor_id() == 1) {
+    chassis_.set_front_encoder_angle(
+        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
+    if (std::isnan(chassis_.front_encoder_angle())) {
+      front_encoder_angle_realtime = front_encoder_angle_previous;
+    } else {
+      // if (diamond->id_0x01().angle_sensor_data() > 360.0){
+      //  front_encoder_angle_realtime = 360.0;
+      //} else if (diamond->id_0x01().angle_sensor_data() < 0.0){
+      //  front_encoder_angle_realtime = 0.0;
+      //} else{
+      front_encoder_angle_realtime =
+          static_cast<float>(diamond->id_0x01().angle_sensor_data());
+      //}
     }
-
-    DiamondController::~DiamondController() {}
-
-    bool DiamondController::Start() {
-      if (!is_initialized_) {
-        AERROR << "DiamondController has NOT been initiated.";
-        return false;
-      }
-      const auto& update_func = [this] { SecurityDogThreadFunc(); };
-      thread_.reset(new std::thread(update_func));
-
-      return true;
-    }
-
-    void DiamondController::Stop() {
-      if (!is_initialized_) {
-        AERROR << "DiamondController stops or starts improperly!";
-        return;
-      }
-
-      if (thread_ != nullptr && thread_->joinable()) {
-        thread_->join();
-        thread_.reset();
-        AINFO << "DiamondController stopped.";
-      }
-    }
-
-    Chassis DiamondController::chassis() {
-      chassis_.Clear();
-
-      ChassisDetail chassis_detail;
-      message_manager_->GetSensorData(&chassis_detail);
-
-      auto diamond = chassis_detail.mutable_diamond();
-
-      // 21, 22, previously 1, 2
-      if (driving_mode() == Chassis::EMERGENCY_MODE) {
-        set_chassis_error_code(Chassis::NO_ERROR);
-      }
-
-      chassis_.set_driving_mode(driving_mode());
-      chassis_.set_error_code(chassis_error_code());
-
-      // 3
-
-      // 4 Motor torque nm
-      if (diamond->id_0x0c08a7f0().has_fmottq()) {
-        chassis_.set_motor_torque_nm(
-            static_cast<float>(diamond->id_0x0c08a7f0().fmottq()));
-      } else {
-        chassis_.set_motor_torque_nm(0);
-      }
-
-      // 5
-      // compute speed respect to motor torque
-      if (diamond->id_0x0c08a7f0().has_fmotspd()) {
-        auto speed = 0.006079 * diamond->id_0x0c08a7f0().fmotspd();
-        chassis_.set_speed_mps(static_cast<float>(speed));
-      } else {
-        chassis_.set_speed_mps(0);
-      }
-
-      // 7
-      chassis_.set_fuel_range_m(0);
-
-      // vehicle id
-      chassis_.mutable_vehicle_id()->set_vin(params_.vin());
-
-      // 8 engine rpm respect to motor speed by rpm
-      if (diamond->id_0x0c08a7f0().has_fmotspd()) {
-        chassis_.set_motor_rpm(
-            static_cast<float>(diamond->id_0x0c08a7f0().fmotspd()));
-      } else {
-        chassis_.set_motor_rpm(0);
-      }
-
-      if (diamond->id_0x1818d0f3().has_fbatvolt()) {
-        chassis_.set_bat_volt(
-            static_cast<float>(diamond->id_0x1818d0f3().fbatvolt()));
-      } else {
-        chassis_.set_bat_volt(0);
-      }
-
-      if (diamond->id_0x0c09a7f0().has_fmotvolt()) {
-        chassis_.set_motor_volt(
-            static_cast<float>(diamond->id_0x0c09a7f0().fmotvolt()));
-      } else {
-        chassis_.set_motor_volt(0);
-      }
-
-      if (diamond->id_0x1818d0f3().has_fbatsoc()) {
-        chassis_.set_bat_percentage(
-            static_cast<float>(diamond->id_0x1818d0f3().fbatsoc()));
-      } else {
-        chassis_.set_bat_percentage(0);
-      }
-
-      if (diamond->id_0x01().angle_sensor_id() == 1) {
-        chassis_.set_front_encoder_angle(
-            static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-        if (std::isnan(chassis_.front_encoder_angle())) {
-          front_encoder_angle_realtime = front_encoder_angle_previous;
-        } else {
-          //if (diamond->id_0x01().angle_sensor_data() > 360.0){
-          //  front_encoder_angle_realtime = 360.0;
-          //} else if (diamond->id_0x01().angle_sensor_data() < 0.0){
-          //  front_encoder_angle_realtime = 0.0;
-          //} else{
-            front_encoder_angle_realtime =
-              static_cast<float>(diamond->id_0x01().angle_sensor_data());
-          //}
-        }
-        front_wheel_angle_realtime = update_wheel_angle(
-            front_wheel_angle_previous, front_encoder_angle_previous,
-            front_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
-        chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
-        front_encoder_angle_previous = front_encoder_angle_realtime;
-        front_wheel_angle_previous = front_wheel_angle_realtime;
-        p = fopen("/home/nvidia/out.txt", "a+");
-        fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
-        chassis_.front_encoder_angle());
-        fclose(p);
-      } else {
-        chassis_.set_rear_encoder_angle(
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
+    chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
+    front_encoder_angle_previous = front_encoder_angle_realtime;
+    front_wheel_angle_previous = front_wheel_angle_realtime;
+    p = fopen("/home/nvidia/out.txt", "a+");
+    fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
+            chassis_.front_encoder_angle());
+    fclose(p);
+  } else {
+    chassis_.set_rear_encoder_angle(
         static_cast<float>(diamond->id_0x01().angle_sensor_data()));
     if (std::isnan(chassis_.rear_encoder_angle())) {
       rear_encoder_angle_realtime = rear_encoder_angle_previous;
     } else {
-      if (diamond->id_0x01().angle_sensor_data() > 360.0){
+      if (diamond->id_0x01().angle_sensor_data() > 360.0) {
         rear_encoder_angle_realtime = 360.0;
-      } else if (diamond->id_0x01().angle_sensor_data() < 0.0){
+      } else if (diamond->id_0x01().angle_sensor_data() < 0.0) {
         rear_encoder_angle_realtime = 0.0;
       } else {
         rear_encoder_angle_realtime =
-          static_cast<float>(diamond->id_0x01().angle_sensor_data());
+            static_cast<float>(diamond->id_0x01().angle_sensor_data());
       }
     }
     rear_wheel_angle_realtime = update_wheel_angle(
@@ -551,8 +552,8 @@ void DiamondController::Reverse_Torque(double torque) {
   }
 
   // reverse mode
-  AINFO << "Reverse mode.";
-  AERROR << "Reverse mode and torque:" << torque << " abs value: " << std::abs(torque);
+  AINFO << "Reverse mode and torque:" << torque
+         << " abs value: " << std::abs(torque);
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
   id_0x0c19f0a7_->set_bymot1workmode(146);
 }
@@ -914,6 +915,10 @@ void DiamondController::Steer(double angle, double angle_spd) {
 
   // id_0x0c079aa7_->set_bydcaccmd(real_angle);
   // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
+}
+
+void DiamondController::SteerMotor(double angle, double angle_spd) {
+
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {

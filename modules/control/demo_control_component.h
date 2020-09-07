@@ -6,9 +6,9 @@
 #include "cyber/class_loader/class_loader.h"
 #include "cyber/component/component.h"
 
-#include "modules/control/common/control_gflags.h"
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/common/adapters/adapter_gflags.h"
+#include "modules/control/common/control_gflags.h"
 #include "modules/control/proto/control_cmd.pb.h"
 #include "modules/control/proto/control_conf.pb.h"
 #include "modules/drivers/proto/rfid.pb.h"
