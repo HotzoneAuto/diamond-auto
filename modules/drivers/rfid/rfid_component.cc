@@ -52,27 +52,25 @@ bool RfidComponent::Check() {
 
 void RfidComponent::Action() {
   int count = 0;
-  static char buffer[13];
+  static char buffer[20];
   static char buf;
   while (!apollo::cyber::IsShutdown()) {
-    // count = 1;
-    std::memset(buffer, 0, 13);
+     count = 1;
+    std::memset(buffer, 0, 20);
     while (1) {
       int ret = device_->Read(&buf, 1);
       AINFO << "RFID Device return: " << ret;
       if (ret == 1) {
         AINFO << "RFID Device buf: " << buf;
-        // 0x02 Head
-        // 0x03 End
         if (buf == 0x02) {
-          count = 0;
+          count = 1;
           break;
         }
         buffer[count] = buf;
         count++;
       }
       AINFO << "count: " << count;
-      if (buf == 0x03 && count == 13) {
+      if (count == 13) {
         AINFO << "origin id from buffer[10]: " << buffer[10];
         uint32_t station_id = buffer[10] - '0';
         AINFO << "TRANSFER ID :" << station_id;
