@@ -1,0 +1,15 @@
+load("//tools:cpplint.bzl", "cpplint")
+
+package(default_visibility = ["//visibility:public"])
+
+
+cc_binary(
+    name = "pc2pcl",
+    srcs = ["pc2pcl.cc"],
+    deps = [    
+        "//cyber",
+        "//modules/drivers/proto:pointcloud_cc_proto",
+        "@pcl",
+        "@eigen"
+    ],
+)

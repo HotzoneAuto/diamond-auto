@@ -675,12 +675,7 @@ void DiamondController::RearSteerPositive() {
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
   sleep(1);
-  id_0x0c079aa7_->set_bydcdccmd(0xAA);
-  id_0x0c079aa7_->set_bydcaccmd(0x55);
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 }
 
 void DiamondController::RearSteerNegative() {
@@ -690,12 +685,7 @@ void DiamondController::RearSteerNegative() {
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
   sleep(1);
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  id_0x0c079aa7_->set_bydcaccmd(0x55);
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 }
 
 void DiamondController::SetBatCharging() {
