@@ -169,6 +169,7 @@ void ControlComponent::GenerateCommand() {
         // 给定驱动电机反转命令（使车辆前进从A到B）
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;   //后方转向电机不转
+          cmd->set_rear_wheel_target(0);
           if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
@@ -181,19 +182,21 @@ void ControlComponent::GenerateCommand() {
             if (front_wheel_angle_realtime >= 0.5)  // 当前前轮转角为正，向右偏
             {
               // front_motor_steering_dir = 2;  // 前方转向电机反转（向左）
-              cmd->set_front_wheel_target(0.0);
+              cmd->set_front_wheel_target(0);
             } else if ((front_wheel_angle_realtime > -0.5) &&
                        (front_wheel_angle_realtime < 0.5)) {
               // front_motor_steering_dir = 0;  // 前方转向电机停转
+              cmd->set_front_wheel_target(0);
             } else  // 当前前轮转角为负，向左偏
             {
               // front_motor_steering_dir = 1;  // 前方转向电机正转（向右）
-              cmd->set_front_wheel_target(0.0);
+              cmd->set_front_wheel_target(0);
             }
           }
         } else if (drivemotor_flag == 2)  // 若驱动电机正转（倒车，车辆从B到A）
         {
           // front_motor_steering_dir = 0;  //前方转向电机不转
+          cmd->set_front_wheel_target(0);
           if (rear_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
@@ -210,6 +213,7 @@ void ControlComponent::GenerateCommand() {
             } else if ((rear_wheel_angle_realtime > -0.5) &&
                        (rear_wheel_angle_realtime < 0.5)) {
               // rear_motor_steering_dir = 0;  // 后方转向电机停转
+              cmd->set_rear_wheel_target(0);
             } else  // 当前后轮转角为负，向左偏
             {
               // rear_motor_steering_dir = 1;  // 后方转向电机正转（向右）
@@ -220,20 +224,25 @@ void ControlComponent::GenerateCommand() {
           // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
           // front_motor_steering_dir = 0;  // 停止
           // rear_motor_steering_dir = 0;   // 停止
+          cmd->set_rear_wheel_target(0);
         }
         break;
       }
       case 0: {
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;
+          cmd->set_rear_wheel_target(0);
           cmd->set_front_wheel_target(
               control_conf_.manual_front_wheel_target());
         } else if (drivemotor_flag == 2) {
           // front_motor_steering_dir = 0;
+          cmd->set_front_wheel_target(0);
           cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
         } else {
           // front_motor_steering_dir = 0;
           // rear_motor_steering_dir = 0;
+          cmd->set_front_wheel_target(0);
+          cmd->set_rear_wheel_target(0);
         }
         break;
       }
