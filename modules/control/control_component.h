@@ -11,6 +11,7 @@
 #include "modules/control/common/control_gflags.h"
 #include "modules/control/proto/control_cmd.pb.h"
 #include "modules/control/proto/control_conf.pb.h"
+#include "modules/control/proto/pad_msg.pb.h"
 #include "modules/drivers/proto/rfid.pb.h"
 
 namespace apollo {
@@ -18,6 +19,7 @@ namespace control {
 
 using apollo::canbus::Chassis;
 using apollo::control::ControlCommand;
+using apollo::control::PadMessage;
 using apollo::cyber::Component;
 using apollo::drivers::RFID;
 
@@ -33,9 +35,13 @@ class ControlComponent : public Component<> {
   Chassis chassis_;
   ControlConf control_conf_;
   RFID rfid_;
+  PadMessage pad_msg_;
+  bool pad_received_ = false;
+
   std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
   std::shared_ptr<cyber::Writer<ControlCommand>> control_cmd_writer_;
+  std::shared_ptr<cyber::Reader<PadMessage>> pad_msg_reader_;
 
   Chassis::SteeringSwitch manual_front_steering_switch = Chassis::STEERINGSTOP;
   double manual_front_wheel_target = 0;

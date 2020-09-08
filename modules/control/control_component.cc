@@ -34,6 +34,16 @@ bool ControlComponent::Init() {
       FLAGS_rfid_topic,
       [this](const std::shared_ptr<RFID>& rfid) { rfid_.CopyFrom(*rfid); });
 
+  // rfid Reader
+  pad_msg_reader_ = node_->CreateReader<PadMessage>(
+      FLAGS_pad_topic, [this](const std::shared_ptr<PadMessage>& pad_msg) {
+        pad_msg_.CopyFrom(*pad_msg);
+      });
+
+  AINFO << "Control default driving action is "
+        << DrivingAction_Name(control_conf_.action());
+  pad_msg_.set_action(control_conf_.action());
+
   // create Writer
   control_cmd_writer_ =
       node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
@@ -53,11 +63,11 @@ double ControlComponent::PidSpeed(double veh_spd, double spd_motor_deadzone) {
   auto pid_conf = control_conf_.pid_conf();
   double torque = 0;
   AINFO << "pid_e_pre: " << pid_e_pre;
-  torque = 20.0 + pid_conf.kp() * pid_e +
-             pid_conf.ki() * pid_int +
-             pid_conf.kd() * (pid_e - pid_e_pre);
+  torque = 20.0 + pid_conf.kp() * pid_e + pid_conf.ki() * pid_int +
+           pid_conf.kd() * (pid_e - pid_e_pre);
 
-  AINFO << "PID Output Torque：" << torque << " vehicle speed now:" << chassis_.speed_mps();
+  AINFO << "PID Output Torque：" << torque
+        << " vehicle speed now:" << chassis_.speed_mps();
 
   pid_e_pre = pid_e;
 
@@ -68,6 +78,7 @@ double ControlComponent::PidSpeed(double veh_spd, double spd_motor_deadzone) {
 // write to channel
 void ControlComponent::GenerateCommand() {
   auto cmd = std::make_shared<ControlCommand>();
+  cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
 
   // frequency
   Rate rate(100.0);
