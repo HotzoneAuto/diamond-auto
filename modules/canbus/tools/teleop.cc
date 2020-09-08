@@ -140,8 +140,6 @@ class Teleop {
     int32_t level = 0;
     // double brake = 0;
     // double throttle = 0;
-    // double acc = 0;
-    // double dec = 0;
     double front_steering = 0;
     double rear_steering = 0;
     double torque = 0;

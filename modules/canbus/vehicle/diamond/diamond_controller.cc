@@ -39,6 +39,7 @@ using ::apollo::drivers::canbus::ProtocolData;
 namespace {
 
 const int32_t kMaxFailAttempt = 10;
+static constexpr double kEpsilon = 1e-6;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
@@ -109,9 +110,7 @@ ErrorCode DiamondController::Init(
   AINFO << "DiamondController is initialized.";
 
   // Initialize frequency converter
-  // TODO: confirm 4 parameters.
   device_front_frequency_converter.SetOpt(9600, 8, 'N', 1);
-  // TODO: confirm 4 parameters.
   device_rear_frequency_converter.SetOpt(9600, 8, 'N', 1);
 
   is_initialized_ = true;
@@ -396,25 +395,11 @@ ErrorCode DiamondController::EnableAutoMode() {
   id_0x0c19f0a7_->set_bylife(0);
 
   // Steering Motor
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  id_0x0c079aa7_->set_bydcaccmd(0xAA);
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 
   // Steering const speed
-  char frq_converter_spd_write_cmd[8];
-  frq_converter_spd_write_cmd[0] = 0x0B;
-  frq_converter_spd_write_cmd[1] = 0x06;
-  frq_converter_spd_write_cmd[2] = 0x20;
-  frq_converter_spd_write_cmd[3] = 0x00;
-  frq_converter_spd_write_cmd[4] = 0x27;
-  frq_converter_spd_write_cmd[5] = 0x10;
-  frq_converter_spd_write_cmd[6] = 0x98;
-  frq_converter_spd_write_cmd[7] = 0x9C;
-  int result_spd_positive =
-      device_front_frequency_converter.Write(frq_converter_spd_write_cmd, 8);
+  unsigned char spd_cmd[8] = {0x0B, 0x06, 0x20, 0x00, 0x27, 0x10, 0x98, 0x9C};
+  int result_spd_positive = device_front_frequency_converter.Write(spd_cmd, 8);
   ADEBUG << "Frequency converter speed write command send result is :"
          << result_spd_positive;
 
@@ -510,7 +495,7 @@ void DiamondController::Brake(double torque, double brake) {
   }
 
   // set Brake by tarque
-  if (torque > 1e-6) {
+  if (torque > kEpsilon) {
     id_0x0c19f0a7_->set_bymot1workmode(140);
   } else {
     id_0x0c19f0a7_->set_bymot1workmode(148);
@@ -525,7 +510,6 @@ void DiamondController::ForwardTorque(double torque) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
-  AINFO << "Forward mode.";
   id_0x0c19f0a7_->set_fmot1targettq(torque);
   id_0x0c19f0a7_->set_bymot1workmode(138);
 }
@@ -537,20 +521,11 @@ void DiamondController::ReverseTorque(double torque) {
     return;
   }
 
-  // reverse mode
-  AINFO << "Reverse mode and torque:" << torque
-        << " abs value: " << std::abs(torque);
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
   id_0x0c19f0a7_->set_bymot1workmode(146);
 }
 
-/*
-// when vehicle stops.
-void DiamondController::Vehicle_Stop(){
-  id_0x0c19f0a7_->set_bymot1workmode(129);
-}*/
-
-// diamond default, -470 ~ 470, left:+, right:-
+// diamond default, -30 ~ 30, left:+, right:-
 // need to be compatible with control module, so reverse
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
@@ -573,8 +548,8 @@ void DiamondController::SteerFront(double front_steering_target) {
 
   // Check wheel angle
   // TODO(all): config and enbale later
-  // if (chassis_.front_wheel_angle() - 30.0 > 1e-6 ||
-  //     chassis_.front_wheel_angle() + 30.0 < 1e-6) {
+  // if (chassis_.front_wheel_angle() - 30.0 > kEpsilon ||
+  //     chassis_.front_wheel_angle() + 30.0 < kEpsilon) {
   //   FrontSteerStop();
   //   return;
   // }
@@ -589,20 +564,6 @@ void DiamondController::SteerFront(double front_steering_target) {
         break;
       }*/
       FrontSteerPositive();
-
-      // 风机转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-      sleep(1);
       break;
     }
     case Chassis::STEERINGNEGATIVE: {
@@ -624,19 +585,6 @@ void DiamondController::SteerFront(double front_steering_target) {
         break;
       }*/
       FrontSteerNegative();
-
-      // 风机转
-      id_0x0c079aa7_->set_bydcdccmd(0x55);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcaccmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcacwkst(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-      // DC/DC
-      id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-      // DC/AC
-      id_0x0c079aa7_->set_bydcac2wkst(0xAA);
       break;
     }
     case Chassis::STEERINGSTOP: {
@@ -682,167 +630,80 @@ void DiamondController::SteerRear(double rear_steering_target) {
   }
 }
 
-// steering with new angle speed
-// angle:-99.99~0.00~99.99, unit:, left:-, right:+
-// angle_spd:0.00~99.99, unit:deg/s
-void DiamondController::Steer(double angle, double angle_spd) {
-  if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
-      driving_mode() != Chassis::AUTO_STEER_ONLY) {
-    AINFO << "The current driving mode does not need to set steer.";
-    return;
-  }
-  // const double real_angle = 360 * angle / 100.0;
-
-  // id_0x0c079aa7_->set_bydcaccmd(real_angle);
-  // id_0x0c079aa7_->set_bydcac2cmd(real_angle);
-}
-
 void DiamondController::FrontSteerStop() {
-  // 风机停转
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcaccmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  // DC/DC
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0B;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x05;
-  frq_converter_dir_write_cmd[6] = 0x4D;
-  frq_converter_dir_write_cmd[7] = 0xA3;
-  int result_dir_zero =
-      device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+  SetBatCharging();
+
+  unsigned char cmd[8] = {0x0B, 0x06, 0x06, 0x00, 0x00, 0x05, 0x4D, 0xA3};
+
+  int result_dir_zero = device_front_frequency_converter.Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_zero;
 }
 
 void DiamondController::FrontSteerPositive() {
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0B;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x01;
-  frq_converter_dir_write_cmd[6] = 0x4C;
-  frq_converter_dir_write_cmd[7] = 0x60;
-  int result_dir_positive =
-      device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+  unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4C, 0x60};
+
+  int result_dir_positive = device_front_frequency_converter.Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
   sleep(1);
+  SetBatCharging();
 }
 
 void DiamondController::FrontSteerNegative() {
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0B;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x02;
-  frq_converter_dir_write_cmd[6] = 0x0C;
-  frq_converter_dir_write_cmd[7] = 0x61;
-  int result_dir_negative =
-      device_front_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+  unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0C, 0x61};
+  int result_dir_negative = device_front_frequency_converter.Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
   sleep(1);
+  SetBatCharging();
 }
 
 void DiamondController::RearSteerStop() {
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0C;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x05;
-  frq_converter_dir_write_cmd[6] = 0x4C;
-  frq_converter_dir_write_cmd[7] = 0x14;
-  int result_dir_zero =
-      device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x05, 0x4C, 0x14};
+
+  int result_dir_zero = device_rear_frequency_converter.Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_zero;
-
-  // 风机停转
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcaccmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  // DC/DC
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  // DC/AC
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 }
 
 void DiamondController::RearSteerPositive() {
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0C;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x01;
-  frq_converter_dir_write_cmd[6] = 0x4D;
-  frq_converter_dir_write_cmd[7] = 0xD7;
-  int result_dir_positive =
-      device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4D, 0xD7};
+
+  int result_dir_positive = device_rear_frequency_converter.Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
   sleep(1);
-  // 风机转
   id_0x0c079aa7_->set_bydcdccmd(0xAA);
-  // DC/AC
   id_0x0c079aa7_->set_bydcaccmd(0x55);
-  // DC/AC
   id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // DC/AC
   id_0x0c079aa7_->set_byeapcmd(0xAA);
-  // DC/DC
   id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  // DC/AC
   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 }
 
 void DiamondController::RearSteerNegative() {
-  char frq_converter_dir_write_cmd[8];
-  frq_converter_dir_write_cmd[0] = 0x0C;
-  frq_converter_dir_write_cmd[1] = 0x06;
-  frq_converter_dir_write_cmd[2] = 0x10;
-  frq_converter_dir_write_cmd[3] = 0x00;
-  frq_converter_dir_write_cmd[4] = 0x00;
-  frq_converter_dir_write_cmd[5] = 0x02;
-  frq_converter_dir_write_cmd[6] = 0x0D;
-  frq_converter_dir_write_cmd[7] = 0xD6;
-  int result_dir_negative =
-      device_rear_frequency_converter.Write(frq_converter_dir_write_cmd, 8);
+  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0D, 0xD6};
+
+  int result_dir_negative = device_rear_frequency_converter.Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
   sleep(1);
-  // 风机转
   id_0x0c079aa7_->set_bydcdccmd(0x55);
-  // DC/AC
   id_0x0c079aa7_->set_bydcaccmd(0x55);
-  // DC/AC
   id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // DC/AC
   id_0x0c079aa7_->set_byeapcmd(0xAA);
-  // DC/DC
   id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  // DC/AC
+  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+}
+
+void DiamondController::SetBatCharging() {
+  id_0x0c079aa7_->set_bydcdccmd(0x55);
+  id_0x0c079aa7_->set_bydcaccmd(0xAA);
+  id_0x0c079aa7_->set_bydcacwkst(0xAA);
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 }
 

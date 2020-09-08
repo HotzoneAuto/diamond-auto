@@ -126,10 +126,7 @@ class DiamondController final : public VehicleController {
   void RearSteerPositive();
   void RearSteerNegative();
 
-  // steering with new angle speed
-  // angle:-99.99~0.00~99.99, unit:, left:+, right:-
-  // angle_spd:0.00~99.99, unit:deg/s
-  void Steer(double angle, double angle_spd) override;
+  void SetBatCharging();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -170,10 +167,8 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   // 变频器 485通信 设备
-  Uart device_front_frequency_converter =
-      Uart("ttyUSB2");  // TODO: define device name.
-  Uart device_rear_frequency_converter =
-      Uart("ttyUSB1");  // TODO: define device name.
+  Uart device_front_frequency_converter = Uart("ttyUSB2");
+  Uart device_rear_frequency_converter = Uart("ttyUSB1");
 
   float front_encoder_angle_previous = 0;
 

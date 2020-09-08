@@ -39,16 +39,8 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
 
   while (!apollo::cyber::IsShutdown()) {
     // Send read Data message
-    // char msg_read_cmd = {0x01, 0x03, 0x00, 0x01, 0x00, 0x01, 0xd5, 0xca};
-    char msg_read_cmd[8];
-    msg_read_cmd[0] = 0x01;
-    msg_read_cmd[1] = 0x03;
-    msg_read_cmd[2] = 0x00;
-    msg_read_cmd[3] = 0x01;
-    msg_read_cmd[4] = 0x00;
-    msg_read_cmd[5] = 0x01;
-    msg_read_cmd[6] = 0xd5;
-    msg_read_cmd[7] = 0xca;
+    unsigned char msg_read_cmd[8] = {0x01, 0x03, 0x00, 0x01,
+                                     0x00, 0x01, 0xd5, 0xca};
     int result = device_.Write(msg_read_cmd, 8);
     ADEBUG << "Magnetic Msg Read Cmd Send result is :" << result;
 
