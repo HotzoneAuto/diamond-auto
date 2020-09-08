@@ -100,7 +100,7 @@ void ControlComponent::GenerateCommand() {
   // 初始化驱动电机死区
   if (veh_spd <= 0.1) {
     // TODO: 落地后标定值
-    speed_motor_deadzone = speed_motor_deadzone_calibration;
+    speed_motor_deadzone = control_conf_.torque_deadzone();
   } else {
     // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
     speed_motor_deadzone = r_wheel * m_veh * g * f_c / (i_1 * i_0 * yita_t);

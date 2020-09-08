@@ -68,5 +68,6 @@ message ControlConf {
   optional double manual_front_wheel_target = 38; 
   optional double manual_rear_wheel_target = 39;
   optional PidConf pid_conf = 40;
+  optional double torque_deadzone = 41;
 
 }
