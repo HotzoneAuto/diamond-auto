@@ -128,5 +128,4 @@ DECLARE_string(monitor_log_topic);
 DECLARE_string(rfid_topic);
 DECLARE_string(magnetic_channel);
 DECLARE_string(navigation_channel);
-DECLARE_double(desired_v);
 DECLARE_int32(magnetic_enable);

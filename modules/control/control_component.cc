@@ -98,6 +98,8 @@ void ControlComponent::GenerateCommand() {
   */
 
   // 初始化驱动电机死区
+  speed_motor_deadzone = control_conf_.torque_deadzone();
+  /*
   if (veh_spd <= 0.1) {
     // TODO: 落地后标定值
     speed_motor_deadzone = control_conf_.torque_deadzone();
@@ -105,7 +107,7 @@ void ControlComponent::GenerateCommand() {
     // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
     speed_motor_deadzone = r_wheel * m_veh * g * f_c / (i_1 * i_0 * yita_t);
   }
-
+*/
   // TODO:
   // 突然断电停车后，需记录最后时刻的状态数据，包括前后轮转角；重新启动后再读取数据文件
 

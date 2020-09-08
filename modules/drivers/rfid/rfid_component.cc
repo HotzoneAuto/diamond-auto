@@ -70,9 +70,10 @@ void RfidComponent::Action() {
         count++;
       }
       AINFO << "count: " << count;
-      if (count == 13) {
+      if (count == 10) {
         AINFO << "origin id from buffer[10]: " << buffer[10];
-        uint32_t station_id = buffer[10] - '0';
+        //uint32_t station_id = buffer[10] - '0';
+        uint32_t station_id = buf;
         AINFO << "TRANSFER ID :" << station_id;
 
         apollo::drivers::RFID rfid;
