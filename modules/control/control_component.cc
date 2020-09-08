@@ -78,7 +78,6 @@ double ControlComponent::PidSpeed(double veh_spd, double spd_motor_deadzone) {
 // write to channel
 void ControlComponent::GenerateCommand() {
   auto cmd = std::make_shared<ControlCommand>();
-  cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
 
   // frequency
   Rate rate(100.0);
@@ -197,6 +196,7 @@ void ControlComponent::GenerateCommand() {
   // cmd->set_rear_wheel_target(0.0);
 
   while (true) {
+    cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
     // TODO: Configuration
     // 手动给定，0代表停止，1代表从A到B，2代表从B到A
     drivemotor_flag = 1;

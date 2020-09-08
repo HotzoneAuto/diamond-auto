@@ -1,3 +1,3 @@
-device_id: "ttyUSB2"
+device_id: "ttyUSB4"
 output_channel:"/diamond/sensor/rfid/front"
 enable_log: true

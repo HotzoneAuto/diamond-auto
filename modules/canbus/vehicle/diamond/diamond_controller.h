@@ -167,8 +167,8 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   // 变频器 485通信 设备
-  Uart device_front_frequency_converter = Uart("ttyUSB2");
-  Uart device_rear_frequency_converter = Uart("ttyUSB1");
+  Uart device_front_frequency_converter = Uart("ttyUSB1");
+  Uart device_rear_frequency_converter = Uart("ttyUSB0");
 
   float front_encoder_angle_previous = 0;
 
