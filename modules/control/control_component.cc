@@ -45,24 +45,22 @@ bool ControlComponent::Init() {
 }
 
 float ControlComponent::PidSpeed(float veh_spd, float spd_motor_deadzone) {
-  cout << "pid中的期望速度" << FLAGS_desired_v << endl;
   pid_error = FLAGS_desired_v - veh_spd;
-  cout << "纵向速度偏差" << pid_error << endl;
 
   pid_integral += pid_error;
 
+  AINFO << "pid_error:" << pid_error << " pid_integral:" << pid_integral;
   auto pid_conf = control_conf_.pid_conf();
 
   u_torque = spd_motor_deadzone + pid_conf.kp() * pid_error +
              pid_conf.ki() * pid_integral +
              pid_conf.kd() * (pid_error - pid_error_pre);
 
-  cout << "PID输出给驱动电机的控制量（转矩）：" << u_torque << endl;
+  AINFO << "PID Output Torque：" << u_torque " vehicle speed now:" << veh_spd;
 
-  cout << "当前车速" << veh_spd << endl;
   pid_error_pre = pid_error;
 
-  return u_torque;
+  return std::isnan(u_torque) ? 0 : u_torque;
   // u_pre_torque = u_torque;
 }
 
@@ -80,22 +78,6 @@ void ControlComponent::GenerateCommand() {
 
   // 获取当前车辆速度
   veh_spd = chassis_.speed_mps();
-
-  /*
-  // 获取前后编码器瞬时角度值
-  if (isnan(chassis_.front_encoder_angle())){
-    front_encoder_angle_realtime = front_encoder_angle_previous;
-  }
-  else{
-    front_encoder_angle_realtime = chassis_.front_encoder_angle();
-  }
-  if (isnan(chassis_.rear_encoder_angle())){
-    rear_encoder_angle_realtime = rear_encoder_angle_previous;
-  }
-  else{
-    rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
-  }
-  */
 
   // 初始化驱动电机死区
   speed_motor_deadzone = control_conf_.torque_deadzone();
@@ -201,9 +183,6 @@ void ControlComponent::GenerateCommand() {
   // cmd->set_front_wheel_target(0.0);
 
   // cmd->set_rear_wheel_target(0.0);
-
-  // front_motor_steering_dir = 0;  //则前方转向电机停转
-  // rear_motor_steering_dir = 0;   //则后方转向电机停转
 
   while (true) {
     // TODO: Configuration
