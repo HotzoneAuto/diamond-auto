@@ -170,11 +170,11 @@ void ControlComponent::GenerateCommand() {
         if (drivemotor_flag == 1) {
           // rear_motor_steering_dir = 0;   //后方转向电机不转
           cmd->set_rear_wheel_target(0);
-          if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
+          if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
             cmd->set_front_wheel_target(10.0);
-          } else if (front_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
+          } else if (front_lat_dev_mgs > 3.5)  //若前方磁导航检测出车偏右
           {
             // front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
             cmd->set_front_wheel_target(-10.0);
@@ -197,11 +197,11 @@ void ControlComponent::GenerateCommand() {
         {
           // front_motor_steering_dir = 0;  //前方转向电机不转
           cmd->set_front_wheel_target(0);
-          if (rear_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
+          if (rear_lat_dev_mgs < -3.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
             cmd->set_rear_wheel_target(10.0);
-          } else if (rear_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
+          } else if (rear_lat_dev_mgs > 3.5)  //若后方磁导航检测出车偏右
           {
             // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
             cmd->set_rear_wheel_target(-10.0);

@@ -27,7 +27,7 @@ char Hex2Ascii(char hex) {
 
 void OnData(std::shared_ptr<apollo::cyber::Node> node) {
   // TODO(wangying): auto config by udev
-  Uart device_ = Uart("ttyUSB4");
+  Uart device_ = Uart("ttyUSB5");
   device_.SetOpt(9600, 8, 'N', 1);
   int count = 1;
   static char buffer[20];
@@ -39,9 +39,9 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
     std::memset(buffer, 0, 20);
     while (1) {
       int ret = device_.Read(&buf, 1);
-      //      AINFO << "RFID Device return" << ret;
+//      AINFO << "RFID Device return" << ret;    
       if (ret == 1) {
-        // AINFO << "RFID Device buf: " << buf;
+        //AINFO << "RFID Device buf: " << buf;
         if (buf == 0x02) {
           count = 1;
           break;
@@ -49,19 +49,24 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         buffer[count] = buf;
         count++;
       }
+      if(count==10){
+           AINFO << "RFID Device buf: " << buf;
+           AINFO << "origin id from buffer[10]: " << buffer[10];
+           uint8_t station_id = buf;
+           AINFO << "TRANSFER ID :" << station_id;
+        apollo::drivers::RFID rfid;
+        auto header = rfid.mutable_header();
+        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+        header->set_frame_id("rfid");
 
-      if (count == 10) {
-        AINFO << "RFID Device buf: " << buf;
-        AINFO << "origin id from buffer[10]: " << buffer[10];
+        rfid.set_id(station_id);
 
-        int station_id = buf;
-        AINFO << "TRANSFER ID :" << station_id;
-
-      } else {
-        int station_id = 0;
-        AINFO << "TRANSFER ID else :" << station_id;
-      }
-
+        rfid_writer_->Write(rfid);
+       }/*else{
+           uint32_t station_id = buffer[10] - '0';
+           AINFO << "TRANSFER ID else :" << station_id;
+           }
+*/
       /*
       if (buf == 0x03 && count == 10) {
         AINFO << "origin id from buffer[10]: " << buffer[10];
@@ -86,7 +91,7 @@ int main(int32_t argc, char** argv) {
 
   FLAGS_alsologtostderr = true;
   FLAGS_v = 3;
-
+  
   google::ParseCommandLineFlags(&argc, &argv, true);
 
   std::shared_ptr<apollo::cyber::Node> node = apollo::cyber::CreateNode("rfid");

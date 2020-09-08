@@ -55,7 +55,7 @@ void RfidComponent::Action() {
   static char buffer[20];
   static char buf;
   while (!apollo::cyber::IsShutdown()) {
-    count = 1;
+     count = 1;
     std::memset(buffer, 0, 20);
     while (1) {
       int ret = device_->Read(&buf, 1);
