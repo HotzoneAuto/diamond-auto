@@ -55,7 +55,7 @@ void RfidComponent::Action() {
   static char buffer[20];
   static char buf;
   while (!apollo::cyber::IsShutdown()) {
-    count = 1;
+     count = 1;
     std::memset(buffer, 0, 20);
     while (1) {
       int ret = device_->Read(&buf, 1);
@@ -72,8 +72,7 @@ void RfidComponent::Action() {
       AINFO << "count: " << count;
       if (count == 10) {
         AINFO << "origin id from buffer[10]: " << buffer[10];
-        // uint32_t station_id = buffer[10] - '0';
-        uint8_t station_id = buf;
+        uint32_t station_id = buffer[10] - '0';
         AINFO << "TRANSFER ID :" << station_id;
 
         apollo::drivers::RFID rfid;
