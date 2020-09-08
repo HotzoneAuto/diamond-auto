@@ -25,7 +25,7 @@ class ControlComponent : public Component<> {
  public:
   // ControlComponent();
   bool Init() override;
-  float PidSpeed(float veh_spd, float spd_motor_deadzone);
+  double PidSpeed(double veh_spd, double spd_motor_deadzone);
   void GenerateCommand();
   ~ControlComponent();
 
@@ -43,6 +43,8 @@ class ControlComponent : public Component<> {
   double manual_rear_wheel_target = 0;
 
   std::future<void> async_action_;
+  double pid_int = 0;
+  double pid_e_pre = 0;
 };
 
 CYBER_REGISTER_COMPONENT(ControlComponent)

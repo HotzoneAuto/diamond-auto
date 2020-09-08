@@ -22,18 +22,18 @@ static float ki_speed = 0;
 static float kd_speed = 0;
 // static float delta_u_torque;
 // static float u_pre_torque = 0;
-static float u_torque;
+static double u_torque;
 
 // static float steer_motor_spd;
 // static float tire_steer_spd;
 // static float steer_angle=0;
 static float veh_spd = 0;
 
-static float speed_motor_deadzone = 0;
+static double speed_motor_deadzone = 0;
 
-static float pid_integral = 0;
-static float pid_error = 0;
-static float pid_error_pre = 0;
+static double pid_integral = 0;
+static double pid_error = 0;
+static double pid_error_pre = 0;
 // static float fmottq = 0;
 // static float canbus_veh_spd = 0;
 // static int veh_mode = 0;

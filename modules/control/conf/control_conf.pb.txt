@@ -4,7 +4,7 @@ pid_conf {
   integrator_enable: false
   integrator_saturation_level: 0.3
   kp: 0.2
-  ki: 0.0
+  ki: 0.01
   kd: 0.0
 }
 torque_deadzone: 20

@@ -49,12 +49,18 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
         buffer[count] = buf;
         count++;
       }
+
       if (count == 10) {
         AINFO << "RFID Device buf: " << buf;
         AINFO << "origin id from buffer[10]: " << buffer[10];
-        uint32_t station_id = buffer[10] - '0';
+        
+        int  station_id = buf;
         AINFO << "TRANSFER ID :" << station_id;
-      }
+        
+      }else{
+        int station_id = 0;
+        AINFO << "TRANSFER ID else :" << station_id;
+          }
 
       /*
       if (buf == 0x03 && count == 10) {

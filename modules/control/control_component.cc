@@ -44,24 +44,25 @@ bool ControlComponent::Init() {
   return true;
 }
 
-float ControlComponent::PidSpeed(float veh_spd, float spd_motor_deadzone) {
-  pid_error = FLAGS_desired_v - veh_spd;
+double ControlComponent::PidSpeed(double veh_spd, double spd_motor_deadzone) {
+  double pid_e = FLAGS_desired_v - static_cast<double>(chassis_.speed_mps());
 
-  pid_integral += pid_error;
+  pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
-  AINFO << "pid_error:" << pid_error << " pid_integral:" << pid_integral;
+  AINFO << "pid_e:" << pid_e << " pid_int:" << pid_int;
   auto pid_conf = control_conf_.pid_conf();
+  double torque = 0;
+  AINFO << "pid_e_pre: " << pid_e_pre;
+  torque = 20.0 + pid_conf.kp() * pid_e +
+             pid_conf.ki() * pid_int +
+             pid_conf.kd() * (pid_e - pid_e_pre);
 
-  u_torque = spd_motor_deadzone + pid_conf.kp() * pid_error +
-             pid_conf.ki() * pid_integral +
-             pid_conf.kd() * (pid_error - pid_error_pre);
+  AINFO << "PID Output Torque：" << torque << " vehicle speed now:" << chassis_.speed_mps();
 
-  AINFO << "PID Output Torque：" << u_torque " vehicle speed now:" << veh_spd;
+  pid_e_pre = pid_e;
 
-  pid_error_pre = pid_error;
-
-  return std::isnan(u_torque) ? 0 : u_torque;
-  // u_pre_torque = u_torque;
+  return std::isnan(torque) ? 0 : torque;
+  // u_pre_torque = torque;
 }
 
 // write to channel
