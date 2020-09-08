@@ -1,5 +1,12 @@
 manual_front_wheel_target: 0
 manual_rear_wheel_target: 0
+pid_conf {
+  integrator_enable: false
+  integrator_saturation_level: 0.3
+  kp: 0.2
+  ki: 0.0
+  kd: 0.0
+}
 
 control_test_duration: -1
 enable_csv_debug: false

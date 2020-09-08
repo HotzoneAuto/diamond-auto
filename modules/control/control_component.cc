@@ -46,14 +46,16 @@ bool ControlComponent::Init() {
 
 float ControlComponent::PidSpeed(float veh_spd, float spd_motor_deadzone) {
   cout << "pid中的期望速度" << FLAGS_desired_v << endl;
-  // pid输入为当前车速误差
   pid_error = FLAGS_desired_v - veh_spd;
   cout << "纵向速度偏差" << pid_error << endl;
 
   pid_integral += pid_error;
 
-  u_torque = spd_motor_deadzone + kp_speed * pid_error +
-             ki_speed * pid_integral + kd_speed * (pid_error - pid_error_pre);
+  auto pid_conf = control_conf_.pid_conf();
+
+  u_torque = spd_motor_deadzone + pid_conf.kp() * pid_error +
+             pid_conf.ki() * pid_integral +
+             pid_conf.kd() * (pid_error - pid_error_pre);
 
   cout << "PID输出给驱动电机的控制量（转矩）：" << u_torque << endl;
 
@@ -214,8 +216,7 @@ void ControlComponent::GenerateCommand() {
           cmd->set_brake(drivemotor_torque);
           cmd->set_torque(0);
         } else {
-          drivemotor_torque =
-              pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
+          drivemotor_torque = PidSpeed(veh_spd, speed_motor_deadzone);
           cmd->set_torque(drivemotor_torque);
         }
 
