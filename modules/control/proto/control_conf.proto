@@ -7,6 +7,7 @@ import "modules/control/proto/pad_msg.proto";
 import "modules/control/proto/lat_controller_conf.proto";
 import "modules/control/proto/lon_controller_conf.proto";
 import "modules/control/proto/mpc_controller_conf.proto";
+import "modules/control/proto/pid_conf.proto";
 
 message ControlConf {
   enum ControllerType {
@@ -66,7 +67,6 @@ message ControlConf {
 
   optional double manual_front_wheel_target = 38; 
   optional double manual_rear_wheel_target = 39;
-  optional apollo.canbus.Chassis.SteeringSwitch manual_front_steering_switch = 40;
-  optional apollo.canbus.Chassis.SteeringSwitch manual_rear_steering_switch = 41;
+  optional PidConf pid_conf = 40;
 
 }

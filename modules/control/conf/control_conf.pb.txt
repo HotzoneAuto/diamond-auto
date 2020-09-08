@@ -1,7 +1,5 @@
 manual_front_wheel_target: 0
 manual_rear_wheel_target: 0
-manual_front_steering_switch: STEERINGSTOP
-manual_rear_steering_switch: STEERINGSTOP
 
 control_test_duration: -1
 enable_csv_debug: false

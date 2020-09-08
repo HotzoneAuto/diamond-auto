@@ -1,493 +1,404 @@
-/******************************************************************************
- * Copyright 2017 The Apollo Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *****************************************************************************/
-#include "modules/control/control_component.h"
+﻿#include "modules/control/control_component.h"
 
-#include "absl/strings/str_cat.h"
-#include "cyber/common/file.h"
-#include "cyber/common/log.h"
+#include <string>
+#include "math.h"
+
+#include "cyber/cyber.h"
+#include "cyber/time/rate.h"
+
 #include "modules/common/adapters/adapter_gflags.h"
-#include "modules/common/latency_recorder/latency_recorder.h"
-#include "modules/common/time/time.h"
-#include "modules/common/vehicle_state/vehicle_state_provider.h"
-#include "modules/control/common/control_gflags.h"
+#include "modules/control/control_pid.h"
+#include "modules/control/control_wheel_angle_real.h"
 
 namespace apollo {
 namespace control {
 
-using apollo::canbus::Chassis;
-using apollo::common::ErrorCode;
-using apollo::common::Status;
-using apollo::common::VehicleStateProvider;
-using apollo::common::time::Clock;
-using apollo::localization::LocalizationEstimate;
-using apollo::planning::ADCTrajectory;
-
-ControlComponent::ControlComponent()
-    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {}
+using apollo::cyber::Rate;
+using apollo::cyber::Time;
 
 bool ControlComponent::Init() {
-  injector_ = std::make_shared<DependencyInjector>();
-  init_time_ = Clock::Now();
-
-  AINFO << "Control init, starting ...";
-
   ACHECK(
       cyber::common::GetProtoFromFile(FLAGS_control_conf_file, &control_conf_))
       << "Unable to load control conf file: " + FLAGS_control_conf_file;
 
   AINFO << "Conf file: " << FLAGS_control_conf_file << " is loaded.";
 
-  AINFO << "Conf file: " << ConfigFilePath() << " is loaded.";
+  // Chassis Reader
+  chassis_reader_ = node_->CreateReader<Chassis>(
+      FLAGS_chassis_topic, [this](const std::shared_ptr<Chassis>& chassis) {
+        chassis_.CopyFrom(*chassis);
+      });
 
-  // initial controller agent when not using control submodules
-  ADEBUG << "FLAGS_use_control_submodules: " << FLAGS_use_control_submodules;
-  if (!FLAGS_use_control_submodules &&
-      !controller_agent_.Init(injector_, &control_conf_).ok()) {
-    // set controller
-    ADEBUG << "original control";
-    monitor_logger_buffer_.ERROR("Control init controller failed! Stopping...");
-    return false;
-  }
+  // rfid Reader
+  rfid_reader_ = node_->CreateReader<RFID>(
+      FLAGS_rfid_topic,
+      [this](const std::shared_ptr<RFID>& rfid) { rfid_.CopyFrom(*rfid); });
 
-  cyber::ReaderConfig chassis_reader_config;
-  chassis_reader_config.channel_name = FLAGS_chassis_topic;
-  chassis_reader_config.pending_queue_size = FLAGS_chassis_pending_queue_size;
+  // create Writer
+  control_cmd_writer_ =
+      node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
 
-  chassis_reader_ =
-      node_->CreateReader<Chassis>(chassis_reader_config, nullptr);
-  ACHECK(chassis_reader_ != nullptr);
-
-  cyber::ReaderConfig planning_reader_config;
-  planning_reader_config.channel_name = FLAGS_planning_trajectory_topic;
-  planning_reader_config.pending_queue_size = FLAGS_planning_pending_queue_size;
-
-  trajectory_reader_ =
-      node_->CreateReader<ADCTrajectory>(planning_reader_config, nullptr);
-  ACHECK(trajectory_reader_ != nullptr);
-
-  cyber::ReaderConfig localization_reader_config;
-  localization_reader_config.channel_name = FLAGS_localization_topic;
-  localization_reader_config.pending_queue_size =
-      FLAGS_localization_pending_queue_size;
-
-  localization_reader_ = node_->CreateReader<LocalizationEstimate>(
-      localization_reader_config, nullptr);
-  ACHECK(localization_reader_ != nullptr);
-
-  cyber::ReaderConfig pad_msg_reader_config;
-  pad_msg_reader_config.channel_name = FLAGS_pad_topic;
-  pad_msg_reader_config.pending_queue_size = FLAGS_pad_msg_pending_queue_size;
-
-  pad_msg_reader_ =
-      node_->CreateReader<PadMessage>(pad_msg_reader_config, nullptr);
-  ACHECK(pad_msg_reader_ != nullptr);
-
-  if (!FLAGS_use_control_submodules) {
-    control_cmd_writer_ =
-        node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
-    ACHECK(control_cmd_writer_ != nullptr);
-  } else {
-    local_view_writer_ =
-        node_->CreateWriter<LocalView>(FLAGS_control_local_view_topic);
-    ACHECK(local_view_writer_ != nullptr);
-  }
-
-  // set initial vehicle state by cmd
-  // need to sleep, because advertised channel is not ready immediately
-  // simple test shows a short delay of 80 ms or so
-  AINFO << "Control resetting vehicle state, sleeping for 1000 ms ...";
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-  // should init_vehicle first, let car enter work status, then use status msg
-  // trigger control
-
-  AINFO << "Control default driving action is "
-        << DrivingAction_Name(control_conf_.action());
-  pad_msg_.set_action(control_conf_.action());
+  // compute control message in aysnc thread
+  async_action_ = cyber::Async(&ControlComponent::GenerateCommand, this);
 
   return true;
 }
 
-void ControlComponent::OnPad(const std::shared_ptr<PadMessage> &pad) {
-  std::lock_guard<std::mutex> lock(mutex_);
-  pad_msg_.CopyFrom(*pad);
-  ADEBUG << "Received Pad Msg:" << pad_msg_.DebugString();
-  AERROR_IF(!pad_msg_.has_action()) << "pad message check failed!";
+float ControlComponent::PidSpeed(float veh_spd, float spd_motor_deadzone) {
+  cout << "pid中的期望速度" << FLAGS_desired_v << endl;
+  // pid输入为当前车速误差
+  pid_error = FLAGS_desired_v - veh_spd;
+  cout << "纵向速度偏差" << pid_error << endl;
+
+  pid_integral += pid_error;
+
+  u_torque = spd_motor_deadzone + kp_speed * pid_error +
+             ki_speed * pid_integral + kd_speed * (pid_error - pid_error_pre);
+
+  cout << "PID输出给驱动电机的控制量（转矩）：" << u_torque << endl;
+
+  cout << "当前车速" << veh_spd << endl;
+  pid_error_pre = pid_error;
+
+  return u_torque;
+  // u_pre_torque = u_torque;
 }
 
-void ControlComponent::OnChassis(const std::shared_ptr<Chassis> &chassis) {
-  ADEBUG << "Received chassis data: run chassis callback.";
-  std::lock_guard<std::mutex> lock(mutex_);
-  latest_chassis_.CopyFrom(*chassis);
-}
+// write to channel
+void ControlComponent::GenerateCommand() {
+  auto cmd = std::make_shared<ControlCommand>();
 
-void ControlComponent::OnPlanning(
-    const std::shared_ptr<ADCTrajectory> &trajectory) {
-  ADEBUG << "Received chassis data: run trajectory callback.";
-  std::lock_guard<std::mutex> lock(mutex_);
-  latest_trajectory_.CopyFrom(*trajectory);
-}
+  // frequency
+  Rate rate(100.0);
 
-void ControlComponent::OnLocalization(
-    const std::shared_ptr<LocalizationEstimate> &localization) {
-  ADEBUG << "Received control data: run localization message callback.";
-  std::lock_guard<std::mutex> lock(mutex_);
-  latest_localization_.CopyFrom(*localization);
-}
+  // static int MANUAL_BRAKE_SIGNAL = 0;
 
-void ControlComponent::OnMonitor(
-    const common::monitor::MonitorMessage &monitor_message) {
-  for (const auto &item : monitor_message.item()) {
-    if (item.log_level() == common::monitor::MonitorMessageItem::FATAL) {
-      estop_ = true;
-      return;
-    }
+  float front_lat_dev_mgs = 0.0;
+  float rear_lat_dev_mgs = 0.0;
+
+  // 获取当前车辆速度
+  veh_spd = chassis_.speed_mps();
+
+  /*
+  // 获取前后编码器瞬时角度值
+  if (isnan(chassis_.front_encoder_angle())){
+    front_encoder_angle_realtime = front_encoder_angle_previous;
   }
-}
+  else{
+    front_encoder_angle_realtime = chassis_.front_encoder_angle();
+  }
+  if (isnan(chassis_.rear_encoder_angle())){
+    rear_encoder_angle_realtime = rear_encoder_angle_previous;
+  }
+  else{
+    rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+  }
+  */
 
-Status ControlComponent::ProduceControlCommand(
-    ControlCommand *control_command) {
-  Status status = CheckInput(&local_view_);
-  // check data
-
-  if (!status.ok()) {
-    AERROR_EVERY(100) << "Control input data failed: "
-                      << status.error_message();
-    control_command->mutable_engage_advice()->set_advice(
-        apollo::common::EngageAdvice::DISALLOW_ENGAGE);
-    control_command->mutable_engage_advice()->set_reason(
-        status.error_message());
-    estop_ = true;
-    estop_reason_ = status.error_message();
+  // 初始化驱动电机死区
+  if (veh_spd <= 0.1) {
+    // TODO: 落地后标定值
+    speed_motor_deadzone = speed_motor_deadzone_calibration;
   } else {
-    Status status_ts = CheckTimestamp(local_view_);
-    if (!status_ts.ok()) {
-      AERROR << "Input messages timeout";
-      // estop_ = true;
-      status = status_ts;
-      if (local_view_.chassis().driving_mode() !=
-          apollo::canbus::Chassis::COMPLETE_AUTO_DRIVE) {
-        control_command->mutable_engage_advice()->set_advice(
-            apollo::common::EngageAdvice::DISALLOW_ENGAGE);
-        control_command->mutable_engage_advice()->set_reason(
-            status.error_message());
+    // 使用滚动阻力系数，此时死区指的是理论电机需求转矩
+    speed_motor_deadzone = r_wheel * m_veh * g * f_c / (i_1 * i_0 * yita_t);
+  }
+
+  // TODO:
+  // 突然断电停车后，需记录最后时刻的状态数据，包括前后轮转角；重新启动后再读取数据文件
+
+  // TODO: 在while判断前需要知道轮胎初始偏移角度，暂时先给0。
+  // front_wheel_angle_realtime = 0;
+  // rear_wheel_angle_realtime = 0;
+  front_wheel_angle_realtime = chassis_.front_wheel_angle();
+  rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
+
+  //上过高压自检完成之后，进入自动驾驶模式后，车辆处于ready状态时
+  // while (front_wheel_angle_realtime > 0.5)  // 待标定
+  // {
+  // front_motor_steering_dir = 2;
+  // cmd->set_front_wheel_target(-10.0);
+
+  // 获取编码器瞬时角度值
+  // front_encoder_angle_realtime = chassis_.front_encoder_angle();
+
+  // front_wheel_angle_realtime = chassis_.front_wheel_angle();
+
+  /*
+  front_wheel_angle_realtime = update_wheel_angle(
+      front_wheel_angle_previous, front_encoder_angle_previous,
+      front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+  front_wheel_angle_previous = front_wheel_angle_realtime;
+  front_encoder_angle_previous = front_encoder_angle_realtime;
+  */
+  // }
+
+  // while (rear_wheel_angle_realtime > 0.5)  // 待标定
+  // {
+  // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
+  // cmd->set_rear_wheel_target(-10.0);
+
+  // 获取编码器瞬时角度值
+  // rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+
+  // rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
+
+  /*
+  rear_wheel_angle_realtime = update_wheel_angle(
+      rear_wheel_angle_previous, rear_encoder_angle_previous,
+      rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+  rear_wheel_angle_previous = rear_wheel_angle_realtime;
+  rear_encoder_angle_previous = rear_encoder_angle_realtime;
+  */
+  // }
+
+  // while (front_wheel_angle_realtime < -0.5)  // 待标定
+  // {
+  // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
+  // cmd->set_front_wheel_target(10.0);
+
+  // 获取编码器瞬时角度值
+  // front_encoder_angle_realtime = chassis_.front_encoder_angle();
+
+  // front_wheel_angle_realtime = chassis_.front_wheel_angle();
+
+  /*
+  front_wheel_angle_realtime = update_wheel_angle(
+      front_wheel_angle_previous, front_encoder_angle_previous,
+      front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+  front_wheel_angle_previous = front_wheel_angle_realtime;
+  front_encoder_angle_previous = front_encoder_angle_realtime;
+  */
+  // }
+
+  // while (rear_wheel_angle_realtime < -0.5)  // 待标定
+  // {
+  // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
+  // cmd->set_rear_wheel_target(10.0);
+
+  // 获取编码器瞬时角度值
+  // rear_encoder_angle_realtime = chassis_.rear_encoder_angle();
+
+  // rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
+
+  /*
+  rear_wheel_angle_realtime = update_wheel_angle(
+      rear_wheel_angle_previous, rear_encoder_angle_previous,
+      rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+  rear_wheel_angle_previous = rear_wheel_angle_realtime;
+  rear_encoder_angle_previous = rear_encoder_angle_realtime;
+  */
+  // }
+
+  // cmd->set_front_wheel_target(0.0);
+
+  // cmd->set_rear_wheel_target(0.0);
+
+  // front_motor_steering_dir = 0;  //则前方转向电机停转
+  // rear_motor_steering_dir = 0;   //则后方转向电机停转
+
+  while (true) {
+    // TODO: Configuration
+    // 手动给定，0代表停止，1代表从A到B，2代表从B到A
+    drivemotor_flag = 1;
+    switch (drivemotor_flag) {
+      // 从A到B
+      case 1: {
+        if (rfid_.id() == 2) {
+          // TODO: 制动转矩，需改成标定值
+          drivemotor_torque = 10;
+          cmd->set_brake(drivemotor_torque);
+          cmd->set_torque(0);
+        } else {
+          drivemotor_torque =
+              pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
+          cmd->set_torque(drivemotor_torque);
+        }
+
+        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
+        break;
       }
-    } else {
-      control_command->mutable_engage_advice()->set_advice(
-          apollo::common::EngageAdvice::READY_TO_ENGAGE);
-    }
-  }
 
-  // check estop
-  estop_ = control_conf_.enable_persistent_estop()
-               ? estop_ || local_view_.trajectory().estop().is_estop()
-               : local_view_.trajectory().estop().is_estop();
+      // 从B到A
+      case 2: {
+        if (rfid_.id() == 1) {
+          // TODO: 制动转矩，需改成标定值
+          drivemotor_torque = 50;
+          cmd->set_brake(drivemotor_torque);
+        } else {
+          drivemotor_torque =
+              pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
+          cmd->set_torque(drivemotor_torque);
+        }
 
-  if (local_view_.trajectory().estop().is_estop()) {
-    estop_ = true;
-    estop_reason_ = "estop from planning : ";
-    estop_reason_ += local_view_.trajectory().estop().reason();
-  }
+        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
+        break;
+      }
 
-  if (local_view_.trajectory().trajectory_point().empty()) {
-    AWARN_EVERY(100) << "planning has no trajectory point. ";
-    estop_ = true;
-    estop_reason_ = "estop for empty planning trajectory, planning headers: " +
-                    local_view_.trajectory().header().ShortDebugString();
-  }
+      // 停止状态
+      case 0: {
+        cmd->set_torque(0);
 
-  if (FLAGS_enable_gear_drive_negative_speed_protection) {
-    const double kEpsilon = 0.001;
-    auto first_trajectory_point = local_view_.trajectory().trajectory_point(0);
-    if (local_view_.chassis().gear_location() == Chassis::GEAR_DRIVE &&
-        first_trajectory_point.v() < -1 * kEpsilon) {
-      estop_ = true;
-      estop_reason_ = "estop for negative speed when gear_drive";
-    }
-  }
-
-  if (!estop_) {
-    if (local_view_.chassis().driving_mode() == Chassis::COMPLETE_MANUAL) {
-      controller_agent_.Reset();
-      AINFO_EVERY(100) << "Reset Controllers in Manual Mode";
+        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
+        break;
+      }
     }
 
-    auto debug = control_command->mutable_debug()->mutable_input_debug();
-    debug->mutable_localization_header()->CopyFrom(
-        local_view_.localization().header());
-    debug->mutable_canbus_header()->CopyFrom(local_view_.chassis().header());
-    debug->mutable_trajectory_header()->CopyFrom(
-        local_view_.trajectory().header());
+    /*
+    // 遥控，人工给输入
+    if (veh_dir == 0) //若行驶方向从A到B（前进，A是第2辆车处，B是机械臂处）
+            drivemotor_flag = 1;
+    else if (veh_dir == 1) //若行驶方向从B到A（后退）
+            drivemotor_flag = 2;
+    */
 
-    if (local_view_.trajectory().is_replan()) {
-      latest_replan_trajectory_header_ = local_view_.trajectory().header();
+    /*
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    rear_wheel_angle_realtime = update_wheel_angle(
+        rear_wheel_angle_previous, rear_encoder_angle_previous,
+        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    */
+
+    front_wheel_angle_realtime = chassis_.front_wheel_angle();
+    rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
+
+    // 检测到轮胎转角超过30°，转向电机停转
+    if (abs(front_wheel_angle_realtime) > 30) {
+      // front_motor_steering_dir = 0;
     }
 
-    if (latest_replan_trajectory_header_.has_sequence_num()) {
-      debug->mutable_latest_replan_trajectory_header()->CopyFrom(
-          latest_replan_trajectory_header_);
+    if (abs(rear_wheel_angle_realtime) > 30) {
+      // rear_motor_steering_dir = 0;
     }
-    // controller agent
-    Status status_compute = controller_agent_.ComputeControlCommand(
-        &local_view_.localization(), &local_view_.chassis(),
-        &local_view_.trajectory(), control_command);
 
-    if (!status_compute.ok()) {
-      AERROR << "Control main function failed"
-             << " with localization: "
-             << local_view_.localization().ShortDebugString()
-             << " with chassis: " << local_view_.chassis().ShortDebugString()
-             << " with trajectory: "
-             << local_view_.trajectory().ShortDebugString()
-             << " with cmd: " << control_command->ShortDebugString()
-             << " status:" << status_compute.error_message();
-      estop_ = true;
-      estop_reason_ = status_compute.error_message();
-      status = status_compute;
+    /*
+    // TODO：收到人工介入制动信号进行制动
+    // TODO: manual_brake_signal:定义新通道专门用于自动控制下的人工交互
+    MANUAL_BRAKE_SIGNAL = chassis_.manual_brake_signal();
+    if ( MANUAL_BRAKE_SIGNAL != 0 ){
+      // TODO: 制动转矩，需改成标定值
+      drivemotor_torque = 50;
+      cmd->set_brake(drivemotor_torque);
     }
+    */
+
+    switch (FLAGS_magnetic_enable) {
+      case 1: {
+        // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
+        // TODO: 检查，共用了一个数据
+        front_lat_dev_mgs = chassis_.front_lat_dev();
+        rear_lat_dev_mgs = chassis_.rear_lat_dev();
+
+        // 给定驱动电机反转命令（使车辆前进从A到B）
+        if (drivemotor_flag == 1) {
+          // rear_motor_steering_dir = 0;   //后方转向电机不转
+          if (front_lat_dev_mgs < -4.5)  //若前方磁导航检测出车偏左
+          {
+            // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
+            cmd->set_front_wheel_target(10.0);
+          } else if (front_lat_dev_mgs > 4.5)  //若前方磁导航检测出车偏右
+          {
+            // front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
+            cmd->set_front_wheel_target(-10.0);
+          } else {
+            if (front_wheel_angle_realtime >= 0.5)  // 当前前轮转角为正，向右偏
+            {
+              // front_motor_steering_dir = 2;  // 前方转向电机反转（向左）
+              cmd->set_front_wheel_target(0.0);
+            } else if ((front_wheel_angle_realtime > -0.5) &&
+                       (front_wheel_angle_realtime < 0.5)) {
+              // front_motor_steering_dir = 0;  // 前方转向电机停转
+            } else  // 当前前轮转角为负，向左偏
+            {
+              // front_motor_steering_dir = 1;  // 前方转向电机正转（向右）
+              cmd->set_front_wheel_target(0.0);
+            }
+          }
+        } else if (drivemotor_flag == 2)  // 若驱动电机正转（倒车，车辆从B到A）
+        {
+          // front_motor_steering_dir = 0;  //前方转向电机不转
+          if (rear_lat_dev_mgs < -4.5)  //若后方磁导航检测出车偏左
+          {
+            // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
+            cmd->set_rear_wheel_target(10.0);
+          } else if (rear_lat_dev_mgs > 4.5)  //若后方磁导航检测出车偏右
+          {
+            // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
+            cmd->set_rear_wheel_target(-10.0);
+          } else {
+            if (rear_wheel_angle_realtime >= 0.5)  // 当前后轮转角为正，向右偏
+            {
+              // rear_motor_steering_dir = 2;  // 后方转向电机反转（向左）
+              cmd->set_rear_wheel_target(0);
+            } else if ((rear_wheel_angle_realtime > -0.5) &&
+                       (rear_wheel_angle_realtime < 0.5)) {
+              // rear_motor_steering_dir = 0;  // 后方转向电机停转
+            } else  // 当前后轮转角为负，向左偏
+            {
+              // rear_motor_steering_dir = 1;  // 后方转向电机正转（向右）
+              cmd->set_rear_wheel_target(0);
+            }
+          }
+        } else {  // 若出现异常
+          // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
+          // front_motor_steering_dir = 0;  // 停止
+          // rear_motor_steering_dir = 0;   // 停止
+        }
+        break;
+      }
+      case 0: {
+        if (drivemotor_flag == 1) {
+          // rear_motor_steering_dir = 0;
+          cmd->set_front_wheel_target(
+              control_conf_.manual_front_wheel_target());
+        } else if (drivemotor_flag == 2) {
+          // front_motor_steering_dir = 0;
+          cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
+        } else {
+          // front_motor_steering_dir = 0;
+          // rear_motor_steering_dir = 0;
+        }
+        break;
+      }
+      default: {}
+    }
+
+    /*
+    // 更新轮胎转角和编码器度数
+    front_wheel_angle_realtime = update_wheel_angle(
+        front_wheel_angle_previous, front_encoder_angle_previous,
+        front_encoder_angle_realtime, encoder2wheel_gear_ratio);
+    rear_wheel_angle_realtime = update_wheel_angle(
+        rear_wheel_angle_previous, rear_encoder_angle_previous,
+        rear_encoder_angle_realtime, encoder2wheel_gear_ratio);
+
+    front_wheel_angle_previous = front_wheel_angle_realtime;
+    rear_wheel_angle_previous = rear_wheel_angle_realtime;
+
+    front_encoder_angle_previous = front_encoder_angle_realtime;
+    rear_encoder_angle_previous = rear_encoder_angle_realtime;
+
+    chassis_wheel_angle->set_front_wheel_angle(front_wheel_angle_realtime);
+    chassis_wheel_angle->set_rear_wheel_angle(rear_wheel_angle_realtime);
+
+    chassis_writer_->Write(chassis_wheel_angle);
+    */
+
+    control_cmd_writer_->Write(cmd);
+
+    rate.Sleep();
   }
-  // if planning set estop, then no control process triggered
-  if (estop_) {
-    AWARN_EVERY(100) << "Estop triggered! No control core method executed!";
-    // set Estop command
-    control_command->set_speed(0);
-    control_command->set_throttle(0);
-    control_command->set_brake(control_conf_.soft_estop_brake());
-    control_command->set_gear_location(Chassis::GEAR_DRIVE);
-  }
-  // check signal
-  if (local_view_.trajectory().decision().has_vehicle_signal()) {
-    control_command->mutable_signal()->CopyFrom(
-        local_view_.trajectory().decision().vehicle_signal());
-  }
-  return status;
 }
 
-bool ControlComponent::Proc() {
-  const auto start_time =
-      FLAGS_use_system_time_in_control ? absl::Now() : Clock::Now();
-
-  chassis_reader_->Observe();
-  const auto &chassis_msg = chassis_reader_->GetLatestObserved();
-  if (chassis_msg == nullptr) {
-    AERROR << "Chassis msg is not ready!";
-    return false;
-  }
-
-  OnChassis(chassis_msg);
-
-  trajectory_reader_->Observe();
-  const auto &trajectory_msg = trajectory_reader_->GetLatestObserved();
-  if (trajectory_msg == nullptr) {
-    AERROR << "planning msg is not ready!";
-    return false;
-  }
-  OnPlanning(trajectory_msg);
-
-  localization_reader_->Observe();
-  const auto &localization_msg = localization_reader_->GetLatestObserved();
-  if (localization_msg == nullptr) {
-    AERROR << "localization msg is not ready!";
-    return false;
-  }
-  OnLocalization(localization_msg);
-
-  pad_msg_reader_->Observe();
-  const auto &pad_msg = pad_msg_reader_->GetLatestObserved();
-  if (pad_msg != nullptr) {
-    OnPad(pad_msg);
-  }
-
-  {
-    // TODO(SHU): to avoid redundent copy
-    std::lock_guard<std::mutex> lock(mutex_);
-    local_view_.mutable_chassis()->CopyFrom(latest_chassis_);
-    local_view_.mutable_trajectory()->CopyFrom(latest_trajectory_);
-    local_view_.mutable_localization()->CopyFrom(latest_localization_);
-    if (pad_msg != nullptr) {
-      local_view_.mutable_pad_msg()->CopyFrom(pad_msg_);
-    }
-  }
-
-  // use control submodules
-  if (FLAGS_use_control_submodules) {
-    local_view_.mutable_header()->set_lidar_timestamp(
-        local_view_.trajectory().header().lidar_timestamp());
-    local_view_.mutable_header()->set_camera_timestamp(
-        local_view_.trajectory().header().camera_timestamp());
-    local_view_.mutable_header()->set_radar_timestamp(
-        local_view_.trajectory().header().radar_timestamp());
-    common::util::FillHeader(FLAGS_control_local_view_topic, &local_view_);
-
-    const auto end_time = Clock::Now();
-
-    // measure latency
-    static apollo::common::LatencyRecorder latency_recorder(
-        FLAGS_control_local_view_topic);
-    latency_recorder.AppendLatencyRecord(
-        local_view_.trajectory().header().lidar_timestamp(), start_time,
-        end_time);
-
-    local_view_writer_->Write(local_view_);
-    return true;
-  }
-
-  if (pad_msg != nullptr) {
-    ADEBUG << "pad_msg: " << pad_msg_.ShortDebugString();
-    if (pad_msg_.action() == DrivingAction::RESET) {
-      AINFO << "Control received RESET action!";
-      estop_ = false;
-      estop_reason_.clear();
-    }
-    pad_received_ = true;
-  }
-
-  if (control_conf_.is_control_test_mode() &&
-      control_conf_.control_test_duration() > 0 &&
-      absl::ToDoubleSeconds(start_time - init_time_) >
-          control_conf_.control_test_duration()) {
-    AERROR << "Control finished testing. exit";
-    return false;
-  }
-
-  ControlCommand control_command;
-
-  Status status = ProduceControlCommand(&control_command);
-  AERROR_IF(!status.ok()) << "Failed to produce control command:"
-                          << status.error_message();
-
-  if (pad_received_) {
-    control_command.mutable_pad_msg()->CopyFrom(pad_msg_);
-    pad_received_ = false;
-  }
-
-  // forward estop reason among following control frames.
-  if (estop_) {
-    control_command.mutable_header()->mutable_status()->set_msg(estop_reason_);
-  }
-
-  // set header
-  control_command.mutable_header()->set_lidar_timestamp(
-      local_view_.trajectory().header().lidar_timestamp());
-  control_command.mutable_header()->set_camera_timestamp(
-      local_view_.trajectory().header().camera_timestamp());
-  control_command.mutable_header()->set_radar_timestamp(
-      local_view_.trajectory().header().radar_timestamp());
-
-  common::util::FillHeader(node_->Name(), &control_command);
-
-  ADEBUG << control_command.ShortDebugString();
-  if (control_conf_.is_control_test_mode()) {
-    ADEBUG << "Skip publish control command in test mode";
-    return true;
-  }
-
-  const auto end_time =
-      FLAGS_use_system_time_in_control ? absl::Now() : Clock::Now();
-  const double time_diff_ms = absl::ToDoubleMilliseconds(end_time - start_time);
-  ADEBUG << "total control time spend: " << time_diff_ms << " ms.";
-
-  control_command.mutable_latency_stats()->set_total_time_ms(time_diff_ms);
-  control_command.mutable_latency_stats()->set_total_time_exceeded(
-      time_diff_ms > absl::ToDoubleMilliseconds(
-                         absl::Seconds(control_conf_.control_period())));
-  ADEBUG << "control cycle time is: " << time_diff_ms << " ms.";
-  status.Save(control_command.mutable_header()->mutable_status());
-
-  // measure latency
-  if (local_view_.trajectory().header().has_lidar_timestamp()) {
-    static apollo::common::LatencyRecorder latency_recorder(
-        FLAGS_control_command_topic);
-    latency_recorder.AppendLatencyRecord(
-        local_view_.trajectory().header().lidar_timestamp(), start_time,
-        end_time);
-  }
-
-  control_cmd_writer_->Write(control_command);
-  return true;
-}
-
-Status ControlComponent::CheckInput(LocalView *local_view) {
-  ADEBUG << "Received localization:"
-         << local_view->localization().ShortDebugString();
-  ADEBUG << "Received chassis:" << local_view->chassis().ShortDebugString();
-
-  if (!local_view->trajectory().estop().is_estop() &&
-      local_view->trajectory().trajectory_point().empty()) {
-    AWARN_EVERY(100) << "planning has no trajectory point. ";
-    const std::string msg =
-        absl::StrCat("planning has no trajectory point. planning_seq_num:",
-                     local_view->trajectory().header().sequence_num());
-    return Status(ErrorCode::CONTROL_COMPUTE_ERROR, msg);
-  }
-
-  for (auto &trajectory_point :
-       *local_view->mutable_trajectory()->mutable_trajectory_point()) {
-    if (std::abs(trajectory_point.v()) <
-            control_conf_.minimum_speed_resolution() &&
-        std::abs(trajectory_point.a()) <
-            control_conf_.max_acceleration_when_stopped()) {
-      trajectory_point.set_v(0.0);
-      trajectory_point.set_a(0.0);
-    }
-  }
-
-  injector_->vehicle_state()->Update(local_view->localization(),
-                                     local_view->chassis());
-
-  return Status::OK();
-}
-
-Status ControlComponent::CheckTimestamp(const LocalView &local_view) {
-  if (!control_conf_.enable_input_timestamp_check() ||
-      control_conf_.is_control_test_mode()) {
-    ADEBUG << "Skip input timestamp check by gflags.";
-    return Status::OK();
-  }
-  double current_timestamp = Clock::NowInSeconds();
-  double localization_diff =
-      current_timestamp - local_view.localization().header().timestamp_sec();
-  if (localization_diff > (control_conf_.max_localization_miss_num() *
-                           control_conf_.localization_period())) {
-    AERROR << "Localization msg lost for " << std::setprecision(6)
-           << localization_diff << "s";
-    monitor_logger_buffer_.ERROR("Localization msg lost");
-    return Status(ErrorCode::CONTROL_COMPUTE_ERROR, "Localization msg timeout");
-  }
-
-  double chassis_diff =
-      current_timestamp - local_view.chassis().header().timestamp_sec();
-  if (chassis_diff >
-      (control_conf_.max_chassis_miss_num() * control_conf_.chassis_period())) {
-    AERROR << "Chassis msg lost for " << std::setprecision(6) << chassis_diff
-           << "s";
-    monitor_logger_buffer_.ERROR("Chassis msg lost");
-    return Status(ErrorCode::CONTROL_COMPUTE_ERROR, "Chassis msg timeout");
-  }
-
-  double trajectory_diff =
-      current_timestamp - local_view.trajectory().header().timestamp_sec();
-  if (trajectory_diff > (control_conf_.max_planning_miss_num() *
-                         control_conf_.trajectory_period())) {
-    AERROR << "Trajectory msg lost for " << std::setprecision(6)
-           << trajectory_diff << "s";
-    monitor_logger_buffer_.ERROR("Trajectory msg lost");
-    return Status(ErrorCode::CONTROL_COMPUTE_ERROR, "Trajectory msg timeout");
-  }
-  return Status::OK();
+ControlComponent::~ControlComponent() {
+  // back chassis handle
+  async_action_.wait();
 }
 
 }  // namespace control
