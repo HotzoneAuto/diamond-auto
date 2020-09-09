@@ -21,6 +21,7 @@
 #include <cstdio>
 
 #include "cyber/common/log.h"
+#include "cyber/cyber.h"
 
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -120,8 +121,8 @@ ErrorCode DiamondController::Init(
   device_rear_frequency->SetOpt(9600, 8, 'N', 1);
 
   if (FLAGS_magnetic_enable) {
-    thread_mangetic_front_ = std::thread(&DiamondController::FrontSend, this);
-    thread_mangetic_rear_ = std::thread(&DiamondController::RearSend, this);
+    thread_mangetic_ =
+        std::thread(&DiamondController::MagneticMessageSend, this);
   }
 
   is_initialized_ = true;
@@ -132,8 +133,7 @@ DiamondController::~DiamondController() {
   device_front_frequency = nullptr;
   device_rear_frequency = nullptr;
 
-  thread_mangetic_front_.join();
-  thread_mangetic_rear_.join();
+  thread_mangetic_.join();
 }
 
 bool DiamondController::Start() {
@@ -855,23 +855,19 @@ float DiamondController::update_wheel_angle(
   return wheel_angle_now;
 }
 
-void DiamondController::FrontSend() {
-  std::string cmd = "cansend can0 003#0102030405010000";
-  const int ret = std::system(cmd.c_str());
-  if (ret == 0) {
-    AINFO << "FrontSend SUCCESS: " << cmd;
-  } else {
-    AERROR << "FrontSend FAILED(" << ret << "): " << cmd;
-  }
-}
-
-void DiamondController::RearSend() {
-  std::string cmd = "cansend can0 004#0102030405010000";
-  const int ret = std::system(cmd.c_str());
-  if (ret == 0) {
-    AINFO << "RearSend SUCCESS: " << cmd;
-  } else {
-    AERROR << "RearSend FAILED(" << ret << "): " << cmd;
+void DiamondController::MagneticMessageSend() {
+  std::vector<std::string> cmds = {"cansend can0 003#0102030405010000",
+                                   "cansend can0 004#0102030405010000"};
+  while (!apollo::cyber::IsShutdown()) {
+    for (auto& cmd : cmds) {
+      const int ret = std::system(cmd.c_str());
+      if (ret == 0) {
+        AINFO << "Magnetic can message send SUCCESS: " << cmd;
+      } else {
+        AERROR << "Magnetic can message send FAILED(" << ret << "): " << cmd;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(20));
   }
 }
 

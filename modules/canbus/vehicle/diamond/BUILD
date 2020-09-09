@@ -43,6 +43,7 @@ cc_library(
     ],
     deps = [
         ":diamond_message_manager",
+        "//cyber",
         "//modules/common/util:uart",
         "//modules/common/adapters:adapter_gflags",
         "//modules/drivers/canbus/can_comm:can_sender",
