@@ -61,7 +61,7 @@ bool ControlComponent::Init() {
   return true;
 }
 
-double ControlComponent::PidSpeed(double veh_spd, double spd_motor_deadzone) {
+double ControlComponent::PidSpeed() {
   double pid_e = FLAGS_desired_v - static_cast<double>(chassis_.speed_mps());
 
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
@@ -78,7 +78,6 @@ double ControlComponent::PidSpeed(double veh_spd, double spd_motor_deadzone) {
   pid_e_pre = pid_e;
 
   return std::isnan(torque) ? 0 : torque;
-  // u_pre_torque = torque;
 }
 
 // write to channel
@@ -115,7 +114,7 @@ void ControlComponent::GenerateCommand() {
           cmd->set_brake(drivemotor_torque);
           cmd->set_torque(0);
         } else {
-          drivemotor_torque = PidSpeed(veh_spd, speed_motor_deadzone);
+          drivemotor_torque = PidSpeed();
           cmd->set_torque(drivemotor_torque);
         }
 
@@ -131,7 +130,7 @@ void ControlComponent::GenerateCommand() {
           cmd->set_brake(drivemotor_torque);
           cmd->set_torque(0);
         } else {
-          drivemotor_torque = PidSpeed(veh_spd, speed_motor_deadzone);
+          drivemotor_torque = PidSpeed();
           cmd->set_torque(drivemotor_torque);
         }
 

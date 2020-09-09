@@ -40,3 +40,5 @@ DECLARE_bool(receive_guardian);
 
 DECLARE_int32(guardian_cmd_pending_queue_size);
 DECLARE_int32(control_cmd_pending_queue_size);
+DECLARE_string(front_steer_device);
+DECLARE_string(rear_steer_device);
