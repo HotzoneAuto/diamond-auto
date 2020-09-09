@@ -55,7 +55,7 @@ class PadTerminal {
     AINFO << "COMMAND:\n";
     AINFO << "\t0: reset to manual drive mode.";
     AINFO << "\t1: auto drive mode.";
-    AINFO << "\tctrl + c: exit.";
+    AINFO << "\t9, ctrl + c: exit.";
     AINFO << "\tother: print help.";
   }
   void send(int cmd_type) {
@@ -133,7 +133,6 @@ class PadTerminal {
 
  private:
   std::unique_ptr<std::thread> terminal_thread_;
-  const int ROS_QUEUE_SIZE = 1;
   const int RESET_COMMAND = 1;
   const int AUTO_DRIVE_COMMAND = 2;
   const int EMERGENCY_MODE_HOLD_TIME = 4 * 1000000;

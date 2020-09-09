@@ -127,11 +127,11 @@ void ControlComponent::GenerateCommand() {
       case 2: {
         if (rfid_.id() == 1) {
           // TODO: 制动转矩，需改成标定值
-          drivemotor_torque = 50;
+          drivemotor_torque = 10;
           cmd->set_brake(drivemotor_torque);
+          cmd->set_torque(0);
         } else {
-          drivemotor_torque =
-              pid_speed(veh_spd, FLAGS_desired_v, speed_motor_deadzone);
+          drivemotor_torque = PidSpeed(veh_spd, speed_motor_deadzone);
           cmd->set_torque(drivemotor_torque);
         }
 
