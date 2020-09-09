@@ -274,9 +274,9 @@ class Teleop {
             exit(-1);
           }
           level = c - KEYCODE_ZERO;
-          control_command_.set_throttle(level * 10.0);
+          control_command_.set_torque(level * 10.0);
           control_command_.set_brake(0.0);
-          AINFO << "Throttle = " << control_command_.throttle()
+          AINFO << "Torque = " << control_command_.torque()
                 << ", Brake = " << control_command_.brake();
           break;
         case KEYCODE_SETG1:
