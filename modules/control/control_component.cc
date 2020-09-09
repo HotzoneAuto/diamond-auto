@@ -100,12 +100,11 @@ void ControlComponent::GenerateCommand() {
 
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
+    // update Drive mode by action
     if (pad_received_) {
       cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
       pad_received_ = false;
     }
-    // TODO: Configuration
-    // 手动给定，0代表停止，1代表从A到B，2代表从B到A
     drivemotor_flag = 1;
     switch (drivemotor_flag) {
       // 从A到B
@@ -114,7 +113,7 @@ void ControlComponent::GenerateCommand() {
           // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 10;
           cmd->set_brake(drivemotor_torque);
-          cmd->set_torque(0);
+          // cmd->set_torque(0);
         } else {
           drivemotor_torque = PidSpeed();
           cmd->set_torque(drivemotor_torque);
@@ -130,7 +129,7 @@ void ControlComponent::GenerateCommand() {
           // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 10;
           cmd->set_brake(drivemotor_torque);
-          cmd->set_torque(0);
+          // cmd->set_torque(0);
         } else {
           drivemotor_torque = PidSpeed();
           cmd->set_torque(drivemotor_torque);
