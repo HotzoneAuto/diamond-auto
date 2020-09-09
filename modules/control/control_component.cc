@@ -96,7 +96,7 @@ void ControlComponent::GenerateCommand() {
   front_wheel_angle_realtime = chassis_.front_wheel_angle();
   rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
 
-  while (true) {
+  while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
     if (pad_received_) {
       cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
