@@ -23,9 +23,9 @@
 #include "cyber/common/log.h"
 
 #include "modules/canbus/common/canbus_gflags.h"
-#include "modules/common/adapters/adapter_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
+#include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/proto/vehicle_signal.pb.h"
 #include "modules/common/time/time.h"
 #include "modules/drivers/canbus/can_comm/can_sender.h"
