@@ -20,12 +20,7 @@
 #include <stdlib.h> /* system, NULL, EXIT_FAILURE */
 #include <memory>
 #include <string>
-#include <string_view>
 #include <thread>
-
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_join.h"
-#include "absl/strings/str_split.h"
 
 #include "modules/canbus/proto/canbus_conf.pb.h"
 #include "modules/canbus/proto/chassis.pb.h"
@@ -112,7 +107,7 @@ class DiamondController final : public VehicleController {
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
-  void SteerFront(double front_steering_target);
+  void SteerFront(double front_steering_target) override;
 
   // steering with old angle speed
   // angle:-99.99~0.00~99.99, unit:, left:-, right:+
@@ -167,8 +162,8 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   // 变频器 485通信 设备
-  Uart device_front_frequency_converter = Uart("ttyUSB1");
-  Uart device_rear_frequency_converter = Uart("ttyUSB0");
+  std::unique_ptr<Uart> device_front_frequency = nullptr;
+  std::unique_ptr<Uart> device_rear_frequency = nullptr;
 
   float front_encoder_angle_previous = 0;
 

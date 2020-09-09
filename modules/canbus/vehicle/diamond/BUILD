@@ -44,9 +44,11 @@ cc_library(
     deps = [
         ":diamond_message_manager",
         "//modules/common/util:uart",
+        "//modules/common/adapters:adapter_gflags",
         "//modules/drivers/canbus/can_comm:can_sender",
         "//modules/drivers/canbus/common:canbus_common",
         "//modules/canbus/proto:chassis_cc_proto",
+        "//modules/canbus/common:canbus_common",
         "//modules/drivers/canbus/can_comm:message_manager_base",
         "//modules/canbus/vehicle:vehicle_controller_base",
         "//modules/canbus/vehicle/diamond/protocol:canbus_diamond_protocol",

@@ -27,7 +27,7 @@ class ControlComponent : public Component<> {
  public:
   // ControlComponent();
   bool Init() override;
-  double PidSpeed(double veh_spd, double spd_motor_deadzone);
+  double PidSpeed();
   void GenerateCommand();
   ~ControlComponent();
 

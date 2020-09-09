@@ -10,7 +10,7 @@
 --log_dir=/apollo/data/log
 
 --use_navigation_mode=false
-
+--magnetic_enable=false
 --map_dir=/apollo/modules/map/data/sunnyvale
 
 --use_sim_time=false

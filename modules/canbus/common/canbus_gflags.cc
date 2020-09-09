@@ -46,3 +46,8 @@ DEFINE_int32(guardian_cmd_pending_queue_size, 10,
              "Max guardian cmd pending queue size");
 DEFINE_int32(control_cmd_pending_queue_size, 10,
              "Max control cmd pending queue size");
+
+DEFINE_string(front_steer_device, "ttyUSB0",
+              "device_front_frequency_converter");
+
+DEFINE_string(rear_steer_device, "ttyUSB1", "device_rear_frequency_converter");

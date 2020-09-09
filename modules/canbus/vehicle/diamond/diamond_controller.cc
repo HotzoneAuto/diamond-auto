@@ -21,6 +21,9 @@
 #include <cstdio>
 
 #include "cyber/common/log.h"
+
+#include "modules/canbus/common/canbus_gflags.h"
+#include "modules/common/adapters/adapter_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/proto/vehicle_signal.pb.h"
@@ -110,14 +113,22 @@ ErrorCode DiamondController::Init(
   AINFO << "DiamondController is initialized.";
 
   // Initialize frequency converter
-  device_front_frequency_converter.SetOpt(9600, 8, 'N', 1);
-  device_rear_frequency_converter.SetOpt(9600, 8, 'N', 1);
+  device_front_frequency =
+      std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
+  device_rear_frequency =
+      std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
+  device_front_frequency->SetOpt(9600, 8, 'N', 1);
+  device_rear_frequency->SetOpt(9600, 8, 'N', 1);
 
   is_initialized_ = true;
   return ErrorCode::OK;
 }
 
-DiamondController::~DiamondController() {}
+DiamondController::~DiamondController() {
+  // destory device resources
+  device_front_frequency = nullptr;
+  device_rear_frequency = nullptr;
+}
 
 bool DiamondController::Start() {
   if (!is_initialized_) {
@@ -260,12 +271,14 @@ Chassis DiamondController::chassis() {
   // Magnetic sensor data
   // front
   // Send messages before receive
-  std::string cmd = "cansend can0 003#0102030405010000";
-  const int ret = std::system(cmd.c_str());
-  if (ret == 0) {
-    AINFO << "SUCCESS: " << cmd;
-  } else {
-    AERROR << "FAILED(" << ret << "): " << cmd;
+  if (FLAGS_magnetic_enable) {
+    std::string cmd = "cansend can0 003#0102030405010000";
+    const int ret = std::system(cmd.c_str());
+    if (ret == 0) {
+      AINFO << "SUCCESS: " << cmd;
+    } else {
+      AERROR << "FAILED(" << ret << "): " << cmd;
+    }
   }
 
   if (diamond->id_0x03().has_front_mgs()) {
@@ -277,12 +290,14 @@ Chassis DiamondController::chassis() {
     chassis_.set_front_lat_dev(0);
   }
   // rear
-  std::string cmd4 = "cansend can0 004#0102030405010000";
-  const int ret4 = std::system(cmd4.c_str());
-  if (ret4 == 0) {
-    AINFO << "SUCCESS: " << cmd4;
-  } else {
-    AERROR << "FAILED(" << ret4 << "): " << cmd4;
+  if (FLAGS_magnetic_enable) {
+    std::string cmd4 = "cansend can0 004#0102030405010000";
+    const int ret4 = std::system(cmd4.c_str());
+    if (ret4 == 0) {
+      AINFO << "SUCCESS: " << cmd4;
+    } else {
+      AERROR << "FAILED(" << ret4 << "): " << cmd4;
+    }
   }
   if (diamond->id_0x04().has_rear_mgs()) {
     auto dev = getLatdev(diamond->id_0x04().rear_mgs());
@@ -399,7 +414,7 @@ ErrorCode DiamondController::EnableAutoMode() {
 
   // Steering const speed
   unsigned char spd_cmd[8] = {0x0B, 0x06, 0x20, 0x00, 0x27, 0x10, 0x98, 0x9C};
-  int result_spd_positive = device_front_frequency_converter.Write(spd_cmd, 8);
+  int result_spd_positive = device_front_frequency->Write(spd_cmd, 8);
   ADEBUG << "Frequency converter speed write command send result is :"
          << result_spd_positive;
 
@@ -420,14 +435,10 @@ ErrorCode DiamondController::EnableAutoMode() {
 }
 
 ErrorCode DiamondController::DisableAutoMode() {
-  ResetProtocol();
-  can_sender_->Update();
-  set_driving_mode(Chassis::COMPLETE_MANUAL);
-  set_chassis_error_code(Chassis::NO_ERROR);
-  AINFO << "Switch to COMPLETE_MANUAL ok.";
-  // Steering stop command
+  // Steering stop command for 485 comm
   FrontSteerStop();
-  sleep(0.2);
+  RearSteerStop();
+  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
 
   //============k1 down start===========
 #if 0
@@ -444,6 +455,12 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(5);
 #endif
   //===========k1 down end========
+
+  ResetProtocol();
+  can_sender_->Update();
+  set_driving_mode(Chassis::COMPLETE_MANUAL);
+  set_chassis_error_code(Chassis::NO_ERROR);
+  AINFO << "Switch to COMPLETE_MANUAL ok.";
   return ErrorCode::OK;
 }
 
@@ -637,7 +654,7 @@ void DiamondController::FrontSteerStop() {
 
   unsigned char cmd[8] = {0x0B, 0x06, 0x06, 0x00, 0x00, 0x05, 0x4D, 0xA3};
 
-  int result_dir_zero = device_front_frequency_converter.Write(cmd, 8);
+  int result_dir_zero = device_front_frequency->Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_zero;
 }
@@ -645,26 +662,26 @@ void DiamondController::FrontSteerStop() {
 void DiamondController::FrontSteerPositive() {
   unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4C, 0x60};
 
-  int result_dir_positive = device_front_frequency_converter.Write(cmd, 8);
+  int result_dir_positive = device_front_frequency->Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
-  sleep(1);
+  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::FrontSteerNegative() {
   unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0C, 0x61};
-  int result_dir_negative = device_front_frequency_converter.Write(cmd, 8);
+  int result_dir_negative = device_front_frequency->Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
-  sleep(1);
+  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerStop() {
   unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x05, 0x4C, 0x14};
 
-  int result_dir_zero = device_rear_frequency_converter.Write(cmd, 8);
+  int result_dir_zero = device_rear_frequency->Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_zero;
   SetBatCharging();
@@ -673,20 +690,20 @@ void DiamondController::RearSteerStop() {
 void DiamondController::RearSteerPositive() {
   unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4D, 0xD7};
 
-  int result_dir_positive = device_rear_frequency_converter.Write(cmd, 8);
+  int result_dir_positive = device_rear_frequency->Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
-  sleep(1);
+  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerNegative() {
   unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0D, 0xD6};
 
-  int result_dir_negative = device_rear_frequency_converter.Write(cmd, 8);
+  int result_dir_negative = device_rear_frequency->Write(cmd, 8);
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
-  sleep(1);
+  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
