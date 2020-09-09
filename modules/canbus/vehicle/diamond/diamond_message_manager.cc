@@ -22,7 +22,7 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x04.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
+// #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c08a7f0.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c09a7f0.h"
@@ -46,7 +46,7 @@ DiamondMessageManager::DiamondMessageManager() {
   // Control Messages
   AddSendProtocolData<Id0x0c079aa7, true>();
   AddSendProtocolData<Id0x0c19f0a7, true>();
-  AddSendProtocolData<Id0x0cfff3a7, true>();
+  // AddSendProtocolData<Id0x0cfff3a7, true>();
   AddSendProtocolData<Id0x00aa5701, true>();
 
   // Report Messages

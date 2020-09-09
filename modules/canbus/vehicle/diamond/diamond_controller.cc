@@ -91,13 +91,13 @@ ErrorCode DiamondController::Init(
     AERROR << "Id0x0c19f0a7 does not exist in the DiamondMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
-
-  id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
-      message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
-  if (id_0x0cfff3a7_ == nullptr) {
-    AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
-    return ErrorCode::CANBUS_ERROR;
-  }
+  /*
+    id_0x0cfff3a7_ = dynamic_cast<Id0x0cfff3a7*>(
+        message_manager_->GetMutableProtocolDataById(Id0x0cfff3a7::ID));
+    if (id_0x0cfff3a7_ == nullptr) {
+      AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
+      return ErrorCode::CANBUS_ERROR;
+    }*/
 
   id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
       message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
@@ -108,7 +108,7 @@ ErrorCode DiamondController::Init(
 
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
-  can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
+  // can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
   can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
 
   // need sleep to ensure all messages received
@@ -305,13 +305,20 @@ ErrorCode DiamondController::EnableAutoMode() {
     return ErrorCode::OK;
   }
   /*=====================k1 k2 start==========================*/
-#if 0
+#if 1
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   sleep(3);
   if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() == 0) {
-    id_0x0cfff3a7_->set_bybatrlyoffcmd(0);
-    id_0x0cfff3a7_->set_bybatrlycmd(1);
+    // id_0x0cfff3a7_->set_bybatrlyoffcmd(0);
+    // id_0x0cfff3a7_->set_bybatrlycmd(1);
+    std::string cmd = "cansend can0 0CFFF3A7#0001000000000000";
+    const int ret = std::system(cmd.c_str());
+    if (ret == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd;
+    } else {
+      AERROR << "BatterySetup can message send FAILED(" << ret << "): " << cmd;
+    }
 
     if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() !=
             false or
