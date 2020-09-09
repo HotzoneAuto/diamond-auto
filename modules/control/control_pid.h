@@ -27,7 +27,6 @@ static double u_torque;
 // static float steer_motor_spd;
 // static float tire_steer_spd;
 // static float steer_angle=0;
-static float veh_spd = 0;
 
 static double speed_motor_deadzone = 0;
 

@@ -19,7 +19,6 @@ cc_library(
     copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
         ":control_lib",
-        ":pid",
     ],
 )
 
@@ -32,7 +31,7 @@ cc_library(
         "//cyber",
         "//modules/canbus/proto:chassis_cc_proto",
         "//modules/common/time",
-        "//modules/common/util",
+        "//modules/common/util:message_util",
         "//modules/control/common:control_gflags",
         "//modules/control/proto:control_cmd_cc_proto",
         "//modules/control/proto:control_conf_cc_proto",
@@ -43,11 +42,11 @@ cc_library(
     ],
 )
 
-cc_library(
-    name = "pid",
-    srcs = [],
-    hdrs = ["control_pid.h"],
-)
+# cc_library(
+#     name = "pid",
+#     srcs = [],
+#     hdrs = ["control_pid.h"],
+# )
 
 
 

@@ -4,17 +4,16 @@
 #include "math.h"
 
 #include "cyber/cyber.h"
-#include "cyber/time/rate.h"
 
-#include "modules/common/adapters/adapter_gflags.h"
-#include "modules/control/control_pid.h"
+#include "modules/common/util/message_util.h"
 #include "modules/control/control_wheel_angle_real.h"
 
 namespace apollo {
 namespace control {
 
-using apollo::cyber::Rate;
-using apollo::cyber::Time;
+std::string ControlComponent::Name() const { return FLAGS_control_node_name; }
+
+ControlComponent::ControlComponent() {}
 
 bool ControlComponent::Init() {
   ACHECK(
@@ -57,9 +56,6 @@ bool ControlComponent::Init() {
   control_cmd_writer_ =
       node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
 
-  // compute control message in aysnc thread
-  async_action_ = cyber::Async(&ControlComponent::GenerateCommand, this);
-
   return true;
 }
 
@@ -83,18 +79,10 @@ double ControlComponent::PidSpeed() {
 }
 
 // write to channel
-void ControlComponent::GenerateCommand() {
-  // frequency
-  Rate rate(100.0);
-
+bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
 
-  // 获取当前车辆速度
-  veh_spd = chassis_.speed_mps();
-
-  // 初始化驱动电机死区
-  speed_motor_deadzone = control_conf_.torque_deadzone();
   front_wheel_angle_realtime = chassis_.front_wheel_angle();
   rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
 
@@ -221,7 +209,6 @@ void ControlComponent::GenerateCommand() {
             }
           }
         } else {  // 若出现异常
-          // auto motor_torque = pid_speed(veh_spd, 0, speed_motor_deadzone);
           // front_motor_steering_dir = 0;  // 停止
           // rear_motor_steering_dir = 0;   // 停止
           cmd->set_rear_wheel_target(0);
@@ -249,11 +236,12 @@ void ControlComponent::GenerateCommand() {
       default: {}
     }
 
+    common::util::FillHeader(node_->Name(), cmd.get());
     AINFO << "cmd: " << cmd->DebugString();
     control_cmd_writer_->Write(cmd);
-
-    rate.Sleep();
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(10));
   }
+  return true;
 }
 
 ControlComponent::~ControlComponent() {
