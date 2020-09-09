@@ -22,6 +22,8 @@ bool ControlComponent::Init() {
       << "Unable to load control conf file: " + FLAGS_control_conf_file;
 
   AINFO << "Conf file: " << FLAGS_control_conf_file << " is loaded.";
+  AINFO << "deadzone:" << control_conf_.torque_deadzone();
+  AINFO << "pid_conf:" << control_conf_.pid_conf().DebugString();
 
   // Chassis Reader
   chassis_reader_ = node_->CreateReader<Chassis>(
@@ -66,14 +68,14 @@ double ControlComponent::PidSpeed() {
 
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
-  AINFO << "pid_e:" << pid_e << " pid_int:" << pid_int;
+  ADEBUG << "pid_e:" << pid_e << " pid_int:" << pid_int;
   auto pid_conf = control_conf_.pid_conf();
   double torque = 0;
   torque = control_conf_.torque_deadzone() + pid_conf.kp() * pid_e +
            pid_conf.ki() * pid_int + pid_conf.kd() * (pid_e - pid_e_pre);
 
-  AINFO << "PID Output Torque：" << torque
-        << " vehicle speed now:" << chassis_.speed_mps();
+  ADEBUG << "PID Output Torque：" << torque
+         << " vehicle speed now:" << chassis_.speed_mps();
 
   pid_e_pre = pid_e;
 
@@ -108,7 +110,7 @@ void ControlComponent::GenerateCommand() {
     switch (drivemotor_flag) {
       // 从A到B
       case 1: {
-        if (rfid_.id() == 2) {
+        if (rfid_.id() == control_conf_.destnation()) {
           // TODO: 制动转矩，需改成标定值
           drivemotor_torque = 10;
           cmd->set_brake(drivemotor_torque);
@@ -248,6 +250,7 @@ void ControlComponent::GenerateCommand() {
       default: {}
     }
 
+    AINFO << "cmd: " << cmd->DebugString();
     control_cmd_writer_->Write(cmd);
 
     rate.Sleep();
