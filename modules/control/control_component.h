@@ -3,8 +3,10 @@
 #include <memory>
 #include <string>
 
-#include "cyber/class_loader/class_loader.h"
-#include "cyber/component/component.h"
+#include "cyber/common/macros.h"
+#include "cyber/component/timer_component.h"
+#include "cyber/cyber.h"
+#include "cyber/timer/timer.h"
 
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/common/adapters/adapter_gflags.h"
@@ -19,19 +21,20 @@ namespace control {
 
 using apollo::canbus::Chassis;
 using apollo::control::ControlCommand;
+using apollo::control::ControlConf;
 using apollo::control::PadMessage;
-using apollo::cyber::Component;
 using apollo::drivers::RFID;
 
-class ControlComponent : public Component<> {
+class ControlComponent final : public apollo::cyber::TimerComponent {
  public:
-  // ControlComponent();
-  bool Init() override;
-  double PidSpeed();
-  void GenerateCommand();
+  ControlComponent();
+  std::string Name() const;
   ~ControlComponent();
 
  private:
+  bool Init() override;
+  bool Proc() override;
+  double PidSpeed();
   Chassis chassis_;
   ControlConf control_conf_;
   RFID rfid_;

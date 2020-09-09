@@ -175,7 +175,9 @@ void CanbusComponent::PublishChassisDetail() {
 
 bool CanbusComponent::Proc() {
   PublishChassis();
-  PublishChassisDetail();
+  if (FLAGS_enable_chassis_detail_pub) {
+    PublishChassisDetail();
+  }
   return true;
 }
 

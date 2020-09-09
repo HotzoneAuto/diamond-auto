@@ -21,17 +21,17 @@ unsigned char C7[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4D, 0xD7};
 // rear negative
 unsigned char C8[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0D, 0xD6};
 
-class Magnetic {
-  //     public:
-  // void Send(unsigned char cmd){
-  //     int result_dir_positive = device_front_frequency->Write(cmd, 8);
-  //   ADEBUG << "Frequency converter direction write command send result is :"
-  //          << result_dir_positive;
-  // }
-  // private:
-  //   std::unique_ptr<Uart> device_front_frequency = nullptr;
-  //   std::unique_ptr<Uart> device_rear_frequency = nullptr;
-};
+// class Magnetic {
+//     public:
+// void Send(unsigned char cmd){
+//     int result_dir_positive = device_front_frequency->Write(cmd, 8);
+//   ADEBUG << "Frequency converter direction write command send result is :"
+//          << result_dir_positive;
+// }
+// private:
+//   std::unique_ptr<Uart> device_front_frequency = nullptr;
+//   std::unique_ptr<Uart> device_rear_frequency = nullptr;
+// };
 
 }  // namespace magnetic
 }  // namespace drivers
