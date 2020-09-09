@@ -419,7 +419,8 @@ ErrorCode DiamondController::EnableAutoMode() {
          << result_spd_positive;
 
   // TODO(tianchuang): Rear wheel const speed
-  int result_spd_positive_rear = device_rear_frequency.Write(spd_cmd, 8);
+  unsigned char spd_cmd_rear[8] = {0x0C, 0x06, 0x20, 0x00, 0x27, 0x10, 0x99, 0x2B};
+  int result_spd_positive_rear = device_rear_frequency.Write(spd_cmd_rear, 8);
   ADEBUG << "Rear frequency converter speed write command send result is :"
          << result_spd_positive_rear;
 
