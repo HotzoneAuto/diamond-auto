@@ -97,19 +97,19 @@ ErrorCode DiamondController::Init(
     if (id_0x0cfff3a7_ == nullptr) {
       AERROR << "Id0x0cfff3a7 does not exist in the DiamondMessageManager!";
       return ErrorCode::CANBUS_ERROR;
-    }*/
+    }
 
   id_0x00aa5701_ = dynamic_cast<Id0x00aa5701*>(
       message_manager_->GetMutableProtocolDataById(Id0x00aa5701::ID));
   if (id_0x00aa5701_ == nullptr) {
     AERROR << "Id0x00aa5701 does not exist in the DiamondMessageManager!";
     return ErrorCode::CANBUS_ERROR;
-  }
+  }*/
 
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
   // can_sender_->AddMessage(Id0x0cfff3a7::ID, id_0x0cfff3a7_, false);
-  can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
+  // can_sender_->AddMessage(Id0x00aa5701::ID, id_0x00aa5701_, false);
 
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
@@ -312,12 +312,12 @@ ErrorCode DiamondController::EnableAutoMode() {
   if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() == 0) {
     // id_0x0cfff3a7_->set_bybatrlyoffcmd(0);
     // id_0x0cfff3a7_->set_bybatrlycmd(1);
-    std::string cmd = "cansend can0 0CFFF3A7#0001000000000000";
-    const int ret = std::system(cmd.c_str());
-    if (ret == 0) {
-      AINFO << "BatterySetup can message send SUCCESS: " << cmd;
+    std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
+    const int ret1 = std::system(cmd1.c_str());
+    if (ret1 == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd1;
     } else {
-      AERROR << "BatterySetup can message send FAILED(" << ret << "): " << cmd;
+      AERROR << "BatterySetup can message send FAILED(" << ret1 << "): " << cmd1;
     }
 
     if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() !=
@@ -326,23 +326,51 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        id_0x00aa5701_->set_relay2(0x01);
+        // id_0x00aa5701_->set_relay2(1);
+    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
+    const int ret2 = std::system(cmd2.c_str());
+    if (ret2 == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd2;
+    } else {
+      AERROR << "BatterySetup can message send FAILED(" << ret2 << "): " << cmd2;
+    }
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
           ADEBUG << "K1 up";
-          id_0x00aa5701_->set_relay1(0x01);
+          //id_0x00aa5701_->set_relay1(1);
+    std::string cmd3 = "cansend can0 00AA5701#1100000000000000";
+    const int ret3 = std::system(cmd3.c_str());
+    if (ret3 == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd3;
+    } else {
+      AERROR << "BatterySetup can message send FAILED(" << ret3 << "): " << cmd3;
+    }
           sleep(3);
           ADEBUG << "K2 down";
-          id_0x00aa5701_->set_relay2(0);
+          // id_0x00aa5701_->set_relay2(0);
+    std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
+    const int ret4 = std::system(cmd4.c_str());
+    sleep(3);
+    if (ret4 == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd4;
+    } else {
+      AERROR << "BatterySetup can message send FAILED(" << ret4 << "): " << cmd4;
+    }
         } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
-          sleep(3);
           AERROR << ">25 K2 down";
-          id_0x00aa5701_->set_relay2(0);
+          // id_0x00aa5701_->set_relay2(0);
+    std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
+    const int ret = std::system(cmd5.c_str());
+    if (ret == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd5;
+    } else {
+      AERROR << "BatterySetup can message send FAILED(" << ret << "): " << cmd5;
+    }
         }
       } else {
         AERROR << "1818d0f3 bybatinsrerr REEOR!!";
@@ -391,13 +419,20 @@ ErrorCode DiamondController::DisableAutoMode() {
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
 
   //============k1 down start===========
-#if 0
+#if 1
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  id_0x00aa5701_->set_relay1(0);
+  // id_0x00aa5701_->set_relay1(0);
+    std::string cmd = "cansend can0 00AA5701#0000000000000000";
+    const int ret = std::system(cmd.c_str());
+    if (ret == 0) {
+      AINFO << "BatterySetup can message send SUCCESS: " << cmd;
+    } else {
+      AERROR << "BatterySetup can message send FAILED(" << ret << "): " << cmd;
+    }
   AERROR << "K1 down";
   sleep(5);
 #endif
