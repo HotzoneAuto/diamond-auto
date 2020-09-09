@@ -29,10 +29,8 @@
 #include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
-#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
-// #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 
 namespace apollo {
 namespace canbus {
@@ -121,6 +119,7 @@ class DiamondController final : public VehicleController {
   void RearSteerNegative();
 
   void SetBatCharging();
+  void SetMotorVoltageUp();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -148,8 +147,6 @@ class DiamondController final : public VehicleController {
   // control protocol
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
-  // Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
-  Id0x00aa5701* id_0x00aa5701_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
@@ -173,6 +170,7 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_previous = 0;
 
   float rear_encoder_angle_realtime = 0;
+  // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
   float front_wheel_angle_previous = 0;
   float front_wheel_angle_realtime = 0;

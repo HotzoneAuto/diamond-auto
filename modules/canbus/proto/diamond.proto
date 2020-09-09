@@ -122,14 +122,6 @@ message Id_0x0c19f0a7 {
   optional int32 bylife = 5;
 }
 
-message Id_0x0cfff3a7 {
-// Control Message
-  // [] [0|255]
-  optional int32 bybatrlyoffcmd = 1;
-  // [] [0|255]
-  optional int32 bybatrlycmd = 2;
-}
-
 message Id_0x1818d0f3 {
 // Report Message
   // [V] [-1000|5553.5]
@@ -360,49 +352,12 @@ message Id_0x18eba1a5 {
   optional bool byfireextinguiveherr = 2;
 }
 
-message Id_0x00aa5701 {
-// Control Message
-  // [] [0|1]
-  optional int32 relay1 = 1;
-  // [] [0|1]
-  optional int32 relay2 = 2;
-  // [] [0|1]
-  optional int32 relay3 = 3;
-  // [] [0|1]
-  optional int32 relay4 = 4;
-  // [] [0|1]
-  optional int32 relay5 = 5;
-  // [] [0|1]
-  optional int32 relay6 = 6;
-  // [] [0|1]
-  optional int32 relay7 = 7;
-  // [] [0|1]
-  optional int32 relay8 = 8;
-  // [] [0|1]
-  optional int32 relay9 = 9;
-  // [] [0|1]
-  optional int32 relay10 = 10;
-  // [] [0|1]
-  optional int32 relay11 = 11;
-  // [] [0|1]
-  optional int32 relay12 = 12;
-  // [] [0|1]
-  optional int32 relay13 = 13;
-  // [] [0|1]
-  optional int32 relay14 = 14;
-  // [] [0|1]
-  optional int32 relay15 = 15;
-  // [] [0|1]
-  optional int32 relay16 = 16;
-}
-
 message Diamond {
   optional Id_0x0c079aa7 id_0x0c079aa7 = 1; // control message
   optional Id_0x0c08a7f0 id_0x0c08a7f0 = 2; // report message
   optional Id_0x0c09a7f0 id_0x0c09a7f0 = 3; // report message
   optional Id_0x0c0ba7f0 id_0x0c0ba7f0 = 4; // report message
   optional Id_0x0c19f0a7 id_0x0c19f0a7 = 5; // control message
-  optional Id_0x0cfff3a7 id_0x0cfff3a7 = 6; // control message
   optional Id_0x1818d0f3 id_0x1818d0f3 = 7; // report message
   optional Id_0x1819d0f3 id_0x1819d0f3 = 8; // report message
   optional Id_0x181ad0f3 id_0x181ad0f3 = 9; // report message
@@ -413,8 +368,7 @@ message Diamond {
   optional Id_0x181fd0f3 id_0x181fd0f3 = 14; // report message
   optional Id_0x1825d0f3 id_0x1825d0f3 = 15; // report message
   optional Id_0x18eba1a5 id_0x18eba1a5 = 16; // report message
-  optional Id_0x00aa5701 id_0x00aa5701 = 20; // control message
   optional Id_0x01 id_0x01 = 17; // report message
-  optional Id_0x03 id_0x03 = 18; // control and report message
-  optional Id_0x04 id_0x04 = 19; // control and report message
+  optional Id_0x03 id_0x03 = 18; // report message
+  optional Id_0x04 id_0x04 = 19; // report message
 }
