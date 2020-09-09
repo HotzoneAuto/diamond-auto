@@ -3,11 +3,11 @@ manual_rear_wheel_target: 0
 pid_conf {
   integrator_enable: false
   integrator_saturation_level: 0.3
-  kp: 0.2
+  kp: 6
   ki: 0.001
   kd: 0.0
 }
-torque_deadzone: 20
+torque_deadzone: 35
 action: STOP
 
 control_test_duration: -1
