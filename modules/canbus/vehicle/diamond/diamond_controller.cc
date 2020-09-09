@@ -21,6 +21,7 @@
 #include <cstdio>
 
 #include "cyber/common/log.h"
+#include "cyber/cyber.h"
 
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -112,7 +113,6 @@ ErrorCode DiamondController::Init(
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
 
-  // Initialize frequency converter
   device_front_frequency =
       std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
   device_rear_frequency =
@@ -120,14 +120,20 @@ ErrorCode DiamondController::Init(
   device_front_frequency->SetOpt(9600, 8, 'N', 1);
   device_rear_frequency->SetOpt(9600, 8, 'N', 1);
 
+  if (FLAGS_magnetic_enable) {
+    thread_mangetic_ =
+        std::thread(&DiamondController::MagneticMessageSend, this);
+  }
+
   is_initialized_ = true;
   return ErrorCode::OK;
 }
 
 DiamondController::~DiamondController() {
-  // destory device resources
   device_front_frequency = nullptr;
   device_rear_frequency = nullptr;
+
+  thread_mangetic_.join();
 }
 
 bool DiamondController::Start() {
@@ -220,20 +226,15 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
+  chassis_.set_front_wheel_angle(0);
+  chassis_.set_rear_wheel_angle(0);
   if (diamond->id_0x01().angle_sensor_id() == 1) {
-    chassis_.set_front_encoder_angle(
-        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-    if (std::isnan(chassis_.front_encoder_angle())) {
+    float value = static_cast<float>(diamond->id_0x01().angle_sensor_data());
+
+    if (std::isnan(value)) {
       front_encoder_angle_realtime = front_encoder_angle_previous;
     } else {
-      // if (diamond->id_0x01().angle_sensor_data() > 360.0){
-      //  front_encoder_angle_realtime = 360.0;
-      //} else if (diamond->id_0x01().angle_sensor_data() < 0.0){
-      //  front_encoder_angle_realtime = 0.0;
-      //} else{
-      front_encoder_angle_realtime =
-          static_cast<float>(diamond->id_0x01().angle_sensor_data());
-      //}
+      front_encoder_angle_realtime = value;
     }
     front_wheel_angle_realtime = update_wheel_angle(
         front_wheel_angle_previous, front_encoder_angle_previous,
@@ -241,14 +242,15 @@ Chassis DiamondController::chassis() {
     chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
     front_encoder_angle_previous = front_encoder_angle_realtime;
     front_wheel_angle_previous = front_wheel_angle_realtime;
-    p = fopen("/home/nvidia/out.txt", "a+");
-    fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
-            chassis_.front_encoder_angle());
-    fclose(p);
+
+    // p = fopen("/home/nvidia/out.txt", "a+");
+    // fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
+    //         chassis_.front_encoder_angle());
+    // fclose(p);
   } else {
-    chassis_.set_rear_encoder_angle(
-        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-    if (std::isnan(chassis_.rear_encoder_angle())) {
+    float rear_value =
+        static_cast<float>(diamond->id_0x01().angle_sensor_data());
+    if (std::isnan(rear_value)) {
       rear_encoder_angle_realtime = rear_encoder_angle_previous;
     } else {
       if (diamond->id_0x01().angle_sensor_data() > 360.0) {
@@ -256,8 +258,7 @@ Chassis DiamondController::chassis() {
       } else if (diamond->id_0x01().angle_sensor_data() < 0.0) {
         rear_encoder_angle_realtime = 0.0;
       } else {
-        rear_encoder_angle_realtime =
-            static_cast<float>(diamond->id_0x01().angle_sensor_data());
+        rear_encoder_angle_realtime = rear_value;
       }
     }
     rear_wheel_angle_realtime = update_wheel_angle(
@@ -270,16 +271,9 @@ Chassis DiamondController::chassis() {
 
   // Magnetic sensor data
   // front
-  // Send messages before receive
-  if (FLAGS_magnetic_enable) {
-    std::string cmd = "cansend can0 003#0102030405010000";
-    const int ret = std::system(cmd.c_str());
-    if (ret == 0) {
-      AINFO << "SUCCESS: " << cmd;
-    } else {
-      AERROR << "FAILED(" << ret << "): " << cmd;
-    }
-  }
+  // TODO(ALL): Send messages before receive
+  // 1. default by system(cansend), but not best practice
+  // 2. async thread by duration
 
   if (diamond->id_0x03().has_front_mgs()) {
     auto dev = getLatdev(diamond->id_0x03().front_mgs());
@@ -289,16 +283,8 @@ Chassis DiamondController::chassis() {
   } else {
     chassis_.set_front_lat_dev(0);
   }
+
   // rear
-  if (FLAGS_magnetic_enable) {
-    std::string cmd4 = "cansend can0 004#0102030405010000";
-    const int ret4 = std::system(cmd4.c_str());
-    if (ret4 == 0) {
-      AINFO << "SUCCESS: " << cmd4;
-    } else {
-      AERROR << "FAILED(" << ret4 << "): " << cmd4;
-    }
-  }
   if (diamond->id_0x04().has_rear_mgs()) {
     auto dev = getLatdev(diamond->id_0x04().rear_mgs());
     if (!std::isnan(dev)) {
@@ -418,9 +404,8 @@ ErrorCode DiamondController::EnableAutoMode() {
   ADEBUG << "Frequency converter speed write command send result is :"
          << result_spd_positive;
 
-  // TODO(tianchuang): Rear wheel const speed
-  unsigned char spd_cmd_rear[8] = {0x0C, 0x06, 0x20, 0x00, 0x27, 0x10, 0x99, 0x2B};
-  int result_spd_positive_rear = device_rear_frequency->Write(spd_cmd_rear, 8);
+  unsigned char rear_cmd[8] = {0x0C, 0x06, 0x20, 0x00, 0x27, 0x10, 0x99, 0x2B};
+  int result_spd_positive_rear = device_rear_frequency->Write(rear_cmd, 8);
   ADEBUG << "Rear frequency converter speed write command send result is :"
          << result_spd_positive_rear;
 
@@ -868,6 +853,22 @@ float DiamondController::update_wheel_angle(
     wheel_angle_now = wheel_angle_now - 360.0;
   }
   return wheel_angle_now;
+}
+
+void DiamondController::MagneticMessageSend() {
+  std::vector<std::string> cmds = {"cansend can0 003#0102030405010000",
+                                   "cansend can0 004#0102030405010000"};
+  while (!apollo::cyber::IsShutdown()) {
+    for (auto& cmd : cmds) {
+      const int ret = std::system(cmd.c_str());
+      if (ret == 0) {
+        AINFO << "Magnetic can message send SUCCESS: " << cmd;
+      } else {
+        AERROR << "Magnetic can message send FAILED(" << ret << "): " << cmd;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(20));
+  }
 }
 
 }  // namespace diamond
