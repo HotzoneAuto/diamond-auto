@@ -403,6 +403,8 @@ ErrorCode DiamondController::EnableAutoMode() {
   ADEBUG << "Frequency converter speed write command send result is :"
          << result_spd_positive;
 
+  // TODO(tianchuang): Rear wheel const speed
+
   can_sender_->Update();
   const int32_t flag =
       CHECK_RESPONSE_STEER_UNIT_FLAG | CHECK_RESPONSE_SPEED_UNIT_FLAG;
@@ -675,12 +677,7 @@ void DiamondController::RearSteerPositive() {
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_positive;
   sleep(1);
-  id_0x0c079aa7_->set_bydcdccmd(0xAA);
-  id_0x0c079aa7_->set_bydcaccmd(0x55);
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 }
 
 void DiamondController::RearSteerNegative() {
@@ -690,12 +687,7 @@ void DiamondController::RearSteerNegative() {
   ADEBUG << "Frequency converter direction write command send result is :"
          << result_dir_negative;
   sleep(1);
-  id_0x0c079aa7_->set_bydcdccmd(0x55);
-  id_0x0c079aa7_->set_bydcaccmd(0x55);
-  id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-  id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+  SetBatCharging();
 }
 
 void DiamondController::SetBatCharging() {

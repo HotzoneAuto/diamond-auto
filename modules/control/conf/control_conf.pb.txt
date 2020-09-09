@@ -1,7 +1,14 @@
 manual_front_wheel_target: 0
 manual_rear_wheel_target: 0
-manual_front_steering_switch: STEERINGSTOP
-manual_rear_steering_switch: STEERINGSTOP
+pid_conf {
+  integrator_enable: false
+  integrator_saturation_level: 0.3
+  kp: 0.2
+  ki: 0.001
+  kd: 0.0
+}
+torque_deadzone: 20
+action: STOP
 
 control_test_duration: -1
 enable_csv_debug: false
@@ -25,7 +32,6 @@ localization_period: 0.01
 max_status_interval_sec: 0.1
 max_planning_interval_sec: 0.2
 max_planning_delay_threshold: 4.0
-action: STOP
 soft_estop_brake: 50.0
 active_controllers: LAT_CONTROLLER
 active_controllers: LON_CONTROLLER

@@ -233,6 +233,7 @@ proto_library(
         ":lat_controller_conf_proto",
         ":lon_controller_conf_proto",
         ":mpc_controller_conf_proto",
+        ":pid_conf_proto",
     ],
 )
 

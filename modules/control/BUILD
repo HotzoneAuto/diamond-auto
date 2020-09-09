@@ -14,8 +14,8 @@ cc_binary(
 
 cc_library(
     name = "control_component_lib",
-    srcs = ["demo_control_component.cc"],
-    hdrs = ["demo_control_component.h"],
+    srcs = ["control_component.cc"],
+    hdrs = ["control_component.h"],
     copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
         ":control_lib",
@@ -46,7 +46,7 @@ cc_library(
 cc_library(
     name = "pid",
     srcs = [],
-    hdrs = ["diamondauto_control_pid.h"],
+    hdrs = ["control_pid.h"],
 )
 
 

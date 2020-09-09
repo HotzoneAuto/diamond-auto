@@ -1,7 +1,7 @@
-# load("@rules_cc//cc:defs.bzl", "cc_binary")
-# load("//tools:cpplint.bzl", "cpplint")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//tools:cpplint.bzl", "cpplint")
 
-# package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
 
 # cc_binary(
 #     name = "control_tester",
@@ -47,17 +47,17 @@
 #     ],
 # )
 
-# cc_binary(
-#     name = "pad_terminal",
-#     srcs = ["pad_terminal.cc"],
-#     deps = [
-#         "//cyber",
-#         "//modules/common/adapters:adapter_gflags",
-#         "//modules/common/util:message_util",
-#         "//modules/control/common",
-#         "//modules/control/proto:pad_msg_cc_proto",
-#         "@com_github_gflags_gflags//:gflags",
-#     ],
-# )
+cc_binary(
+    name = "pad_terminal",
+    srcs = ["pad_terminal.cc"],
+    deps = [
+        "//cyber",
+        "//modules/common/adapters:adapter_gflags",
+        "//modules/common/util:message_util",
+        "//modules/control/common:control_gflags",
+        "//modules/control/proto:pad_msg_cc_proto",
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
 
 # cpplint()

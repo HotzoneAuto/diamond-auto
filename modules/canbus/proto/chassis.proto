@@ -62,7 +62,7 @@ message Chassis {
   optional float motor_rpm = 4 [default = nan];
 
   // Vehicle Speed in meters per second.
-  optional float speed_mps = 5 [default = nan];
+  optional float speed_mps = 5;
 
   // Vehicle odometer in meters.
   optional float odometer_m = 6 [default = nan];

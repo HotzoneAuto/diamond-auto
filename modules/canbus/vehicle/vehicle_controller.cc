@@ -98,7 +98,7 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
   }
 
   // Execute action to transform driving mode
-  if (control_command.has_pad_msg() && control_command.pad_msg().has_action()) {
+  if (control_command.pad_msg().has_action()) {
     AINFO << "Canbus received pad msg: "
           << control_command.pad_msg().ShortDebugString();
     Chassis::DrivingMode mode = Chassis::COMPLETE_MANUAL;
