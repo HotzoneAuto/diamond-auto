@@ -164,8 +164,8 @@ class DiamondController final : public VehicleController {
   std::thread thread_mangetic_;
 
   // 变频器 485通信 设备
-  std::unique_ptr<Uart> device_front_frequency = nullptr;
-  std::unique_ptr<Uart> device_rear_frequency = nullptr;
+  std::unique_ptr<Uart> steer_front = nullptr;
+  std::unique_ptr<Uart> steer_rear = nullptr;
 
   float front_encoder_angle_previous = 0;
 

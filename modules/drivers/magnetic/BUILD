@@ -41,3 +41,11 @@ cc_binary(
         "@com_github_gflags_gflags//:gflags",
     ],
 )
+
+cc_library(
+    name = "magnetic",
+    srcs = ["magnetic.h"],
+    deps = [
+        # "//modules/common/util:uart",
+    ],
+)

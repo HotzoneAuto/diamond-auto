@@ -51,6 +51,7 @@ cc_library(
         "//modules/canbus/proto:chassis_cc_proto",
         "//modules/canbus/common:canbus_common",
         "//modules/drivers/canbus/can_comm:message_manager_base",
+        "//modules/drivers/magnetic:magnetic",
         "//modules/canbus/vehicle:vehicle_controller_base",
         "//modules/canbus/vehicle/diamond/protocol:canbus_diamond_protocol",
     ],
