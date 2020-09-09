@@ -403,6 +403,8 @@ ErrorCode DiamondController::EnableAutoMode() {
   ADEBUG << "Frequency converter speed write command send result is :"
          << result_spd_positive;
 
+  // TODO(tianchuang): Rear wheel const speed
+
   can_sender_->Update();
   const int32_t flag =
       CHECK_RESPONSE_STEER_UNIT_FLAG | CHECK_RESPONSE_SPEED_UNIT_FLAG;
