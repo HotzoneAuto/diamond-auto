@@ -84,12 +84,13 @@ message VehicleParam {
   // minimum value get from chassis.brake, in percentage
   optional double brake_deadzone = 20 [default = nan];
   // minimum value get from chassis.throttle, in percentage
-  optional double throttle_deadzone = 21 [default = nan];
+  optional double torque_deadzone = 21 [default = nan];
 
   // vehicle latency parameters
   optional LatencyParam steering_latency_param = 22;
   optional LatencyParam throttle_latency_param = 23;
   optional LatencyParam brake_latency_param = 24;
+  optional double speed_ratio = 25;
 }
 
 message VehicleConfig {

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <stdio.h>
 #include <stdlib.h> /* system, NULL, EXIT_FAILURE */
 #include <memory>
 #include <string>
@@ -132,6 +131,7 @@ class DiamondController final : public VehicleController {
 
   void ResetProtocol();
   bool CheckChassisError();
+  void MagneticMessageSend();
 
  private:
   void SecurityDogThreadFunc();
@@ -161,9 +161,11 @@ class DiamondController final : public VehicleController {
   std::mutex chassis_mask_mutex_;
   int32_t chassis_error_mask_ = 0;
 
+  std::thread thread_mangetic_;
+
   // 变频器 485通信 设备
-  std::unique_ptr<Uart> device_front_frequency = nullptr;
-  std::unique_ptr<Uart> device_rear_frequency = nullptr;
+  std::unique_ptr<Uart> steer_front = nullptr;
+  std::unique_ptr<Uart> steer_rear = nullptr;
 
   float front_encoder_angle_previous = 0;
 

@@ -21,6 +21,7 @@
 #include <cstdio>
 
 #include "cyber/common/log.h"
+#include "cyber/cyber.h"
 
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
@@ -30,6 +31,7 @@
 #include "modules/common/time/time.h"
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
+#include "modules/drivers/magnetic/magnetic.h"
 
 namespace apollo {
 namespace canbus {
@@ -112,22 +114,25 @@ ErrorCode DiamondController::Init(
   // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
 
-  // Initialize frequency converter
-  device_front_frequency =
-      std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
-  device_rear_frequency =
-      std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
-  device_front_frequency->SetOpt(9600, 8, 'N', 1);
-  device_rear_frequency->SetOpt(9600, 8, 'N', 1);
+  steer_front = std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
+  steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
+  steer_front->SetOpt(9600, 8, 'N', 1);
+  steer_rear->SetOpt(9600, 8, 'N', 1);
+
+  if (FLAGS_magnetic_enable) {
+    thread_mangetic_ =
+        std::thread(&DiamondController::MagneticMessageSend, this);
+  }
 
   is_initialized_ = true;
   return ErrorCode::OK;
 }
 
 DiamondController::~DiamondController() {
-  // destory device resources
-  device_front_frequency = nullptr;
-  device_rear_frequency = nullptr;
+  steer_front = nullptr;
+  steer_rear = nullptr;
+
+  thread_mangetic_.join();
 }
 
 bool DiamondController::Start() {
@@ -220,20 +225,15 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
+  chassis_.set_front_wheel_angle(0);
+  chassis_.set_rear_wheel_angle(0);
   if (diamond->id_0x01().angle_sensor_id() == 1) {
-    chassis_.set_front_encoder_angle(
-        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-    if (std::isnan(chassis_.front_encoder_angle())) {
+    float value = static_cast<float>(diamond->id_0x01().angle_sensor_data());
+
+    if (std::isnan(value)) {
       front_encoder_angle_realtime = front_encoder_angle_previous;
     } else {
-      // if (diamond->id_0x01().angle_sensor_data() > 360.0){
-      //  front_encoder_angle_realtime = 360.0;
-      //} else if (diamond->id_0x01().angle_sensor_data() < 0.0){
-      //  front_encoder_angle_realtime = 0.0;
-      //} else{
-      front_encoder_angle_realtime =
-          static_cast<float>(diamond->id_0x01().angle_sensor_data());
-      //}
+      front_encoder_angle_realtime = value;
     }
     front_wheel_angle_realtime = update_wheel_angle(
         front_wheel_angle_previous, front_encoder_angle_previous,
@@ -241,14 +241,15 @@ Chassis DiamondController::chassis() {
     chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
     front_encoder_angle_previous = front_encoder_angle_realtime;
     front_wheel_angle_previous = front_wheel_angle_realtime;
-    p = fopen("/home/nvidia/out.txt", "a+");
-    fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
-            chassis_.front_encoder_angle());
-    fclose(p);
+
+    // p = fopen("/home/nvidia/out.txt", "a+");
+    // fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
+    //         chassis_.front_encoder_angle());
+    // fclose(p);
   } else {
-    chassis_.set_rear_encoder_angle(
-        static_cast<float>(diamond->id_0x01().angle_sensor_data()));
-    if (std::isnan(chassis_.rear_encoder_angle())) {
+    float rear_value =
+        static_cast<float>(diamond->id_0x01().angle_sensor_data());
+    if (std::isnan(rear_value)) {
       rear_encoder_angle_realtime = rear_encoder_angle_previous;
     } else {
       if (diamond->id_0x01().angle_sensor_data() > 360.0) {
@@ -256,8 +257,7 @@ Chassis DiamondController::chassis() {
       } else if (diamond->id_0x01().angle_sensor_data() < 0.0) {
         rear_encoder_angle_realtime = 0.0;
       } else {
-        rear_encoder_angle_realtime =
-            static_cast<float>(diamond->id_0x01().angle_sensor_data());
+        rear_encoder_angle_realtime = rear_value;
       }
     }
     rear_wheel_angle_realtime = update_wheel_angle(
@@ -270,17 +270,9 @@ Chassis DiamondController::chassis() {
 
   // Magnetic sensor data
   // front
-  // Send messages before receive
-  if (FLAGS_magnetic_enable) {
-    std::string cmd = "cansend can0 003#0102030405010000";
-    const int ret = std::system(cmd.c_str());
-    if (ret == 0) {
-      AINFO << "SUCCESS: " << cmd;
-    } else {
-      AERROR << "FAILED(" << ret << "): " << cmd;
-    }
-  }
-
+  // TODO(ALL): Send messages before receive
+  // 1. default by system(cansend), but not best practice
+  // 2. async thread by duration
   if (diamond->id_0x03().has_front_mgs()) {
     auto dev = getLatdev(diamond->id_0x03().front_mgs());
     if (!std::isnan(dev)) {
@@ -289,16 +281,8 @@ Chassis DiamondController::chassis() {
   } else {
     chassis_.set_front_lat_dev(0);
   }
+
   // rear
-  if (FLAGS_magnetic_enable) {
-    std::string cmd4 = "cansend can0 004#0102030405010000";
-    const int ret4 = std::system(cmd4.c_str());
-    if (ret4 == 0) {
-      AINFO << "SUCCESS: " << cmd4;
-    } else {
-      AERROR << "FAILED(" << ret4 << "): " << cmd4;
-    }
-  }
   if (diamond->id_0x04().has_rear_mgs()) {
     auto dev = getLatdev(diamond->id_0x04().rear_mgs());
     if (!std::isnan(dev)) {
@@ -324,30 +308,10 @@ ErrorCode DiamondController::EnableAutoMode() {
 #if 0
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
-  AINFO << "0x0c0ba7f0 ="
-        << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-  AINFO << "0x0c09a7f0 ="
-        << chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt();
-  AERROR << "0x1818d0f3 = "
-         << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
   sleep(3);
-  AINFO << "0x0c0ba7f0 ="
-        << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-  AINFO << "0x0c09a7f0 ="
-        << chassis_detail.diamond().id_0x0c09a7f0().fmotrectcur();
-  AERROR << "0x1818d0f3 = "
-         << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  AERROR << "0x1818d0f3fbatcur = "
-         << chassis_detail.diamond().id_0x1818d0f3().fbatcur();
   if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() == 0) {
-    AINFO << "0x0c0ba7f0 ="
-          << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-    AINFO << "0x0c09a7f0 ="
-          << chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt();
     id_0x0cfff3a7_->set_bybatrlyoffcmd(0);
     id_0x0cfff3a7_->set_bybatrlycmd(1);
-    AERROR << "0x1818d0f3bybatnegrlysts=="
-           << chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts();
 
     if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() !=
             false or
@@ -355,42 +319,22 @@ ErrorCode DiamondController::EnableAutoMode() {
       if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() == 0) {
         AERROR << "K2 up 0x1818d0f3.bybatinsrerr=="
                << chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr();
-        // p = fopen("/sys/class/gpio/gpio351/direction", "w");
-        // fprintf(p, "%s", "high");
-        // fclose(p);
         id_0x00aa5701_->set_relay2(0x01);
         sleep(3);
         chassis_detail.Clear();
         message_manager_->GetSensorData(&chassis_detail);
-        AERROR << "K2 up over 1818d0f3="
-               << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-        AERROR << "K2 up over 0c09a7f0="
-               << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
-        AERROR << "K2 up over 0c09a7f0="
-               << chassis_detail.diamond().id_0x0c09a7f0().fmotrectcur();
-        AERROR << " 0x0c09a7f0 fmotvolt ="
-               << chassis_detail.diamond().id_0x0c09a7f0().fmotvolt();
         if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
-          AERROR << "K1 up";
-          // p = fopen("/sys/class/gpio/gpio271/direction", "w");
-          // fprintf(p, "%s", "high");
-          // fclose(p);
+          ADEBUG << "K1 up";
           id_0x00aa5701_->set_relay1(0x01);
           sleep(3);
-          AERROR << "K2 down";
-          // p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          // fprintf(p, "%s", "low");
-          // fclose(p);
+          ADEBUG << "K2 down";
           id_0x00aa5701_->set_relay2(0);
         } else if (abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
                    25) {
           sleep(3);
           AERROR << ">25 K2 down";
-          // p = fopen("/sys/class/gpio/gpio351/direction", "w");
-          // fprintf(p, "%s", "low");
-          // fclose(p);
           id_0x00aa5701_->set_relay2(0);
         }
       } else {
@@ -412,16 +356,12 @@ ErrorCode DiamondController::EnableAutoMode() {
   // Steering Motor
   SetBatCharging();
 
-  // Steering const speed
-  unsigned char spd_cmd[8] = {0x0B, 0x06, 0x20, 0x00, 0x27, 0x10, 0x98, 0x9C};
-  int result_spd_positive = device_front_frequency->Write(spd_cmd, 8);
-  ADEBUG << "Frequency converter speed write command send result is :"
-         << result_spd_positive;
+  // Steering const speed set
+  int result_front = steer_front->Write(apollo::drivers::magnetic::C1, 8);
+  ADEBUG << "Front Steer const speed command send result:" << result_front;
 
-  unsigned char rear_cmd[8] = {0x0C, 0x06, 0x20, 0x00, 0x27, 0x10, 0x99, 0x2B};
-  int result_spd_positive_rear = device_rear_frequency->Write(rear_cmd, 8);
-  ADEBUG << "Rear frequency converter speed write command send result is :"
-         << result_spd_positive_rear;
+  int result_rear = steer_rear->Write(apollo::drivers::magnetic::C5, 8);
+  ADEBUG << "Rear Steer const speed command send result:" << result_rear;
 
   can_sender_->Update();
   const int32_t flag =
@@ -438,7 +378,7 @@ ErrorCode DiamondController::EnableAutoMode() {
 }
 
 ErrorCode DiamondController::DisableAutoMode() {
-  // Steering stop command for 485 comm
+  // Steering stop command for 485
   FrontSteerStop();
   RearSteerStop();
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
@@ -450,9 +390,6 @@ ErrorCode DiamondController::DisableAutoMode() {
   sleep(3);
   AERROR << "1818d0f3 fbatcur="
          << chassis_detail.diamond().id_0x1818d0f3().fbatvolt();
-  // p = fopen("/sys/class/gpio/gpio271/direction", "w");
-  // fprintf(p, "%s", "low");
-  // fclose(p);
   id_0x00aa5701_->set_relay1(0);
   AERROR << "K1 down";
   sleep(5);
@@ -655,57 +592,40 @@ void DiamondController::SteerRear(double rear_steering_target) {
 void DiamondController::FrontSteerStop() {
   SetBatCharging();
 
-  unsigned char cmd[8] = {0x0B, 0x06, 0x06, 0x00, 0x00, 0x05, 0x4D, 0xA3};
-
-  int result_dir_zero = device_front_frequency->Write(cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_zero;
+  int result = steer_front->Write(apollo::drivers::magnetic::C2, 8);
+  ADEBUG << "FrontSteerStop command send result:" << result;
 }
 
 void DiamondController::FrontSteerPositive() {
-  unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4C, 0x60};
-
-  int result_dir_positive = device_front_frequency->Write(cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_positive;
+  int result = steer_front->Write(apollo::drivers::magnetic::C3, 8);
+  ADEBUG << "FrontSteerPositive command send result:" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::FrontSteerNegative() {
-  unsigned char cmd[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0C, 0x61};
-  int result_dir_negative = device_front_frequency->Write(cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_negative;
+  int result = steer_front->Write(apollo::drivers::magnetic::C4, 8);
+  ADEBUG << "FrontSteerNegative command send result:" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerStop() {
-  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x05, 0x4C, 0x14};
-
-  int result_dir_zero = device_rear_frequency->Write(cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_zero;
+  int result = steer_rear->Write(apollo::drivers::magnetic::C6, 8);
+  ADEBUG << "RearSteerStop command send result:" << result;
   SetBatCharging();
 }
 
 void DiamondController::RearSteerPositive() {
-  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4D, 0xD7};
-
-  int result_dir_positive = device_rear_frequency->Write(cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_positive;
+  int result = steer_rear->Write(apollo::drivers::magnetic::C7, 8);
+  ADEBUG << "RearSteerPositive command send result:" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerNegative() {
-  unsigned char cmd[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0D, 0xD6};
-
-  int result_dir_negative = device_rear_frequency->Write(cmd, 8);
-  ADEBUG << "Frequency converter direction write command send result is :"
-         << result_dir_negative;
+  int result = steer_rear->Write(apollo::drivers::magnetic::C8, 8);
+  ADEBUG << "RearSteerNegative command send result is :" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
@@ -867,6 +787,22 @@ float DiamondController::update_wheel_angle(
     wheel_angle_now = wheel_angle_now - 360.0;
   }
   return wheel_angle_now;
+}
+
+void DiamondController::MagneticMessageSend() {
+  std::vector<std::string> cmds = {"cansend can0 003#0102030405010000",
+                                   "cansend can0 004#0102030405010000"};
+  while (!apollo::cyber::IsShutdown()) {
+    for (auto& cmd : cmds) {
+      const int ret = std::system(cmd.c_str());
+      if (ret == 0) {
+        AINFO << "Magnetic can message send SUCCESS: " << cmd;
+      } else {
+        AERROR << "Magnetic can message send FAILED(" << ret << "): " << cmd;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(20));
+  }
 }
 
 }  // namespace diamond
