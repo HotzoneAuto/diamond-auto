@@ -36,3 +36,4 @@ CYBER_REGISTER_COMPONENT(LcdComponet)
 }  // namespace lcd
 }  // namespace drivers
 }  // namespace apollo
+
