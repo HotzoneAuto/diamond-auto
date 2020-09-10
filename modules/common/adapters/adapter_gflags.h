@@ -128,4 +128,4 @@ DECLARE_string(monitor_log_topic);
 DECLARE_string(rfid_topic);
 DECLARE_string(magnetic_channel);
 DECLARE_string(navigation_channel);
-DECLARE_int32(magnetic_enable);
+DECLARE_bool(magnetic_enable);
