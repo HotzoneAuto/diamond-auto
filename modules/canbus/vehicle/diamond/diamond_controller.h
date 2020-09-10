@@ -38,7 +38,9 @@ namespace canbus {
 namespace diamond {
 
 float getLatdev(int dec) {
-  int bin = 0, temp = dec, j = 1;
+  long long int bin = 0;
+  int temp = dec;
+  long long j = 1;
   while (temp) {
     bin = bin + j * (temp % 2);
     temp = temp / 2;
