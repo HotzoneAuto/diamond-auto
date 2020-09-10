@@ -237,5 +237,5 @@ DEFINE_string(rfid_topic, "/diamond/sensor/rfid", "RFID sensor topic.");
 DEFINE_string(magnetic_channel, "/diamond/sensor/magnetic",
               "magnetic sensor topic.");
 DEFINE_string(navigation_channel, "/diamond/navigation", "navagation topic.");
-DEFINE_bool(magnetic_enable, 0,
+DEFINE_bool(magnetic_enable, false,
              "enable or disable magnetic in control component");
