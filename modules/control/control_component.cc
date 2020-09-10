@@ -48,6 +48,8 @@ bool ControlComponent::Init() {
         }
       });
 
+  // TODO(tianchuang):Routing Reader
+
   AINFO << "Control default driving action is "
         << DrivingAction_Name(control_conf_.action());
   pad_msg_.set_action(control_conf_.action());
@@ -93,43 +95,28 @@ bool ControlComponent::Proc() {
       cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
       pad_received_ = false;
     }
-    drivemotor_flag = 1;
-    switch (drivemotor_flag) {
-      // 从A到B
+    // TODO(zongbao):how to know direction(reverse or forward)
+    // from station A to B and B to A
+    switch (control_conf_.drivemotor_flag()) {
       case 1: {
         if (rfid_.id() == control_conf_.destnation()) {
-          // TODO: 制动转矩，需改成标定值
-          drivemotor_torque = 10;
-          cmd->set_brake(drivemotor_torque);
-          // cmd->set_torque(0);
+          cmd->set_brake(control_conf_.soft_estop_brake());
         } else {
           drivemotor_torque = PidSpeed();
           cmd->set_torque(drivemotor_torque);
         }
-
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
         break;
       }
 
-      // 从B到A
       case 2: {
         if (rfid_.id() == 1) {
-          // TODO: 制动转矩，需改成标定值
-          drivemotor_torque = 10;
-          cmd->set_brake(drivemotor_torque);
-          // cmd->set_torque(0);
+          cmd->set_brake(control_conf_.soft_estop_brake());
         } else {
           drivemotor_torque = PidSpeed();
-          cmd->set_torque(drivemotor_torque);
+          cmd->set_torque(-drivemotor_torque);
         }
 
-        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
-        break;
-      }
-
-      // 停止状态
-      case 0: {
-        cmd->set_torque(0);
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
         break;
       }
