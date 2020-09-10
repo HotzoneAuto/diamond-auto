@@ -12,4 +12,24 @@ cc_binary(
         "//modules/canbus/proto:chassis_cc_proto",
     ],
 )
-cpplint()
+cc_binary(
+    name = "liblcd.so",
+    linkopts = ["-shared"],
+    linkshared = True,
+    linkstatic = False,
+    deps = [
+        ":lcd_lib",
+    ],
+)
+
+cc_library(
+    name="lcd_lib",
+    srcs=["lcd_display.cc"],
+    hdrs=["lcd_display.h"],
+    copts=["-DMODULE_NAME=\\\"drivers\\\""],
+    deps=[
+        "//cyber",
+        "//modules/common/util:uart",
+        "//modules/canbus/proto:chassis_cc_proto",
+    ],
+)
