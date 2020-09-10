@@ -26,6 +26,7 @@
 
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
+#include "modules/canbus/vehicle/diamond/protocol/frequency_converter.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/proto/vehicle_signal.pb.h"
@@ -42,6 +43,7 @@ using namespace std::chrono;
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
 using ::apollo::drivers::canbus::ProtocolData;
+using apollo::drivers::magnetic::Magnetic;
 
 namespace {
 
@@ -108,8 +110,9 @@ ErrorCode DiamondController::Init(
   async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
 
   if (FLAGS_magnetic_enable) {
+    apollo::drivers::magnetic::Magnetic magnetic;
     thread_mangetic_ =
-        std::thread(&DiamondController::MagneticMessageSend, this);
+        std::thread(&apollo::drivers::magnetic::Magnetic::AsyncSend, magnetic);
   }
 
   is_initialized_ = true;
@@ -270,11 +273,12 @@ Chassis DiamondController::chassis() {
 
   // Magnetic sensor data
   // front
-  // TODO(ALL): Send messages before receive
+  // Send messages before receive
   // 1. default by system(cansend), but not best practice
   // 2. async thread by duration
   if (diamond->id_0x03().has_front_mgs()) {
-    auto dev = getLatdev(diamond->id_0x03().front_mgs());
+    auto dev =
+        apollo::drivers::magnetic::getLatdev(diamond->id_0x03().front_mgs());
     if (!std::isnan(dev)) {
       chassis_.set_front_lat_dev(dev);
     }
@@ -284,7 +288,8 @@ Chassis DiamondController::chassis() {
 
   // rear
   if (diamond->id_0x04().has_rear_mgs()) {
-    auto dev = getLatdev(diamond->id_0x04().rear_mgs());
+    auto dev =
+        apollo::drivers::magnetic::getLatdev(diamond->id_0x04().rear_mgs());
     if (!std::isnan(dev)) {
       chassis_.set_rear_lat_dev(dev);
     }
@@ -316,10 +321,10 @@ ErrorCode DiamondController::EnableAutoMode() {
   SetBatCharging();
 
   // Steering const speed set
-  int result_front = steer_front->Write(apollo::drivers::magnetic::C1, 8);
+  int result_front = steer_front->Write(C1, 8);
   ADEBUG << "Front Steer const speed command send result:" << result_front;
 
-  int result_rear = steer_rear->Write(apollo::drivers::magnetic::C5, 8);
+  int result_rear = steer_rear->Write(C5, 8);
   ADEBUG << "Rear Steer const speed command send result:" << result_rear;
 
   can_sender_->Update();
@@ -391,7 +396,6 @@ ErrorCode DiamondController::EnableSpeedOnlyMode() {
 
 // brake with new torque
 void DiamondController::Brake(double torque, double brake) {
-  // double real_value = params_.max_acc() * acceleration / 100;
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set brake pedal.";
@@ -537,39 +541,39 @@ void DiamondController::SteerRear(double rear_steering_target) {
 void DiamondController::FrontSteerStop() {
   SetBatCharging();
 
-  int result = steer_front->Write(apollo::drivers::magnetic::C2, 8);
+  int result = steer_front->Write(C2, 8);
   ADEBUG << "FrontSteerStop command send result:" << result;
 }
 
 void DiamondController::FrontSteerPositive() {
-  int result = steer_front->Write(apollo::drivers::magnetic::C3, 8);
+  int result = steer_front->Write(C3, 8);
   ADEBUG << "FrontSteerPositive command send result:" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::FrontSteerNegative() {
-  int result = steer_front->Write(apollo::drivers::magnetic::C4, 8);
+  int result = steer_front->Write(C4, 8);
   ADEBUG << "FrontSteerNegative command send result:" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerStop() {
-  int result = steer_rear->Write(apollo::drivers::magnetic::C6, 8);
+  int result = steer_rear->Write(C6, 8);
   ADEBUG << "RearSteerStop command send result:" << result;
   SetBatCharging();
 }
 
 void DiamondController::RearSteerPositive() {
-  int result = steer_rear->Write(apollo::drivers::magnetic::C7, 8);
+  int result = steer_rear->Write(C7, 8);
   ADEBUG << "RearSteerPositive command send result:" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerNegative() {
-  int result = steer_rear->Write(apollo::drivers::magnetic::C8, 8);
+  int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result is :" << result;
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
@@ -808,22 +812,6 @@ void DiamondController::SetMotorVoltageUp() {
         AERROR << "K2 down message send FAILED(" << ret << "): " << cmd5;
       }
     }
-  }
-}
-
-void DiamondController::MagneticMessageSend() {
-  std::vector<std::string> cmds = {"cansend can0 003#0102030405010000",
-                                   "cansend can0 004#0102030405010000"};
-  while (!apollo::cyber::IsShutdown()) {
-    for (auto& cmd : cmds) {
-      const int ret = std::system(cmd.c_str());
-      if (ret == 0) {
-        AINFO << "Magnetic can message send SUCCESS: " << cmd;
-      } else {
-        AERROR << "Magnetic can message send FAILED(" << ret << "): " << cmd;
-      }
-    }
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(20));
   }
 }
 

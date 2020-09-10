@@ -44,8 +44,10 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "magnetic",
-    srcs = ["magnetic.h"],
+    srcs = ["magnetic.cc"],
+    hdrs = ["magnetic.h"],
     deps = [
-        # "//modules/common/util:uart",
+        "//cyber",
+        "//modules/common/util:uart",
     ],
 )

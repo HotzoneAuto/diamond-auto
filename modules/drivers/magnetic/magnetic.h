@@ -1,37 +1,48 @@
 #pragma once
 
+#include <chrono>
+#include <string>
+#include <vector>
+
+#include "cyber/common/log.h"
+#include "cyber/cyber.h"
+
+#include "modules/common/util/uart.h"
+
 namespace apollo {
 namespace drivers {
 namespace magnetic {
-// Steering const speed
-unsigned char C1[8] = {0x0B, 0x06, 0x20, 0x00, 0x27, 0x10, 0x98, 0x9C};
-// frontsteer stop
-unsigned char C2[8] = {0x0B, 0x06, 0x06, 0x00, 0x00, 0x05, 0x4D, 0xA3};
-// frontsteer positive
-unsigned char C3[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4C, 0x60};
-// frontsteer negative
-unsigned char C4[8] = {0x0B, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0C, 0x61};
 
-// rear const speed
-unsigned char C5[8] = {0x0C, 0x06, 0x20, 0x00, 0x27, 0x10, 0x99, 0x2B};
-// rear stop
-unsigned char C6[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x05, 0x4C, 0x14};
-// rear positive
-unsigned char C7[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x01, 0x4D, 0xD7};
-// rear negative
-unsigned char C8[8] = {0x0C, 0x06, 0x10, 0x00, 0x00, 0x02, 0x0D, 0xD6};
+float getLatdev(int dec) {
+  long long int bin = 0;
+  int temp = dec;
+  long long j = 1;
+  while (temp) {
+    bin = bin + j * (temp % 2);
+    temp = temp / 2;
+    j = j * 10;
+  }
+  std::string s = std::to_string(bin);
+  while (s.size() < 16) {
+    s = '0' + s;
+  }
+  int sum_activated = 0;
+  int sum_id = 0;
+  for (int i = 0; i < 16; i++) {
+    if (s[i] == '1') {
+      sum_id += 16 - i;
+      sum_activated += 1;
+    }
+  }
+  auto lat_dev_mgs =
+      static_cast<float>(sum_id) / static_cast<float>(sum_activated) - 8.5;
+  return lat_dev_mgs;
+}
 
-// class Magnetic {
-//     public:
-// void Send(unsigned char cmd){
-//     int result_dir_positive = device_front_frequency->Write(cmd, 8);
-//   ADEBUG << "Frequency converter direction write command send result is :"
-//          << result_dir_positive;
-// }
-// private:
-//   std::unique_ptr<Uart> device_front_frequency = nullptr;
-//   std::unique_ptr<Uart> device_rear_frequency = nullptr;
-// };
+class Magnetic {
+ public:
+  void AsyncSend();
+};
 
 }  // namespace magnetic
 }  // namespace drivers
