@@ -8,6 +8,7 @@ cc_binary(
     srcs = ["lcd_display.cc"],
     deps = [
         "//cyber",
+        "//modules/common/util:uart",
         "//modules/canbus/proto:chassis_cc_proto",
     ],
 )
