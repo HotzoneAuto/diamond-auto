@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdlib.h> /* system, NULL, EXIT_FAILURE */
+#include <future>
 #include <memory>
 #include <string>
 #include <thread>
@@ -29,17 +30,17 @@
 #include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
-#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
-// #include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 float getLatdev(int dec) {
-  int bin = 0, temp = dec, j = 1;
+  long long int bin = 0;
+  int temp = dec;
+  long long j = 1;
   while (temp) {
     bin = bin + j * (temp % 2);
     temp = temp / 2;
@@ -121,6 +122,7 @@ class DiamondController final : public VehicleController {
   void RearSteerNegative();
 
   void SetBatCharging();
+  void SetMotorVoltageUp();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -148,8 +150,6 @@ class DiamondController final : public VehicleController {
   // control protocol
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
-  // Id0x0cfff3a7* id_0x0cfff3a7_ = nullptr;
-  Id0x00aa5701* id_0x00aa5701_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
@@ -162,6 +162,7 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   std::thread thread_mangetic_;
+  std::future<void> async_action_;
 
   // 变频器 485通信 设备
   std::unique_ptr<Uart> steer_front = nullptr;
@@ -173,6 +174,7 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_previous = 0;
 
   float rear_encoder_angle_realtime = 0;
+  // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
   float front_wheel_angle_previous = 0;
   float front_wheel_angle_realtime = 0;
