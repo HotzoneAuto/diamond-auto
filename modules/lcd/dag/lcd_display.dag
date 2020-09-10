@@ -1,0 +1,9 @@
+module_config{
+    module_library:"/apollo/bazel-bin/modules/lcd/liblcd.so"
+    components{
+        class_name:"LcdComponet"
+        config{
+            name:"lcd"
+        }
+    }
+}
