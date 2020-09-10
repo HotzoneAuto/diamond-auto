@@ -1,3 +1,0 @@
-# steer udev rules
-KERNEL=="ttyUSB*", ATTRS{devpath}=="3",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="steer_front"
-KERNEL=="ttyUSB*", ATTRS{devpath}=="4",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="steer_rear"
