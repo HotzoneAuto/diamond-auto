@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdlib.h> /* system, NULL, EXIT_FAILURE */
+#include <future>
 #include <memory>
 #include <string>
 #include <thread>
@@ -161,6 +162,7 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   std::thread thread_mangetic_;
+  std::future<void> async_action_;
 
   // 变频器 485通信 设备
   std::unique_ptr<Uart> steer_front = nullptr;
