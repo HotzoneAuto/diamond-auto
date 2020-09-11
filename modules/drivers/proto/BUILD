@@ -74,6 +74,28 @@ py_proto_library(
 )
 
 cc_proto_library(
+    name = "wheelangle_cc_proto",
+    deps = [
+        ":wheelangle_proto",
+    ],
+)
+
+proto_library(
+    name = "wheelangle_proto",
+    srcs = ["wheelangle.proto"],
+    deps = [
+        "//modules/common/proto:header_proto",
+    ],
+)
+
+py_proto_library(
+    name = "wheelangle_py_pb2",
+    deps = [
+        ":wheelangle_proto",
+    ],
+)
+
+cc_proto_library(
     name = "pointcloud_cc_proto",
     deps = [
         ":pointcloud_proto",
