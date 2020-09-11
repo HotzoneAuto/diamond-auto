@@ -18,26 +18,26 @@ cc_binary(
 )
 
 
-# cc_binary(
-#     name = "libimu.so",
-#     linkopts = ["-shared"],
-#     linkstatic = False,
-#     deps = [":imu_component_lib"],
-# )
+cc_binary(
+    name = "libimu.so",
+    linkopts = ["-shared"],
+    linkstatic = False,
+    deps = [":imu_component_lib"],
+)
 
-# cc_library(
-#     name = "imu_component_lib",
-#     srcs = ["imu_component.cc"],
-#     hdrs = ["imu_component.h"],
-#     copts = ['-DMODULE_NAME=\\"LPMS\\"'],
-#     deps = [
-#         "//cyber",
-#         "//modules/drivers/proto:imu_cc_proto",
-#         "//modules/drivers/imu/proto:device_config_cc_proto",
-#         "//modules/common/util:message_util",
-#         "@openzen",
-#     ],
-# )
+cc_library(
+    name = "imu_component_lib",
+    srcs = ["imu_component.cc"],
+    hdrs = ["imu_component.h"],
+    copts = ['-DMODULE_NAME=\\"LPMS\\"'],
+    deps = [
+        "//cyber",
+        "//modules/drivers/proto:imu_cc_proto",
+        "//modules/drivers/imu/proto:device_config_cc_proto",
+        "//modules/common/util:message_util",
+        "@openzen",
+    ],
+)
 
 
 cc_library(

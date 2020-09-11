@@ -28,7 +28,7 @@ class WheelAngleComponent : public apollo::cyber::Component<> {
   std::shared_ptr<Writer<WheelAngle>> wheel_angle_writer_ = nullptr;
   std::future<void> async_action_;
 
-    // TODO: calibration, unit: mm
+  // TODO: calibration, unit: mm
   double wheel_diameter = 620;
 };
 
