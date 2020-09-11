@@ -1,0 +1,12 @@
+<cyber>
+    <module>
+        <name>wheel_front</name>
+        <dag_conf>/apollo/modules/drivers/wheel/dag/wheel_angle_front.dag</dag_conf>
+        <process_name>wheel_front</process_name>
+    </module>
+    <module>
+        <name>wheel_rear</name>
+        <dag_conf>/apollo/modules/drivers/wheel/dag/wheel_angle_rear.dag</dag_conf>
+        <process_name>wheel_rear</process_name>
+    </module>
+</cyber>

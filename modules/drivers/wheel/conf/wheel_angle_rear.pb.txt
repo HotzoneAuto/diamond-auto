@@ -1,0 +1,3 @@
+device_id: "wheel_angle_front"
+output_channel:"/diamond/sensor/wheel_angle/rear"
+enable_log: true
