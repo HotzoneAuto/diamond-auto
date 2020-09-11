@@ -145,6 +145,9 @@ class DiamondController final : public VehicleController {
 
   std::unique_ptr<Uart> angle_front = nullptr;
   std::unique_ptr<Uart> angle_rear = nullptr;
+  
+  // TODO: calibration, unit: mm
+  double wheel_diameter = 620;
 
   float front_encoder_angle_previous = 0;
 
