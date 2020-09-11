@@ -280,47 +280,6 @@ Chassis DiamondController::chassis() {
 
   chassis_.set_front_wheel_angle(0);
   chassis_.set_rear_wheel_angle(0);
-  if (diamond->id_0x01().angle_sensor_id() == 1) {
-    float value = static_cast<float>(diamond->id_0x01().angle_sensor_data());
-
-    if (std::isnan(value)) {
-      front_encoder_angle_realtime = front_encoder_angle_previous;
-    } else {
-      front_encoder_angle_realtime = value;
-    }
-    front_wheel_angle_realtime = update_wheel_angle(
-        front_wheel_angle_previous, front_encoder_angle_previous,
-        front_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
-    chassis_.set_front_wheel_angle(front_wheel_angle_realtime);
-    front_encoder_angle_previous = front_encoder_angle_realtime;
-    front_wheel_angle_previous = front_wheel_angle_realtime;
-
-    // p = fopen("/home/nvidia/out.txt", "a+");
-    // fprintf(p, "%f\t%f\t\n", chassis_.front_wheel_angle(),
-    //         chassis_.front_encoder_angle());
-    // fclose(p);
-  } else {
-    float rear_value =
-        static_cast<float>(diamond->id_0x01().angle_sensor_data());
-    if (std::isnan(rear_value)) {
-      rear_encoder_angle_realtime = rear_encoder_angle_previous;
-    } else {
-      if (diamond->id_0x01().angle_sensor_data() > 360.0) {
-        rear_encoder_angle_realtime = 360.0;
-      } else if (diamond->id_0x01().angle_sensor_data() < 0.0) {
-        rear_encoder_angle_realtime = 0.0;
-      } else {
-        rear_encoder_angle_realtime = rear_value;
-      }
-    }
-    rear_wheel_angle_realtime = update_wheel_angle(
-        rear_wheel_angle_previous, rear_encoder_angle_previous,
-        rear_encoder_angle_realtime, encoder_to_wheel_gear_ratio);
-    chassis_.set_rear_wheel_angle(rear_wheel_angle_realtime);
-    rear_encoder_angle_previous = rear_encoder_angle_realtime;
-    rear_wheel_angle_previous = rear_wheel_angle_realtime;
-  }
-
   // Magnetic sensor data
   // front
   // Send messages before receive

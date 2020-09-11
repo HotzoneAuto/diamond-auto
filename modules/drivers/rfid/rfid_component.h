@@ -18,7 +18,7 @@ using apollo::cyber::Component;
 using apollo::cyber::Writer;
 using apollo::drivers::RFID;
 
-class RfidComponent : public apollo::cyber::Component<> {
+class RfidComponent : public Component<> {
  public:
   RfidComponent();
   std::string Name() const;
