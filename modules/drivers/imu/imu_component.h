@@ -46,7 +46,12 @@ class LPMSDriverComponent : public Component<> {
  private:
   apollo::drivers::imu::IMUDeviceConf device_conf_;
 
-  ZenClient client_;
+  std::reference_wrapper<ZenClient> client_;
+  ZenSensorComponent imu_;
+
+  const float cDegToRad = 3.1415926f / 180.0f;
+  const float cEarthG = 9.81f;
+  const float cMicroToTelsa = 1e-6f;
 
   std::shared_ptr<apollo::cyber::Writer<Imu>> imu_writer_;
 };

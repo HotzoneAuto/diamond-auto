@@ -34,7 +34,7 @@ bool LPMSDriverComponent::Init() {
   // enable resonable log output for OpenZen
   ZenSetLogLevel(ZenLogLevel_Info);
 
-  // create OpenZen Clien
+  // create OpenZen Client
   auto clientPair = make_client();
   auto& clientError = clientPair.first;
   client_ = clientPair.second;
@@ -45,23 +45,24 @@ bool LPMSDriverComponent::Init() {
   }
 
   // connect to sensor on IO System by the sensor name
-  auto sensorPair = client_.obtainSensorByName("dev", device_conf_.device_id());
+  auto sensorPair =
+      client_.get().obtainSensorByName("dev", device_conf_.device_id());
   auto& obtainError = sensorPair.first;
   auto& sensor = sensorPair.second;
   if (obtainError) {
     AINFO << "Cannot connect to sensor";
-    client_.close();
+    client_.get().close();
     return obtainError;
   }
 
   // check that the sensor has an IMU component
   auto imuPair = sensor.getAnyComponentOfType(g_zenSensorType_Imu);
   auto& hasImu = imuPair.first;
-  // auto imu = imuPair.second;
+  imu_ = imuPair.second;
 
   if (!hasImu) {
     AERROR << "Connected sensor has no IMU";
-    client_.close();
+    client_.get().close();
     return ZenError_WrongSensorType;
   }
 
@@ -69,8 +70,8 @@ bool LPMSDriverComponent::Init() {
 }
 
 bool LPMSDriverComponent::Action() {
-  auto event = client_.waitForNextEvent();
-  if (event.second.component.handle == imu.component().handle) {
+  auto event = client_.get().waitForNextEvent();
+  if (event.second.component.handle == imu_.component().handle) {
     std::cout << "> Acceleration: \t x = " << event.second.data.imuData.a[0]
               << "\t y = " << event.second.data.imuData.a[1]
               << "\t z = " << event.second.data.imuData.a[2] << std::endl;
@@ -80,14 +81,14 @@ bool LPMSDriverComponent::Action() {
 
     auto const& d = event.second.data.imuData;
 
-    apollo::drivers::Imu imu;
+    apollo::drivers::Imu imu_pub;
 
-    auto header = imu.mutable_header();
+    auto header = imu_pub.mutable_header();
     header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
     header->set_frame_id("imu");
 
     // Fill orientation quaternion
-    auto orientation = imu.mutable_orientation();
+    auto orientation = imu_pub.mutable_orientation();
     orientation->set_qw(d.q[0]);
     orientation->set_qx(-d.q[1]);
     orientation->set_qy(-d.q[2]);
@@ -95,28 +96,27 @@ bool LPMSDriverComponent::Action() {
 
     // Fill angular velocity data
     //   // - scale from deg/s to rad/s
-    auto angular_velocity = imu.mutable_angular_velocity();
+    auto angular_velocity = imu_pub.mutable_angular_velocity();
     angular_velocity->set_x(d.g[0] * cDegToRad);
     angular_velocity->set_y(d.g[1] * cDegToRad);
     angular_velocity->set_z(d.g[2] * cDegToRad);
 
     // Fill linear acceleration data
-    const float rosConversion = -1.0 * (!param.useLpmsAccelerationConvention) +
-                                1.0 * param.useLpmsAccelerationConvention;
+    const float rosConversion = -1.0 * (!false) + 1.0 * false;
 
-    auto linear_acceleration = imu.mutable_linear_acceleration();
+    auto linear_acceleration = imu_pub.mutable_linear_acceleration();
     linear_acceleration->set_x(rosConversion * d.a[0] * cEarthG);
     linear_acceleration->set_y(rosConversion * d.a[1] * cEarthG);
     linear_acceleration->set_z(rosConversion * d.a[2] * cEarthG);
 
     // Units are microTesla in the LPMS library, Tesla in ROS.
-    auto magnetic_field = imu.mutable_magnetic_field();
+    auto magnetic_field = imu_pub.mutable_magnetic_field();
     magnetic_field->set_x(d.b[0] * cMicroToTelsa);
     magnetic_field->set_y(d.b[1] * cMicroToTelsa);
     magnetic_field->set_z(d.b[2] * cMicroToTelsa);
 
     // Publish the messages
-    imu_writer_->Write(imu);
+    imu_writer_->Write(imu_pub);
   }
 
   return true;
