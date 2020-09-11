@@ -105,13 +105,8 @@ ErrorCode DiamondController::Init(
 
   steer_front = std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
   steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
-  angle_front = std::make_unique<Uart>(FLAGS_front_angle_device.c_str());
-  angle_rear = std::make_unique<Uart>(FLAGS_rear_angle_device.c_str());
   steer_front->SetOpt(9600, 8, 'N', 1);
   steer_rear->SetOpt(9600, 8, 'N', 1);
-
-  angle_front->SetOpt(9600, 8, 'N', 1);
-  angle_rear->SetOpt(9600, 8, 'N', 1);
 
   async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
 
@@ -128,8 +123,6 @@ ErrorCode DiamondController::Init(
 DiamondController::~DiamondController() {
   steer_front = nullptr;
   steer_rear = nullptr;
-  angle_front = nullptr;
-  angle_rear = nullptr;
 
   async_action_.wait();
   thread_mangetic_.join();
@@ -681,28 +674,6 @@ void DiamondController::set_chassis_error_code(
     const Chassis::ErrorCode& error_code) {
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   chassis_error_code_ = error_code;
-}
-
-float DiamondController::update_wheel_angle(
-    float wheel_angle_pre, float encoder_angle_pre, float encoder_angle_rt,
-    const float encoder_to_wheel_gear_ratio) {
-  float delta_encoder_angle = encoder_angle_rt - encoder_angle_pre;
-  if (delta_encoder_angle < -240.0)  // 编码器发生360到0的突变，轮胎向左转
-  {
-    delta_encoder_angle = delta_encoder_angle + 360.0;
-  } else if (delta_encoder_angle > 240.0) {
-    delta_encoder_angle = delta_encoder_angle - 360.0;
-  } else {
-    delta_encoder_angle = delta_encoder_angle;
-  }
-  // delta_encoder_angle有正负，包含了左右转
-  float wheel_angle_now =
-      wheel_angle_pre - delta_encoder_angle / encoder_to_wheel_gear_ratio;
-  wheel_angle_now = fmod(wheel_angle_now, 360.0);
-  if (wheel_angle_now > 180.0) {
-    wheel_angle_now = wheel_angle_now - 360.0;
-  }
-  return wheel_angle_now;
 }
 
 void DiamondController::SetMotorVoltageUp() {
