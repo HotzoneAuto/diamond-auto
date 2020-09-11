@@ -107,7 +107,6 @@ class DiamondController final : public VehicleController {
 
   void ResetProtocol();
   bool CheckChassisError();
-  void MagneticMessageSend();
 
  private:
   void SecurityDogThreadFunc();
@@ -116,9 +115,6 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask();
   Chassis::ErrorCode chassis_error_code();
   void set_chassis_error_code(const Chassis::ErrorCode& error_code);
-  float update_wheel_angle(float wheel_angle_pre, float encoder_angle_pre,
-                           float encoder_angle_rt,
-                           const float encoder_to_wheel_gear_ratio);
 
  private:
   // control protocol
@@ -141,9 +137,6 @@ class DiamondController final : public VehicleController {
   // 变频器设备 485通信
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
-
-  std::unique_ptr<Uart> angle_front = nullptr;
-  std::unique_ptr<Uart> angle_rear = nullptr;
 
   float front_encoder_angle_realtime = 0;
   float rear_encoder_angle_realtime = 0;
