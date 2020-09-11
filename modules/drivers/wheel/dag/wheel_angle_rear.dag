@@ -3,7 +3,7 @@ module_config {
     components {
         class_name : "WheelAngleComponent"
         config {
-            name: "wheel_angle_front"
+            name: "wheel_angle_rear"
             config_file_path : "/apollo/modules/drivers/wheel/conf/wheel_angle_rear.pb.txt"
         }
     }

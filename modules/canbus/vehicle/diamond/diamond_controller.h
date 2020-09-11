@@ -97,7 +97,6 @@ class DiamondController final : public VehicleController {
 
   void SetBatCharging();
   void SetMotorVoltageUp();
-  void CalWheelAngle();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -145,22 +144,12 @@ class DiamondController final : public VehicleController {
 
   std::unique_ptr<Uart> angle_front = nullptr;
   std::unique_ptr<Uart> angle_rear = nullptr;
-  
-  // TODO: calibration, unit: mm
-  double wheel_diameter = 620;
-
-  float front_encoder_angle_previous = 0;
 
   float front_encoder_angle_realtime = 0;
-  float rear_encoder_angle_previous = 0;
-
   float rear_encoder_angle_realtime = 0;
   // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
-  float front_wheel_angle_previous = 0;
-  float front_wheel_angle_realtime = 0;
-  float rear_wheel_angle_previous = 0;
-  float rear_wheel_angle_realtime = 0;
+
 };
 
 }  // namespace diamond
