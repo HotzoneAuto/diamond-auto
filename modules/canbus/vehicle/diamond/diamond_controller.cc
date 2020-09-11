@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <chrono>
 #include <cmath>
+#include <string.h>
 #include <cstdio>
 
 #include "cyber/common/log.h"
@@ -104,8 +105,13 @@ ErrorCode DiamondController::Init(
 
   steer_front = std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
   steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
+  angle_front = std::make_unique<Uart>(FLAGS_front_angle_device.c_str());
+  angle_rear = std::make_unique<Uart>(FLAGS_rear_angle_device.c_str());
   steer_front->SetOpt(9600, 8, 'N', 1);
   steer_rear->SetOpt(9600, 8, 'N', 1);
+
+  angle_front->SetOpt(9600, 8, 'N', 1);
+  angle_rear->SetOpt(9600, 8, 'N', 1);
 
   async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
 
@@ -119,9 +125,41 @@ ErrorCode DiamondController::Init(
   return ErrorCode::OK;
 }
 
+void DiamondController::CalWheelAngle(){
+  int count = 1;
+  static char buffer[20];
+  static char buf;
+
+  while (!apollo::cyber::IsShutdown()) {
+    // Send read Data message
+    unsigned char cmd[8] = {0x01,0x03,0x10,0x00,0x00,0x02,0xC0, 0xCB};
+    int result = angle_front->Write(cmd, 8);
+    ADEBUG << "CalWheelAngle command send result:" << result;
+
+    count = 1;
+    std::memset(buffer, 0, 20);
+    while (1) {
+      int ret = angle_front->Read(&buf, 1);
+      if (ret == 1) {
+        if (buf == 0x01) {
+          break;
+        }
+        buffer[count] = buf;
+        count++;
+      }
+    }
+
+    if (count == 9) {
+      AINFO << buffer[4] << buffer[5];
+    }
+  }
+}
+
 DiamondController::~DiamondController() {
   steer_front = nullptr;
   steer_rear = nullptr;
+  angle_front = nullptr;
+  angle_rear = nullptr;
 
   async_action_.wait();
   thread_mangetic_.join();

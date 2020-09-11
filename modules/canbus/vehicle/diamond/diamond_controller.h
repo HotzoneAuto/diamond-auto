@@ -97,6 +97,7 @@ class DiamondController final : public VehicleController {
 
   void SetBatCharging();
   void SetMotorVoltageUp();
+  void CalWheelAngle();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -141,6 +142,9 @@ class DiamondController final : public VehicleController {
   // 变频器设备 485通信
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
+
+  std::unique_ptr<Uart> angle_front = nullptr;
+  std::unique_ptr<Uart> angle_rear = nullptr;
 
   float front_encoder_angle_previous = 0;
 
