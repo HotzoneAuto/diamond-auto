@@ -25,14 +25,14 @@ source "${DIR}/apollo_base.sh"
 function start() {
     LOG="${APOLLO_ROOT_DIR}/data/log/wheel.out"
     CMD="cyber_launch start /apollo/modules/drivers/wheel/launch/wheel.launch"
-    NUM_PROCESSES="$(pgrep -c -f "modules/drivers/wheel/dag/wheel.dag")"
+    NUM_PROCESSES="$(pgrep -c -f "modules/drivers/wheel/dag/wheel_angle_*.dag")"
     if [ "${NUM_PROCESSES}" -eq 0 ]; then
        eval "nohup ${CMD} </dev/null >${LOG} 2>&1 &"
     fi
 }
 
 function stop() {
-    eval "nohup cyber_launch stop /apollo/modules/driver/launch/wheel.launch < /dev/null 2>&1 &"
+    eval "nohup cyber_launch stop /apollo/modules/drivers/wheel/launch/wheel.launch < /dev/null 2>&1 &"
 }
 
 # run command_name module_name

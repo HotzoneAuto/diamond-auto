@@ -26,51 +26,68 @@ bool WheelAngleComponent::Init() {
 }
 
 void WheelAngleComponent::Action() {
-  int count = 1;
-  static char buffer[20];
+  int count = 0;
+  static char buffer[10];
   static char buf;
 
+  WheelAngle angle;
   while (!apollo::cyber::IsShutdown()) {
     // Send read Data message
     unsigned char cmd[8] = {0x01, 0x03, 0x10, 0x00, 0x00, 0x02, 0xC0, 0xCB};
     int result = device_->Write(cmd, 8);
     ADEBUG << "CalWheelAngle command send result:" << result;
 
-    count = 1;
-    std::memset(buffer, 0, 20);
-    while (1) {
+    count = 0;
+    std::memset(buffer, 0, 10);
+    for (count = 0; count < 9; count++) {
       int ret = device_->Read(&buf, 1);
+      ADEBUG << "READ RETURN :" << ret;
       if (ret == 1) {
-        if (buf == 0x01) {
-          break;
-        }
         buffer[count] = buf;
-        count++;
       }
-    }
-
-    if (count == 9) {
-      WheelAngle angle;
+      else {
+        std::memset(buffer, 0 ,10);
+        break;
+      }
+      ADEBUG << "buf:" << buf << " count:" << count;
+    if (count == 8) {
+      ADEBUG << "count == 8";
       auto header = angle.mutable_header();
       header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
       header->set_frame_id("wheel_angle");
 
       AINFO << buffer[3] << buffer[4];
-      double front_wheel_length = 0.0;
+      double front_wheel_angle = 0.0;
 
       if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
-        front_wheel_length =
+        front_wheel_angle =
             0.1 * (-(pow(2, 16) - 1) + (static_cast<int>(buffer[3]) * 256 +
                                         (static_cast<int>(buffer[4])) - 1));
       } else if (buffer[5] == 0x00 && buffer[6] == 0x00) {
-        front_wheel_length = 0.1 * (static_cast<int>(buffer[3]) * 256 +
+        front_wheel_angle = 0.1 * (static_cast<int>(buffer[3]) * 256 +
                                     static_cast<int>(buffer[4]));
       }
-      double front_wheel_angle =
-          front_wheel_length * 360 / (3.1415926 * wheel_diameter);
+      //double front_wheel_angle =
+      //    front_wheel_length * 360 / (3.1415926 * wheel_diameter);
       angle.set_value(front_wheel_angle);
+      ADEBUG << angle.DebugString();
       wheel_angle_writer_->Write(angle);
     }
+    /*
+    while (1) {
+      int ret = device_->Read(&buf, 1);
+      ADEBUG << "READ RETURN :" << ret;
+      if (ret == 1) {
+        if (buf == 0x01) {
+          break;
+        }
+        ADEBUG << "buf:" << buf << " count:" << count;
+        buffer[count] = buf;
+        count++;
+      }
+    }
+    */
+  }
   }
 }
 
