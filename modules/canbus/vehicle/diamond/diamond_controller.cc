@@ -150,7 +150,19 @@ void DiamondController::CalWheelAngle(){
     }
 
     if (count == 9) {
-      AINFO << buffer[4] << buffer[5];
+      AINFO << buffer[3] << buffer[4];
+      double front_wheel_length = 0.0;
+
+      if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
+        front_wheel_length = 0.1 * (-(pow(2,16)-1) + (static_cast<int>(buffer[3]) 
+            * 256 + (static_cast<int>(buffer[4]))-1));
+      }
+      else if (buffer[5] == 0x00 && buffer[6] == 0x00) {
+        front_wheel_length = 0.1 * (static_cast<int>(buffer[3]) * 256 
+            + static_cast<int>(buffer[4]));
+      }
+      double front_wheel_angle = front_wheel_length * 360 / (3.1415926 * wheel_diameter);
+      chassis_.set_front_wheel_angle(front_wheel_angle);
     }
   }
 }
