@@ -17,9 +17,9 @@
 #include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <chrono>
 #include <cmath>
-#include <string.h>
 #include <cstdio>
 
 #include "cyber/common/log.h"
@@ -123,48 +123,6 @@ ErrorCode DiamondController::Init(
 
   is_initialized_ = true;
   return ErrorCode::OK;
-}
-
-void DiamondController::CalWheelAngle(){
-  int count = 1;
-  static char buffer[20];
-  static char buf;
-
-  while (!apollo::cyber::IsShutdown()) {
-    // Send read Data message
-    unsigned char cmd[8] = {0x01,0x03,0x10,0x00,0x00,0x02,0xC0, 0xCB};
-    int result = angle_front->Write(cmd, 8);
-    ADEBUG << "CalWheelAngle command send result:" << result;
-
-    count = 1;
-    std::memset(buffer, 0, 20);
-    while (1) {
-      int ret = angle_front->Read(&buf, 1);
-      if (ret == 1) {
-        if (buf == 0x01) {
-          break;
-        }
-        buffer[count] = buf;
-        count++;
-      }
-    }
-
-    if (count == 9) {
-      AINFO << buffer[3] << buffer[4];
-      double front_wheel_length = 0.0;
-
-      if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
-        front_wheel_length = 0.1 * (-(pow(2,16)-1) + (static_cast<int>(buffer[3]) 
-            * 256 + (static_cast<int>(buffer[4]))-1));
-      }
-      else if (buffer[5] == 0x00 && buffer[6] == 0x00) {
-        front_wheel_length = 0.1 * (static_cast<int>(buffer[3]) * 256 
-            + static_cast<int>(buffer[4]));
-      }
-      double front_wheel_angle = front_wheel_length * 360 / (3.1415926 * wheel_diameter);
-      chassis_.set_front_wheel_angle(front_wheel_angle);
-    }
-  }
 }
 
 DiamondController::~DiamondController() {
