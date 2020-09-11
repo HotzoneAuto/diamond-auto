@@ -1,0 +1,3 @@
+device_id: "/dev/imu"
+output_channel:"/diamond/sensor/imu"
+enable_log: true
