@@ -1,5 +1,7 @@
 #include "modules/lcd/lcd_display.h"
+
 #include "math.h"
+
 namespace apollo {
 namespace drivers {
 namespace lcd {
