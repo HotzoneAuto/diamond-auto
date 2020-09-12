@@ -32,77 +32,38 @@ const int32_t Id0x181ed0f3::ID = 0x181ED0F3;
 
 void Id0x181ed0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_byfuelbatclosecmd(
-      byfuelbatclosecmd(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_byparkchrgdisable(
-      byparkchrgdisable(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_byvehtmsdcdcsts(
-      byvehtmsdcdcsts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_byvehtmsdcdcerr(
-      byvehtmsdcdcerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_byvehtmserr(
-      byvehtmserr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_byinsrjump(
-      byinsrjump(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatdcdcerr(
-      bybatdcdcerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybattemplow(
-      bybattemplow(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatheatcircuiterr(
-      bybatheatcircuiterr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatselfprotecterr(
-      bybatselfprotecterr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bycanacommerr(
-      bycanacommerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatbranchbreakerr(
-      bybatbranchbreakerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatinmsderr(
-      bybatinmsderr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bytmsrlynotcloseerr(
-      bytmsrlynotcloseerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bytmsrlynotopenerr(
-      bytmsrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bybatnegrlynotcloseerr(bybatnegrlynotcloseerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrgaposrlynotopenerr(bychrgaposrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrgaposrlynotcloseerr(bychrgaposrlynotcloseerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrganegrlynotcloseerr(bychrganegrlynotcloseerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrganegrlynotopenerr(bychrganegrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrgbposrlynotcloseerr(bychrgbposrlynotcloseerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrgbposrlynotopenerr(bychrgbposrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrgbnegrlynotcloseerr(bychrgbnegrlynotcloseerr(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181ed0f3()
-      ->set_bychrgbnegrlynotopenerr(bychrgbnegrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bydsgcurhghwhenchrg(
-      bydsgcurhghwhenchrg(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bychrgseatntcerr(
-      bychrgseatntcerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatoverdsg(
-      bybatoverdsg(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatcursensorerr(
-      bybatcursensorerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybmslowvolterr(
-      bybmslowvolterr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybatchrgsignalerr(
-      bybatchrgsignalerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181ed0f3()->set_bybmsmode(
-      bybmsmode(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x181ed0f3();
+  id->set_byfuelbatclosecmd(byfuelbatclosecmd(bytes, length));
+  id->set_byparkchrgdisable(byparkchrgdisable(bytes, length));
+  id->set_byvehtmsdcdcsts(byvehtmsdcdcsts(bytes, length));
+  id->set_byvehtmsdcdcerr(byvehtmsdcdcerr(bytes, length));
+  id->set_byvehtmserr(byvehtmserr(bytes, length));
+  id->set_byinsrjump(byinsrjump(bytes, length));
+  id->set_bybatdcdcerr(bybatdcdcerr(bytes, length));
+  id->set_bybattemplow(bybattemplow(bytes, length));
+  id->set_bybatheatcircuiterr(bybatheatcircuiterr(bytes, length));
+  id->set_bybatselfprotecterr(bybatselfprotecterr(bytes, length));
+  id->set_bycanacommerr(bycanacommerr(bytes, length));
+  id->set_bybatbranchbreakerr(bybatbranchbreakerr(bytes, length));
+  id->set_bybatinmsderr(bybatinmsderr(bytes, length));
+  id->set_bytmsrlynotcloseerr(bytmsrlynotcloseerr(bytes, length));
+  id->set_bytmsrlynotopenerr(bytmsrlynotopenerr(bytes, length));
+  id->set_bybatnegrlynotcloseerr(bybatnegrlynotcloseerr(bytes, length));
+  id->set_bychrgaposrlynotopenerr(bychrgaposrlynotopenerr(bytes, length));
+  id->set_bychrgaposrlynotcloseerr(bychrgaposrlynotcloseerr(bytes, length));
+  id->set_bychrganegrlynotcloseerr(bychrganegrlynotcloseerr(bytes, length));
+  id->set_bychrganegrlynotopenerr(bychrganegrlynotopenerr(bytes, length));
+  id->set_bychrgbposrlynotcloseerr(bychrgbposrlynotcloseerr(bytes, length));
+  id->set_bychrgbposrlynotopenerr(bychrgbposrlynotopenerr(bytes, length));
+  id->set_bychrgbnegrlynotcloseerr(bychrgbnegrlynotcloseerr(bytes, length));
+  id->set_bychrgbnegrlynotopenerr(bychrgbnegrlynotopenerr(bytes, length));
+  id->set_bydsgcurhghwhenchrg(bydsgcurhghwhenchrg(bytes, length));
+  id->set_bychrgseatntcerr(bychrgseatntcerr(bytes, length));
+  id->set_bybatoverdsg(bybatoverdsg(bytes, length));
+  id->set_bybatcursensorerr(bybatcursensorerr(bytes, length));
+  id->set_bybmslowvolterr(bybmslowvolterr(bytes, length));
+  id->set_bybatchrgsignalerr(bybatchrgsignalerr(bytes, length));
+  id->set_bybmsmode(bybmsmode(bytes, length));
 }
 
 // config detail: {'bit': 32, 'is_signed_var': False, 'len': 1, 'name':

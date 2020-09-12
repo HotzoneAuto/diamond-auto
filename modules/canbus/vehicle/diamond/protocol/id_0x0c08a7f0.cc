@@ -32,15 +32,12 @@ const int32_t Id0x0c08a7f0::ID = 0x0C08A7F0;
 
 void Id0x0c08a7f0::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0()->set_fmottq(
-      fmottq(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0()->set_fmotspd(
-      fmotspd(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0()->set_fmotcur(
-      fmotcur(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0()->set_bymcusts(
-      bymcusts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c08a7f0()->set_bymcu1msglife1(
+  auto diamond = chassis->mutable_diamond();
+  diamond->mutable_id_0x0c08a7f0()->set_fmottq(fmottq(bytes, length));
+  diamond->mutable_id_0x0c08a7f0()->set_fmotspd(fmotspd(bytes, length));
+  diamond->mutable_id_0x0c08a7f0()->set_fmotcur(fmotcur(bytes, length));
+  diamond->mutable_id_0x0c08a7f0()->set_bymcusts(bymcusts(bytes, length));
+  diamond->mutable_id_0x0c08a7f0()->set_bymcu1msglife1(
       bymcu1msglife1(bytes, length));
 }
 
