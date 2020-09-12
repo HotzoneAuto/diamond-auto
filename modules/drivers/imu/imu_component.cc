@@ -40,8 +40,8 @@ bool LPMSDriverComponent::Init() {
   client_ = clientPair.second;
 
   if (clientError) {
-    AINFO << "Cannot create OpenZen client";
-    return clientError;
+    AERROR << "Cannot create OpenZen client" << clientError;
+    return false;
   }
 
   // connect to sensor on IO System by the sensor name
@@ -50,9 +50,9 @@ bool LPMSDriverComponent::Init() {
   auto& obtainError = sensorPair.first;
   auto& sensor = sensorPair.second;
   if (obtainError) {
-    AINFO << "Cannot connect to sensor";
     client_.get().close();
-    return obtainError;
+    AERROR << "Cannot connect to sensor" << obtainError;
+    return false;
   }
 
   // check that the sensor has an IMU component
@@ -61,9 +61,9 @@ bool LPMSDriverComponent::Init() {
   imu_ = imuPair.second;
 
   if (!hasImu) {
-    AERROR << "Connected sensor has no IMU";
     client_.get().close();
-    return ZenError_WrongSensorType;
+    AERROR << "Connected sensor has no IMU" << ZenError_WrongSensorType;
+    return false;
   }
 
   return true;

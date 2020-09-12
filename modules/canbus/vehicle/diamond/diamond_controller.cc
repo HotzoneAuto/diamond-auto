@@ -17,7 +17,6 @@
 #include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
