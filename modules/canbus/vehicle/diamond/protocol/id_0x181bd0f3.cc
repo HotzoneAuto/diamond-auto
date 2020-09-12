@@ -32,51 +32,29 @@ const int32_t Id0x181bd0f3::ID = 0x181BD0F3;
 
 void Id0x181bd0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_byvinrcvflg(
-      byvinrcvflg(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_byfireextinguierr(
-      byfireextinguierr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bychrgseattemphigh(
-      bychrgseattemphigh(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bywirelesschrgcc(
-      bywirelesschrgcc(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bymsdsts(
-      bymsdsts(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bymainrlynotopenerr(
-      bymainrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bybatreqpoweroff(
-      bybatreqpoweroff(bytes, length));
-  chassis->mutable_diamond()
-      ->mutable_id_0x181bd0f3()
-      ->set_byremainrlynotopenerr(byremainrlynotopenerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_byfirealrm(
-      byfirealrm(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_fchrgseattemp1(
-      fchrgseattemp1(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_fchrgseattemp2(
-      fchrgseattemp2(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_fchrgseattemp3(
-      fchrgseattemp3(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_fchrgseattemp4(
-      fchrgseattemp4(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bybaterrnum(
-      bybaterrnum(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bysocjmperr(
-      bysocjmperr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bybatoverchrgerr(
-      bybatoverchrgerr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bybatmisschrger(
-      bybatmisschrger(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_byhvnotclose(
-      byhvnotclose(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bybatheatnotclose(
-      bybatheatnotclose(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bychargecompleted(
-      bychargecompleted(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_bypantographrly(
-      bypantographrly(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x181bd0f3()->set_byinsrcommerr(
-      byinsrcommerr(bytes, length));
+  auto id_181bd0f3 = chassis->mutable_diamond()->mutable_id_0x181bd0f3();
+  id_181bd0f3->set_byvinrcvflg(byvinrcvflg(bytes, length));
+  id_181bd0f3->set_byfireextinguierr(byfireextinguierr(bytes, length));
+  id_181bd0f3->set_bychrgseattemphigh(bychrgseattemphigh(bytes, length));
+  id_181bd0f3->set_bywirelesschrgcc(bywirelesschrgcc(bytes, length));
+  id_181bd0f3->set_bymsdsts(bymsdsts(bytes, length));
+  id_181bd0f3->set_bymainrlynotopenerr(bymainrlynotopenerr(bytes, length));
+  id_181bd0f3->set_bybatreqpoweroff(bybatreqpoweroff(bytes, length));
+  id_181bd0f3->set_byremainrlynotopenerr(byremainrlynotopenerr(bytes, length));
+  id_181bd0f3->set_byfirealrm(byfirealrm(bytes, length));
+  id_181bd0f3->set_fchrgseattemp1(fchrgseattemp1(bytes, length));
+  id_181bd0f3->set_fchrgseattemp2(fchrgseattemp2(bytes, length));
+  id_181bd0f3->set_fchrgseattemp3(fchrgseattemp3(bytes, length));
+  id_181bd0f3->set_fchrgseattemp4(fchrgseattemp4(bytes, length));
+  id_181bd0f3->set_bybaterrnum(bybaterrnum(bytes, length));
+  id_181bd0f3->set_bysocjmperr(bysocjmperr(bytes, length));
+  id_181bd0f3->set_bybatoverchrgerr(bybatoverchrgerr(bytes, length));
+  id_181bd0f3->set_bybatmisschrger(bybatmisschrger(bytes, length));
+  id_181bd0f3->set_byhvnotclose(byhvnotclose(bytes, length));
+  id_181bd0f3->set_bybatheatnotclose(bybatheatnotclose(bytes, length));
+  id_181bd0f3->set_bychargecompleted(bychargecompleted(bytes, length));
+  id_181bd0f3->set_bypantographrly(bypantographrly(bytes, length));
+  id_181bd0f3->set_byinsrcommerr(byinsrcommerr(bytes, length));
 }
 
 // config detail: {'bit': 0, 'is_signed_var': False, 'len': 1, 'name':

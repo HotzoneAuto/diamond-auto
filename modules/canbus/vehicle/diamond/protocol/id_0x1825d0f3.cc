@@ -32,12 +32,10 @@ const int32_t Id0x1825d0f3::ID = 0x1825D0F3;
 
 void Id0x1825d0f3::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatmaxcellvolt(
-      fbatmaxcellvolt(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatmincellvolt(
-      fbatmincellvolt(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x1825d0f3()->set_fbatavrcellvolt(
-      fbatavrcellvolt(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x1825d0f3();
+  id->set_fbatmaxcellvolt(fbatmaxcellvolt(bytes, length));
+  id->set_fbatmincellvolt(fbatmincellvolt(bytes, length));
+  id->set_fbatavrcellvolt(fbatavrcellvolt(bytes, length));
 }
 
 // config detail: {'bit': 0, 'is_signed_var': False, 'len': 16, 'name':

@@ -32,17 +32,13 @@ const int32_t Id0x0c09a7f0::ID = 0x0C09A7F0;
 
 void Id0x0c09a7f0::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x0c09a7f0()->set_fmotvolt(
-      fmotvolt(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c09a7f0()->set_fmottemp(
-      fmottemp(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c09a7f0()->set_fmcutemp(
-      fmcutemp(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c09a7f0()->set_fmotrectcur(
-      fmotrectcur(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c09a7f0()->set_bymotspddir(
-      bymotspddir(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x0c09a7f0()->set_bymoterrcode(
+  auto diamond = chassis->mutable_diamond();
+  diamond->mutable_id_0x0c09a7f0()->set_fmotvolt(fmotvolt(bytes, length));
+  diamond->mutable_id_0x0c09a7f0()->set_fmottemp(fmottemp(bytes, length));
+  diamond->mutable_id_0x0c09a7f0()->set_fmcutemp(fmcutemp(bytes, length));
+  diamond->mutable_id_0x0c09a7f0()->set_fmotrectcur(fmotrectcur(bytes, length));
+  diamond->mutable_id_0x0c09a7f0()->set_bymotspddir(bymotspddir(bytes, length));
+  diamond->mutable_id_0x0c09a7f0()->set_bymoterrcode(
       bymoterrcode(bytes, length));
 }
 

@@ -45,7 +45,6 @@ void Id0x0c079aa7::UpdateData(uint8_t* data) {
 }
 
 void Id0x0c079aa7::Reset() {
-  // TODO(All) :  you should check this manually
   bydcdccmd_ = 0x55;
   bydcaccmd_ = 0xAA;
   bydcacwkst_ = 0xAA;
