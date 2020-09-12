@@ -32,12 +32,11 @@ const int32_t Id0x0c0ba7f0::ID = 0x0C0BA7F0;
 
 void Id0x0c0ba7f0::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  auto diamond = chassis->mutable_diamond();
-  diamond->mutable_id_0x0c0ba7f0()->set_fmotmaxpower(
-      fmotmaxpower(bytes, length));
-  diamond->mutable_id_0x0c0ba7f0()->set_fmotmaxspd(fmotmaxspd(bytes, length));
-  diamond->mutable_id_0x0c0ba7f0()->set_fmotmaxtq(fmotmaxtq(bytes, length));
-  diamond->mutable_id_0x0c0ba7f0()->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x0c0ba7f0();
+  id->set_fmotmaxpower(fmotmaxpower(bytes, length));
+  id->set_fmotmaxspd(fmotmaxspd(bytes, length));
+  id->set_fmotmaxtq(fmotmaxtq(bytes, length));
+  id->set_dwmcuerrflg(dwmcuerrflg(bytes, length));
 }
 
 // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name':

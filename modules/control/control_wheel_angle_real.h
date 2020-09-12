@@ -54,9 +54,6 @@ static float rear_wheel_angle_realtime = 0;  // 当前时刻后轮转角（0~360
 
 // static int veh_dir = 0; // 记录车辆行驶方向，0代表从A到B，1代表从B到A
 
-static int drivemotor_flag =
-    0;  // 驱动电机正反转标志，0代表车辆停止，1代表车辆向前（驱动电机反转），2代表车辆向后（驱动电机正转）
-
 static float drivemotor_torque = 0;  //驱动电机转矩
 
 static const float speed_motor_deadzone_calibration =
