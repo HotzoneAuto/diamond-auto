@@ -32,11 +32,9 @@ const int32_t Id0x18eba1a5::ID = 0x18EBA1A5;
 
 void Id0x18eba1a5::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-                           auto id = chassis->mutable_diamond()->mutable_id_0x18eba1a5();
-  id->set_byfirealarmlevel(
-      byfirealarmlevel(bytes, length));
-  id->set_byfireextinguiveherr(
-      byfireextinguiveherr(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x18eba1a5();
+  id->set_byfirealarmlevel(byfirealarmlevel(bytes, length));
+  id->set_byfireextinguiveherr(byfireextinguiveherr(bytes, length));
 }
 
 // config detail: {'bit': 8, 'is_signed_var': False, 'len': 8, 'name':
