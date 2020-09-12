@@ -85,7 +85,7 @@ bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
 
-  front_wheel_angle_realtime = chassis_.front_wheel_angle();
+  front_wheel_angle_realtime = wheel_angle_.value();
   rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
 
   while (!apollo::cyber::IsShutdown()) {
@@ -95,8 +95,11 @@ bool ControlComponent::Proc() {
       cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
       pad_received_ = false;
     }
+
+    // TODO: add control strategy when emergency.
+
     // TODO(zongbao):how to know direction(reverse or forward)
-    // from station A to B and B to A
+    // from station A to B (case 1: 1->2) and B to A (case 0: 2->1)
     switch (control_conf_.drivemotor_flag()) {
       case 1: {
         if (rfid_.id() == control_conf_.destnation()) {
@@ -122,101 +125,55 @@ bool ControlComponent::Proc() {
       }
     }
 
-    front_wheel_angle_realtime = chassis_.front_wheel_angle();
-    rear_wheel_angle_realtime = chassis_.rear_wheel_angle();
-
-    // 检测到轮胎转角超过30°，转向电机停转
-    if (std::abs(front_wheel_angle_realtime) > 30) {
-      // front_motor_steering_dir = 0;
-    }
-
-    if (std::abs(rear_wheel_angle_realtime) > 30) {
-      // rear_motor_steering_dir = 0;
-    }
-
     switch (FLAGS_magnetic_enable) {
       case 1: {
         // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
-        // TODO: 检查，共用了一个数据
         front_lat_dev_mgs = chassis_.front_lat_dev();
         rear_lat_dev_mgs = chassis_.rear_lat_dev();
 
         // 给定驱动电机反转命令（使车辆前进从A到B）
-        if (drivemotor_flag == 1) {
+        if (control_conf_.drivemotor_flag() == 1) {
           // rear_motor_steering_dir = 0;   //后方转向电机不转
           cmd->set_rear_wheel_target(0);
           if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
-            cmd->set_front_wheel_target(10.0);
+            cmd->set_front_wheel_target(20.0);
           } else if (front_lat_dev_mgs > 3.5)  //若前方磁导航检测出车偏右
           {
             // front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
-            cmd->set_front_wheel_target(-10.0);
+            cmd->set_front_wheel_target(-20.0);
           } else {
-            if (front_wheel_angle_realtime >= 0.5)  // 当前前轮转角为正，向右偏
-            {
-              // front_motor_steering_dir = 2;  // 前方转向电机反转（向左）
-              cmd->set_front_wheel_target(0);
-            } else if ((front_wheel_angle_realtime > -0.5) &&
-                       (front_wheel_angle_realtime < 0.5)) {
-              // front_motor_steering_dir = 0;  // 前方转向电机停转
-              cmd->set_front_wheel_target(0);
-            } else  // 当前前轮转角为负，向左偏
-            {
-              // front_motor_steering_dir = 1;  // 前方转向电机正转（向右）
-              cmd->set_front_wheel_target(0);
-            }
+            cmd->set_front_wheel_target(0);
           }
-        } else if (drivemotor_flag == 2)  // 若驱动电机正转（倒车，车辆从B到A）
+        } else if (control_conf_.drivemotor_flag() == 2)  // 若驱动电机正转（倒车，车辆从B到A）
         {
           // front_motor_steering_dir = 0;  //前方转向电机不转
           cmd->set_front_wheel_target(0);
           if (rear_lat_dev_mgs < -3.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
-            cmd->set_rear_wheel_target(10.0);
+            cmd->set_rear_wheel_target(20.0);
           } else if (rear_lat_dev_mgs > 3.5)  //若后方磁导航检测出车偏右
           {
             // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
-            cmd->set_rear_wheel_target(-10.0);
+            cmd->set_rear_wheel_target(-20.0);
           } else {
-            if (rear_wheel_angle_realtime >= 0.5)  // 当前后轮转角为正，向右偏
-            {
-              // rear_motor_steering_dir = 2;  // 后方转向电机反转（向左）
-              cmd->set_rear_wheel_target(0);
-            } else if ((rear_wheel_angle_realtime > -0.5) &&
-                       (rear_wheel_angle_realtime < 0.5)) {
-              // rear_motor_steering_dir = 0;  // 后方转向电机停转
-              cmd->set_rear_wheel_target(0);
-            } else  // 当前后轮转角为负，向左偏
-            {
-              // rear_motor_steering_dir = 1;  // 后方转向电机正转（向右）
-              cmd->set_rear_wheel_target(0);
-            }
+            cmd->set_rear_wheel_target(0);
           }
-        } else {  // 若出现异常
-          // front_motor_steering_dir = 0;  // 停止
-          // rear_motor_steering_dir = 0;   // 停止
-          cmd->set_rear_wheel_target(0);
         }
         break;
       }
       case 0: {
-        if (drivemotor_flag == 1) {
+        if (control_conf_.drivemotor_flag() == 1) {
           // rear_motor_steering_dir = 0;
           cmd->set_rear_wheel_target(0);
           cmd->set_front_wheel_target(
               control_conf_.manual_front_wheel_target());
-        } else if (drivemotor_flag == 2) {
+        } else if (control_conf_.drivemotor_flag() == 2) {
           // front_motor_steering_dir = 0;
           cmd->set_front_wheel_target(0);
           cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
-        } else {
-          // front_motor_steering_dir = 0;
-          // rear_motor_steering_dir = 0;
-          cmd->set_front_wheel_target(0);
-          cmd->set_rear_wheel_target(0);
         }
         break;
       }
