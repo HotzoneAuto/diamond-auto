@@ -15,6 +15,7 @@
 #include "modules/control/proto/control_conf.pb.h"
 #include "modules/control/proto/pad_msg.pb.h"
 #include "modules/drivers/proto/rfid.pb.h"
+#include "modules/drivers/wheel/wheel_angle.h"
 
 namespace apollo {
 namespace control {
@@ -39,6 +40,7 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   ControlConf control_conf_;
   RFID rfid_;
   PadMessage pad_msg_;
+  WheelAngle wheel_angle_;
   bool pad_received_ = false;
 
   std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;

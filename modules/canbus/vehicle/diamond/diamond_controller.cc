@@ -405,21 +405,21 @@ void DiamondController::SteerFront(double front_steering_target) {
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
-  if (front_steering_target > 0.1) {
-    steering_switch = Chassis::STEERINGNEGATIVE;
-  } else if (std::abs(front_steering_target) < 0.1) {
+  if (front_steering_target - wheel_angle_.value() > 0.5) {
+    steering_switch = Chassis::STEERINGPOSITIVE;
+  } else if (std::abs(front_steering_target - wheel_angle_.value()) < 0.5) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
-    steering_switch = Chassis::STEERINGPOSITIVE;
+    steering_switch = Chassis::STEERINGNEGATIVE;
   }
 
   // Check wheel angle
   // TODO(all): config and enbale later
-  // if (chassis_.front_wheel_angle() - 30.0 > kEpsilon ||
-  //     chassis_.front_wheel_angle() + 30.0 < kEpsilon) {
-  //   FrontSteerStop();
-  //   return;
-  // }
+  if (wheel_angle_.value() - 30.0 > kEpsilon ||
+      wheel_angle_.value() + 30.0 < kEpsilon) {
+    FrontSteerStop();
+    return;
+  }
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {

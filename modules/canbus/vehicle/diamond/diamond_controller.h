@@ -29,6 +29,7 @@
 #include "modules/common/proto/error_code.pb.h"
 #include "modules/common/util/uart.h"
 #include "modules/control/proto/control_cmd.pb.h"
+#include "modules/drivers/proto/wheelangle.pb.h"
 
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
@@ -133,6 +134,8 @@ class DiamondController final : public VehicleController {
 
   std::thread thread_mangetic_;
   std::future<void> async_action_;
+
+  WheelAngle wheel_angle_;
 
   // 变频器设备 485通信
   std::unique_ptr<Uart> steer_front = nullptr;
