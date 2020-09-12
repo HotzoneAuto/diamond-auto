@@ -38,6 +38,8 @@ namespace apollo {
 namespace canbus {
 namespace diamond {
 
+using apollo::drivers::WheelAngle;
+
 class DiamondController final : public VehicleController {
  public:
   explicit DiamondController(){};
