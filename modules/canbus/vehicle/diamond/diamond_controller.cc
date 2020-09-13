@@ -16,10 +16,8 @@
 
 #include "modules/canbus/vehicle/diamond/diamond_controller.h"
 
-#include <stdio.h>
 #include <chrono>
 #include <cmath>
-#include <cstdio>
 
 #include "cyber/common/log.h"
 #include "cyber/cyber.h"
@@ -52,8 +50,6 @@ static constexpr double kEpsilon = 1e-6;
 const int32_t CHECK_RESPONSE_STEER_UNIT_FLAG = 1;
 const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
-
-FILE* p = nullptr;
 
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,

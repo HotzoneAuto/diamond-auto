@@ -32,20 +32,14 @@ const int32_t Id0x03::ID = 0x03;
 
 void Id0x03::Parse(const std::uint8_t* bytes, int32_t length,
                    ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x03()->set_front_mgs(
-      front_mgs(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format0_fr(
-      format0_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format1_fr(
-      format1_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format2_fr(
-      format2_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format3_fr(
-      format3_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format4_fr(
-      format4_fr(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x03()->set_format5_fr(
-      format5_fr(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x03();
+  id->set_front_mgs(front_mgs(bytes, length));
+  id->set_format0_fr(format0_fr(bytes, length));
+  id->set_format1_fr(format1_fr(bytes, length));
+  id->set_format2_fr(format2_fr(bytes, length));
+  id->set_format3_fr(format3_fr(bytes, length));
+  id->set_format4_fr(format4_fr(bytes, length));
+  id->set_format5_fr(format5_fr(bytes, length));
 }
 
 // config detail: {'bit': 48, 'is_signed_var': False, 'len': 16, 'name':
