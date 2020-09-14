@@ -112,6 +112,16 @@ ErrorCode DiamondController::Init(
   steer_front->SetOpt(9600, 8, 'N', 1);
   steer_rear->SetOpt(9600, 8, 'N', 1);
 
+  // wheel angle Reader
+  front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
+      FLAGS_front_wheel_angle_topic,
+      [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
+        front_wheel_angle_.CopyFrom(*front_wheel_angle); });
+  rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
+      FLAGS_rear_wheel_angle_topic,
+      [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
+        rear_wheel_angle_.CopyFrom(*rear_wheel_angle); });
+
   async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
 
   if (FLAGS_magnetic_enable) {
@@ -406,9 +416,9 @@ void DiamondController::SteerFront(double front_steering_target) {
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
-  if (front_steering_target - wheel_angle_.value() > 0.5) {
+  if (front_steering_target - front_wheel_angle_.front_wheel_angle() > 0.5) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(front_steering_target - wheel_angle_.value()) < 0.5) {
+  } else if (std::abs(front_steering_target - front_wheel_angle_.front_wheel_angle()) < 0.5) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
@@ -416,8 +426,8 @@ void DiamondController::SteerFront(double front_steering_target) {
 
   // Check wheel angle
   // TODO(all): config and enbale later
-  if (wheel_angle_.value() - 30.0 > kEpsilon ||
-      wheel_angle_.value() + 30.0 < kEpsilon) {
+  if (front_wheel_angle_.front_wheel_angle() - 30.0 > kEpsilon ||
+      front_wheel_angle_.front_wheel_angle() + 30.0 < kEpsilon) {
     FrontSteerStop();
     return;
   }
@@ -475,14 +485,21 @@ void DiamondController::SteerRear(double rear_steering_target) {
   }
 
   auto steering_switch = Chassis::STEERINGSTOP;
-
   // set steering switch by target
-  if (rear_steering_target > 0.1) {
-    steering_switch = Chassis::STEERINGNEGATIVE;
-  } else if (std::abs(rear_steering_target) < 0.1) {
+  if (rear_steering_target - rear_wheel_angle_.rear_wheel_angle() > 0.5) {
+    steering_switch = Chassis::STEERINGPOSITIVE;
+  } else if (std::abs(rear_steering_target - rear_wheel_angle_.rear_wheel_angle()) < 0.5) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
-    steering_switch = Chassis::STEERINGPOSITIVE;
+    steering_switch = Chassis::STEERINGNEGATIVE;
+  }
+
+  // Check wheel angle
+  // TODO(all): config and enbale later
+  if (rear_wheel_angle_.rear_wheel_angle() - 30.0 > kEpsilon ||
+      rear_wheel_angle_.rear_wheel_angle() + 30.0 < kEpsilon) {
+    RearSteerStop();
+    return;
   }
 
   switch (steering_switch) {
