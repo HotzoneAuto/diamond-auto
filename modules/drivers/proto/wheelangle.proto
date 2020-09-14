@@ -5,6 +5,5 @@ import "modules/common/proto/header.proto";
 
 message WheelAngle {
     optional apollo.common.Header header = 1;
-    optional double front_wheel_angle = 2;
-    optional double rear_wheel_angle = 3;
+    optional double value = 2;
 }

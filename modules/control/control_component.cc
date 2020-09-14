@@ -97,8 +97,8 @@ bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
 
-  front_wheel_angle_realtime = front_wheel_angle_.front_wheel_angle();
-  rear_wheel_angle_realtime = rear_wheel_angle_.rear_wheel_angle();
+  front_wheel_angle_realtime = front_wheel_angle_.value();
+  rear_wheel_angle_realtime = rear_wheel_angle_.value();
 
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
