@@ -139,8 +139,8 @@ class DiamondController final : public VehicleController {
 
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
-  std::shared_ptr<cyber::Reader<WheelAngle>> front_wheel_angle_reader_;
-  std::shared_ptr<cyber::Reader<WheelAngle>> rear_wheel_angle_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>> front_wheel_angle_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>> rear_wheel_angle_reader_;
 
   // 变频器设备 485通信
   std::unique_ptr<Uart> steer_front = nullptr;
