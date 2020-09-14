@@ -25,6 +25,8 @@
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/diamond/protocol/frequency_converter.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/proto/vehicle_signal.pb.h"
@@ -41,6 +43,7 @@ using namespace std::chrono;
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
 using ::apollo::drivers::canbus::ProtocolData;
+using apollo::drivers::canbus::SenderMessage;
 using apollo::drivers::magnetic::Magnetic;
 
 namespace {
@@ -53,6 +56,7 @@ const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,
+    apollo::drivers::canbus::CanClient* can_client,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
   if (is_initialized_) {
@@ -65,6 +69,11 @@ ErrorCode DiamondController::Init(
     AERROR << "Vehicle conf pb not set driving_mode.";
     return ErrorCode::CANBUS_ERROR;
   }
+
+  if (can_client_ == nullptr) {
+    return ErrorCode::CANBUS_ERROR;
+  }
+  can_client_ = can_client;
 
   if (can_sender == nullptr) {
     return ErrorCode::CANBUS_ERROR;
@@ -146,13 +155,10 @@ bool DiamondController::Start() {
 
 void DiamondController::Stop() {
   //============k1 down start===========
-  std::string cmd = "cansend can0 00AA5701#0000000000000000";
-  const int ret = std::system(cmd.c_str());
-  if (ret == 0) {
-    AINFO << "Battery K1 down can message send SUCCESS: " << cmd;
-  } else {
-    AERROR << "Battery K1 down can message send FAILED(" << ret << "): " << cmd;
-  }
+  Id0x00aa5701 id5701;
+  SenderMessage<ChassisDetail> sender_5701(Id0x00aa5701::ID, &id5701);
+  sender_5701.Update();
+  can_client_->SendSingleFrame({sender_5701.CanFrame()});
   std::this_thread::sleep_for(5s);
   //===========k1 down end========
 
@@ -236,8 +242,7 @@ Chassis DiamondController::chassis() {
 
   chassis_.set_front_wheel_angle(0);
   chassis_.set_rear_wheel_angle(0);
-  // Magnetic sensor data
-  // front
+  // Magnetic sensor data front
   // Send messages before receive
   // 1. default by system(cansend), but not best practice
   // 2. async thread by duration

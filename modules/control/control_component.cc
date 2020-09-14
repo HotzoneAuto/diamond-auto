@@ -158,7 +158,8 @@ bool ControlComponent::Proc() {
           } else {
             cmd->set_front_wheel_target(0);
           }
-        } else if (control_conf_.drivemotor_flag() == 2)  // 若驱动电机正转（倒车，车辆从B到A）
+        } else if (control_conf_.drivemotor_flag() ==
+                   2)  // 若驱动电机正转（倒车，车辆从B到A）
         {
           // front_motor_steering_dir = 0;  //前方转向电机不转
           cmd->set_front_wheel_target(0);
