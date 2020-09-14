@@ -35,8 +35,10 @@ DEFINE_string(planning_pad_topic, "/diamond/planning/pad",
 DEFINE_string(monitor_topic, "/diamond/monitor", "Monitor");
 DEFINE_string(pad_topic, "/diamond/control/pad",
               "control pad message topic name");
-DEFINE_string(wheel_angle_topic, "/diamond/sensor/wheel_angle",
-              "wheel angle topic name");
+DEFINE_string(front_wheel_angle_topic, "/diamond/sensor/wheel_angle/front",
+              "front wheel angle topic name");
+DEFINE_string(rear_wheel_angle_topic, "/diamond/sensor/wheel_angle/rear",
+              "rear wheel angle topic name");
 DEFINE_string(control_command_topic, "/diamond/control",
               "control command topic name");
 DEFINE_string(control_preprocessor_topic, "/diamond/control/preprocessor",

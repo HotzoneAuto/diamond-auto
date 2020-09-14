@@ -41,14 +41,17 @@ bool WheelAngleComponent::Init() {
 }
 
 void WheelAngleComponent::Action() {
-  WheelAngle angle;
+  WheelAngle front_angle;
+  WheelAngle rear_angle;
   while (!apollo::cyber::IsShutdown()) {
-    double front_wheel_angle = CalWheelAngle(front_device_, angle);
-    doubel rear_wheel_angle = CalWheelAngle(rear_device_, angle);
-    angle.set_front_wheel_angle(front_wheel_angle);
-    angle.set_rear_wheel_angle(rear_wheel_angle);
-    ADEBUG << angle.DebugString();
-    wheel_angle_writer_->Write(angle);
+    double front_wheel_angle = CalWheelAngle(front_device_, front_angle);
+    doubel rear_wheel_angle = CalWheelAngle(rear_device_, rear_angle);
+    front_angle.set_front_wheel_angle(front_wheel_angle);
+    rear_angle.set_rear_wheel_angle(rear_wheel_angle);
+    ADEBUG << front_angle.DebugString();
+    ADEBUG << rear_angle.DebugString();
+    front_wheel_angle_writer_->Write(front_angle);
+    rear_wheel_angle_writer_->Write(rear_angle);
   }
 }
 
@@ -64,7 +67,6 @@ double WheelAngleComponent::CalWheelAngle(
   static char buffer[10];
   static char buf;
 
-  WheelAngle angle;
   // Send read Data message
   unsigned char cmd[8] = {0x01, 0x03, 0x10, 0x00, 0x00, 0x02, 0xC0, 0xCB};
   int result = device_->Write(cmd, 8);
