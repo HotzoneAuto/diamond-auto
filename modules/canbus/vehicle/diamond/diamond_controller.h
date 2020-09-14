@@ -48,8 +48,8 @@ class DiamondController final : public VehicleController {
 
   ::apollo::common::ErrorCode Init(
       const VehicleParameter& params,
-    //   apollo::drivers::canbus::CanClient* can_client,
-    //   std::shared_ptr<apollo::cyber::Node> node,
+      apollo::drivers::canbus::CanClient* can_client,
+      std::shared_ptr<apollo::cyber::Node> node,
       CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
       MessageManager<::apollo::canbus::ChassisDetail>* const message_manager)
       override;
@@ -141,9 +141,9 @@ class DiamondController final : public VehicleController {
 
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
-  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::WheelAngle>>
+  std::shared_ptr<apollo::cyber::Reader<WheelAngle>>
       front_wheel_angle_reader_;
-  std::shared_ptr<apollo::cyber::Reader<apollo::drivers::WheelAngle>>
+  std::shared_ptr<apollo::cyber::Reader<WheelAngle>>
       rear_wheel_angle_reader_;
 
   // 变频器设备 485通信

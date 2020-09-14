@@ -66,8 +66,8 @@ class VehicleController {
    */
   virtual common::ErrorCode Init(
       const VehicleParameter &params,
-    //   apollo::drivers::canbus::CanClient *can_client,
-    //   std::shared_ptr<apollo::cyber::Node> node,
+      apollo::drivers::canbus::CanClient *can_client,
+      std::shared_ptr<apollo::cyber::Node> node,
       CanSender<ChassisDetail> *const can_sender,
       MessageManager<ChassisDetail> *const message_manager) = 0;
 

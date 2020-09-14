@@ -56,8 +56,8 @@ const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,
-    // apollo::drivers::canbus::CanClient* can_client,
-    // std::shared_ptr<apollo::cyber::Node> node,
+    apollo::drivers::canbus::CanClient* can_client,
+    std::shared_ptr<apollo::cyber::Node> node,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
   if (is_initialized_) {
@@ -71,15 +71,14 @@ ErrorCode DiamondController::Init(
     return ErrorCode::CANBUS_ERROR;
   }
 
-  // if (node_ == nullptr) {
-  //   return ErrorCode::CANBUS_ERROR;
-  // }
-  // node_ = node;
+  if (can_client == nullptr) {
+    return ErrorCode::CANBUS_ERROR;
+  }
+  can_client_ = can_client;
 
-  // if (can_client_ == nullptr) {
-  //   return ErrorCode::CANBUS_ERROR;
-  // }
-  // can_client_ = can_client;
+  if (node == nullptr) {
+    return ErrorCode::CANBUS_ERROR;
+  }
 
   if (can_sender == nullptr) {
     return ErrorCode::CANBUS_ERROR;
@@ -119,16 +118,16 @@ ErrorCode DiamondController::Init(
   steer_rear->SetOpt(9600, 8, 'N', 1);
 
   // wheel angle Reader
-  // front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
-  //     FLAGS_front_wheel_angle_topic,
-  //     [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
-  //       front_wheel_angle_.CopyFrom(*front_wheel_angle);
-  //     });
-  // rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
-  //     FLAGS_rear_wheel_angle_topic,
-  //     [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
-  //       rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
-  //     });
+  front_wheel_angle_reader_ = node->CreateReader<WheelAngle>(
+      FLAGS_front_wheel_angle_topic,
+      [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
+        front_wheel_angle_.CopyFrom(*front_wheel_angle);
+      });
+  rear_wheel_angle_reader_ = node->CreateReader<WheelAngle>(
+      FLAGS_rear_wheel_angle_topic,
+      [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
+        rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
+      });
 
   async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
 
