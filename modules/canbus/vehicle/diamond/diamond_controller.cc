@@ -434,7 +434,6 @@ void DiamondController::SteerFront(double front_steering_target) {
   }
 
   // Check wheel angle
-  // TODO(all): config and enbale later
   if (front_wheel_angle_.value() - 30.0 > kEpsilon ||
       front_wheel_angle_.value() + 30.0 < kEpsilon) {
     FrontSteerStop();
@@ -443,42 +442,14 @@ void DiamondController::SteerFront(double front_steering_target) {
 
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
-      /*
-      if (std::abs(chassis_.front_wheel_angle() - front_steering_target) <
-          0.5) {
-        // Stop steering
-        FrontSteerStop();
-        break;
-      }*/
       FrontSteerPositive();
       break;
     }
     case Chassis::STEERINGNEGATIVE: {
-      /*
-      if (abs(chassis_.front_wheel_angle() - front_steering_target) < 0.1) {
-        // Stop steering
-        FrontSteerStop();
-        id_0x0c079aa7_->set_bydcdccmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcaccmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcacwkst(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_byeapcmd(0xAA);
-        // DC/DC
-        id_0x0c079aa7_->set_bydcac2cmd(0xAA);
-        // DC/AC
-        id_0x0c079aa7_->set_bydcac2wkst(0xAA);
-        break;
-      }*/
       FrontSteerNegative();
       break;
     }
-    case Chassis::STEERINGSTOP: {
-      FrontSteerStop();
-      break;
-    }
-    default: { AINFO << "FRONT "; }
+    default: { FrontSteerStop(); }
   }
 }
 
