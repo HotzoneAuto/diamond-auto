@@ -6,52 +6,32 @@ namespace wheel {
 WheelAngleComponent::WheelAngleComponent() {}
 
 bool WheelAngleComponent::Init() {
-  if (!GetProtoConfig(&front_device_conf_)) {
-    AERROR << "Unable to load front wheel angle conf file: " << ConfigFilePath();
+  if (!GetProtoConfig(&device_conf_)) {
+    AERROR << "Unable to load wheel angle conf file: " << ConfigFilePath();
     return false;
   }
 
-  ADEBUG << "Front device conf:" << front_device_conf_.ShortDebugString();
+  ADEBUG << "Device conf:" << device_conf_.ShortDebugString();
 
-  front_device_ = std::make_unique<Uart>(front_device_conf_.device_id().c_str());
+  device_ = std::make_unique<Uart>(device_conf_.device_id().c_str());
 
   // Uart front device set option
-  front_device_->SetOpt(9600, 8, 'N', 1);
+  device_->SetOpt(9600, 8, 'N', 1);
 
-  front_wheel_angle_writer_ =
-      node_->CreateWriter<WheelAngle>(front_device_conf_.output_channel());
-
-  if (!GetProtoConfig(&rear_device_conf_)) {
-    AERROR << "Unable to load rear wheel angle conf file: " << ConfigFilePath();
-    return false;
-  }
-
-  ADEBUG << "Rear device conf:" << rear_device_conf_.ShortDebugString();
-
-  rear_device_ = std::make_unique<Uart>(rear_device_conf_.device_id().c_str());
-
-  // Uart rear device set option
-  rear_device_->SetOpt(9600, 8, 'N', 1);
-
-  rear_wheel_angle_writer_ =
-      node_->CreateWriter<WheelAngle>(rear_device_conf_.output_channel());
+  wheel_angle_writer_ =
+      node_->CreateWriter<WheelAngle>(device_conf_.output_channel());
 
   async_action_ = cyber::Async(&WheelAngleComponent::Action, this);
   return true;
 }
 
 void WheelAngleComponent::Action() {
-  WheelAngle front_angle;
-  WheelAngle rear_angle;
+  WheelAngle angle;
   while (!apollo::cyber::IsShutdown()) {
-    double front_wheel_angle = CalWheelAngle(front_device_, front_angle);
-    doubel rear_wheel_angle = CalWheelAngle(rear_device_, rear_angle);
-    front_angle.set_front_wheel_angle(front_wheel_angle);
-    rear_angle.set_rear_wheel_angle(rear_wheel_angle);
-    ADEBUG << front_angle.DebugString();
-    ADEBUG << rear_angle.DebugString();
-    front_wheel_angle_writer_->Write(front_angle);
-    rear_wheel_angle_writer_->Write(rear_angle);
+    double wheel_angle = CalWheelAngle(device_, angle);
+    angle.set_value(wheel_angle);
+    ADEBUG << angle.DebugString();
+    wheel_angle_writer_->Write(angle);
   }
 }
 

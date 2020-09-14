@@ -24,12 +24,9 @@ class WheelAngleComponent : public apollo::cyber::Component<> {
   double CalWheelAngle(std::unique_ptr<Uart> device_, WheelAngle & angle);
 
  private:
-  FrontWheelDeviceConf front_device_conf_;
-  RearWheelDeviceConf rear_device_conf_;
-  std::unique_ptr<Uart> front_device_ = nullptr;
-  std::unique_ptr<Uart> rear_device_ = nullptr;
-  std::shared_ptr<Writer<WheelAngle>> front_wheel_angle_writer_ = nullptr;
-  std::shared_ptr<Writer<WheelAngle>> rear_wheel_angle_writer_ = nullptr;
+  WheelDeviceConf device_conf_;
+  std::unique_ptr<Uart> device_ = nullptr;
+  std::shared_ptr<Writer<WheelAngle>> wheel_angle_writer_ = nullptr;
   std::future<void> async_action_;
 };
 
