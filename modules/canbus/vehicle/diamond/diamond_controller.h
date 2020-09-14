@@ -48,6 +48,7 @@ class DiamondController final : public VehicleController {
 
   ::apollo::common::ErrorCode Init(
       const VehicleParameter& params,
+      apollo::drivers::canbus::CanClient* can_client,
       CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
       MessageManager<::apollo::canbus::ChassisDetail>* const message_manager)
       override;
