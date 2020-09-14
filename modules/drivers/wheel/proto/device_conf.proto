@@ -2,7 +2,13 @@ syntax = "proto2";
 
 package apollo.drivers.wheel;
 
-message WheelDeviceConf {
+message FrontWheelDeviceConf {
+  optional string device_id = 1;
+  optional string output_channel = 2;
+  optional bool enable_log = 3 [default = false];
+}
+
+message RearWheelDeviceConf {
   optional string device_id = 1;
   optional string output_channel = 2;
   optional bool enable_log = 3 [default = false];

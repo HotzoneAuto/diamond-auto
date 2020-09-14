@@ -21,15 +21,16 @@ class WheelAngleComponent : public apollo::cyber::Component<> {
   ~WheelAngleComponent();
   bool Init() override;
   void Action();
+  double CalWheelAngle(std::unique_ptr<Uart> device_, WheelAngle & angle);
 
  private:
-  WheelDeviceConf device_conf_;
-  std::unique_ptr<Uart> device_ = nullptr;
-  std::shared_ptr<Writer<WheelAngle>> wheel_angle_writer_ = nullptr;
+  FrontWheelDeviceConf front_device_conf_;
+  RearWheelDeviceConf rear_device_conf_;
+  std::unique_ptr<Uart> front_device_ = nullptr;
+  std::unique_ptr<Uart> rear_device_ = nullptr;
+  std::shared_ptr<Writer<WheelAngle>> front_wheel_angle_writer_ = nullptr;
+  std::shared_ptr<Writer<WheelAngle>> rear_wheel_angle_writer_ = nullptr;
   std::future<void> async_action_;
-
-  // TODO: calibration, unit: mm
-  double wheel_diameter = 620;
 };
 
 CYBER_REGISTER_COMPONENT(WheelAngleComponent)
