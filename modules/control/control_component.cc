@@ -48,11 +48,17 @@ bool ControlComponent::Init() {
         }
       });
 
-  // wheel angle Reader
-  wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
-      FLAGS_wheel_angle_topic,
-      [this](const std::shared_ptr<WheelAngle>& wheel_angle) {
-        wheel_angle_.CopyFrom(*wheel_angle); });
+  // front wheel angle Reader
+  front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
+      FLAGS_front_wheel_angle_topic,
+      [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
+        front_wheel_angle_.CopyFrom(*front_wheel_angle); });
+
+  // front wheel angle Reader
+  rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
+      FLAGS_rear_wheel_angle_topic,
+      [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
+        rear_wheel_angle_.CopyFrom(*rear_wheel_angle); });
 
   // TODO(tianchuang):Routing Reader
 
@@ -91,8 +97,8 @@ bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
 
-  front_wheel_angle_realtime = wheel_angle_.front_wheel_angle();
-  rear_wheel_angle_realtime = wheel_angle_.rear_wheel_angle();
+  front_wheel_angle_realtime = front_wheel_angle_.front_wheel_angle();
+  rear_wheel_angle_realtime = rear_wheel_angle_.rear_wheel_angle();
 
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
