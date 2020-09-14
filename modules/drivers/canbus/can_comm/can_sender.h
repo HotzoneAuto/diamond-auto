@@ -194,7 +194,7 @@ class CanSender {
   bool is_init_ = false;
   bool is_running_ = false;
 
-  CanClient *can_client_ = nullptr;  // Owned by global canbus.cc
+  CanClient *can_client_ = nullptr;
   std::vector<SenderMessage<SensorType>> send_messages_;
   std::unique_ptr<std::thread> thread_;
   bool enable_log_ = false;

@@ -30,6 +30,7 @@
 
 #include "modules/common/configs/vehicle_config_helper.h"
 #include "modules/common/proto/error_code.pb.h"
+#include "modules/drivers/canbus/can_client/can_client.h"
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/message_manager.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
@@ -41,6 +42,7 @@
 namespace apollo {
 namespace canbus {
 
+using ::apollo::drivers::canbus::CanClient;
 using ::apollo::drivers::canbus::CanSender;
 using ::apollo::drivers::canbus::MessageManager;
 
@@ -62,6 +64,7 @@ class VehicleController {
    */
   virtual common::ErrorCode Init(
       const VehicleParameter &params,
+      apollo::drivers::canbus::CanClient *can_client,
       CanSender<ChassisDetail> *const can_sender,
       MessageManager<ChassisDetail> *const message_manager) = 0;
 
@@ -153,6 +156,7 @@ class VehicleController {
   canbus::VehicleParameter params_;
   common::VehicleParam vehicle_params_;
   CanSender<ChassisDetail> *can_sender_ = nullptr;
+  CanClient *can_client_ = nullptr;
   MessageManager<ChassisDetail> *message_manager_ = nullptr;
   bool is_initialized_ = false;  // own by derviative concrete controller
   Chassis::DrivingMode driving_mode_ = Chassis::COMPLETE_MANUAL;
