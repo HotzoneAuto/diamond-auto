@@ -21,7 +21,6 @@ class WheelAngleComponent : public apollo::cyber::Component<> {
   ~WheelAngleComponent();
   bool Init() override;
   void Action();
-  double CalWheelAngle(std::unique_ptr<Uart> device_, WheelAngle & angle);
 
  private:
   WheelDeviceConf device_conf_;

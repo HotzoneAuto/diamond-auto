@@ -52,13 +52,15 @@ bool ControlComponent::Init() {
   front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_front_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
-        front_wheel_angle_.CopyFrom(*front_wheel_angle); });
+        front_wheel_angle_.CopyFrom(*front_wheel_angle);
+      });
 
   // front wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
-        rear_wheel_angle_.CopyFrom(*rear_wheel_angle); });
+        rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
+      });
 
   // TODO(tianchuang):Routing Reader
 

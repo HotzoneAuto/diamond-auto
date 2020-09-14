@@ -9,6 +9,7 @@ cc_library(
     hdrs = ["vehicle_controller.h"],
     copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
+        "//cyber",
         "//modules/canbus/proto:chassis_cc_proto",
         "//modules/canbus/proto:canbus_conf_cc_proto",
         "//modules/canbus/proto:chassis_detail_cc_proto",

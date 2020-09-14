@@ -28,7 +28,42 @@ bool WheelAngleComponent::Init() {
 void WheelAngleComponent::Action() {
   WheelAngle angle;
   while (!apollo::cyber::IsShutdown()) {
-    double wheel_angle = CalWheelAngle(device_, angle);
+    int count = 0;
+    static char buffer[10];
+    static char buf;
+
+    // Send read Data message
+    unsigned char cmd[8] = {0x01, 0x03, 0x10, 0x00, 0x00, 0x02, 0xC0, 0xCB};
+    int result = device_->Write(cmd, 8);
+    ADEBUG << "CalWheelAngle command send result:" << result;
+
+    count = 0;
+    double wheel_angle = 0.0;
+    std::memset(buffer, 0, 10);
+    for (count = 0; count < 9; count++) {
+      int ret = device_->Read(&buf, 1);
+      ADEBUG << "READ RETURN :" << ret;
+      if (ret == 1) {
+        buffer[count] = buf;
+      } else {
+        std::memset(buffer, 0, 10);
+        break;
+      }
+      if (count == 8) {
+        auto header = angle.mutable_header();
+        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+        header->set_frame_id("wheel_angle");
+
+        if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
+          wheel_angle =
+              0.1 * (-(pow(2, 16) - 1) + (static_cast<int>(buffer[3]) * 256 +
+                                          (static_cast<int>(buffer[4])) - 1));
+        } else if (buffer[5] == 0x00 && buffer[6] == 0x00) {
+          wheel_angle = 0.1 * (static_cast<int>(buffer[3]) * 256 +
+                               static_cast<int>(buffer[4]));
+        }
+      }
+    }
     angle.set_value(wheel_angle);
     ADEBUG << angle.DebugString();
     wheel_angle_writer_->Write(angle);
@@ -36,54 +71,8 @@ void WheelAngleComponent::Action() {
 }
 
 WheelAngleComponent::~WheelAngleComponent() {
-  front_device_ = nullptr;
-  rear_device_ = nullptr;
+  device_ = nullptr;
   async_action_.wait();
-}
-
-double WheelAngleComponent::CalWheelAngle(
-      std::unique_ptr<Uart> device_, WheelAngle & angle) {
-  int count = 0;
-  static char buffer[10];
-  static char buf;
-
-  // Send read Data message
-  unsigned char cmd[8] = {0x01, 0x03, 0x10, 0x00, 0x00, 0x02, 0xC0, 0xCB};
-  int result = device_->Write(cmd, 8);
-  ADEBUG << "CalWheelAngle command send result:" << result;
-
-  count = 0;
-  std::memset(buffer, 0, 10);
-  for (count = 0; count < 9; count++) {
-    int ret = device_->Read(&buf, 1);
-    ADEBUG << "READ RETURN :" << ret;
-    if (ret == 1) {
-      buffer[count] = buf;
-    } else {
-      std::memset(buffer, 0, 10);
-      break;
-    }
-    ADEBUG << "buf:" << buf << " count:" << count;
-    if (count == 8) {
-      ADEBUG << "count == 8";
-      auto header = angle.mutable_header();
-      header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
-      header->set_frame_id("wheel_angle");
-
-      AINFO << buffer[3] << buffer[4];
-      double wheel_angle = 0.0;
-
-      if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
-        wheel_angle =
-            0.1 * (-(pow(2, 16) - 1) + (static_cast<int>(buffer[3]) * 256 +
-                                        (static_cast<int>(buffer[4])) - 1));
-      } else if (buffer[5] == 0x00 && buffer[6] == 0x00) {
-        wheel_angle = 0.1 * (static_cast<int>(buffer[3]) * 256 +
-                                    static_cast<int>(buffer[4]));
-      }
-    }
-  }
-  return wheel_angle;
 }
 
 }  // namespace wheel

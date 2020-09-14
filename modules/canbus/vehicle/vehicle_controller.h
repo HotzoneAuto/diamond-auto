@@ -23,6 +23,8 @@
 
 #include <unordered_map>
 
+#include "cyber/node/node.h"
+
 #include "modules/canbus/proto/canbus_conf.pb.h"
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/proto/chassis_detail.pb.h"
@@ -65,6 +67,7 @@ class VehicleController {
   virtual common::ErrorCode Init(
       const VehicleParameter &params,
       apollo::drivers::canbus::CanClient *can_client,
+      std::shared_ptr<apollo::cyber::Node> node,
       CanSender<ChassisDetail> *const can_sender,
       MessageManager<ChassisDetail> *const message_manager) = 0;
 
@@ -158,6 +161,7 @@ class VehicleController {
   CanSender<ChassisDetail> *can_sender_ = nullptr;
   CanClient *can_client_ = nullptr;
   MessageManager<ChassisDetail> *message_manager_ = nullptr;
+  std::shared_ptr<apollo::cyber::Node> node_ = nullptr;
   bool is_initialized_ = false;  // own by derviative concrete controller
   Chassis::DrivingMode driving_mode_ = Chassis::COMPLETE_MANUAL;
   bool is_reset_ = false;  // reset command from control command
