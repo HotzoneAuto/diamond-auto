@@ -49,8 +49,10 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
   std::shared_ptr<cyber::Writer<ControlCommand>> control_cmd_writer_;
   std::shared_ptr<cyber::Reader<PadMessage>> pad_msg_reader_;
-  std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>> front_wheel_angle_reader_;
-  std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>> rear_wheel_angle_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>>
+      front_wheel_angle_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>>
+      rear_wheel_angle_reader_;
 
   double manual_front_wheel_target = 0;
   double manual_rear_wheel_target = 0;

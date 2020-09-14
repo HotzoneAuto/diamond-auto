@@ -57,6 +57,7 @@ const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 ErrorCode DiamondController::Init(
     const VehicleParameter& params,
     apollo::drivers::canbus::CanClient* can_client,
+    std::shared_ptr<apollo::cyber::Node> node,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
   if (is_initialized_) {
@@ -69,6 +70,11 @@ ErrorCode DiamondController::Init(
     AERROR << "Vehicle conf pb not set driving_mode.";
     return ErrorCode::CANBUS_ERROR;
   }
+
+  if (node_ == nullptr) {
+    return ErrorCode::CANBUS_ERROR;
+  }
+  node_ = node;
 
   if (can_client_ == nullptr) {
     return ErrorCode::CANBUS_ERROR;
@@ -116,11 +122,13 @@ ErrorCode DiamondController::Init(
   front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_front_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
-        front_wheel_angle_.CopyFrom(*front_wheel_angle); });
+        front_wheel_angle_.CopyFrom(*front_wheel_angle);
+      });
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
-        rear_wheel_angle_.CopyFrom(*rear_wheel_angle); });
+        rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
+      });
 
   async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
 
@@ -418,7 +426,8 @@ void DiamondController::SteerFront(double front_steering_target) {
   // set steering switch by target
   if (front_steering_target - front_wheel_angle_.value() > 0.5) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(front_steering_target - front_wheel_angle_.value()) < 0.5) {
+  } else if (std::abs(front_steering_target - front_wheel_angle_.value()) <
+             0.5) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
