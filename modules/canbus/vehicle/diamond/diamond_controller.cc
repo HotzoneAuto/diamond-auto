@@ -444,9 +444,15 @@ void DiamondController::SteerFront(double front_steering_target) {
   if (front_wheel_angle_.value() - 30.0 > kEpsilon ||
       front_wheel_angle_.value() + 30.0 < kEpsilon) {
     FrontSteerStop();
-    return;
   }
   */
+  while (front_wheel_angle_.value() - 30.0 > kEpsilon) {
+    FrontSteerNegative();
+  }
+  while (front_wheel_angle_.value() + 30.0 < kEpsilon) {
+    FrontSteerPositive();
+  }
+
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
