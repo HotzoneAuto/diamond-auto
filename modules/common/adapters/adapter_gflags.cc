@@ -237,7 +237,7 @@ DEFINE_string(latency_reporting_topic, "/diamond/common/latency_reports",
               "Latency reporting topic.");
 
 DEFINE_string(monitor_log_topic, "/diamond/monitor", "monitor log topic.");
-DEFINE_string(rfid_topic, "/diamond/sensor/rfid", "RFID sensor topic.");
+DEFINE_string(rfid_topic, "/diamond/sensor/rfid/front", "RFID sensor topic.");
 DEFINE_string(magnetic_channel, "/diamond/sensor/magnetic",
               "magnetic sensor topic.");
 DEFINE_string(navigation_channel, "/diamond/navigation", "navagation topic.");

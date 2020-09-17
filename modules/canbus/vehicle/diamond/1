@@ -431,22 +431,26 @@ void DiamondController::SteerFront(double front_steering_target) {
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
-  if (front_steering_target - front_wheel_angle_.value() > 2) {
+  if (front_steering_target - front_wheel_angle_.value() >= 3) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   } else if (std::abs(front_steering_target - front_wheel_angle_.value()) <
-             2) {
+             3) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
-
+  /*  
+  // Check wheel angle
+  if (front_wheel_angle_.value() - 30.0 > kEpsilon ||
+      front_wheel_angle_.value() + 30.0 < kEpsilon) {
+    FrontSteerStop();
+  }
+  */
   while (front_wheel_angle_.value() - 30.0 > kEpsilon) {
-    //FrontSteerNegative();
-    steering_switch = Chassis::STEERINGNEGATIVE;
+    FrontSteerNegative();
   }
   while (front_wheel_angle_.value() + 30.0 < kEpsilon) {
-    //FrontSteerPositive();
-    steering_switch = Chassis::STEERINGPOSITIVE;
+    FrontSteerPositive();
   }
 
   switch (steering_switch) {
@@ -459,9 +463,9 @@ void DiamondController::SteerFront(double front_steering_target) {
       break;
     }
     default: { 
-      FrontSteerStop(); 
-   // sleep(1);
-    break;}
+      FrontSteerStop();
+      sleep(0.5);
+      break;}
 
   }
 }
@@ -479,24 +483,27 @@ void DiamondController::SteerRear(double rear_steering_target) {
 
   auto steering_switch = Chassis::STEERINGSTOP;
   // set steering switch by target
-  if (rear_steering_target - rear_wheel_angle_.value() > 2) {
+  if (rear_steering_target - rear_wheel_angle_.value() >= 3) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(rear_steering_target - rear_wheel_angle_.value()) < 2) {
+  } else if (std::abs(rear_steering_target - rear_wheel_angle_.value()) < 3) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
-
+  /*
   // Check wheel angle
   // TODO(all): config and enbale later
-  
+  if (rear_wheel_angle_.value() - 30.0 > kEpsilon ||
+      rear_wheel_angle_.value() + 30.0 < kEpsilon) {
+    RearSteerStop();
+    return;
+  }
+  */
   while (rear_wheel_angle_.value() - 30.0 > kEpsilon) {
-   // RearSteerNegative();
-    steering_switch = Chassis::STEERINGNEGATIVE;
+    RearSteerNegative();
   }
   while (rear_wheel_angle_.value() + 30.0 < kEpsilon) {
-   // RearSteerPositive();
-    steering_switch = Chassis::STEERINGPOSITIVE;
+    RearSteerPositive();
   }
 
   switch (steering_switch) {
@@ -508,63 +515,69 @@ void DiamondController::SteerRear(double rear_steering_target) {
       RearSteerNegative();
       break;
     }
-    default: { RearSteerStop();
-      break;    
+    default: {
+      RearSteerStop();
+      sleep(0.5);
+      break;
     }
   }
 }
 
 void DiamondController::FrontSteerStop() {
   SetBatCharging();
-  if(front_stop){return;}
-  int result = steer_front->Write(C2, 8);
-  ADEBUG << "FrontSteerStop command send result:" << result;
-  front_stop = true;
-  front_positive = false;
-  front_negative = false;
- // sleep(1);
+  for (count_fre_converter = 0; count_fre_converter < 1;
+      count_fre_converter++) {
+    int result = steer_front->Write(C2, 8);
+    ADEBUG << "FrontSteerStop command send result:" << result;   
+  }
 }
 
 void DiamondController::FrontSteerPositive() {
+  for (count_fre_converter= 0; count_fre_converter < 1;
+      count_fre_converter++) {
+    int result = steer_front->Write(C3, 8);
+    ADEBUG << "FrontSteerPositive command send result:" << result;   
+  }
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
-  if(front_positive){return ;}
-  int result = steer_front->Write(C3, 8);
-  ADEBUG << "FrontSteerPositive command send result:" << result;
-  front_positive = true;
-  front_stop = false;
-  front_negative = false;
- // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 }
 
 void DiamondController::FrontSteerNegative() {
+  for (count_fre_converter = 0; count_fre_converter < 1;
+      count_fre_converter++) {
+    int result = steer_front->Write(C4, 8);
+    ADEBUG << "FrontSteerNegative command send result:" << result;   
+  }
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
-  if(front_negative){return ;}
-  int result = steer_front->Write(C4, 8);
-  ADEBUG << "FrontSteerNegative command send result:" << result;
-  front_negative = true;;
-  front_positive = false;
-  front_stop = false;
- // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 }
 
 void DiamondController::RearSteerStop() {
-  int result = steer_rear->Write(C6, 8);
-  ADEBUG << "RearSteerStop command send result:" << result;
+  for (count_fre_converter = 0; count_fre_converter < 1;
+      count_fre_converter++) {
+    int result = steer_rear->Write(C6, 8);
+    ADEBUG << "RearSteerStop command send result:" << result;   
+  }
   SetBatCharging();
-  sleep(1);
 }
 
 void DiamondController::RearSteerPositive() {
-  int result = steer_rear->Write(C7, 8);
-  ADEBUG << "RearSteerPositive command send result:" << result;
-  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+  for (count_fre_converter = 0; count_fre_converter < 1;
+      count_fre_converter++) {
+    int result = steer_rear->Write(C7, 8);
+    ADEBUG << "RearSteerPositive command send result:" << result;   
+  }
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
 void DiamondController::RearSteerNegative() {
-  int result = steer_rear->Write(C8, 8);
-  ADEBUG << "RearSteerNegative command send result is :" << result;
-  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+  for (count_fre_converter = 0; count_fre_converter < 1;
+      count_fre_converter++) {
+    int result = steer_rear->Write(C8, 8);
+    ADEBUG << "RearSteerNegative command send result:" << result;   
+  }
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
 }
 
