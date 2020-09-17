@@ -1,7 +1,5 @@
 syntax = "proto2";
 
-package apollo.drivers.rfid;
-
 message LcdDeviceConf {
   optional string device_id = 1;
   optional string output_channel = 2;

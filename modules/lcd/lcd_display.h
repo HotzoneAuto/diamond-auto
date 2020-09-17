@@ -8,6 +8,8 @@
 #include "cyber/component/component.h"
 
 #include "modules/canbus/proto/chassis.pb.h"
+#include "modules/lcd/proto/lcd_device_conf.pb.h"
+
 namespace apollo {
 namespace drivers {
 namespace lcd {
@@ -24,6 +26,8 @@ class LcdComponet : public apollo::cyber::Component<> {
   bool Proc();
 
  private:
+  LcdDeviceConf device_conf_;
+  
   Chassis chassis_;
   //  // TODO(all): auto config by udev
   std::unique_ptr<Uart> device_ = nullptr;
