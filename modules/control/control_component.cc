@@ -105,16 +105,15 @@ bool ControlComponent::Proc() {
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
     // update Drive mode by action
-   // if (pad_received_) {
-      cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
-     // pad_received_ = false;
-   
+    // if (pad_received_) {
+    cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
+    // pad_received_ = false;
 
     // TODO: add control strategy when emergency.
 
     // TODO(zongbao):how to know direction(reverse or forward)
     // from station A to B (case 1: 1->2) and B to A (case 0: 2->1)
-    AINFO << "rfid_.id=" << rfid_.id() ;
+    AINFO << "rfid_.id=" << rfid_.id();
     switch (control_conf_.drivemotor_flag()) {
       case 1: {
         if (rfid_.id() == control_conf_.destnation()) {
