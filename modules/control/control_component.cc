@@ -110,10 +110,9 @@ bool ControlComponent::Proc() {
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
     // update Drive mode by action
-   // if (pad_received_) {
-      cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
-     // pad_received_ = false;
-   
+    // if (pad_received_) {
+    cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
+    // pad_received_ = false;
 
     // TODO: add control strategy when emergency.
 

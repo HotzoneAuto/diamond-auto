@@ -27,7 +27,7 @@ class LcdComponet : public apollo::cyber::Component<> {
 
  private:
   LcdDeviceConf device_conf_;
-  
+
   Chassis chassis_;
   //  // TODO(all): auto config by udev
   std::unique_ptr<Uart> device_ = nullptr;
