@@ -166,15 +166,25 @@ void DiamondController::Stop() {
   // SenderMessage<ChassisDetail> sender_5701(Id0x00aa5701::ID, &id5701);
   // sender_5701.Update();
   // can_client_->SendSingleFrame({sender_5701.CanFrame()});
-  std::string cmd = "cansend can0 00AA5701#0000000000000000";
-  const int ret = std::system(cmd.c_str());
-  if (ret == 0) {
-    AINFO << "Battery K1 down can message send SUCCESS: " << cmd;
-  } else {
-    AERROR << "Battery K1 down can message send FAILED(" << ret << "): " << cmd;
+  ChassisDetail chassis_detail;
+  auto diamond = chassis_detail.mutable_diamond();
+  if(diamond->id_0x1818d0f3().fbatvolt()<5 and diamond->id_0x0c08a7f0().fmotcur()<5){
+    std::string cmd = "cansend can0 00AA5701#0000000000000000";
+    const int ret = std::system(cmd.c_str());
+    if (ret == 0) {
+      AINFO << "Battery K1 down can message send SUCCESS: " << cmd;
+    } else {
+      AERROR << "Battery K1 down can message send FAILED(" << ret << "): " << cmd;
+    }
+    std::this_thread::sleep_for(5s);
+    std::string cmd1 = "cansend can0 0CFFF3A7#0002000000000000";
+    const int ret1 = std::system(cmd1.c_str());
+    if (ret1 == 0) {
+      AINFO << "BMS message send SUCCESS: " << cmd1;
+    } else {
+      AERROR << "BMS message send FAILED(" << ret1 << "): " << cmd1;
+    }
   }
-  std::this_thread::sleep_for(5s);
-
   //===========k1 down end========
 
   if (!is_initialized_) {
