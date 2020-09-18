@@ -168,13 +168,15 @@ void DiamondController::Stop() {
   // can_client_->SendSingleFrame({sender_5701.CanFrame()});
   ChassisDetail chassis_detail;
   auto diamond = chassis_detail.mutable_diamond();
-  while(diamond->id_0x1818d0f3().fbatvolt()<5 and diamond->id_0x0c08a7f0().fmotcur()<5){
+  while (diamond->id_0x1818d0f3().fbatcur() < 5 and
+         diamond->id_0x0c08a7f0().fmotcur() < 5) {
     std::string cmd = "cansend can0 00AA5701#0000000000000000";
     const int ret = std::system(cmd.c_str());
     if (ret == 0) {
       AINFO << "Battery K1 down can message send SUCCESS: " << cmd;
     } else {
-      AERROR << "Battery K1 down can message send FAILED(" << ret << "): " << cmd;
+      AERROR << "Battery K1 down can message send FAILED(" << ret
+             << "): " << cmd;
     }
     std::this_thread::sleep_for(3s);
     std::string cmd1 = "cansend can0 0CFFF3A7#0002000000000000";
