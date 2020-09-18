@@ -30,11 +30,16 @@ bool ControlComponent::Init() {
         chassis_.CopyFrom(*chassis);
       });
 
-  // rfid Reader
-  rfid_reader_ = node_->CreateReader<RFID>(
-      FLAGS_rfid_topic,
-      [this](const std::shared_ptr<RFID>& rfid) { rfid_.CopyFrom(*rfid); });
-
+  // front rfid Reader
+  rfid_front_reader_ = node_->CreateReader<RFID>(
+      FLAGS_rfid_front_topic,
+      [this](const std::shared_ptr<RFID>& rfid_front) { rfid_front_.CopyFrom(*rfid_front); });
+  
+  // rear rfid Reader
+  rfid_rear_reader_ = node_->CreateReader<RFID>(
+      FLAGS_rfid_rear_topic,
+      [this](const std::shared_ptr<RFID>& rfid_rear) { rfid_rear_.CopyFrom(*rfid_rear); });
+  
   // Padmsg Reader
   pad_msg_reader_ = node_->CreateReader<PadMessage>(
       FLAGS_pad_topic, [this](const std::shared_ptr<PadMessage>& pad_msg) {
@@ -55,7 +60,7 @@ bool ControlComponent::Init() {
         front_wheel_angle_.CopyFrom(*front_wheel_angle);
       });
 
-  // front wheel angle Reader
+  // rear wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
@@ -114,10 +119,11 @@ bool ControlComponent::Proc() {
 
     // TODO(zongbao):how to know direction(reverse or forward)
     // from station A to B (case 1: 1->2) and B to A (case 0: 2->1)
-    AINFO << "rfid_.id=" << rfid_.id() ;
+    AINFO << "rfid_front_.id=" << rfid_front_.id() ;
+    AINFO << "rfid_rear_.id=" << rfid_rear_.id() ;
     switch (control_conf_.drivemotor_flag()) {
       case 1: {
-        if (rfid_.id() == control_conf_.destnation()) {
+        if (rfid_front_.id() == control_conf_.front_destnation()) {
           cmd->set_brake(control_conf_.soft_estop_brake());
         } else {
           drivemotor_torque = PidSpeed();
@@ -128,7 +134,7 @@ bool ControlComponent::Proc() {
       }
 
       case 2: {
-        if (rfid_.id() == 49) {
+        if (rfid_rear_.id() == control_conf_.rear_destnation()) {
           cmd->set_brake(control_conf_.soft_estop_brake());
         } else {
           drivemotor_torque = PidSpeed();

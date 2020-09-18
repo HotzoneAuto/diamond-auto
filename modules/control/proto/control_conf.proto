@@ -69,7 +69,8 @@ message ControlConf {
   optional double manual_rear_wheel_target = 39;
   optional PidConf pid_conf = 40;
   optional double torque_deadzone = 41;
-  optional int32 destnation = 42;
-  optional int32 drivemotor_flag = 43;
+  optional int32 front_destnation = 42;
+  optional int32 rear_destnation = 43;
+  optional int32 drivemotor_flag = 44;
 
 }

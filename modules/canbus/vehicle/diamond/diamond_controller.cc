@@ -548,24 +548,36 @@ void DiamondController::FrontSteerNegative() {
 }
 
 void DiamondController::RearSteerStop() {
+  SetBatCharging();
+  if(rear_stop){return;}
   int result = steer_rear->Write(C6, 8);
   ADEBUG << "RearSteerStop command send result:" << result;
-  SetBatCharging();
-  sleep(1);
+  rear_stop = true;
+  rear_positive = false;
+  rear_negative = false;
+  // sleep(1);
 }
 
 void DiamondController::RearSteerPositive() {
+  SetBatCharging();
+  if(rear_positive){return ;}
   int result = steer_rear->Write(C7, 8);
   ADEBUG << "RearSteerPositive command send result:" << result;
-  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-  SetBatCharging();
+  rear_positive = true;
+  rear_stop = false;
+  rear_negative = false;
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 }
 
 void DiamondController::RearSteerNegative() {
-  int result = steer_rear->Write(C8, 8);
-  ADEBUG << "RearSteerNegative command send result is :" << result;
-  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
   SetBatCharging();
+  if(rear_negative){return ;}
+  int result = steer_rear->Write(C8, 8);
+  ADEBUG << "RearSteerNegative command send result:" << result;
+  rear_negative = true;;
+  rear_positive = false;
+  rear_stop = false;
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 }
 
 void DiamondController::SetBatCharging() {
