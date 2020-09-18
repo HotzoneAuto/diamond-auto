@@ -30,7 +30,6 @@ class RfidComponent : public Component<> {
  private:
   RFIDDeviceConf device_conf_;
 
-  // TODO(all): auto config by udev
   std::unique_ptr<Uart> device_ = nullptr;
 
   std::shared_ptr<Writer<RFID>> rfid_writer_ = nullptr;

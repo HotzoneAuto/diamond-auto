@@ -59,9 +59,9 @@ void RfidComponent::Action() {
     std::memset(buffer, 0, 20);
     while (1) {
       int ret = device_->Read(&buf, 1);
-      AINFO << "RFID Device return: " << ret;
+      ADEBUG << "RFID Device return: " << ret;
       if (ret == 1) {
-        AINFO << "RFID Device buf: " << buf;
+        ADEBUG << "RFID Device buf: " << buf;
         if (buf == 0x02) {
           count = 1;
           break;
@@ -69,12 +69,11 @@ void RfidComponent::Action() {
         buffer[count] = buf;
         count++;
       }
-      AINFO << "count: " << count;
       if (count == 11) {
-        AINFO << "origin id from buffer[10]: " << buffer[10];
+        ADEBUG << "origin id from buffer[10]: " << buffer[10];
         // uint32_t station_id = buffer[10] - '0';
         uint8_t station_id = buf;
-        AINFO << "TRANSFER ID :" << station_id;
+        ADEBUG << "TRANSFER ID :" << station_id;
 
         apollo::drivers::RFID rfid;
         auto header = rfid.mutable_header();
