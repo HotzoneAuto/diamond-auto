@@ -9,7 +9,8 @@ pid_conf {
 }
 torque_deadzone: 18
 action: STOP
-destnation: 2
+front_destnation: 50
+rear_destnation: 49
 drivemotor_flag: 1
 soft_estop_brake: 10.0
 

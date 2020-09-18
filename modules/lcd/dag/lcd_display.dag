@@ -4,6 +4,7 @@ module_config{
         class_name:"LcdComponet"
         config{
             name:"lcd"
+            config_file_path:"/apollo/modules/lcd/conf/lcd_display_left.pb.txt"
         }
     }
 }

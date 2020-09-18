@@ -127,7 +127,8 @@ DECLARE_string(latency_recording_topic);
 // Latency reporting topic
 DECLARE_string(latency_reporting_topic);
 DECLARE_string(monitor_log_topic);
-DECLARE_string(rfid_topic);
+DECLARE_string(rfid_front_topic);
+DECLARE_string(rfid_rear_topic);
 DECLARE_string(magnetic_channel);
 DECLARE_string(navigation_channel);
 DECLARE_bool(magnetic_enable);

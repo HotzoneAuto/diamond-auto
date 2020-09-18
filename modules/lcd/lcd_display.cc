@@ -6,7 +6,11 @@ namespace apollo {
 namespace drivers {
 namespace lcd {
 bool LcdComponet::Init() {
-  device_ = std::make_unique<Uart>("ttyUSB0");
+  if (!GetProtoConfig(&device_conf_)) {
+    AERROR << "Unable to load lcd conf file: " << ConfigFilePath();
+    return false;
+  }
+  device_ = std::make_unique<Uart>(device_conf_.device_id().c_str());
   // Uart device set option
   device_->SetOpt(9600, 8, 'N', 1);
 

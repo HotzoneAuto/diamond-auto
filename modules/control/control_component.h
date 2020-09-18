@@ -39,14 +39,16 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   double PidSpeed();
   Chassis chassis_;
   ControlConf control_conf_;
-  RFID rfid_;
+  RFID rfid_front_;
+  RFID rfid_rear_;
   PadMessage pad_msg_;
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
   bool pad_received_ = false;
 
   std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
-  std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_front_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_rear_reader_;
   std::shared_ptr<cyber::Writer<ControlCommand>> control_cmd_writer_;
   std::shared_ptr<cyber::Reader<PadMessage>> pad_msg_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>>

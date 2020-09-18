@@ -70,10 +70,10 @@ void RfidComponent::Action() {
         count++;
       }
       AINFO << "count: " << count;
-      if (count == 10) {
+      if (count == 11) {
         AINFO << "origin id from buffer[10]: " << buffer[10];
         // uint32_t station_id = buffer[10] - '0';
-        int station_id = buf;
+        uint8_t station_id = buf;
         AINFO << "TRANSFER ID :" << station_id;
 
         apollo::drivers::RFID rfid;
@@ -81,7 +81,7 @@ void RfidComponent::Action() {
         header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
         header->set_frame_id("rfid");
 
-        rfid.set_id(buf);
+        rfid.set_id(station_id);
 
         rfid_writer_->Write(rfid);
       }
