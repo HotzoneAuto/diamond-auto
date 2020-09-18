@@ -16,6 +16,8 @@ jobs:
         sudo apt clean
         docker rmi $(docker image ls -aq)
         df -h
+    - name: Situation
+      run: docker volume rm $(docker volume ls -qf dangling=true)
     - name: Signed Diamond Agreement
       run: cp scripts/AGREEMENT.txt ${HOME}/.apollo_agreement.txt
     - name: Pull and Create Container
