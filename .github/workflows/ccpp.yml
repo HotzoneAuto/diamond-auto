@@ -17,7 +17,7 @@ jobs:
         docker rmi $(docker image ls -aq)
         df -h
     - name: Docker Situation
-      run: docker system prune --volumes -y
+      run: docker system prune -a -f --volumes
     - name: Signed Diamond Agreement
       run: cp scripts/AGREEMENT.txt ${HOME}/.apollo_agreement.txt
     - name: Pull and Create Container
