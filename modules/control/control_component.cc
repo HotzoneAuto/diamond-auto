@@ -32,14 +32,16 @@ bool ControlComponent::Init() {
 
   // front rfid Reader
   rfid_front_reader_ = node_->CreateReader<RFID>(
-      FLAGS_rfid_front_topic,
-      [this](const std::shared_ptr<RFID>& rfid_front) { rfid_front_.CopyFrom(*rfid_front); });
-  
+      FLAGS_rfid_front_topic, [this](const std::shared_ptr<RFID>& rfid_front) {
+        rfid_front_.CopyFrom(*rfid_front);
+      });
+
   // rear rfid Reader
   rfid_rear_reader_ = node_->CreateReader<RFID>(
-      FLAGS_rfid_rear_topic,
-      [this](const std::shared_ptr<RFID>& rfid_rear) { rfid_rear_.CopyFrom(*rfid_rear); });
-  
+      FLAGS_rfid_rear_topic, [this](const std::shared_ptr<RFID>& rfid_rear) {
+        rfid_rear_.CopyFrom(*rfid_rear);
+      });
+
   // Padmsg Reader
   pad_msg_reader_ = node_->CreateReader<PadMessage>(
       FLAGS_pad_topic, [this](const std::shared_ptr<PadMessage>& pad_msg) {
@@ -118,8 +120,8 @@ bool ControlComponent::Proc() {
 
     // TODO(zongbao):how to know direction(reverse or forward)
     // from station A to B (case 1: 1->2) and B to A (case 0: 2->1)
-    AINFO << "rfid_front_.id=" << rfid_front_.id() ;
-    AINFO << "rfid_rear_.id=" << rfid_rear_.id() ;
+    AINFO << "rfid_front_.id=" << rfid_front_.id();
+    AINFO << "rfid_rear_.id=" << rfid_rear_.id();
     switch (control_conf_.drivemotor_flag()) {
       case 1: {
         if (rfid_front_.id() == control_conf_.front_destnation()) {
