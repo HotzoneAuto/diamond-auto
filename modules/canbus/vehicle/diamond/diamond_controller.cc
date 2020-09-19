@@ -170,7 +170,7 @@ void DiamondController::Stop() {
   message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
   while (std::abs(diamond->id_0x1818d0f3().fbatcur()) < 5 and
-         (diamond->id_0x0c08a7f0().fmotcur()) < 5) {
+        std::abs(diamond->id_0x0c08a7f0().fmotcur()) < 5) {
     std::string cmd = "cansend can0 00AA5701#0000000000000000";
     const int ret = std::system(cmd.c_str());
     if (ret == 0) {
@@ -268,32 +268,30 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
-  chassis_.set_front_wheel_angle(0);
-  chassis_.set_rear_wheel_angle(0);
   // Magnetic sensor data front
   // Send messages before receive
   // 1. default by system(cansend), but not best practice
   // 2. async thread by duration
-  if (diamond->id_0x03().has_front_mgs()) {
-    auto dev =
+  //if (diamond->id_0x03().has_front_mgs()) {
+  auto dev_front =
         apollo::drivers::magnetic::getLatdev(diamond->id_0x03().front_mgs());
-    if (!std::isnan(dev)) {
-      chassis_.set_front_lat_dev(dev);
-    }
-  } else {
-    chassis_.set_front_lat_dev(0);
+  if (!std::isnan(dev_front)) {
+    chassis_.set_front_lat_dev(dev_front);
   }
+  //} else {
+  //  chassis_.set_front_lat_dev(0);
+  //}
 
   // rear
-  if (diamond->id_0x04().has_rear_mgs()) {
-    auto dev =
+  //if (diamond->id_0x04().has_rear_mgs()) {
+    auto dev_rear =
         apollo::drivers::magnetic::getLatdev(diamond->id_0x04().rear_mgs());
-    if (!std::isnan(dev)) {
-      chassis_.set_rear_lat_dev(dev);
+    if (!std::isnan(dev_rear)) {
+      chassis_.set_rear_lat_dev(dev_rear);
     }
-  } else {
-    chassis_.set_rear_lat_dev(0);
-  }
+  //} else {
+  //  chassis_.set_rear_lat_dev(0);
+  //}
 
   return chassis_;
 }
@@ -426,8 +424,18 @@ void DiamondController::ReverseTorque(double torque) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
+  torque = std::abs(torque);
 
-  id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+  auto speed = 0.006079 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
+
+  // Fixed workmode switch bug for motor
+  if(torque < kEpsilon && speed > kEpsilon){
+    return;
+  }
+
+  id_0x0c19f0a7_->set_fmot1targettq(torque);
   id_0x0c19f0a7_->set_bymot1workmode(146);
 }
 

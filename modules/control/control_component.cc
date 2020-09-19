@@ -127,7 +127,13 @@ bool ControlComponent::Proc() {
         if (rfid_front_.id() == control_conf_.front_destnation()) {
           cmd->set_brake(control_conf_.soft_estop_brake());
         } else {
-          drivemotor_torque = PidSpeed();
+          if (cmd->pad_msg().action() == DrivingAction::START) {
+            drivemotor_torque = PidSpeed();
+	  }
+	  // TODO: drivemotor_torque to config
+	  if (drivemotor_torque > 46.0) {
+	    drivemotor_torque = 46.0;
+	  }
           cmd->set_torque(drivemotor_torque);
         }
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
@@ -138,7 +144,13 @@ bool ControlComponent::Proc() {
         if (rfid_rear_.id() == control_conf_.rear_destnation()) {
           cmd->set_brake(control_conf_.soft_estop_brake());
         } else {
-          drivemotor_torque = PidSpeed();
+          if (cmd->pad_msg().action() == DrivingAction::START) {
+            drivemotor_torque = PidSpeed();
+	  }
+	  // TODO: drivemotor_torque to config
+	  if (drivemotor_torque > 46.0) {
+	    drivemotor_torque = 46.0;
+	  }
           cmd->set_torque(-drivemotor_torque);
         }
 
@@ -156,7 +168,9 @@ bool ControlComponent::Proc() {
         // 给定驱动电机反转命令（使车辆前进从A到B）
         if (control_conf_.drivemotor_flag() == 1) {
           // rear_motor_steering_dir = 0;   //后方转向电机不转
-          cmd->set_rear_wheel_target(0);
+          if (std::abs(rear_wheel_angle_realtime) > 2) {
+            cmd->set_rear_wheel_target(0);
+	  }
           if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
@@ -189,7 +203,7 @@ bool ControlComponent::Proc() {
             cmd->set_rear_wheel_target(-20.0);
             rear_target_pre = -20.0;
           } else if (std::abs(rear_lat_dev_mgs) < 0.1) {
-            cmd->set_front_wheel_target(rear_target_pre);
+            cmd->set_rear_wheel_target(rear_target_pre);
           } else {
             cmd->set_rear_wheel_target(0);
             rear_target_pre = 0;
