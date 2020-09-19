@@ -161,12 +161,17 @@ bool ControlComponent::Proc() {
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
             cmd->set_front_wheel_target(20.0);
+            front_target_pre = 20.0;
           } else if (front_lat_dev_mgs > 3.5)  //若前方磁导航检测出车偏右
           {
             // front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
             cmd->set_front_wheel_target(-20.0);
+            front_target_pre = -20.0;
+          } else if (std::abs(front_lat_dev_mgs) < 0.1) {
+            cmd->set_front_wheel_target(front_target_pre);
           } else {
             cmd->set_front_wheel_target(0);
+            front_target_pre = 0;
           }
         } else if (control_conf_.drivemotor_flag() ==
                    2)  // 若驱动电机正转（倒车，车辆从B到A）
@@ -177,12 +182,17 @@ bool ControlComponent::Proc() {
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
             cmd->set_rear_wheel_target(20.0);
+            rear_target_pre = 20.0;
           } else if (rear_lat_dev_mgs > 3.5)  //若后方磁导航检测出车偏右
           {
             // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
             cmd->set_rear_wheel_target(-20.0);
+            rear_target_pre = -20.0;
+          } else if (std::abs(rear_lat_dev_mgs) < 0.1) {
+            cmd->set_front_wheel_target(rear_target_pre);
           } else {
             cmd->set_rear_wheel_target(0);
+            rear_target_pre = 0;
           }
         }
         break;

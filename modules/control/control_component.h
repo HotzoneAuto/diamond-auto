@@ -62,6 +62,9 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   std::future<void> async_action_;
   double pid_int = 0;
   double pid_e_pre = 0;
+
+  double front_target_pre = 0;
+  double rear_target_pre = 0;
 };
 
 CYBER_REGISTER_COMPONENT(ControlComponent)
