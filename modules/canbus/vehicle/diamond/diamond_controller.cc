@@ -167,9 +167,10 @@ void DiamondController::Stop() {
   // sender_5701.Update();
   // can_client_->SendSingleFrame({sender_5701.CanFrame()});
   ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
-  while (diamond->id_0x1818d0f3().fbatcur() < 5 and
-         diamond->id_0x0c08a7f0().fmotcur() < 5) {
+  while (std::abs(diamond->id_0x1818d0f3().fbatcur()) < 5 and
+         (diamond->id_0x0c08a7f0().fmotcur()) < 5) {
     std::string cmd = "cansend can0 00AA5701#0000000000000000";
     const int ret = std::system(cmd.c_str());
     if (ret == 0) {
@@ -758,7 +759,7 @@ void DiamondController::SetMotorVoltageUp() {
     } else {
       AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
     }
-    std::this_thread::sleep_for(3s);
+    std::this_thread::sleep_for(5s);
     chassis_detail.Clear();
     message_manager_->GetSensorData(&chassis_detail);
     if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
