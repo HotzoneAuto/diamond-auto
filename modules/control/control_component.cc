@@ -106,8 +106,8 @@ bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
 
-  front_wheel_angle_realtime = front_wheel_angle_.value();
-  rear_wheel_angle_realtime = rear_wheel_angle_.value();
+  // front_wheel_angle_realtime = front_wheel_angle_.value();
+  // rear_wheel_angle_realtime = rear_wheel_angle_.value();
 
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
@@ -167,8 +167,12 @@ bool ControlComponent::Proc() {
 
         // 给定驱动电机反转命令（使车辆前进从A到B）
         if (control_conf_.drivemotor_flag() == 1) {
-          // rear_motor_steering_dir = 0;   //后方转向电机不转
-          cmd->set_rear_wheel_target(0);
+          if (!rear_wheel_wakeup) {
+            cmd->set_rear_wheel_target(rear_wheel_angle_.value());    
+            rear_wheel_wakeup = true;
+          } else {
+            cmd->set_rear_wheel_target(0);
+          }
           if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
@@ -181,15 +185,14 @@ bool ControlComponent::Proc() {
             front_target_pre = -20.0;
           } else if (std::abs(front_lat_dev_mgs) < 0.1) {
             cmd->set_front_wheel_target(front_target_pre);
-          } else {
+	      } else {
             cmd->set_front_wheel_target(0);
             front_target_pre = 0;
           }
         } else if (control_conf_.drivemotor_flag() ==
                    2)  // 若驱动电机正转（倒车，车辆从B到A）
         {
-          // front_motor_steering_dir = 0;  //前方转向电机不转
-          cmd->set_front_wheel_target(0);
+	      cmd->set_front_wheel_target(0);
           if (rear_lat_dev_mgs < -3.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
