@@ -169,7 +169,7 @@ void DiamondController::Stop() {
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
-  while (std::abs(diamond->id_0x1818d0f3().fbatcur()) < 5 and
+  if (std::abs(diamond->id_0x1818d0f3().fbatcur()) < 5 and
         std::abs(diamond->id_0x0c08a7f0().fmotcur()) < 5) {
     std::string cmd = "cansend can0 00AA5701#0000000000000000";
     const int ret = std::system(cmd.c_str());
@@ -188,8 +188,9 @@ void DiamondController::Stop() {
       AERROR << "BMS message send FAILED(" << ret1 << "): " << cmd1;
     }
   }
+  
   //===========k1 down end========
-
+  
   if (!is_initialized_) {
     AERROR << "DiamondController stops or starts improperly!";
     return;

@@ -168,9 +168,7 @@ bool ControlComponent::Proc() {
         // 给定驱动电机反转命令（使车辆前进从A到B）
         if (control_conf_.drivemotor_flag() == 1) {
           // rear_motor_steering_dir = 0;   //后方转向电机不转
-          if (std::abs(rear_wheel_angle_realtime) > 2) {
-            cmd->set_rear_wheel_target(0);
-	  }
+          cmd->set_rear_wheel_target(0);
           if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
