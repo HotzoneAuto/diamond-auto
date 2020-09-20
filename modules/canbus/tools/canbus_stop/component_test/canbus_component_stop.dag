@@ -1,0 +1,13 @@
+# Define all coms in DAG streaming.
+    module_config {
+    module_library : "/apollo/bazel-bin/modules/canbus/tools/canbus_stop/component_test/canbus_component_stop.so"
+    components {
+        class_name : "canbus_component_stop"
+        config {
+            name : "canbus_component_stop"
+            readers {
+                channel: "/diamond/canbus/chassis_detail"
+            }
+        }
+      }
+    }

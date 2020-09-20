@@ -1,0 +1,7 @@
+<cyber>
+    <module>
+        <name>common</name>
+        <dag_conf>/apollo/modules/canbus/tools/canbus_stop/component_test/canbus_component_stop.dag</dag_conf>
+        <process_name>canbus_component_stop</process_name>
+    </module>
+</cyber>
