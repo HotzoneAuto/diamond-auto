@@ -78,7 +78,6 @@ bool ControlComponent::Init() {
   // create Writer
   control_cmd_writer_ =
       node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
-
   return true;
 }
 
@@ -105,7 +104,8 @@ double ControlComponent::PidSpeed() {
 bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
-
+  front_target_pre = front_wheel_angle_.value();
+  rear_target_pre = rear_wheel_angle_.value();
   // front_wheel_angle_realtime = front_wheel_angle_.value();
   // rear_wheel_angle_realtime = rear_wheel_angle_.value();
 

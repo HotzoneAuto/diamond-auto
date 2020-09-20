@@ -64,7 +64,7 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   double pid_e_pre = 0;
 
   double front_target_pre = 0;
-  double rear_target_pre = -20;
+  double rear_target_pre = 0;
   
   double rear_wheel_wakeup = false;
 };
