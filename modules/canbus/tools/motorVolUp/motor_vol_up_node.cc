@@ -1,21 +1,27 @@
-#include "modules/canbus/tools/component_motorVolUp/mortor_vol_up.h"
+#include <memory>
+#include <string>
+#include <utility>
+#include <thread>
+#include <vector>
+#include <chrono>
+
+#include "cyber/common/macros.h"
+#include "cyber/cyber.h"
+
+#include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/proto/can_card_parameter.pb.h"
+ 
+#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
-#include <iostream>
-using namespace std;
 
-bool mortor_vol_up::Init() {
-  AINFO << "Commontest component init";
-  cout << "commontest component init"  << endl;
-  return true;
-}
 
-bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
-
+void MessageCallback(const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
   apollo::canbus::ChassisDetail chassis_detail;
   chassis_detail = *msg;
   if (!chassis_detail.diamond().has_id_0x1818d0f3()) {
     AINFO << "empty chassis detail, waiting.....";
-    std::this_thread::sleep_for(5s);
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     chassis_detail.Clear();
 //    message_manager_->GetSensorData(&chassis_detail);
   }
@@ -24,7 +30,7 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
   if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() != 0) {
     AERROR << "SetMotorVoltageUp flag check Error:"
            << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-    return false;
+    return;
   }
   // 2. Tell BMS you can release voltage now
   std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
@@ -39,7 +45,7 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
       chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts() == 1) {
     if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() != 0) {
       AERROR << "1818d0f3 bybatinsrerr REEOR!!";
-      return false;
+      return;
     }
     // 3. K2 up
     std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
@@ -49,7 +55,7 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
     } else {
       AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
     }
-    std::this_thread::sleep_for(6s);
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     chassis_detail.Clear();
 //    message_manager_->GetSensorData(&chassis_detail);
     if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
@@ -62,11 +68,11 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
       } else {
         AERROR << "K1 up message send FAILED(" << ret3 << "): " << cmd3;
       }
-      std::this_thread::sleep_for(3s);
+      std::this_thread::sleep_for(std::chrono::seconds(3));
       // 5. K2 down
       std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
       const int ret4 = std::system(cmd4.c_str());
-      std::this_thread::sleep_for(3s);
+      std::this_thread::sleep_for(std::chrono::seconds(3));
       if (ret4 == 0) {
         AINFO << "K2 down message send SUCCESS: " << cmd4;
       } else {
@@ -86,6 +92,17 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
       }
     }
   }
-  return true;
 }
 
+int main(int argc, char* argv[]) {
+  apollo::cyber::Init(argv[0]);
+  // create listener node
+  auto listener_node = apollo::cyber::CreateNode("motor_vol_up_listener");
+  // create listener
+  auto listener = listener_node->CreateReader<apollo::canbus::ChassisDetail>(
+                  "/diamond/canbus/chassis_detail", MessageCallback);
+
+  apollo::cyber::WaitForShutdown();
+
+  return 0;
+}

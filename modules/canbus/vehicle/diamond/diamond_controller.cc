@@ -446,14 +446,20 @@ void DiamondController::SteerFront(double front_steering_target) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
+/*
+  if (!front_wheel_wakeup) {
+    FrontSteerStop();
+    front_wheel_wakeup = true;
+  }
+  */ 
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
   if (front_steering_target - front_wheel_angle_.value() > 2) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   } else if (std::abs(front_steering_target - front_wheel_angle_.value()) < 2) {
-    steering_switch = Chassis::STEERINGSTOP;
-  } else {
+   steering_switch = Chassis::STEERINGSTOP;
+   }else {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
 
@@ -731,6 +737,7 @@ void DiamondController::set_chassis_error_code(
 }
 
 void DiamondController::SetMotorVoltageUp() {
+    
   ChassisDetail chassis_detail;
   while (!chassis_detail.diamond().has_id_0x1818d0f3()) {
     AINFO << "empty chassis detail, waiting.....";
@@ -805,6 +812,7 @@ void DiamondController::SetMotorVoltageUp() {
       }
     }
   }
+ 
 }
 
 }  // namespace diamond
