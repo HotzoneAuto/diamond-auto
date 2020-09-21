@@ -42,7 +42,8 @@ static const int encoder2wheel_gear_ratio = 125;  // 编码器：轮胎的速比
 
 // static float front_wheel_angle_previous = 0;  // 上一时刻前轮转角（0~360
 // deg）
-// static float front_wheel_angle_realtime = 0;  // 当前时刻前轮转角（0~360 deg）
+// static float front_wheel_angle_realtime = 0;  // 当前时刻前轮转角（0~360
+// deg）
 
 // static float rear_wheel_angle_previous = 0;  // 上一时刻后轮转角（0~360 deg）
 // static float rear_wheel_angle_realtime = 0;  // 当前时刻后轮转角（0~360 deg）

@@ -59,9 +59,13 @@ bool ControlComponent::Init() {
   front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_front_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
+        front_wheel_angle_value = front_wheel_angle->value();
+        front_wheel_angle_.Clear();
         front_wheel_angle_.CopyFrom(*front_wheel_angle);
+        AINFO << "front_wheel_angle.value() = " << front_wheel_angle->value();
+        is_received = true;
       });
-
+  
   // rear wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
@@ -104,8 +108,25 @@ double ControlComponent::PidSpeed() {
 bool ControlComponent::Proc() {
   float front_lat_dev_mgs = 0.0;
   float rear_lat_dev_mgs = 0.0;
-  front_target_pre = front_wheel_angle_.value();
-  rear_target_pre = rear_wheel_angle_.value();
+  /*double front_target_pre = 0;
+  double rear_target_pre = 0;
+  if (std::abs(front_wheel_angle_.value() - 20) < 2) {
+    front_target_pre = 20;
+  } else if (std::abs(front_wheel_angle_.value() + 20) < 2) {
+    front_target_pre = -20;
+  } else if (std::abs(front_wheel_angle_.value()) < 2) {
+    front_target_pre = 0;
+  }*/
+
+  //AINFO << "front_wheel_angle_.value() = " << front_wheel_angle_.value();
+  //front_target_pre = front_wheel_angle_.value();
+  //AINFO << "front_target_pre = " << front_target_pre;
+  //rear_target_pre = rear_wheel_angle_.value();
+  // front_target_pre = front_wheel_angle_.value();
+  // AINFO << "front_target_pre = " << front_target_pre;
+  // rear_target_pre = rear_wheel_angle_.value();
+  // AINFO << "rear_target_pre = " << front_target_pre;
+
   // front_wheel_angle_realtime = front_wheel_angle_.value();
   // rear_wheel_angle_realtime = rear_wheel_angle_.value();
 
@@ -129,11 +150,11 @@ bool ControlComponent::Proc() {
         } else {
           if (cmd->pad_msg().action() == DrivingAction::START) {
             drivemotor_torque = PidSpeed();
-	  }
-	  // TODO: drivemotor_torque to config
-	  if (drivemotor_torque > 46.0) {
-	    drivemotor_torque = 46.0;
-	  }
+          }
+          // TODO: drivemotor_torque to config
+          if (drivemotor_torque > 46.0) {
+            drivemotor_torque = 46.0;
+          }
           cmd->set_torque(drivemotor_torque);
         }
         // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
@@ -146,11 +167,11 @@ bool ControlComponent::Proc() {
         } else {
           if (cmd->pad_msg().action() == DrivingAction::START) {
             drivemotor_torque = PidSpeed();
-	  }
-	  // TODO: drivemotor_torque to config
-	  if (drivemotor_torque > 46.0) {
-	    drivemotor_torque = 46.0;
-	  }
+          }
+          // TODO: drivemotor_torque to config
+          if (drivemotor_torque > 46.0) {
+            drivemotor_torque = 46.0;
+          }
           cmd->set_torque(-drivemotor_torque);
         }
 
@@ -158,21 +179,30 @@ bool ControlComponent::Proc() {
         break;
       }
     }
-
+    AINFO << "front_wheel_angle_value = " << front_wheel_angle_value;
+    // front_target_pre = front_wheel_angle_value;
     switch (FLAGS_magnetic_enable) {
       case 1: {
         // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
         front_lat_dev_mgs = chassis_.front_lat_dev();
         rear_lat_dev_mgs = chassis_.rear_lat_dev();
-
+        AINFO << "front_lat_dev_mgs = " << front_lat_dev_mgs;
+        AINFO << "rear_lat_dev_mgs = " << rear_lat_dev_mgs;
         // 给定驱动电机反转命令（使车辆前进从A到B）
         if (control_conf_.drivemotor_flag() == 1) {
-          if (!rear_wheel_wakeup) {
-            cmd->set_rear_wheel_target(rear_wheel_angle_.value());    
-            rear_wheel_wakeup = true;
+          // if (!rear_wheel_wakeup) {
+          //  cmd->set_rear_wheel_target(rear_wheel_angle_.value());
+          //  rear_wheel_wakeup = true;
+          //} else {
+          cmd->set_rear_wheel_target(0);
+          //}
+          if (!front_wheel_wakeup) {
+            if (is_received) {
+              front_target_pre = front_wheel_angle_value;
+              AINFO << "front wheel wake up.";
+              front_wheel_wakeup = true;
+            }
           } else {
-            cmd->set_rear_wheel_target(0);
-          }
           if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
@@ -184,15 +214,24 @@ bool ControlComponent::Proc() {
             cmd->set_front_wheel_target(-20.0);
             front_target_pre = -20.0;
           } else if (std::abs(front_lat_dev_mgs) < 0.1) {
+            // if (!front_wheel_wakeup) {
+            // front_target_pre = front_wheel_angle_.value();
+            // cmd->set_front_wheel_target(front_target_pre);
+            // front_wheel_wakeup = true;
+            //} else {
+            AINFO << "front_target_pre = " << front_target_pre;
             cmd->set_front_wheel_target(front_target_pre);
-	      } else {
+            //}
+          } else if (std::abs(front_lat_dev_mgs) <= 3.5) {
             cmd->set_front_wheel_target(0);
             front_target_pre = 0;
           }
+          }
+
         } else if (control_conf_.drivemotor_flag() ==
                    2)  // 若驱动电机正转（倒车，车辆从B到A）
         {
-	      cmd->set_front_wheel_target(0);
+          cmd->set_front_wheel_target(0);
           if (rear_lat_dev_mgs < -3.5)  //若后方磁导航检测出车偏左
           {
             // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）

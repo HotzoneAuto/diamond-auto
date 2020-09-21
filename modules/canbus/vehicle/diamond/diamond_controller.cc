@@ -25,8 +25,6 @@
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/diamond/protocol/frequency_converter.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/common/adapters/adapter_gflags.h"
 #include "modules/common/proto/vehicle_signal.pb.h"
@@ -129,8 +127,6 @@ ErrorCode DiamondController::Init(
         rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
       });
 
-  async_action_ = cyber::Async(&DiamondController::SetMotorVoltageUp, this);
-
   if (FLAGS_magnetic_enable) {
     apollo::drivers::magnetic::Magnetic magnetic;
     thread_mangetic_ =
@@ -145,7 +141,6 @@ DiamondController::~DiamondController() {
   steer_front = nullptr;
   steer_rear = nullptr;
 
-  async_action_.wait();
   thread_mangetic_.join();
 }
 
@@ -161,36 +156,6 @@ bool DiamondController::Start() {
 }
 
 void DiamondController::Stop() {
-  //============k1 down start===========
-  // Id0x00aa5701 id5701;
-  // SenderMessage<ChassisDetail> sender_5701(Id0x00aa5701::ID, &id5701);
-  // sender_5701.Update();
-  // can_client_->SendSingleFrame({sender_5701.CanFrame()});
-  ChassisDetail chassis_detail;
-  message_manager_->GetSensorData(&chassis_detail);
-  auto diamond = chassis_detail.mutable_diamond();
-  if (std::abs(diamond->id_0x1818d0f3().fbatcur()) < 5 and
-        std::abs(diamond->id_0x0c08a7f0().fmotcur()) < 5) {
-    std::string cmd = "cansend can0 00AA5701#0000000000000000";
-    const int ret = std::system(cmd.c_str());
-    if (ret == 0) {
-      AINFO << "Battery K1 down can message send SUCCESS: " << cmd;
-    } else {
-      AERROR << "Battery K1 down can message send FAILED(" << ret
-             << "): " << cmd;
-    }
-    std::this_thread::sleep_for(3s);
-    std::string cmd1 = "cansend can0 0CFFF3A7#0002000000000000";
-    const int ret1 = std::system(cmd1.c_str());
-    if (ret1 == 0) {
-      AINFO << "BMS message send SUCCESS: " << cmd1;
-    } else {
-      AERROR << "BMS message send FAILED(" << ret1 << "): " << cmd1;
-    }
-  }
-  
-  //===========k1 down end========
-  
   if (!is_initialized_) {
     AERROR << "DiamondController stops or starts improperly!";
     return;
@@ -273,26 +238,18 @@ Chassis DiamondController::chassis() {
   // Send messages before receive
   // 1. default by system(cansend), but not best practice
   // 2. async thread by duration
-  //if (diamond->id_0x03().has_front_mgs()) {
   auto dev_front =
-        apollo::drivers::magnetic::getLatdev(diamond->id_0x03().front_mgs());
+      apollo::drivers::magnetic::getLatdev(diamond->id_0x03().front_mgs());
   if (!std::isnan(dev_front)) {
     chassis_.set_front_lat_dev(dev_front);
   }
-  //} else {
-  //  chassis_.set_front_lat_dev(0);
-  //}
 
   // rear
-  //if (diamond->id_0x04().has_rear_mgs()) {
-    auto dev_rear =
-        apollo::drivers::magnetic::getLatdev(diamond->id_0x04().rear_mgs());
-    if (!std::isnan(dev_rear)) {
-      chassis_.set_rear_lat_dev(dev_rear);
-    }
-  //} else {
-  //  chassis_.set_rear_lat_dev(0);
-  //}
+  auto dev_rear =
+      apollo::drivers::magnetic::getLatdev(diamond->id_0x04().rear_mgs());
+  if (!std::isnan(dev_rear)) {
+    chassis_.set_rear_lat_dev(dev_rear);
+  }
 
   return chassis_;
 }
@@ -432,7 +389,7 @@ void DiamondController::ReverseTorque(double torque) {
   auto speed = 0.006079 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
 
   // Fixed workmode switch bug for motor
-  if(torque < kEpsilon && speed > kEpsilon){
+  if (torque < kEpsilon && speed > kEpsilon) {
     return;
   }
 
@@ -446,6 +403,7 @@ void DiamondController::SteerFront(double front_steering_target) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
+
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
@@ -463,7 +421,7 @@ void DiamondController::SteerFront(double front_steering_target) {
   while (front_wheel_angle_.value() + 30.0 < kEpsilon) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
-  ADEBUG << "Steer front steering_switch = " << steering_switch;
+  AINFO << "Steer front steering_switch = " << steering_switch;
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
@@ -475,7 +433,6 @@ void DiamondController::SteerFront(double front_steering_target) {
     }
     default: {
       FrontSteerStop();
-      // sleep(1);
       break;
     }
   }
@@ -504,7 +461,7 @@ void DiamondController::SteerRear(double rear_steering_target) {
   while (rear_wheel_angle_.value() + 30.0 < kEpsilon) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
-  ADEBUG << "Steer rear steering_switch = " << steering_switch;
+  AINFO << "Steer rear steering_switch = " << steering_switch;
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       RearSteerPositive();
@@ -526,11 +483,14 @@ void DiamondController::FrontSteerStop() {
   if (front_stop) {
     return;
   }
-  int result = steer_front->Write(C2, 8);
-  ADEBUG << "FrontSteerStop command send result:" << result;
-  front_stop = true;
-  front_positive = false;
-  front_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_front_mutex_);
+    int result = steer_front->Write(C2, 8);
+    ADEBUG << "FrontSteerStop command send result:" << result;
+    front_stop = true;
+    front_positive = false;
+    front_negative = false;
+  }
 }
 
 void DiamondController::FrontSteerPositive() {
@@ -538,11 +498,14 @@ void DiamondController::FrontSteerPositive() {
   if (front_positive) {
     return;
   }
-  int result = steer_front->Write(C3, 8);
-  ADEBUG << "FrontSteerPositive command send result:" << result;
-  front_positive = true;
-  front_stop = false;
-  front_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_front_mutex_);
+    int result = steer_front->Write(C3, 8);
+    ADEBUG << "FrontSteerPositive command send result:" << result;
+    front_positive = true;
+    front_stop = false;
+    front_negative = false;
+  }
 }
 
 void DiamondController::FrontSteerNegative() {
@@ -550,11 +513,14 @@ void DiamondController::FrontSteerNegative() {
   if (front_negative) {
     return;
   }
-  int result = steer_front->Write(C4, 8);
-  ADEBUG << "FrontSteerNegative command send result:" << result;
-  front_negative = true;
-  front_positive = false;
-  front_stop = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_front_mutex_);
+    int result = steer_front->Write(C4, 8);
+    ADEBUG << "FrontSteerNegative command send result:" << result;
+    front_negative = true;
+    front_positive = false;
+    front_stop = false;
+  }
 }
 
 void DiamondController::RearSteerStop() {
@@ -562,11 +528,14 @@ void DiamondController::RearSteerStop() {
   if (rear_stop) {
     return;
   }
-  int result = steer_rear->Write(C6, 8);
-  ADEBUG << "RearSteerStop command send result:" << result;
-  rear_stop = true;
-  rear_positive = false;
-  rear_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
+    int result = steer_rear->Write(C6, 8);
+    ADEBUG << "RearSteerStop command send result:" << result;
+    rear_stop = true;
+    rear_positive = false;
+    rear_negative = false;
+  }
 }
 
 void DiamondController::RearSteerPositive() {
@@ -574,11 +543,14 @@ void DiamondController::RearSteerPositive() {
   if (rear_positive) {
     return;
   }
-  int result = steer_rear->Write(C7, 8);
-  ADEBUG << "RearSteerPositive command send result:" << result;
-  rear_positive = true;
-  rear_stop = false;
-  rear_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
+    int result = steer_rear->Write(C7, 8);
+    ADEBUG << "RearSteerPositive command send result:" << result;
+    rear_positive = true;
+    rear_stop = false;
+    rear_negative = false;
+  }
 }
 
 void DiamondController::RearSteerNegative() {
@@ -586,11 +558,14 @@ void DiamondController::RearSteerNegative() {
   if (rear_negative) {
     return;
   }
-  int result = steer_rear->Write(C8, 8);
-  ADEBUG << "RearSteerNegative command send result:" << result;
-  rear_negative = true;
-  rear_positive = false;
-  rear_stop = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
+    int result = steer_rear->Write(C8, 8);
+    ADEBUG << "RearSteerNegative command send result:" << result;
+    rear_negative = true;
+    rear_positive = false;
+    rear_stop = false;
+  }
 }
 
 void DiamondController::SetBatCharging() {
@@ -729,84 +704,6 @@ void DiamondController::set_chassis_error_code(
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   chassis_error_code_ = error_code;
 }
-
-void DiamondController::SetMotorVoltageUp() {
-  ChassisDetail chassis_detail;
-  while (!chassis_detail.diamond().has_id_0x1818d0f3()) {
-    AINFO << "empty chassis detail, waiting.....";
-    std::this_thread::sleep_for(5s);
-    chassis_detail.Clear();
-    message_manager_->GetSensorData(&chassis_detail);
-  }
-
-  // 1. check error flag
-  if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() != 0) {
-    AERROR << "SetMotorVoltageUp flag check Error:"
-           << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
-    return;
-  }
-  // 2. Tell BMS you can release voltage now
-  std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
-  const int ret1 = std::system(cmd1.c_str());
-  if (ret1 == 0) {
-    AINFO << "BMS message send SUCCESS: " << cmd1;
-  } else {
-    AERROR << "BMS message send FAILED(" << ret1 << "): " << cmd1;
-  }
-
-  if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() != false or
-      chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts() == 1) {
-    if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() != 0) {
-      AERROR << "1818d0f3 bybatinsrerr REEOR!!";
-      return;
-    }
-    // 3. K2 up
-    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
-    const int ret2 = std::system(cmd2.c_str());
-    if (ret2 == 0) {
-      AINFO << "K2 up message send SUCCESS: " << cmd2;
-    } else {
-      AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
-    }
-    std::this_thread::sleep_for(5s);
-    chassis_detail.Clear();
-    message_manager_->GetSensorData(&chassis_detail);
-    if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
-                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
-      // 4. K1 up
-      std::string cmd3 = "cansend can0 00AA5701#1100000000000000";
-      const int ret3 = std::system(cmd3.c_str());
-      if (ret3 == 0) {
-        AINFO << "K1 up can message send SUCCESS: " << cmd3;
-      } else {
-        AERROR << "K1 up message send FAILED(" << ret3 << "): " << cmd3;
-      }
-      std::this_thread::sleep_for(3s);
-      // 5. K2 down
-      std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
-      const int ret4 = std::system(cmd4.c_str());
-      std::this_thread::sleep_for(3s);
-      if (ret4 == 0) {
-        AINFO << "K2 down message send SUCCESS: " << cmd4;
-      } else {
-        AERROR << "K2 down message send FAILED(" << ret4 << "): " << cmd4;
-      }
-      // 6.Done
-    } else if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
-                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
-               25) {
-      AERROR << "diff > 25, K2 down";
-      std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
-      const int ret = std::system(cmd5.c_str());
-      if (ret == 0) {
-        AINFO << "K2 down message send SUCCESS: " << cmd5;
-      } else {
-        AERROR << "K2 down message send FAILED(" << ret << "): " << cmd5;
-      }
-    }
-  }
-}
-
 }  // namespace diamond
 }  // namespace canbus
 }  // namespace apollo
