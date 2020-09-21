@@ -59,9 +59,13 @@ bool ControlComponent::Init() {
   front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_front_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
+        front_wheel_angle_value = front_wheel_angle->value();
+        front_wheel_angle_.Clear();
         front_wheel_angle_.CopyFrom(*front_wheel_angle);
+        AINFO << "front_wheel_angle.value() = " << front_wheel_angle->value();
+        is_received = true;
       });
-
+  
   // rear wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
@@ -113,10 +117,11 @@ bool ControlComponent::Proc() {
   } else if (std::abs(front_wheel_angle_.value()) < 2) {
     front_target_pre = 0;
   }*/
-  AINFO << "front_wheel_angle_.value() = " << front_wheel_angle_.value();
-  front_target_pre = front_wheel_angle_.value();
-  AINFO << "front_target_pre = " << front_target_pre;
-  rear_target_pre = rear_wheel_angle_.value();
+
+  //AINFO << "front_wheel_angle_.value() = " << front_wheel_angle_.value();
+  //front_target_pre = front_wheel_angle_.value();
+  //AINFO << "front_target_pre = " << front_target_pre;
+  //rear_target_pre = rear_wheel_angle_.value();
   // front_target_pre = front_wheel_angle_.value();
   // AINFO << "front_target_pre = " << front_target_pre;
   // rear_target_pre = rear_wheel_angle_.value();
@@ -174,7 +179,8 @@ bool ControlComponent::Proc() {
         break;
       }
     }
-
+    AINFO << "front_wheel_angle_value = " << front_wheel_angle_value;
+    // front_target_pre = front_wheel_angle_value;
     switch (FLAGS_magnetic_enable) {
       case 1: {
         // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
@@ -190,11 +196,13 @@ bool ControlComponent::Proc() {
           //} else {
           cmd->set_rear_wheel_target(0);
           //}
-
-          // if (!front_wheel_wakeup) {
-          //  cmd->set_front_wheel_target(front_wheel_angle_.value());
-          //  front_wheel_wakeup = true;
-          //} else {
+          if (!front_wheel_wakeup) {
+            if (is_received) {
+              front_target_pre = front_wheel_angle_value;
+              AINFO << "front wheel wake up.";
+              front_wheel_wakeup = true;
+            }
+          } else {
           if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
           {
             // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
@@ -211,11 +219,13 @@ bool ControlComponent::Proc() {
             // cmd->set_front_wheel_target(front_target_pre);
             // front_wheel_wakeup = true;
             //} else {
+            AINFO << "front_target_pre = " << front_target_pre;
             cmd->set_front_wheel_target(front_target_pre);
             //}
           } else if (std::abs(front_lat_dev_mgs) <= 3.5) {
             cmd->set_front_wheel_target(0);
             front_target_pre = 0;
+          }
           }
 
         } else if (control_conf_.drivemotor_flag() ==

@@ -68,6 +68,9 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
 
   bool front_wheel_wakeup = false;
   bool rear_wheel_wakeup = false;
+
+  double front_wheel_angle_value = 0.0;
+  bool is_received = false;
 };
 
 CYBER_REGISTER_COMPONENT(ControlComponent)
