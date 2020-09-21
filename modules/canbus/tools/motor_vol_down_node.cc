@@ -17,7 +17,7 @@
 void MessageCallback(
     const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
 
-  if(chassis_detail.diamond().id_0x0c09a7f0().fmotvolt() < 10) {
+  if(msg->diamond().id_0x0c09a7f0().fmotvolt() < 10) {
     AINFO << "in motor_vol_down function: motor_vol < 10";
     std::cout << "in motor_vol_down function: motor_vol < 10"  << std::endl;
     apollo::cyber::AsyncShutdown();

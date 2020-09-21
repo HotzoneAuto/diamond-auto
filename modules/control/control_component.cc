@@ -114,7 +114,7 @@ bool ControlComponent::Proc() {
     front_target_pre = 0;
   }*/
   AINFO << "front_wheel_angle_.value() = " << front_wheel_angle_.value();
-  front_target_pre = 17;
+  front_target_pre = front_wheel_angle_.value();
   AINFO << "front_target_pre = " << front_target_pre;
   rear_target_pre = rear_wheel_angle_.value();
   // front_target_pre = front_wheel_angle_.value();
