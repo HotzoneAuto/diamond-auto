@@ -149,8 +149,10 @@ class DiamondController final : public VehicleController {
   bool rear_stop = false;
 
   // 变频器设备 485通信
-  std::mutex steer_front_mutex_;
-  std::mutex steer_rear_mutex_;
+  std::atomic<Chassis::SteeringSwitch> steer_front_switch_ = {
+      Chassis::STEERINGSTOP};
+  std::atomic<Chassis::SteeringSwitch> steer_rear_switch_ = {
+      Chassis::STEERINGSTOP};
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
 
