@@ -1,81 +1,19 @@
-/******************************************************************************
- * Copyright 2018 The Apollo Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *****************************************************************************/
-
-#include "cyber/cyber.h"
-#include "modules/drivers/proto/pointcloud.pb.h"
-//#include <pcl/visualization/cloud_viewer.h>
-#include <pcl/visualization/pcl_visualizer.h>
+#include "modules/perception/lidar_pointcloudcluster/lidar_pointcloudcluster.h"
 #include <iostream>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/crop_box.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/kdtree/kdtree.h>
-#include <pcl/common/transforms.h>
-#include <pcl/common/common.h>
-#include <boost/thread/thread.hpp>
-#include <vector>
-#include <unordered_set>
-#include <string>
-#include <chrono>
-//#include <vtkProp3D.h>
-
 using namespace std;
 
-//pcl::visualization::CloudViewer viewer("point cloud viewer");
-boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("viewer test"));
+pcl::visualization::CloudViewer viewer("point cloud viewer");
 
-//init para
+bool lidar_pointcloudcluster::Init() {
+  AINFO << "Commontest component init";
+  cout << "commontest component init"  << endl;
+  minpoint = Eigen::Vector4f(-10, -6.5, -2, 1);
+  maxpoint = Eigen::Vector4f(30, 6.5, 1, 1);
+  return true;
+}
 
-struct Color
-{
-
-	float r, g, b;
-
-	Color(float setR, float setG, float setB)
-		: r(setR), g(setG), b(setB)
-	{}
-};
-
-struct Box
-{
-	float x_min;
-	float y_min;
-	float z_min;
-	float x_max;
-	float y_max;
-	float z_max;
-};
-
-float filterRes = 0.4;
-Eigen::Vector4f minpoint(-10, -6.5, -2, 1);
-Eigen::Vector4f maxpoint(30, 6.5, 1, 1);
-int maxIterations = 40;
-float distanceThreshold = 0.3;
-float clusterTolerance = 0.5;
-int minsize = 10;
-int maxsize = 140;
-
-void MessageCallback(
-		const std::shared_ptr<apollo::drivers::PointCloud>& msg) {
-  cout << "-----------------------" << msg->point_size() << endl;
+bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg) {
+    cout << "-----------------------" << msg->point_size() << endl;
 //init viewer
 //  viewer->initCameraParameters();
 //  int v1(0);
@@ -108,7 +46,7 @@ void MessageCallback(
   vg.setInputCloud(pcloud);
   vg.setLeafSize(filterRes, filterRes, filterRes);
   vg.filter(*cloudFiltered);
-//  viewer.showCloud(pcloud);
+  viewer.showCloud(pcloud);
 
 //cropbox
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloudRegion(new pcl::PointCloud<pcl::PointXYZ>);
@@ -138,7 +76,7 @@ void MessageCallback(
 
 //segment plane
 //  int num_points = cloudRegion->points.size();
-//  auto cloud_points = cloudRegion->points;
+  auto cloud_points = cloudRegion->points;
 //  Ransac<pcl::PointXYZ> RansacSeg(maxIterations, distanceThreshold, num_points);
   pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
   pcl::PointIndices::Ptr inliers_seg(new pcl::PointIndices);
@@ -212,17 +150,7 @@ void MessageCallback(
 //  viewer->spin();
 
 //  viewer.showCloud(cloudRegion);
+	
+  return true;
 }
 
-int main(int argc, char* argv[]) {
-  // init cyber framework
-  apollo::cyber::Init(argv[0]);
-  // create listener node
-  auto listener_node = apollo::cyber::CreateNode("listener");
-  // create listener
-  auto listener = listener_node->CreateReader<apollo::drivers::PointCloud>(
-		  "/diamond/sensor/lidar/front/PointCloud2", MessageCallback);
-
-  apollo::cyber::WaitForShutdown();
-  return 0;
-}
