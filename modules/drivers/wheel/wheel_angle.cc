@@ -1,7 +1,9 @@
 #include "modules/drivers/wheel/wheel_angle.h"
+#include "cyber/time/rate.h"
 namespace apollo {
 namespace drivers {
 namespace wheel {
+using apollo::cyber::Rate;
 
 WheelAngleComponent::WheelAngleComponent() {}
 
@@ -27,6 +29,7 @@ bool WheelAngleComponent::Init() {
 
 void WheelAngleComponent::Action() {
   WheelAngle angle;
+  Rate rate(100.0);
   while (!apollo::cyber::IsShutdown()) {
     int count = 0;
     static char buffer[10];
@@ -67,6 +70,7 @@ void WheelAngleComponent::Action() {
     angle.set_value(wheel_angle);
     ADEBUG << angle.DebugString();
     wheel_angle_writer_->Write(angle);
+    rate.Sleep();
   }
 }
 
