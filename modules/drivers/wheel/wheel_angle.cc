@@ -3,7 +3,7 @@
 namespace apollo {
 namespace drivers {
 namespace wheel {
-//using apollo::cyber::Rate;
+// using apollo::cyber::Rate;
 
 WheelAngleComponent::WheelAngleComponent() {}
 
