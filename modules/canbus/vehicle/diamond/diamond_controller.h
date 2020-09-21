@@ -149,6 +149,8 @@ class DiamondController final : public VehicleController {
   bool rear_stop = false;
 
   // 变频器设备 485通信
+  std::mutex steer_front_mutex_;
+  std::mutex steer_rear_mutex_;
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
 
@@ -156,9 +158,6 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_realtime = 0;
   // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
-
-  // float dev_front_pre = 0.0;
-  // bool front_wheel_wakeup = false;
 };
 
 }  // namespace diamond

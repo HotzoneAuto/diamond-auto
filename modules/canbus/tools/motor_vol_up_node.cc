@@ -1,24 +1,24 @@
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <utility>
 #include <thread>
+#include <utility>
 #include <vector>
-#include <chrono>
 
 #include "cyber/common/macros.h"
 #include "cyber/cyber.h"
 
 #include "modules/canbus/proto/chassis_detail.pb.h"
 
-
-void MessageCallback(const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
+void MessageCallback(
+    const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
   apollo::canbus::ChassisDetail chassis_detail;
   chassis_detail = *msg;
 
-  if(chassis_detail.diamond().id_0x0c09a7f0().fmotvolt() > 625) {
+  if (chassis_detail.diamond().id_0x0c09a7f0().fmotvolt() > 625) {
     AINFO << "in motor_vol_up function: motor_vol > 625";
-    std::cout << "in motor_vol_up function: motor_vol > 625"  << std::endl;
+    std::cout << "in motor_vol_up function: motor_vol > 625" << std::endl;
     apollo::cyber::AsyncShutdown();
     return;
   }
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
   auto listener_node = apollo::cyber::CreateNode("motor_vol_up_listener");
   // create listener
   auto listener = listener_node->CreateReader<apollo::canbus::ChassisDetail>(
-                  "/diamond/canbus/chassis_detail", MessageCallback);
+      "/diamond/canbus/chassis_detail", MessageCallback);
 
   apollo::cyber::WaitForShutdown();
 

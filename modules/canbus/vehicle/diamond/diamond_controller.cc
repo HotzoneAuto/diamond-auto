@@ -403,12 +403,7 @@ void DiamondController::SteerFront(double front_steering_target) {
     AINFO << "The current driving mode does not need to set steer.";
     return;
   }
-  /*
-    if (!front_wheel_wakeup) {
-      FrontSteerStop();
-      front_wheel_wakeup = true;
-    }
-    */
+
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
@@ -488,11 +483,14 @@ void DiamondController::FrontSteerStop() {
   if (front_stop) {
     return;
   }
-  int result = steer_front->Write(C2, 8);
-  ADEBUG << "FrontSteerStop command send result:" << result;
-  front_stop = true;
-  front_positive = false;
-  front_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_front_mutex_);
+    int result = steer_front->Write(C2, 8);
+    ADEBUG << "FrontSteerStop command send result:" << result;
+    front_stop = true;
+    front_positive = false;
+    front_negative = false;
+  }
 }
 
 void DiamondController::FrontSteerPositive() {
@@ -500,11 +498,14 @@ void DiamondController::FrontSteerPositive() {
   if (front_positive) {
     return;
   }
-  int result = steer_front->Write(C3, 8);
-  ADEBUG << "FrontSteerPositive command send result:" << result;
-  front_positive = true;
-  front_stop = false;
-  front_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_front_mutex_);
+    int result = steer_front->Write(C3, 8);
+    ADEBUG << "FrontSteerPositive command send result:" << result;
+    front_positive = true;
+    front_stop = false;
+    front_negative = false;
+  }
 }
 
 void DiamondController::FrontSteerNegative() {
@@ -512,11 +513,14 @@ void DiamondController::FrontSteerNegative() {
   if (front_negative) {
     return;
   }
-  int result = steer_front->Write(C4, 8);
-  ADEBUG << "FrontSteerNegative command send result:" << result;
-  front_negative = true;
-  front_positive = false;
-  front_stop = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_front_mutex_);
+    int result = steer_front->Write(C4, 8);
+    ADEBUG << "FrontSteerNegative command send result:" << result;
+    front_negative = true;
+    front_positive = false;
+    front_stop = false;
+  }
 }
 
 void DiamondController::RearSteerStop() {
@@ -524,11 +528,14 @@ void DiamondController::RearSteerStop() {
   if (rear_stop) {
     return;
   }
-  int result = steer_rear->Write(C6, 8);
-  ADEBUG << "RearSteerStop command send result:" << result;
-  rear_stop = true;
-  rear_positive = false;
-  rear_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
+    int result = steer_rear->Write(C6, 8);
+    ADEBUG << "RearSteerStop command send result:" << result;
+    rear_stop = true;
+    rear_positive = false;
+    rear_negative = false;
+  }
 }
 
 void DiamondController::RearSteerPositive() {
@@ -536,11 +543,14 @@ void DiamondController::RearSteerPositive() {
   if (rear_positive) {
     return;
   }
-  int result = steer_rear->Write(C7, 8);
-  ADEBUG << "RearSteerPositive command send result:" << result;
-  rear_positive = true;
-  rear_stop = false;
-  rear_negative = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
+    int result = steer_rear->Write(C7, 8);
+    ADEBUG << "RearSteerPositive command send result:" << result;
+    rear_positive = true;
+    rear_stop = false;
+    rear_negative = false;
+  }
 }
 
 void DiamondController::RearSteerNegative() {
@@ -548,11 +558,14 @@ void DiamondController::RearSteerNegative() {
   if (rear_negative) {
     return;
   }
-  int result = steer_rear->Write(C8, 8);
-  ADEBUG << "RearSteerNegative command send result:" << result;
-  rear_negative = true;
-  rear_positive = false;
-  rear_stop = false;
+  {
+    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
+    int result = steer_rear->Write(C8, 8);
+    ADEBUG << "RearSteerNegative command send result:" << result;
+    rear_negative = true;
+    rear_positive = false;
+    rear_stop = false;
+  }
 }
 
 void DiamondController::SetBatCharging() {
