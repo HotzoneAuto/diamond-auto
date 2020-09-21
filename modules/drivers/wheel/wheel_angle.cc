@@ -1,9 +1,9 @@
 #include "modules/drivers/wheel/wheel_angle.h"
-//#include "cyber/time/rate.h"
+#include "cyber/time/rate.h"
 namespace apollo {
 namespace drivers {
 namespace wheel {
-// using apollo::cyber::Rate;
+ using apollo::cyber::Rate;
 
 WheelAngleComponent::WheelAngleComponent() {}
 
