@@ -101,7 +101,6 @@ class DiamondController final : public VehicleController {
   void RearSteerNegative();
 
   void SetBatCharging();
-  void SetMotorVoltageUp();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
@@ -137,7 +136,6 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   std::thread thread_mangetic_;
-  std::future<void> async_action_;
 
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;

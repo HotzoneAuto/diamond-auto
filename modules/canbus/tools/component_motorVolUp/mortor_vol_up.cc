@@ -1,23 +1,23 @@
 #include "modules/canbus/tools/component_motorVolUp/mortor_vol_up.h"
-#include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include <iostream>
+#include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 using namespace std;
 
 bool mortor_vol_up::Init() {
   AINFO << "Commontest component init";
-  cout << "commontest component init"  << endl;
+  cout << "commontest component init" << endl;
   return true;
 }
 
-bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
-
+bool mortor_vol_up::Proc(
+    const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
   apollo::canbus::ChassisDetail chassis_detail;
   chassis_detail = *msg;
   if (!chassis_detail.diamond().has_id_0x1818d0f3()) {
     AINFO << "empty chassis detail, waiting.....";
     std::this_thread::sleep_for(5s);
     chassis_detail.Clear();
-//    message_manager_->GetSensorData(&chassis_detail);
+    //    message_manager_->GetSensorData(&chassis_detail);
   }
 
   // 1. check error flag
@@ -51,7 +51,7 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
     }
     std::this_thread::sleep_for(6s);
     chassis_detail.Clear();
-//    message_manager_->GetSensorData(&chassis_detail);
+    //    message_manager_->GetSensorData(&chassis_detail);
     if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                  chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
       // 4. K1 up
@@ -88,4 +88,3 @@ bool mortor_vol_up::Proc(const std::shared_ptr<apollo::canbus::ChassisDetail>& m
   }
   return true;
 }
-
