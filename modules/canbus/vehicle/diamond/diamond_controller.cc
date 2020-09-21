@@ -426,7 +426,7 @@ void DiamondController::SteerFront(double front_steering_target) {
   while (front_wheel_angle_.value() + 30.0 < kEpsilon) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
-  ADEBUG << "Steer front steering_switch = " << steering_switch;
+  AINFO << "Steer front steering_switch = " << steering_switch;
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
@@ -466,7 +466,7 @@ void DiamondController::SteerRear(double rear_steering_target) {
   while (rear_wheel_angle_.value() + 30.0 < kEpsilon) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
-  ADEBUG << "Steer rear steering_switch = " << steering_switch;
+  AINFO << "Steer rear steering_switch = " << steering_switch;
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       RearSteerPositive();

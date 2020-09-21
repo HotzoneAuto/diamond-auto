@@ -1,7 +1,0 @@
-<cyber>
-    <module>
-        <name>common</name>
-        <dag_conf>/apollo/modules/canbus/tools/component_motorVolUp/mortor_vol_up.dag</dag_conf>
-        <process_name>mortor_vol_up</process_name>
-    </module>
-</cyber>

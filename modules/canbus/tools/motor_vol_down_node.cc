@@ -16,8 +16,16 @@
 
 void MessageCallback(
     const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
+
+  if(chassis_detail.diamond().id_0x0c09a7f0().fmotvolt() < 10) {
+    AINFO << "in motor_vol_down function: motor_vol < 10";
+    std::cout << "in motor_vol_down function: motor_vol < 10"  << std::endl;
+    apollo::cyber::AsyncShutdown();
+    return;
+  }
+
   if (std::abs(msg->diamond().id_0x1818d0f3().fbatcur()) < 5 and
-      std::abs(msg->diamond().id_0x0c08a7f0().fmotcur())) {
+      std::abs(msg->diamond().id_0x0c08a7f0().fmotcur()) < 5) {
     std::string cmd = "cansend can0 00AA5701#0000000000000000";
     const int ret = std::system(cmd.c_str());
     if (ret == 0) {

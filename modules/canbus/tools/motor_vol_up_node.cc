@@ -1,28 +1,31 @@
-#include <chrono>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <thread>
 #include <utility>
+#include <thread>
 #include <vector>
+#include <chrono>
 
 #include "cyber/common/macros.h"
 #include "cyber/cyber.h"
 
 #include "modules/canbus/proto/chassis_detail.pb.h"
-#include "modules/drivers/canbus/proto/can_card_parameter.pb.h"
 
-#include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
-#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
 
-void MessageCallback(
-    const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
+void MessageCallback(const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
   apollo::canbus::ChassisDetail chassis_detail;
   chassis_detail = *msg;
+
+  if(chassis_detail.diamond().id_0x0c09a7f0().fmotvolt() > 625) {
+    AINFO << "in motor_vol_up function: motor_vol > 625";
+    std::cout << "in motor_vol_up function: motor_vol > 625"  << std::endl;
+    apollo::cyber::AsyncShutdown();
+    return;
+  }
+
   if (!chassis_detail.diamond().has_id_0x1818d0f3()) {
     AINFO << "empty chassis detail, waiting.....";
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    chassis_detail.Clear();
   }
 
   // 1. check error flag
@@ -55,7 +58,6 @@ void MessageCallback(
       AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
     }
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    chassis_detail.Clear();
     if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
                  chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
       // 4. K1 up
@@ -98,7 +100,7 @@ int main(int argc, char* argv[]) {
   auto listener_node = apollo::cyber::CreateNode("motor_vol_up_listener");
   // create listener
   auto listener = listener_node->CreateReader<apollo::canbus::ChassisDetail>(
-      "/diamond/canbus/chassis_detail", MessageCallback);
+                  "/diamond/canbus/chassis_detail", MessageCallback);
 
   apollo::cyber::WaitForShutdown();
 
