@@ -19,6 +19,11 @@ class WheelAngleComponent : public apollo::cyber::Component<> {
  public:
   WheelAngleComponent();
   ~WheelAngleComponent();
+  /**
+   * @brief obtain module name
+   * @return module name
+   */
+  std::string Name() const;
   bool Init() override;
   void Action();
 

@@ -1,11 +1,17 @@
 #include "modules/drivers/wheel/wheel_angle.h"
+
 #include "cyber/time/rate.h"
+
+#include "modules/common/util/message_util.h"
+
 namespace apollo {
 namespace drivers {
 namespace wheel {
- using apollo::cyber::Rate;
+using apollo::cyber::Rate;
 
 WheelAngleComponent::WheelAngleComponent() {}
+
+std::string WheelAngleComponent::Name() const { return "wheel"; }
 
 bool WheelAngleComponent::Init() {
   if (!GetProtoConfig(&device_conf_)) {
@@ -28,6 +34,7 @@ bool WheelAngleComponent::Init() {
 
 void WheelAngleComponent::Action() {
   WheelAngle angle;
+  common::util::FillHeader(node_->Name(), &angle);
   Rate rate(100.0);
   while (!apollo::cyber::IsShutdown()) {
     int count = 0;

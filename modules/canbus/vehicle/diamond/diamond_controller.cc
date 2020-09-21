@@ -438,7 +438,6 @@ void DiamondController::SteerFront(double front_steering_target) {
     }
     default: {
       FrontSteerStop();
-      // sleep(1);
       break;
     }
   }
