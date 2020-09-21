@@ -28,7 +28,7 @@ bool WheelAngleComponent::Init() {
 
 void WheelAngleComponent::Action() {
   WheelAngle angle;
-  //Rate rate(100.0);
+  Rate rate(100.0);
   while (!apollo::cyber::IsShutdown()) {
     int count = 0;
     static char buffer[10];
@@ -69,7 +69,7 @@ void WheelAngleComponent::Action() {
     angle.set_value(wheel_angle);
     ADEBUG << angle.DebugString();
     wheel_angle_writer_->Write(angle);
-    //rate.Sleep();
+    rate.Sleep();
   }
 }
 
