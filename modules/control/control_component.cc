@@ -6,7 +6,6 @@
 #include "cyber/cyber.h"
 
 #include "modules/common/util/message_util.h"
-#include "modules/control/control_wheel_angle_real.h"
 
 namespace apollo {
 namespace control {
