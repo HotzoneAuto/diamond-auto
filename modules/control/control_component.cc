@@ -156,14 +156,18 @@ bool ControlComponent::Proc() {
         rear_wheel_target = 0;
 
         // TODO: test wakeup with original mgs data
-        if (!front_wheel_wakeup && is_front_received) {
+        if (!front_wheel_wakeup && is_front_received 
+            && cmd->pad_msg().action() == START) {
           front_target_last = front_wheel_angle_value;
           front_wheel_target = front_wheel_angle_value;
+          limit_front_wheel = false;
           front_wheel_wakeup = true;
+          AINFO << "front_target_last = " << front_target_last;
           AINFO << "front wheel wake up.";
         } else {
           front_wheel_target =
               GetSteerTarget(front_lat_dev_mgs, front_target_last);
+          limit_front_wheel = true;
         }
       } else {
         rear_wheel_target = 0;
@@ -175,17 +179,33 @@ bool ControlComponent::Proc() {
       if (is_destination) {
         cmd->set_brake(control_conf_.soft_estop_brake());
         cmd->set_torque(1);
+        cmd->set_rear_wheel_target(0);
+        cmd->set_front_wheel_target(front_wheel_angle_value);
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
                                 ? drivemotor_torque
                                 : control_conf_.max_torque();
         drivemotor_torque =
             (drivemotor_torque > 0.001) ? drivemotor_torque : 0.001;
-        front_wheel_target =
-            (front_wheel_target < 30.0) ? front_wheel_target : 30.0;
-        cmd->set_torque(drivemotor_torque);
-        cmd->set_rear_wheel_target(rear_wheel_target);
-        cmd->set_front_wheel_target(front_wheel_target);
+        if (limit_front_wheel) {
+          front_wheel_target =
+              (front_wheel_target < 30.0) ? front_wheel_target : 30.0;
+          front_wheel_target =
+              (front_wheel_target > -30.0) ? front_wheel_target : -30.0;
+        }
+        
+        AINFO << "front_wheel_target = " << front_wheel_target;
+
+        if (cmd->pad_msg().action() != DrivingAction::START) {
+          AINFO << "not START, cmd set to 0";
+          cmd->set_torque(0);
+          cmd->set_rear_wheel_target(0);
+          cmd->set_front_wheel_target(0);
+        } else {
+          cmd->set_torque(drivemotor_torque);
+          cmd->set_rear_wheel_target(rear_wheel_target);
+          cmd->set_front_wheel_target(front_wheel_target);
+        }
       }
     }
 
