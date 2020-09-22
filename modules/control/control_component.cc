@@ -6,7 +6,6 @@
 #include "cyber/cyber.h"
 
 #include "modules/common/util/message_util.h"
-#include "modules/control/control_wheel_angle_real.h"
 
 namespace apollo {
 namespace control {
@@ -84,7 +83,7 @@ bool ControlComponent::Init() {
 }
 
 double ControlComponent::PidSpeed() {
-  double pid_e = FLAGS_desired_v - static_cast<double>(chassis_.speed_mps());
+  double pid_e = control_conf_.desired_v() - static_cast<double>(chassis_.speed_mps());
 
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
@@ -154,13 +153,11 @@ bool ControlComponent::Proc() {
         rear_wheel_target = 0;
 
         // TODO: test wakeup with original mgs data
-        if (!front_wheel_wakeup) {
-          if (is_received) {
+        if (!front_wheel_wakeup && is_received) {
             front_target_last = front_wheel_angle_value;
             front_wheel_target = front_wheel_angle_value;
             front_wheel_wakeup = true;
             AINFO << "front wheel wake up.";
-          }
         } else {
           front_wheel_target = GetSteerTarget(front_lat_dev_mgs, front_target_last);
         }
