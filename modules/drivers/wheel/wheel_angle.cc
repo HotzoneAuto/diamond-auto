@@ -1,13 +1,7 @@
 #include "modules/drivers/wheel/wheel_angle.h"
-<<<<<<< HEAD
 #include "cyber/time/rate.h"
-=======
-
-#include "cyber/time/rate.h"
-
 #include "modules/common/util/message_util.h"
 
->>>>>>> ade50cb376b79c9bd889a90a2ff1669b5de57123
 namespace apollo {
 namespace drivers {
 namespace wheel {
