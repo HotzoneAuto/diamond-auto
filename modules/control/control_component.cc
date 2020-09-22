@@ -60,14 +60,16 @@ bool ControlComponent::Init() {
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
         front_wheel_angle_value = front_wheel_angle->value();
         AINFO << "front_wheel_angle.value() = " << front_wheel_angle->value();
-        is_received = true;
+        is_front_received = true;
       });
   
   // rear wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
-        rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
+        rear_wheel_angle_value = rear_wheel_angle->value();
+        AINFO << "rear_wheel_angle.value() = " << rear_wheel_angle->value();
+        is_rear_received = true;
       });
 
   // TODO(tianchuang):Routing Reader
@@ -133,11 +135,10 @@ bool ControlComponent::Proc() {
     if (control_conf_.drivemotor_flag() == 1) {
       // longitudinal control
       if (rfid_front_.id() == control_conf_.front_destnation()) {
-          cmd->set_brake(control_conf_.soft_estop_brake());
+          cmd->set_brake(control_conf_.soft_estop_brake()); 
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
           drivemotor_torque = PidSpeed();
-          drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) ? drivemotor_torque : control_conf_.max_torque();          
         }
       }
 
@@ -153,7 +154,7 @@ bool ControlComponent::Proc() {
         rear_wheel_target = 0;
 
         // TODO: test wakeup with original mgs data
-        if (!front_wheel_wakeup && is_received) {
+        if (!front_wheel_wakeup && is_front_received) {
             front_target_last = front_wheel_angle_value;
             front_wheel_target = front_wheel_angle_value;
             front_wheel_wakeup = true;
@@ -167,6 +168,8 @@ bool ControlComponent::Proc() {
       }
 
       // set control cmd
+      drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) 
+        ? drivemotor_torque : control_conf_.max_torque();
       cmd->set_torque(drivemotor_torque);
       cmd->set_rear_wheel_target(rear_wheel_target);
       front_wheel_target = (front_wheel_target < 30.0) ? front_wheel_target : 30.0;

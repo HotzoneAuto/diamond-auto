@@ -74,7 +74,10 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   bool rear_wheel_wakeup = false;
 
   double front_wheel_angle_value = 0.0;
-  bool is_received = false;
+  bool is_front_received = false;
+
+  double rear_wheel_angle_value = 0.0;
+  bool is_rear_received = false;
 };
 
 static const int encoder2wheel_gear_ratio = 125;

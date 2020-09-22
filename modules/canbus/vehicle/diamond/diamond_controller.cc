@@ -364,6 +364,10 @@ void DiamondController::Brake(double torque, double brake) {
   }
 
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(brake));
+
+  // frequency converter stop
+  FrontSteerStop();
+  RearSteerStop();
 }
 
 void DiamondController::ForwardTorque(double torque) {
