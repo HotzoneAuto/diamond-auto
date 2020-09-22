@@ -137,7 +137,8 @@ bool ControlComponent::Proc() {
           cmd->set_brake(control_conf_.soft_estop_brake());
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
-          drivemotor_torque = (PidSpeed() < 46.0) ? PidSpeed() : 46.0;          
+          drivemotor_torque = PidSpeed();
+          drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) ? drivemotor_torque : control_conf_.max_torque();          
         }
       }
 

@@ -74,5 +74,5 @@ message ControlConf {
   optional int32 drivemotor_flag = 44;
 
   optional double desired_v = 45 [default = 0.0];
-
+  optional double max_torque = 46 [default = 46.0];
 }
