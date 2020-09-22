@@ -152,13 +152,11 @@ bool ControlComponent::Proc() {
         rear_wheel_target = 0;
 
         // TODO: test wakeup with original mgs data
-        if (!front_wheel_wakeup) {
-          if (is_received) {
+        if (!front_wheel_wakeup && is_received) {
             front_target_last = front_wheel_angle_value;
             front_wheel_target = front_wheel_angle_value;
             front_wheel_wakeup = true;
             AINFO << "front wheel wake up.";
-          }
         } else {
           front_wheel_target = GetSteerTarget(front_lat_dev_mgs, front_target_last);
         }
