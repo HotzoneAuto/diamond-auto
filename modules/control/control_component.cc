@@ -62,7 +62,7 @@ bool ControlComponent::Init() {
         AINFO << "front_wheel_angle.value() = " << front_wheel_angle->value();
         is_front_received = true;
       });
-  
+
   // rear wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
@@ -85,7 +85,8 @@ bool ControlComponent::Init() {
 }
 
 double ControlComponent::PidSpeed() {
-  double pid_e = control_conf_.desired_v() - static_cast<double>(chassis_.speed_mps());
+  double pid_e =
+      control_conf_.desired_v() - static_cast<double>(chassis_.speed_mps());
 
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
@@ -103,13 +104,14 @@ double ControlComponent::PidSpeed() {
   return std::isnan(torque) ? 0 : torque;
 }
 
-double ControlComponent::GetSteerTarget(float lat_dev_mgs, double & target_last) {
+double ControlComponent::GetSteerTarget(float lat_dev_mgs,
+                                        double& target_last) {
   double wheel_target;
-  if (lat_dev_mgs < -3.5){
-    wheel_target = 20.0;    
+  if (lat_dev_mgs < -3.5) {
+    wheel_target = 20.0;
   } else if (lat_dev_mgs > 3.5) {
     wheel_target = -20.0;
-  } else if (std::abs(lat_dev_mgs) < 0.1) {    
+  } else if (std::abs(lat_dev_mgs) < 0.1) {
     wheel_target = target_last;
   } else if (std::abs(lat_dev_mgs) <= 3.5) {
     wheel_target = 0;
@@ -134,8 +136,8 @@ bool ControlComponent::Proc() {
     // TODO: Routing Module automatically decides drivemotor_flag
     if (control_conf_.drivemotor_flag() == 1) {
       // longitudinal control
-      if (rfid_front_.id() == control_conf_.front_destnation()) {          
-          is_destination = true;
+      if (rfid_front_.id() == control_conf_.front_destnation()) {
+        is_destination = true;
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
           drivemotor_torque = PidSpeed();
@@ -155,12 +157,13 @@ bool ControlComponent::Proc() {
 
         // TODO: test wakeup with original mgs data
         if (!front_wheel_wakeup && is_front_received) {
-            front_target_last = front_wheel_angle_value;
-            front_wheel_target = front_wheel_angle_value;
-            front_wheel_wakeup = true;
-            AINFO << "front wheel wake up.";
+          front_target_last = front_wheel_angle_value;
+          front_wheel_target = front_wheel_angle_value;
+          front_wheel_wakeup = true;
+          AINFO << "front wheel wake up.";
         } else {
-          front_wheel_target = GetSteerTarget(front_lat_dev_mgs, front_target_last);
+          front_wheel_target =
+              GetSteerTarget(front_lat_dev_mgs, front_target_last);
         }
       } else {
         rear_wheel_target = 0;
@@ -173,13 +176,15 @@ bool ControlComponent::Proc() {
         cmd->set_brake(control_conf_.soft_estop_brake());
         cmd->set_torque(1);
       } else {
-        drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) 
-          ? drivemotor_torque : control_conf_.max_torque();
-        drivemotor_torque = (drivemotor_torque > 0.001) 
-          ? drivemotor_torque : 0.001;
-        front_wheel_target = (front_wheel_target < 30.0) ? front_wheel_target : 30.0;        
+        drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
+                                ? drivemotor_torque
+                                : control_conf_.max_torque();
+        drivemotor_torque =
+            (drivemotor_torque > 0.001) ? drivemotor_torque : 0.001;
+        front_wheel_target =
+            (front_wheel_target < 30.0) ? front_wheel_target : 30.0;
         cmd->set_torque(drivemotor_torque);
-        cmd->set_rear_wheel_target(rear_wheel_target);        
+        cmd->set_rear_wheel_target(rear_wheel_target);
         cmd->set_front_wheel_target(front_wheel_target);
       }
     }

@@ -37,7 +37,7 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   bool Init() override;
   bool Proc() override;
   double PidSpeed();
-  double GetSteerTarget(float lat_dev_mgs);
+  double GetSteerTarget(float lat_dev_mgs, double& target_last);
   Chassis chassis_;
   ControlConf control_conf_;
   RFID rfid_front_;

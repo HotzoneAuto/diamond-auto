@@ -18,16 +18,6 @@ cc_library(
     hdrs = ["control_component.h"],
     copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
-        ":control_lib",
-    ],
-)
-
-cc_library(
-    name = "control_lib",
-    srcs = [],
-    hdrs = ["control_wheel_angle_real.h"],
-    copts = ['-DMODULE_NAME=\\"control\\"'],
-    deps = [
         "//cyber",
         "//modules/canbus/proto:chassis_cc_proto",
         "//modules/common/time",
@@ -42,13 +32,6 @@ cc_library(
         "@com_github_gflags_gflags//:gflags",
     ],
 )
-
-# cc_library(
-#     name = "pid",
-#     srcs = [],
-#     hdrs = ["control_pid.h"],
-# )
-
 
 
 cpplint()
