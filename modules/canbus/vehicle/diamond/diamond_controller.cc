@@ -37,7 +37,6 @@ namespace apollo {
 namespace canbus {
 namespace diamond {
 
-using namespace std::chrono;
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
 using ::apollo::drivers::canbus::ProtocolData;
@@ -53,9 +52,7 @@ const int32_t CHECK_RESPONSE_SPEED_UNIT_FLAG = 2;
 }  // namespace
 
 ErrorCode DiamondController::Init(
-    const VehicleParameter& params,
-    apollo::drivers::canbus::CanClient* can_client,
-    std::shared_ptr<apollo::cyber::Node> node,
+    const VehicleParameter& params, std::shared_ptr<apollo::cyber::Node> node,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
   if (is_initialized_) {
@@ -68,11 +65,6 @@ ErrorCode DiamondController::Init(
     AERROR << "Vehicle conf pb not set driving_mode.";
     return ErrorCode::CANBUS_ERROR;
   }
-
-  if (can_client == nullptr) {
-    return ErrorCode::CANBUS_ERROR;
-  }
-  can_client_ = can_client;
 
   if (node == nullptr) {
     return ErrorCode::CANBUS_ERROR;
@@ -278,8 +270,7 @@ ErrorCode DiamondController::EnableAutoMode() {
   // Steering const speed set
   int result_front = steer_front->Write(C1, 8);
   ADEBUG << "Front Steer const speed command send result:" << result_front;
-  
-  // Steering const speed set
+
   int result_rear = steer_rear->Write(C5, 8);
   ADEBUG << "Rear Steer const speed command send result:" << result_rear;
 
@@ -304,7 +295,7 @@ ErrorCode DiamondController::DisableAutoMode() {
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
   // Steering stop command for 485
-  for (int i = 0;i < 1000;i++) {
+  for (int i = 0; i < 1000; i++) {
     FrontSteerStop();
     RearSteerStop();
     std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
@@ -489,62 +480,38 @@ void DiamondController::SteerRear(double rear_steering_target) {
 
 void DiamondController::FrontSteerStop() {
   SetBatCharging();
-  //if (steer_front_switch_.load() == Chassis::STEERINGSTOP) {
-  //  return;
-  //}
   int result = steer_front->Write(C2, 8);
   ADEBUG << "FrontSteerStop command send result:" << result;
-  //steer_front_switch_.store(Chassis::STEERINGSTOP);
 }
 
 void DiamondController::FrontSteerPositive() {
   SetBatCharging();
-  //if (steer_front_switch_.load() == Chassis::STEERINGPOSITIVE) {
-  //  return;
-  //}
   int result = steer_front->Write(C3, 8);
   ADEBUG << "FrontSteerPositive command send result:" << result;
-  //steer_front_switch_.store(Chassis::STEERINGPOSITIVE);
 }
 
 void DiamondController::FrontSteerNegative() {
   SetBatCharging();
-  //if (steer_front_switch_.load() == Chassis::STEERINGNEGATIVE) {
-  //  return;
-  //}
   int result = steer_front->Write(C4, 8);
   ADEBUG << "FrontSteerNegative command send result:" << result;
-  //steer_front_switch_.store(Chassis::STEERINGNEGATIVE);
 }
 
 void DiamondController::RearSteerStop() {
   SetBatCharging();
-  //if (steer_rear_switch_.load() == Chassis::STEERINGSTOP) {
-  //  return;
-  //}
   int result = steer_rear->Write(C6, 8);
   ADEBUG << "RearSteerStop command send result:" << result;
-  //steer_rear_switch_.store(Chassis::STEERINGSTOP);
 }
 
 void DiamondController::RearSteerPositive() {
   SetBatCharging();
-  //if (steer_rear_switch_.load() == Chassis::STEERINGPOSITIVE) {
-  //  return;
-  //}
   int result = steer_rear->Write(C7, 8);
   ADEBUG << "RearSteerPositive command send result:" << result;
-  //steer_rear_switch_.store(Chassis::STEERINGPOSITIVE);
 }
 
 void DiamondController::RearSteerNegative() {
   SetBatCharging();
-  //if (steer_rear_switch_.load() == Chassis::STEERINGNEGATIVE) {
-  //  return;
-  //}
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
-  //steer_rear_switch_.store(Chassis::STEERINGNEGATIVE);
 }
 
 void DiamondController::SetBatCharging() {
@@ -562,28 +529,6 @@ void DiamondController::SetEpbBreak(const ControlCommand& command) {
   } else {
     // None
   }
-}
-
-void DiamondController::SetBeam(const ControlCommand& command) {
-  if (command.signal().high_beam()) {
-    // None
-  } else if (command.signal().low_beam()) {
-    // None
-  } else {
-    // None
-  }
-}
-
-void DiamondController::SetHorn(const ControlCommand& command) {
-  if (command.signal().horn()) {
-    // None
-  } else {
-    // None
-  }
-}
-
-void DiamondController::SetTurningSignal(const ControlCommand& command) {
-  // Set Turn Signal
 }
 
 void DiamondController::ResetProtocol() {

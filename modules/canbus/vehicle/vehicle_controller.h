@@ -65,9 +65,7 @@ class VehicleController {
    * @return error_code
    */
   virtual common::ErrorCode Init(
-      const VehicleParameter &params,
-      apollo::drivers::canbus::CanClient *can_client,
-      std::shared_ptr<apollo::cyber::Node> node,
+      const VehicleParameter &params, std::shared_ptr<apollo::cyber::Node> node,
       CanSender<ChassisDetail> *const can_sender,
       MessageManager<ChassisDetail> *const message_manager) = 0;
 
@@ -145,10 +143,6 @@ class VehicleController {
    * @brief set Electrical Park Brake
    */
   virtual void SetEpbBreak(const control::ControlCommand &command) = 0;
-  virtual void SetBeam(const control::ControlCommand &command) = 0;
-  virtual void SetHorn(const control::ControlCommand &command) = 0;
-  virtual void SetTurningSignal(const control::ControlCommand &command) = 0;
-
   virtual void SetLimits() {}
 
  protected:
@@ -159,7 +153,6 @@ class VehicleController {
   canbus::VehicleParameter params_;
   common::VehicleParam vehicle_params_;
   CanSender<ChassisDetail> *can_sender_ = nullptr;
-  CanClient *can_client_ = nullptr;
   MessageManager<ChassisDetail> *message_manager_ = nullptr;
   //   std::shared_ptr<apollo::cyber::Node> node_ = nullptr;
   bool is_initialized_ = false;  // own by derviative concrete controller

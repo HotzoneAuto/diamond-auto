@@ -93,8 +93,8 @@ bool CanbusComponent::Init() {
   }
   AINFO << "The vehicle controller is successfully created.";
 
-  if (vehicle_controller_->Init(canbus_conf_.vehicle_parameter(),
-                                can_client_.get(), node_, &can_sender_,
+  if (vehicle_controller_->Init(canbus_conf_.vehicle_parameter(), node_,
+                                &can_sender_,
                                 message_manager_.get()) != ErrorCode::OK) {
     AERROR << "Failed to init vehicle controller.";
     return false;
