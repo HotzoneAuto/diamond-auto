@@ -160,6 +160,7 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_realtime = 0;
   // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
+
 };
 
 }  // namespace diamond

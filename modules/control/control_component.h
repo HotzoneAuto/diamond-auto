@@ -80,6 +80,8 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   bool is_rear_received = false;
 
   bool is_destination = false;
+
+  bool limit_front_wheel = true;
 };
 
 static const int encoder2wheel_gear_ratio = 125;

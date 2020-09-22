@@ -112,8 +112,8 @@ ErrorCode DiamondController::Init(
 
   steer_front = std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
   steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
-  steer_front->SetOpt(9600, 8, 'N', 1);
-  steer_rear->SetOpt(9600, 8, 'N', 1);
+  steer_front->SetOpt(38400, 8, 'N', 1);
+  steer_rear->SetOpt(38400, 8, 'N', 1);
 
   // wheel angle Reader
   // remove to canbus_component
@@ -278,7 +278,8 @@ ErrorCode DiamondController::EnableAutoMode() {
   // Steering const speed set
   int result_front = steer_front->Write(C1, 8);
   ADEBUG << "Front Steer const speed command send result:" << result_front;
-
+  
+  // Steering const speed set
   int result_rear = steer_rear->Write(C5, 8);
   ADEBUG << "Rear Steer const speed command send result:" << result_rear;
 
@@ -297,14 +298,17 @@ ErrorCode DiamondController::EnableAutoMode() {
 }
 
 ErrorCode DiamondController::DisableAutoMode() {
-  // Steering stop command for 485
-  FrontSteerStop();
-  RearSteerStop();
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
   ResetProtocol();
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
+  // Steering stop command for 485
+  for (int i = 0;i < 1000;i++) {
+    FrontSteerStop();
+    RearSteerStop();
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
+  }
   AINFO << "Switch to COMPLETE_MANUAL ok.";
   return ErrorCode::OK;
 }
@@ -367,8 +371,8 @@ void DiamondController::Brake(double torque, double brake) {
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(brake));
 
   // frequency converter stop
-  FrontSteerStop();
-  RearSteerStop();
+  // FrontSteerStop();
+  // RearSteerStop();
 }
 
 void DiamondController::ForwardTorque(double torque) {
@@ -420,10 +424,10 @@ void DiamondController::SteerFront(double front_steering_target) {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
 
-  while (front_wheel_angle_.value() - 30.0 > kEpsilon) {
+  while (front_wheel_angle_.value() - 35.0 > kEpsilon) {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
-  while (front_wheel_angle_.value() + 30.0 < kEpsilon) {
+  while (front_wheel_angle_.value() + 35.0 < kEpsilon) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer front steering_switch = " << steering_switch;
@@ -460,10 +464,10 @@ void DiamondController::SteerRear(double rear_steering_target) {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
 
-  while (rear_wheel_angle_.value() - 30.0 > kEpsilon) {
+  while (rear_wheel_angle_.value() - 35.0 > kEpsilon) {
     steering_switch = Chassis::STEERINGNEGATIVE;
   }
-  while (rear_wheel_angle_.value() + 30.0 < kEpsilon) {
+  while (rear_wheel_angle_.value() + 35.0 < kEpsilon) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer rear steering_switch = " << steering_switch;
@@ -485,62 +489,62 @@ void DiamondController::SteerRear(double rear_steering_target) {
 
 void DiamondController::FrontSteerStop() {
   SetBatCharging();
-  if (steer_front_switch_.load() == Chassis::STEERINGSTOP) {
-    return;
-  }
+  //if (steer_front_switch_.load() == Chassis::STEERINGSTOP) {
+  //  return;
+  //}
   int result = steer_front->Write(C2, 8);
   ADEBUG << "FrontSteerStop command send result:" << result;
-  steer_front_switch_.store(Chassis::STEERINGSTOP);
+  //steer_front_switch_.store(Chassis::STEERINGSTOP);
 }
 
 void DiamondController::FrontSteerPositive() {
   SetBatCharging();
-  if (steer_front_switch_.load() == Chassis::STEERINGPOSITIVE) {
-    return;
-  }
+  //if (steer_front_switch_.load() == Chassis::STEERINGPOSITIVE) {
+  //  return;
+  //}
   int result = steer_front->Write(C3, 8);
   ADEBUG << "FrontSteerPositive command send result:" << result;
-  steer_front_switch_.store(Chassis::STEERINGPOSITIVE);
+  //steer_front_switch_.store(Chassis::STEERINGPOSITIVE);
 }
 
 void DiamondController::FrontSteerNegative() {
   SetBatCharging();
-  if (steer_front_switch_.load() == Chassis::STEERINGNEGATIVE) {
-    return;
-  }
+  //if (steer_front_switch_.load() == Chassis::STEERINGNEGATIVE) {
+  //  return;
+  //}
   int result = steer_front->Write(C4, 8);
   ADEBUG << "FrontSteerNegative command send result:" << result;
-  steer_front_switch_.store(Chassis::STEERINGNEGATIVE);
+  //steer_front_switch_.store(Chassis::STEERINGNEGATIVE);
 }
 
 void DiamondController::RearSteerStop() {
   SetBatCharging();
-  if (steer_rear_switch_.load() == Chassis::STEERINGSTOP) {
-    return;
-  }
+  //if (steer_rear_switch_.load() == Chassis::STEERINGSTOP) {
+  //  return;
+  //}
   int result = steer_rear->Write(C6, 8);
   ADEBUG << "RearSteerStop command send result:" << result;
-  steer_rear_switch_.store(Chassis::STEERINGSTOP);
+  //steer_rear_switch_.store(Chassis::STEERINGSTOP);
 }
 
 void DiamondController::RearSteerPositive() {
   SetBatCharging();
-  if (steer_rear_switch_.load() == Chassis::STEERINGPOSITIVE) {
-    return;
-  }
+  //if (steer_rear_switch_.load() == Chassis::STEERINGPOSITIVE) {
+  //  return;
+  //}
   int result = steer_rear->Write(C7, 8);
   ADEBUG << "RearSteerPositive command send result:" << result;
-  steer_rear_switch_.store(Chassis::STEERINGPOSITIVE);
+  //steer_rear_switch_.store(Chassis::STEERINGPOSITIVE);
 }
 
 void DiamondController::RearSteerNegative() {
   SetBatCharging();
-  if (steer_rear_switch_.load() == Chassis::STEERINGNEGATIVE) {
-    return;
-  }
+  //if (steer_rear_switch_.load() == Chassis::STEERINGNEGATIVE) {
+  //  return;
+  //}
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
-  steer_rear_switch_.store(Chassis::STEERINGNEGATIVE);
+  //steer_rear_switch_.store(Chassis::STEERINGNEGATIVE);
 }
 
 void DiamondController::SetBatCharging() {
