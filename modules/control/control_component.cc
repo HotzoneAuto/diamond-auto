@@ -175,6 +175,8 @@ bool ControlComponent::Proc() {
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) 
           ? drivemotor_torque : control_conf_.max_torque();
+        drivemotor_torque = (drivemotor_torque > 0.001) 
+          ? drivemotor_torque : 0.001;
         front_wheel_target = (front_wheel_target < 30.0) ? front_wheel_target : 30.0;        
         cmd->set_torque(drivemotor_torque);
         cmd->set_rear_wheel_target(rear_wheel_target);        
