@@ -37,6 +37,7 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   bool Init() override;
   bool Proc() override;
   double PidSpeed();
+  double GetSteerTarget(float lat_dev_mgs);
   Chassis chassis_;
   ControlConf control_conf_;
   RFID rfid_front_;
@@ -63,8 +64,11 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   double pid_int = 0;
   double pid_e_pre = 0;
 
-  double front_target_pre = 0;
-  double rear_target_pre = 0;
+  double front_wheel_target = 0;
+  double rear_wheel_target = 0;
+
+  double front_target_last = 0;
+  double rear_target_last = 0;
 
   bool front_wheel_wakeup = false;
   bool rear_wheel_wakeup = false;
@@ -72,6 +76,20 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   double front_wheel_angle_value = 0.0;
   bool is_received = false;
 };
+
+static const int encoder2wheel_gear_ratio = 125;
+static float drivemotor_torque = 0;
+
+// TODO: need calibration
+static const float speed_motor_deadzone_calibration = 50;
+
+static const float r_wheel = 0.34;
+static const float m_veh = 13000;
+constexpr float g = 9.8;
+constexpr float f_c = 0.018;
+constexpr float i_1 = 3.11;
+constexpr float i_0 = 5.857;
+constexpr float yita_t = 0.85;
 
 CYBER_REGISTER_COMPONENT(ControlComponent)
 }  // namespace control
