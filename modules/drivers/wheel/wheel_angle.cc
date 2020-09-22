@@ -1,7 +1,5 @@
 #include "modules/drivers/wheel/wheel_angle.h"
-
 #include "cyber/time/rate.h"
-
 #include "modules/common/util/message_util.h"
 
 namespace apollo {
