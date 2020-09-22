@@ -116,6 +116,7 @@ ErrorCode DiamondController::Init(
   steer_rear->SetOpt(9600, 8, 'N', 1);
 
   // wheel angle Reader
+  // remove to canbus_component
   front_wheel_angle_reader_ = node->CreateReader<WheelAngle>(
       FLAGS_front_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
@@ -484,92 +485,62 @@ void DiamondController::SteerRear(double rear_steering_target) {
 
 void DiamondController::FrontSteerStop() {
   SetBatCharging();
-  if (front_stop) {
+  if (steer_front_switch_.load() == Chassis::STEERINGSTOP) {
     return;
   }
-  {
-    std::lock_guard<std::mutex> lock(steer_front_mutex_);
-    int result = steer_front->Write(C2, 8);
-    ADEBUG << "FrontSteerStop command send result:" << result;
-    front_stop = true;
-    front_positive = false;
-    front_negative = false;
-  }
+  int result = steer_front->Write(C2, 8);
+  ADEBUG << "FrontSteerStop command send result:" << result;
+  steer_front_switch_.store(Chassis::STEERINGSTOP);
 }
 
 void DiamondController::FrontSteerPositive() {
   SetBatCharging();
-  if (front_positive) {
+  if (steer_front_switch_.load() == Chassis::STEERINGPOSITIVE) {
     return;
   }
-  {
-    std::lock_guard<std::mutex> lock(steer_front_mutex_);
-    int result = steer_front->Write(C3, 8);
-    ADEBUG << "FrontSteerPositive command send result:" << result;
-    front_positive = true;
-    front_stop = false;
-    front_negative = false;
-  }
+  int result = steer_front->Write(C3, 8);
+  ADEBUG << "FrontSteerPositive command send result:" << result;
+  steer_front_switch_.store(Chassis::STEERINGPOSITIVE);
 }
 
 void DiamondController::FrontSteerNegative() {
   SetBatCharging();
-  if (front_negative) {
+  if (steer_front_switch_.load() == Chassis::STEERINGNEGATIVE) {
     return;
   }
-  {
-    std::lock_guard<std::mutex> lock(steer_front_mutex_);
-    int result = steer_front->Write(C4, 8);
-    ADEBUG << "FrontSteerNegative command send result:" << result;
-    front_negative = true;
-    front_positive = false;
-    front_stop = false;
-  }
+  int result = steer_front->Write(C4, 8);
+  ADEBUG << "FrontSteerNegative command send result:" << result;
+  steer_front_switch_.store(Chassis::STEERINGNEGATIVE);
 }
 
 void DiamondController::RearSteerStop() {
   SetBatCharging();
-  if (rear_stop) {
+  if (steer_rear_switch_.load() == Chassis::STEERINGSTOP) {
     return;
   }
-  {
-    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
-    int result = steer_rear->Write(C6, 8);
-    ADEBUG << "RearSteerStop command send result:" << result;
-    rear_stop = true;
-    rear_positive = false;
-    rear_negative = false;
-  }
+  int result = steer_rear->Write(C6, 8);
+  ADEBUG << "RearSteerStop command send result:" << result;
+  steer_rear_switch_.store(Chassis::STEERINGSTOP);
 }
 
 void DiamondController::RearSteerPositive() {
   SetBatCharging();
-  if (rear_positive) {
+  if (steer_rear_switch_.load() == Chassis::STEERINGPOSITIVE) {
     return;
   }
-  {
-    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
-    int result = steer_rear->Write(C7, 8);
-    ADEBUG << "RearSteerPositive command send result:" << result;
-    rear_positive = true;
-    rear_stop = false;
-    rear_negative = false;
-  }
+  int result = steer_rear->Write(C7, 8);
+  ADEBUG << "RearSteerPositive command send result:" << result;
+  steer_rear_switch_.store(Chassis::STEERINGPOSITIVE);
 }
 
 void DiamondController::RearSteerNegative() {
   SetBatCharging();
-  if (rear_negative) {
+  if (steer_rear_switch_.load() == Chassis::STEERINGNEGATIVE) {
     return;
   }
-  {
-    std::lock_guard<std::mutex> lock(steer_rear_mutex_);
-    int result = steer_rear->Write(C8, 8);
-    ADEBUG << "RearSteerNegative command send result:" << result;
-    rear_negative = true;
-    rear_positive = false;
-    rear_stop = false;
-  }
+  int result = steer_rear->Write(C8, 8);
+  ADEBUG << "RearSteerNegative command send result:" << result;
+  steer_rear_switch_.store(Chassis::STEERINGNEGATIVE);
 }
 
 void DiamondController::SetBatCharging() {
