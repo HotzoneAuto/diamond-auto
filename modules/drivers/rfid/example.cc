@@ -33,7 +33,7 @@ void OnData(std::shared_ptr<apollo::cyber::Node> node) {
   static char buffer[20];
   static char buf;
   std::shared_ptr<apollo::cyber::Writer<apollo::drivers::RFID>> rfid_writer_ =
-      node->CreateWriter<apollo::drivers::RFID>(FLAGS_rfid_topic);
+      node->CreateWriter<apollo::drivers::RFID>(FLAGS_rfid_rear_topic);
   while (!apollo::cyber::IsShutdown()) {
     count = 0;
     std::memset(buffer, 0, 20);

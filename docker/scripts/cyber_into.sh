@@ -46,15 +46,15 @@ if [ "${TARGET_ARCH}" == "x86_64" ]; then
         -it "${CYBER_CONTAINER}" \
         /bin/bash
 elif [ "${TARGET_ARCH}" == "aarch64" ]; then
-    info "For the first time after CyberRT container starts, you can running" \
-         "the following two commands to su to a non-root user:"
-    info "1) /apollo/scripts/docker_start_user.sh"
-    info "2) su - ${DOCKER_USER}"
+    #info "For the first time after CyberRT container starts, you can running" \
+    #     "the following two commands to su to a non-root user:"
+    #info "1) /apollo/scripts/docker_start_user.sh"
+    #info "2) su - ${DOCKER_USER}"
 
     # warning "! To exit, please use 'ctrl+p ctrl+q' !"
     # docker attach "${CYBER_CONTAINER}"
     docker exec \
-        -u root \
+        -u "${DOCKER_USER}" \
         -it "${CYBER_CONTAINER}" \
         /bin/bash
 else

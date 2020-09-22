@@ -1,7 +1,7 @@
 <cyber>
     <module>
-        <name>LPMS</name>
-        <dag_conf>/apollo/modules/drivers/LPMS/Dag/LPMS.dag</dag_conf>
-        <process_name>LPMS</process_name>
+        <name>imu</name>
+        <dag_conf>/apollo/modules/drivers/imu/dag/imu.dag</dag_conf>
+        <process_name>imu</process_name>
     </module>
 </cyber>

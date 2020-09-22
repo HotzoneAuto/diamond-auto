@@ -21,6 +21,7 @@ cc_library(
     deps = [
         "//cyber",
         "//modules/common/util:uart",
+        "//modules/common/util:message_util",
         "//modules/drivers/proto:wheelangle_cc_proto",
         "//modules/drivers/wheel/proto:device_conf_cc_proto",
         "//modules/common/adapters:adapter_gflags",

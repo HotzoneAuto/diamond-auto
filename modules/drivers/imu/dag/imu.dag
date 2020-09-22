@@ -1,5 +1,5 @@
 module_config{
-    module_library: "/apollo/bazel-bin/modules/drivers/rfid/librfid.so"
+    module_library: "/apollo/bazel-bin/modules/drivers/imu/libimu.so"
     components{
         class_name: "LPMSDriverComponent"
         config{
