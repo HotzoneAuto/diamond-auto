@@ -27,6 +27,8 @@ function _create_user_account() {
     adduser --disabled-password --force-badname --gecos '' \
             "${user_name}" --uid "${uid}" --gid "${gid}" # 2>/dev/null
 
+    usermod -l "${user_name}" -d /home/"${user_name}" -m "edu002"
+    groupmod -n "${user_name}" "edu002"
     usermod -aG sudo "${user_name}"
 }
 
