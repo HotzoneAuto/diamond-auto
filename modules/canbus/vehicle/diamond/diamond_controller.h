@@ -47,9 +47,7 @@ class DiamondController final : public VehicleController {
   virtual ~DiamondController();
 
   ::apollo::common::ErrorCode Init(
-      const VehicleParameter& params,
-      apollo::drivers::canbus::CanClient* can_client,
-      std::shared_ptr<apollo::cyber::Node> node,
+      const VehicleParameter& params, std::shared_ptr<apollo::cyber::Node> node,
       CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
       MessageManager<::apollo::canbus::ChassisDetail>* const message_manager)
       override;
@@ -104,10 +102,6 @@ class DiamondController final : public VehicleController {
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
-  void SetBeam(const ::apollo::control::ControlCommand& command) override;
-  void SetHorn(const ::apollo::control::ControlCommand& command) override;
-  void SetTurningSignal(
-      const ::apollo::control::ControlCommand& command) override;
 
   void ResetProtocol();
   bool CheckChassisError();
@@ -141,18 +135,8 @@ class DiamondController final : public VehicleController {
   WheelAngle rear_wheel_angle_;
   std::shared_ptr<apollo::cyber::Reader<WheelAngle>> front_wheel_angle_reader_;
   std::shared_ptr<apollo::cyber::Reader<WheelAngle>> rear_wheel_angle_reader_;
-  bool front_positive = false;
-  bool front_negative = false;
-  bool front_stop = false;
-  bool rear_positive = false;
-  bool rear_negative = false;
-  bool rear_stop = false;
 
   // 变频器设备 485通信
-  std::atomic<Chassis::SteeringSwitch> steer_front_switch_ = {
-      Chassis::STEERINGSTOP};
-  std::atomic<Chassis::SteeringSwitch> steer_rear_switch_ = {
-      Chassis::STEERINGSTOP};
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
 
@@ -160,7 +144,6 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_realtime = 0;
   // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
-
 };
 
 }  // namespace diamond

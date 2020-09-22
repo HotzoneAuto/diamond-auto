@@ -156,8 +156,8 @@ bool ControlComponent::Proc() {
         rear_wheel_target = 0;
 
         // TODO: test wakeup with original mgs data
-        if (!front_wheel_wakeup && is_front_received 
-            && cmd->pad_msg().action() == START) {
+        if (!front_wheel_wakeup && is_front_received &&
+            cmd->pad_msg().action() == START) {
           front_target_last = front_wheel_angle_value;
           front_wheel_target = front_wheel_angle_value;
           limit_front_wheel = false;
@@ -193,7 +193,7 @@ bool ControlComponent::Proc() {
           front_wheel_target =
               (front_wheel_target > -30.0) ? front_wheel_target : -30.0;
         }
-        
+
         AINFO << "front_wheel_target = " << front_wheel_target;
 
         if (cmd->pad_msg().action() != DrivingAction::START) {
