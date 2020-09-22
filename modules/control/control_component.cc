@@ -134,8 +134,8 @@ bool ControlComponent::Proc() {
     // TODO: Routing Module automatically decides drivemotor_flag
     if (control_conf_.drivemotor_flag() == 1) {
       // longitudinal control
-      if (rfid_front_.id() == control_conf_.front_destnation()) {
-          cmd->set_brake(control_conf_.soft_estop_brake()); 
+      if (rfid_front_.id() == control_conf_.front_destnation()) {          
+          is_destination = true;
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
           drivemotor_torque = PidSpeed();
@@ -168,12 +168,18 @@ bool ControlComponent::Proc() {
       }
 
       // set control cmd
-      drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) 
-        ? drivemotor_torque : control_conf_.max_torque();
-      cmd->set_torque(drivemotor_torque);
-      cmd->set_rear_wheel_target(rear_wheel_target);
-      front_wheel_target = (front_wheel_target < 30.0) ? front_wheel_target : 30.0;
-      cmd->set_front_wheel_target(front_wheel_target);
+      // check estop, ture: brake=10,torque=1, write
+      if (is_destination) {
+        cmd->set_brake(control_conf_.soft_estop_brake());
+        cmd->set_torque(1);
+      } else {
+        drivemotor_torque = (drivemotor_torque < control_conf_.max_torque()) 
+          ? drivemotor_torque : control_conf_.max_torque();
+        front_wheel_target = (front_wheel_target < 30.0) ? front_wheel_target : 30.0;        
+        cmd->set_torque(drivemotor_torque);
+        cmd->set_rear_wheel_target(rear_wheel_target);        
+        cmd->set_front_wheel_target(front_wheel_target);
+      }
     }
 
     common::util::FillHeader(node_->Name(), cmd.get());
