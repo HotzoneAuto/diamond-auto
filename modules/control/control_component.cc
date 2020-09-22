@@ -83,7 +83,7 @@ bool ControlComponent::Init() {
 }
 
 double ControlComponent::PidSpeed() {
-  double pid_e = FLAGS_desired_v - static_cast<double>(chassis_.speed_mps());
+  double pid_e = control_conf_.desired_v() - static_cast<double>(chassis_.speed_mps());
 
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
@@ -136,7 +136,8 @@ bool ControlComponent::Proc() {
           cmd->set_brake(control_conf_.soft_estop_brake());
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
-          drivemotor_torque = (PidSpeed() < 46.0) ? PidSpeed() : 46.0;          
+          drivemotor_torque = PidSpeed();
+          drivemotor_torque = (drivemotor_torque < 46.0) ? drivemotor_torque : 46.0;          
         }
       }
 
