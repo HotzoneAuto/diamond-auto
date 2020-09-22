@@ -60,7 +60,7 @@ class lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud> {
   Eigen::Vector4f minpoint;
   Eigen::Vector4f maxpoint;
   int maxIterations = 40;
-  float distanceThreshold = 0.3;
+  float distanceThreshold = 0.5;
   float clusterTolerance = 0.5;
   int minsize = 10;
   int maxsize = 140;

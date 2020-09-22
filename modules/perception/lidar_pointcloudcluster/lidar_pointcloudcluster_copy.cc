@@ -1,6 +1,6 @@
 #include "modules/perception/lidar_pointcloudcluster/lidar_pointcloudcluster.h"
 
-boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("viewer test"));
+boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new   pcl::visualization::PCLVisualizer("viewer test"));
 
 bool lidar_pointcloudcluster::Init() {
   AINFO << "Commontest component init";
@@ -72,71 +72,6 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   extract.setIndices(inliers);
   extract.setNegative(true);
   extract.filter(*cloudRegion);
-/*
-//Ransac segment
-  std::unordered_set<int> inlier_result;
-  int num_points = cloudRegion->points.size();
-  auto cloud_points = cloudRegion->points;
-  while(maxIterations--) {
-    std::unordered_set<int> inliers_temp;
-    
-    while(inliers_temp.size() < 3) {
-      inliers_temp.insert(rand() % num_points);
-    }
-
-    float x1, y1, z1, x2, y2, z2, x3, y3, z3;
-    auto itr = inliers_temp.begin();
-    x1 = cloudRegion->points[*itr].x;
-    y1 = cloudRegion->points[*itr].y;
-    z1 = cloudRegion->points[*itr].z;
-    itr++;
-    x2 = cloudRegion->points[*itr].x;
-    y2 = cloudRegion->points[*itr].y;
-    z2 = cloudRegion->points[*itr].z;
-    itr++;
-    x3 = cloudRegion->points[*itr].x;
-    y3 = cloudRegion->points[*itr].y;
-    z3 = cloudRegion->points[*itr].z;
-
-    float a, b, c, d, sqrt_abc;
-    a = (y2 - y1) * (z3 - z1) - (z2 - z1) * (y3 - y1);
-    b = (z2 - z1) * (x3 - x1) - (x2 - x1) * (z3 - z1);
-    c = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
-    d = -(a * x1 + b * y1 + c * z1);
-    sqrt_abc = sqrt(a * a + b * b + c * c);
-
-    for (int ind = 0; ind < num_points; ind++) {
-      if (inliers_temp.count(ind) > 0) { 
-        continue;
-      }
-      pcl::PointXYZ point = cloudRegion->points[ind];
-      float x = point.x;
-      float y = point.y;
-      float z = point.z;
-      float dist = fabs(a * x + b * y + c * z + d) / sqrt_abc; 
-
-      if (dist < distanceThreshold) {
-        inliers_temp.insert(ind);
-      }
-      if (inliers_temp.size() > inlier_result.size()) {
-        inlier_result = inliers_temp;
-
-      }
-    } 
-  }
-
-  pcl::PointCloud<pcl::PointXYZ>::Ptr out_plane(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::Ptr in_plane(new pcl::PointCloud<pcl::PointXYZ>());
-  for(int i = 0; i < num_points; i++) {
-    pcl::PointXYZ pt = cloud_points[i];
-    if(inlier_result.count(i)) {
-      out_plane->points.push_back(pt);
-    } else {
-      in_plane->points.push_back(pt);
-    } 
-  }
-  std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segResult(in_plane, out_plane);
-*/
 
 //segment plane
   auto cloud_points = cloudRegion->points;
@@ -146,7 +81,6 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   seg.setOptimizeCoefficients(true);
   seg.setModelType(pcl::SACMODEL_PLANE);
   seg.setMethodType(pcl::SAC_RANSAC);
-  seg.setMaxIterations(maxIterations);
   seg.setDistanceThreshold(distanceThreshold);
   seg.setInputCloud(cloudRegion);
   seg.segment(*inliers_seg, *coefficients);
@@ -162,7 +96,6 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   extract_obst.setNegative(true);
   extract.filter(*obstCloud);
   std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segResult(obstCloud, planeCloud);
-
 
 //cluster
   vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>clusters;
@@ -203,28 +136,11 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
     box.x_max = maxpoint_temp.x;
     box.y_max = maxpoint_temp.y;
     box.z_max = maxpoint_temp.z;
-    cout << "-----------" << box.x_min << endl;
-/*    
-    string cube = "box" + std::to_string(clusterId);
-    string cubeFill = "boxFill" + std::to_string(clusterId);
-
-    viewer->addCube(box.x_min, box.x_max, box.y_min, box.y_max, box.z_min, box.z_max, colors[clusterId % colors.size()].r, colors[clusterId % colors.size()].g, colors[clusterId % colors.size()].b, cube);
-    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, cube);
-    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, colors[clusterId % colors.size()].r, colors[clusterId % colors.size()].g, colors[clusterId % colors.size()].b, cube);
-    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1.0, cube);
-
-    viewer->addCube(box.x_min, box.x_max, box.y_min, box.y_max, box.z_min, box.z_max, colors[clusterId % colors.size()].r, colors[clusterId % colors.size()].g, colors[clusterId % colors.size()].b, cubeFill);
-    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cubeFill);
-    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, colors[clusterId % colors.size()].r, colors[clusterId % colors.size()].g, colors[clusterId % colors.size()].b, cubeFill);
-    viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.3, cubeFill);
-*/
-    
+    cout << box.x_min  << endl;
     ++clusterId;
   }
-
 //  viewer->setBackgroundColor (0, 0, 0);  
 //  viewer->addPointCloud(pcloud, "init cloud", v1);
-//  viewer->addPointCloud(cloudFiltered, "processed cloud", v2);
   viewer->addPointCloud(obstCloud, "init cloud", v1);
   viewer->addPointCloud(planeCloud, "processed cloud", v2);
   viewer->spinOnce();	

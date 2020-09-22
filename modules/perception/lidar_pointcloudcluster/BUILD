@@ -18,7 +18,7 @@ cc_library(
         "//cyber",
         "//modules/drivers/proto:pointcloud_cc_proto",
         "@eigen",
-	"@local_config_pcl//:pcl",
+	"@pcl",
 	"@local_config_vtk//:vtk",
 	"@boost",
 

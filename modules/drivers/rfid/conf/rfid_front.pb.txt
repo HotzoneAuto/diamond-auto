@@ -1,3 +1,0 @@
-device_id: "rfid_front"
-output_channel:"/diamond/sensor/rfid/front"
-enable_log: true
