@@ -19,7 +19,7 @@ function stop() {
     eval "nohup cyber_launch stop /apollo/modules/canbus/launch/canbus.launch < /dev/null 2>&1 &"
 #    eval "cyber_launch stop /apollo/modules/canbus/launch/canbus.launch"   
 #    sleep 1.0
-    pkill -SIGTERM -f canbus.launch
+    pkill -SIGTERM -f canbus
 }
 
 # run command_name module_name

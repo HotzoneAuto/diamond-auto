@@ -17,7 +17,7 @@ cc_library(
     name = "wheel_lib",
     srcs = ["wheel_angle.cc"],
     hdrs = ["wheel_angle.h"],
-    copts = ["-DMODULE_NAME=\\\"drivers\\\""],
+    copts = ["-DMODULE_NAME=\\\"wheel\\\""],
     deps = [
         "//cyber",
         "//modules/common/util:uart",
