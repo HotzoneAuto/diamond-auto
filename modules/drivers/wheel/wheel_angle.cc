@@ -57,9 +57,9 @@ void WheelAngleComponent::Action() {
         break;
       }
       if (count == 8) {
-        auto header = angle.mutable_header();
-        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
-        header->set_frame_id("wheel_angle");
+        //auto header = angle.mutable_header();
+        //header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+        // header->set_frame_id("wheel_angle");
 
         if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
           wheel_angle =

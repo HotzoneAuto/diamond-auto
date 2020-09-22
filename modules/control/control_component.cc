@@ -179,7 +179,7 @@ bool ControlComponent::Proc() {
       if (is_destination) {
         cmd->set_brake(control_conf_.soft_estop_brake());
         cmd->set_torque(1);
-        cmd->set_rear_wheel_target(0);
+        cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())

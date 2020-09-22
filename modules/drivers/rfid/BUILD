@@ -17,7 +17,7 @@ cc_library(
     name = "rfid_lib",
     srcs = ["rfid_component.cc"],
     hdrs = ["rfid_component.h"],
-    copts = ["-DMODULE_NAME=\\\"drivers\\\""],
+    copts = ["-DMODULE_NAME=\\\"rfid\\\""],
     deps = [
         "//cyber",
         "//modules/common/util:uart",
