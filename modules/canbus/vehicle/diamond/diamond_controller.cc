@@ -99,7 +99,6 @@ ErrorCode DiamondController::Init(
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
 
-  // need sleep to ensure all messages received
   AINFO << "DiamondController is initialized.";
 
   steer_front = std::make_unique<Uart>(FLAGS_front_steer_device.c_str());
@@ -289,7 +288,6 @@ ErrorCode DiamondController::EnableAutoMode() {
 }
 
 ErrorCode DiamondController::DisableAutoMode() {
-  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
   ResetProtocol();
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
@@ -360,10 +358,6 @@ void DiamondController::Brake(double torque, double brake) {
   }
 
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(brake));
-
-  // frequency converter stop
-  // FrontSteerStop();
-  // RearSteerStop();
 }
 
 void DiamondController::ForwardTorque(double torque) {
