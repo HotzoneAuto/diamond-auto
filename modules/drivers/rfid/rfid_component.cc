@@ -69,23 +69,22 @@ void RfidComponent::Action() {
         }
         buffer[count] = buf;
         count++;
-      }else if(ret==0){
-          station_id=0;
-          }
-        apollo::drivers::RFID rfid;
-        auto header = rfid.mutable_header();
-        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
-        header->set_frame_id("rfid");
+      } else if (ret == 0) {
+        station_id = 0;
+      }
+      apollo::drivers::RFID rfid;
+      auto header = rfid.mutable_header();
+      header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+      header->set_frame_id("rfid");
       if (count == 11) {
         ADEBUG << "origin id from buffer[10]: " << buffer[10];
         // uint32_t station_id = buffer[10] - '0';
         station_id = buf;
         ADEBUG << "TRANSFER ID :" << station_id;
-
       }
-        rfid.set_id(station_id);
- 
-        rfid_writer_->Write(rfid);
+      rfid.set_id(station_id);
+
+      rfid_writer_->Write(rfid);
     }
   }
 }

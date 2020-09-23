@@ -226,6 +226,12 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
+  if (diamond->id_0x18fe0010().has_parking_mode()) {
+    chassis_.set_parking_brake(diamond->id_0x18fe0010().parking_mode());
+  } else {
+    chassis_.set_parking_brake(false);
+  }
+
   // Magnetic sensor data front
   // Send messages before receive
   // 1. default by system(cansend), but not best practice
