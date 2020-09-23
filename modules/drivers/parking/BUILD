@@ -17,7 +17,7 @@ cc_library(
     name="parking_brake_lib",
     srcs=["parking_brake.cc"],
     hdrs=["parking_brake.h"],
-    copts=["-DMODULE_NAME=\\\"drivers\\\""],
+    copts=["-DMODULE_NAME=\\\"parking_brake\\\""],
     deps=[
         "//cyber",
         "//modules/common/util:uart",
