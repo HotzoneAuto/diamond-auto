@@ -41,11 +41,10 @@ void ParkingComponet::Proc(){
         break;
       }
       if(count==6){
-          AINFO << "buffer[0]=" <<std::hex buffer[0];
-          if(buffer[0]==0x01 && buffer[5]==0x44){
-            air_pump_pressure=(static_cast<int>(buffer[3]) * 256 +static_cast<int>(buffer[4]))/100;
+          AINFO << "buffer[0]=" <<buffer[0];
+            air_pump_pressure=(static_cast<double>(buffer[3]) * 256 +static_cast<double>(buffer[4]))/100.0;
             AINFO << "air_pump_pressure" << air_pump_pressure;
-          }
+          
     }
     }
     }
