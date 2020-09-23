@@ -226,6 +226,12 @@ Chassis DiamondController::chassis() {
     chassis_.set_bat_percentage(0);
   }
 
+  if (diamond->id_0x18fe0010().has_parking_mode()) {
+    chassis_.set_parking_brake(diamond->id_0x18fe0010().parking_mode());
+  } else {
+    chassis_.set_parking_brake(false);
+  }
+
   // Magnetic sensor data front
   // Send messages before receive
   // 1. default by system(cansend), but not best practice
@@ -376,18 +382,21 @@ void DiamondController::ReverseTorque(double torque) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
-  torque = std::abs(torque);
+  AINFO << "entry reverse torque";
 
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   auto speed = 0.006079 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
+  AINFO << "speed:" << speed;
 
-  // Fixed workmode switch bug for motor
+
+  // Fixed workmode switch bug for motor 1e-6
   if (torque < kEpsilon && speed > kEpsilon) {
+    AWARN << "Skip speed error situation";
     return;
   }
 
-  id_0x0c19f0a7_->set_fmot1targettq(torque);
+  id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
   id_0x0c19f0a7_->set_bymot1workmode(146);
 }
 

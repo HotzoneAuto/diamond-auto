@@ -153,7 +153,7 @@ bool ControlComponent::Proc() {
         AINFO << "front_lat_dev_mgs = " << front_lat_dev_mgs;
         AINFO << "rear_lat_dev_mgs = " << rear_lat_dev_mgs;
 
-        rear_wheel_target = 0;
+        // rear_wheel_target = 0;
 
         // TODO: test wakeup with original mgs data
         if (!front_wheel_wakeup && is_front_received &&
@@ -170,7 +170,7 @@ bool ControlComponent::Proc() {
           limit_front_wheel = true;
         }
       } else {
-        rear_wheel_target = 0;
+        // rear_wheel_target = 0;
         front_wheel_target = control_conf_.manual_front_wheel_target();
       }
 
@@ -193,8 +193,10 @@ bool ControlComponent::Proc() {
           front_wheel_target =
               (front_wheel_target > -30.0) ? front_wheel_target : -30.0;
         }
+        rear_wheel_target = -front_wheel_target;
 
         AINFO << "front_wheel_target = " << front_wheel_target;
+        AINFO << "rear_wheel_target = " << rear_wheel_target;
 
         if (cmd->pad_msg().action() != DrivingAction::START) {
           AINFO << "not START, cmd set to 0";

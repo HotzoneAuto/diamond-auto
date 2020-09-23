@@ -1,0 +1,10 @@
+module_config {
+    module_library : "/apollo/bazel-bin/modules/drivers/parking/libparking_brake.so"
+    components {
+        class_name : "ParkingComponet"
+        config {
+            name: "parking_brake"
+            config_file_path : "/apollo/modules/drivers/parking/conf/parking_brake.pb.txt"
+        }
+    }
+}
