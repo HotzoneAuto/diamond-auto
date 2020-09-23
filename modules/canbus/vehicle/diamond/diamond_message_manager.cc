@@ -35,6 +35,7 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x181fd0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x1825d0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x18eba1a5.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x18fe0010.h"
 
 namespace apollo {
 namespace canbus {
@@ -62,6 +63,7 @@ DiamondMessageManager::DiamondMessageManager() {
   AddRecvProtocolData<Id0x181fd0f3, true>();
   AddRecvProtocolData<Id0x1825d0f3, true>();
   AddRecvProtocolData<Id0x18eba1a5, true>();
+  AddRecvProtocolData<Id0x18fe0010, true>();
 }
 
 DiamondMessageManager::~DiamondMessageManager() {}
