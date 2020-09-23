@@ -1,0 +1,5 @@
+syntax = "proto2";
+
+message ParkingDeviceConf {
+  optional string device_id = 1;
+}
