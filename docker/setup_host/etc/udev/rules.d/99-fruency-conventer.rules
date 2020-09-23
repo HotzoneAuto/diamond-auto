@@ -1,23 +1,20 @@
-# IMU udev rules
-KERNEL=="ttyUSB*", ATTRS{devpath}=="3",ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE:="0777",SYMLINK+="imu"
-#KERNEL=="ttyUSB*", ATTRS{devpath}=="4",ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE:="0777",SYMLINK+="imu2"
-
 
 # steer udev rules
-KERNEL=="ttyUSB*", ATTRS{devpath}=="3",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="steer_front"
-KERNEL=="ttyUSB*", ATTRS{devpath}=="4",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="steer_rear"
+KERNEL=="ttyUSB*", ATTRS{serial}=="AG0K692A", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="steer_front"
+KERNEL=="ttyUSB*", ATTRS{serial}=="AG0K6IBY", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="steer_rear"
 
 
 # rfid udev rules
-KERNEL=="ttyUSB*", ATTRS{serial}=="AB0JO5WJ",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="rfid_rear"
-KERNEL=="ttyUSB*", ATTRS{serial}=="AR0K4WAD",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="rfid_front"
+KERNEL=="ttyUSB*", ATTRS{serial}=="AB0JO5WJ", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="rfid_rear"
+KERNEL=="ttyUSB*", ATTRS{serial}=="AR0K4WAD", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="rfid_front"
 
 
 # display udev rules
-KERNEL=="ttyUSB*", ATTRS{serial}=="AB0JO5",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="display_rear"
-KERNEL=="ttyUSB*", ATTRS{serial}=="AR0K4W",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="display_front"
+KERNEL=="ttyUSB*", ATTRS{serial}=="AG0K6RZT", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="display_left"
+#KERNEL=="ttyUSB*", ATTRS{serial}=="AR0K4W",ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE:="0777",SYMLINK+="display_front"
 
 
 # wheel angle udev rules
 KERNEL=="ttyUSB*", ATTRS{serial}=="AG0K5VT0", MODE:="0777",SYMLINK+="wheel_angle_rear"
 KERNEL=="ttyUSB*", ATTRS{serial}=="AG0K6H39", MODE:="0777",SYMLINK+="wheel_angle_front"
+

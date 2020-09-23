@@ -10,6 +10,7 @@ cc_library(
     hdrs = [
         "diamond_vehicle_factory.h",
     ],
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         ":diamond_controller",
         ":diamond_message_manager",
@@ -25,6 +26,7 @@ cc_library(
     hdrs = [
         "diamond_message_manager.h",
     ],
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         "//modules/drivers/canbus/common:canbus_common",
         "//modules/canbus/proto:chassis_cc_proto",
@@ -41,6 +43,7 @@ cc_library(
     hdrs = [
         "diamond_controller.h",
     ],
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         ":diamond_message_manager",
         "//cyber",

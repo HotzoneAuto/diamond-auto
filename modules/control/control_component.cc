@@ -6,7 +6,6 @@
 #include "cyber/cyber.h"
 
 #include "modules/common/util/message_util.h"
-#include "modules/control/control_wheel_angle_real.h"
 
 namespace apollo {
 namespace control {
@@ -32,14 +31,16 @@ bool ControlComponent::Init() {
 
   // front rfid Reader
   rfid_front_reader_ = node_->CreateReader<RFID>(
-      FLAGS_rfid_front_topic,
-      [this](const std::shared_ptr<RFID>& rfid_front) { rfid_front_.CopyFrom(*rfid_front); });
-  
+      FLAGS_rfid_front_topic, [this](const std::shared_ptr<RFID>& rfid_front) {
+        rfid_front_.CopyFrom(*rfid_front);
+      });
+
   // rear rfid Reader
   rfid_rear_reader_ = node_->CreateReader<RFID>(
-      FLAGS_rfid_rear_topic,
-      [this](const std::shared_ptr<RFID>& rfid_rear) { rfid_rear_.CopyFrom(*rfid_rear); });
-  
+      FLAGS_rfid_rear_topic, [this](const std::shared_ptr<RFID>& rfid_rear) {
+        rfid_rear_.CopyFrom(*rfid_rear);
+      });
+
   // Padmsg Reader
   pad_msg_reader_ = node_->CreateReader<PadMessage>(
       FLAGS_pad_topic, [this](const std::shared_ptr<PadMessage>& pad_msg) {
@@ -57,14 +58,18 @@ bool ControlComponent::Init() {
   front_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_front_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& front_wheel_angle) {
-        front_wheel_angle_.CopyFrom(*front_wheel_angle);
+        front_wheel_angle_value = front_wheel_angle->value();
+        AINFO << "front_wheel_angle.value() = " << front_wheel_angle->value();
+        is_front_received = true;
       });
 
   // rear wheel angle Reader
   rear_wheel_angle_reader_ = node_->CreateReader<WheelAngle>(
       FLAGS_rear_wheel_angle_topic,
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
-        rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
+        rear_wheel_angle_value = rear_wheel_angle->value();
+        AINFO << "rear_wheel_angle.value() = " << rear_wheel_angle->value();
+        is_rear_received = true;
       });
 
   // TODO(tianchuang):Routing Reader
@@ -76,12 +81,12 @@ bool ControlComponent::Init() {
   // create Writer
   control_cmd_writer_ =
       node_->CreateWriter<ControlCommand>(FLAGS_control_command_topic);
-
   return true;
 }
 
 double ControlComponent::PidSpeed() {
-  double pid_e = FLAGS_desired_v - static_cast<double>(chassis_.speed_mps());
+  double pid_e =
+      control_conf_.desired_v() - static_cast<double>(chassis_.speed_mps());
 
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
@@ -99,106 +104,109 @@ double ControlComponent::PidSpeed() {
   return std::isnan(torque) ? 0 : torque;
 }
 
+double ControlComponent::GetSteerTarget(float lat_dev_mgs,
+                                        double& target_last) {
+  double wheel_target;
+  if (lat_dev_mgs < -3.5) {
+    wheel_target = 20.0;
+  } else if (lat_dev_mgs > 3.5) {
+    wheel_target = -20.0;
+  } else if (std::abs(lat_dev_mgs) < 0.1) {
+    wheel_target = target_last;
+  } else if (std::abs(lat_dev_mgs) <= 3.5) {
+    wheel_target = 0;
+  }
+  target_last = wheel_target;
+  return wheel_target;
+}
+
 // write to channel
 bool ControlComponent::Proc() {
-  float front_lat_dev_mgs = 0.0;
-  float rear_lat_dev_mgs = 0.0;
-
-  front_wheel_angle_realtime = front_wheel_angle_.value();
-  rear_wheel_angle_realtime = rear_wheel_angle_.value();
-
   while (!apollo::cyber::IsShutdown()) {
     auto cmd = std::make_shared<ControlCommand>();
     // update Drive mode by action
-    // if (pad_received_) {
     cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
-    // pad_received_ = false;
 
     // TODO: add control strategy when emergency.
 
     // TODO(zongbao):how to know direction(reverse or forward)
-    // from station A to B (case 1: 1->2) and B to A (case 0: 2->1)
-    AINFO << "rfid_front_.id=" << rfid_front_.id() ;
-    AINFO << "rfid_rear_.id=" << rfid_rear_.id() ;
-    switch (control_conf_.drivemotor_flag()) {
-      case 1: {
-        if (rfid_front_.id() == control_conf_.front_destnation()) {
-          cmd->set_brake(control_conf_.soft_estop_brake());
-        } else {
+    AINFO << "rfid_front_.id=" << rfid_front_.id();
+    AINFO << "rfid_rear_.id=" << rfid_rear_.id();
+
+    // TODO: Routing Module automatically decides drivemotor_flag
+    if (control_conf_.drivemotor_flag() == 1) {
+      // longitudinal control
+      if (rfid_front_.id() == control_conf_.front_destnation()) {
+        is_destination = true;
+      } else {
+        if (cmd->pad_msg().action() == DrivingAction::START) {
           drivemotor_torque = PidSpeed();
+        }
+      }
+
+      // lateral control
+      if (FLAGS_magnetic_enable) {
+        AINFO << "front_wheel_angle_value = " << front_wheel_angle_value;
+
+        float front_lat_dev_mgs = chassis_.front_lat_dev();
+        float rear_lat_dev_mgs = chassis_.rear_lat_dev();
+        AINFO << "front_lat_dev_mgs = " << front_lat_dev_mgs;
+        AINFO << "rear_lat_dev_mgs = " << rear_lat_dev_mgs;
+
+        rear_wheel_target = 0;
+
+        // TODO: test wakeup with original mgs data
+        if (!front_wheel_wakeup && is_front_received &&
+            cmd->pad_msg().action() == START) {
+          front_target_last = front_wheel_angle_value;
+          front_wheel_target = front_wheel_angle_value;
+          limit_front_wheel = false;
+          front_wheel_wakeup = true;
+          AINFO << "front_target_last = " << front_target_last;
+          AINFO << "front wheel wake up.";
+        } else {
+          front_wheel_target =
+              GetSteerTarget(front_lat_dev_mgs, front_target_last);
+          limit_front_wheel = true;
+        }
+      } else {
+        rear_wheel_target = 0;
+        front_wheel_target = control_conf_.manual_front_wheel_target();
+      }
+
+      // set control cmd
+      // check estop, ture: brake=10,torque=1, write
+      if (is_destination) {
+        cmd->set_brake(control_conf_.soft_estop_brake());
+        cmd->set_torque(1);
+        cmd->set_rear_wheel_target(rear_wheel_angle_value);
+        cmd->set_front_wheel_target(front_wheel_angle_value);
+      } else {
+        drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
+                                ? drivemotor_torque
+                                : control_conf_.max_torque();
+        drivemotor_torque =
+            (drivemotor_torque > 0.001) ? drivemotor_torque : 0.001;
+        if (limit_front_wheel) {
+          front_wheel_target =
+              (front_wheel_target < 30.0) ? front_wheel_target : 30.0;
+          front_wheel_target =
+              (front_wheel_target > -30.0) ? front_wheel_target : -30.0;
+        }
+
+        AINFO << "front_wheel_target = " << front_wheel_target;
+
+        if (cmd->pad_msg().action() != DrivingAction::START) {
+          AINFO << "not START, cmd set to 0";
+          cmd->set_torque(0);
+          cmd->set_rear_wheel_target(0);
+          cmd->set_front_wheel_target(0);
+        } else {
           cmd->set_torque(drivemotor_torque);
+          cmd->set_rear_wheel_target(rear_wheel_target);
+          cmd->set_front_wheel_target(front_wheel_target);
         }
-        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
-        break;
       }
-
-      case 2: {
-        if (rfid_rear_.id() == control_conf_.rear_destnation()) {
-          cmd->set_brake(control_conf_.soft_estop_brake());
-        } else {
-          drivemotor_torque = PidSpeed();
-          cmd->set_torque(-drivemotor_torque);
-        }
-
-        // TODO：检测到车速为0，驻车系统断气刹，车辆驻车停止
-        break;
-      }
-    }
-
-    switch (FLAGS_magnetic_enable) {
-      case 1: {
-        // 初始化前后磁导航检测到的偏差值，订阅磁导航通道的数据
-        front_lat_dev_mgs = chassis_.front_lat_dev();
-        rear_lat_dev_mgs = chassis_.rear_lat_dev();
-
-        // 给定驱动电机反转命令（使车辆前进从A到B）
-        if (control_conf_.drivemotor_flag() == 1) {
-          // rear_motor_steering_dir = 0;   //后方转向电机不转
-          cmd->set_rear_wheel_target(0);
-          if (front_lat_dev_mgs < -3.5)  //若前方磁导航检测出车偏左
-          {
-            // front_motor_steering_dir = 1;  //则前方转向电机正转（即向右）
-            cmd->set_front_wheel_target(20.0);
-          } else if (front_lat_dev_mgs > 3.5)  //若前方磁导航检测出车偏右
-          {
-            // front_motor_steering_dir = 2;  //则前方转向电机反转（即向左）
-            cmd->set_front_wheel_target(-20.0);
-          } else {
-            cmd->set_front_wheel_target(0);
-          }
-        } else if (control_conf_.drivemotor_flag() ==
-                   2)  // 若驱动电机正转（倒车，车辆从B到A）
-        {
-          // front_motor_steering_dir = 0;  //前方转向电机不转
-          cmd->set_front_wheel_target(0);
-          if (rear_lat_dev_mgs < -3.5)  //若后方磁导航检测出车偏左
-          {
-            // rear_motor_steering_dir = 1;  //则后方转向电机正转（即向右）
-            cmd->set_rear_wheel_target(20.0);
-          } else if (rear_lat_dev_mgs > 3.5)  //若后方磁导航检测出车偏右
-          {
-            // rear_motor_steering_dir = 2;  //则后方转向电机反转（即向左）
-            cmd->set_rear_wheel_target(-20.0);
-          } else {
-            cmd->set_rear_wheel_target(0);
-          }
-        }
-        break;
-      }
-      case 0: {
-        if (control_conf_.drivemotor_flag() == 1) {
-          // rear_motor_steering_dir = 0;
-          cmd->set_rear_wheel_target(0);
-          cmd->set_front_wheel_target(
-              control_conf_.manual_front_wheel_target());
-        } else if (control_conf_.drivemotor_flag() == 2) {
-          // front_motor_steering_dir = 0;
-          cmd->set_front_wheel_target(0);
-          cmd->set_rear_wheel_target(control_conf_.manual_rear_wheel_target());
-        }
-        break;
-      }
-      default: {}
     }
 
     common::util::FillHeader(node_->Name(), cmd.get());

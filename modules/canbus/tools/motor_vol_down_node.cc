@@ -1,12 +1,34 @@
+<<<<<<< HEAD
 #include "cyber/cyber.h"
 
 #include "modules/canbus/proto/chassis_detail.pb.h"
 #include "modules/common/adapters/adapter_gflags.h"
+=======
+#include <chrono>
+#include <memory>
+#include <string>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include "cyber/common/macros.h"
+#include "cyber/cyber.h"
+
+#include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/drivers/canbus/proto/can_card_parameter.pb.h"
+
+#include "modules/canbus/vehicle/diamond/protocol/id_0x00aa5701.h"
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0cfff3a7.h"
+>>>>>>> b049b6a55b917b24ba7cb06a451a57706a952572
 
 void MessageCallback(
     const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
   if (msg->diamond().id_0x0c09a7f0().fmotvolt() < 10) {
     AINFO << "in motor_vol_down function: motor_vol < 10";
+<<<<<<< HEAD
+=======
+    std::cout << "in motor_vol_down function: motor_vol < 10" << std::endl;
+>>>>>>> b049b6a55b917b24ba7cb06a451a57706a952572
     apollo::cyber::AsyncShutdown();
     return;
   }
@@ -38,7 +60,11 @@ int main(int argc, char* argv[]) {
   auto listener_node = apollo::cyber::CreateNode("canbus_stop_listener");
   // create listener
   auto listener = listener_node->CreateReader<apollo::canbus::ChassisDetail>(
+<<<<<<< HEAD
       FLAGS_chassis_detail_topic, MessageCallback);
+=======
+      "/diamond/canbus/chassis_detail", MessageCallback);
+>>>>>>> b049b6a55b917b24ba7cb06a451a57706a952572
 
   apollo::cyber::WaitForShutdown();
 

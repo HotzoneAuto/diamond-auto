@@ -7,6 +7,8 @@ pid_conf {
   ki: 0.008
   kd: 0.0
 }
+desired_v: 0.6
+max_torque: 46.0
 torque_deadzone: 18
 action: STOP
 front_destnation: 50

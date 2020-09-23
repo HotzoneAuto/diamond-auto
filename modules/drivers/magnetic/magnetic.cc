@@ -18,7 +18,7 @@ void Magnetic::AsyncSend() {
         AERROR << "Magnetic can message send FAILED(" << ret << "): " << cmd;
       }
     }
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(20));
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(10));
   }
 }
 }  // namespace magnetic

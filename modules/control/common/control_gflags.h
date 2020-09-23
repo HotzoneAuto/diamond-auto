@@ -83,4 +83,4 @@ DECLARE_bool(use_control_submodules);
 
 DECLARE_bool(use_system_time_in_control);
 
-DECLARE_double(desired_v);
+// DECLARE_double(desired_v);

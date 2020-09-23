@@ -1,9 +1,15 @@
 #include "modules/drivers/wheel/wheel_angle.h"
+#include "cyber/time/rate.h"
+#include "modules/common/util/message_util.h"
+
 namespace apollo {
 namespace drivers {
 namespace wheel {
+using apollo::cyber::Rate;
 
 WheelAngleComponent::WheelAngleComponent() {}
+
+std::string WheelAngleComponent::Name() const { return "wheel"; }
 
 bool WheelAngleComponent::Init() {
   if (!GetProtoConfig(&device_conf_)) {
@@ -17,7 +23,6 @@ bool WheelAngleComponent::Init() {
 
   // Uart front device set option
   device_->SetOpt(9600, 8, 'N', 1);
-
   wheel_angle_writer_ =
       node_->CreateWriter<WheelAngle>(device_conf_.output_channel());
 
@@ -27,6 +32,8 @@ bool WheelAngleComponent::Init() {
 
 void WheelAngleComponent::Action() {
   WheelAngle angle;
+  common::util::FillHeader(node_->Name(), &angle);
+  Rate rate(100.0);
   while (!apollo::cyber::IsShutdown()) {
     int count = 0;
     static char buffer[10];
@@ -50,9 +57,9 @@ void WheelAngleComponent::Action() {
         break;
       }
       if (count == 8) {
-        auto header = angle.mutable_header();
-        header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
-        header->set_frame_id("wheel_angle");
+        //auto header = angle.mutable_header();
+        //header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
+        // header->set_frame_id("wheel_angle");
 
         if (buffer[5] == 0xFF && buffer[6] == 0xFF) {
           wheel_angle =
@@ -67,6 +74,7 @@ void WheelAngleComponent::Action() {
     angle.set_value(wheel_angle);
     ADEBUG << angle.DebugString();
     wheel_angle_writer_->Write(angle);
+    rate.Sleep();
   }
 }
 

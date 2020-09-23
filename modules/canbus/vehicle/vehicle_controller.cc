@@ -144,15 +144,6 @@ ErrorCode VehicleController::Update(const ControlCommand &control_command) {
     SteerRear(control_command.rear_wheel_target());
   }
 
-  if ((driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
-       driving_mode_ == Chassis::AUTO_SPEED_ONLY ||
-       driving_mode_ == Chassis::AUTO_STEER_ONLY) &&
-      control_command.has_signal()) {
-    SetHorn(control_command);
-    SetTurningSignal(control_command);
-    SetBeam(control_command);
-  }
-
   return ErrorCode::OK;
 }
 
