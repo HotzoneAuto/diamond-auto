@@ -2,4 +2,6 @@ syntax = "proto2";
 
 message ParkingDeviceConf {
   optional string device_id = 1;
+  optional string output_channel = 2;
+
 }

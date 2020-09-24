@@ -21,6 +21,7 @@ cc_library(
     deps=[
         "//cyber",
         "//modules/common/util:uart",
+        "//modules/drivers/proto:parking_cc_proto",
         "//modules/drivers/parking/proto:parking_brake_conf_cc_proto",
     ],
 )
