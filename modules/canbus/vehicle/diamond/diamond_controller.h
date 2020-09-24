@@ -98,7 +98,7 @@ class DiamondController final : public VehicleController {
   void RearSteerStop();
   void RearSteerPositive();
   void RearSteerNegative();
-
+  void Push_parking_brake();
   void SetBatCharging();
 
   // set Electrical Park Brake
@@ -107,7 +107,9 @@ class DiamondController final : public VehicleController {
   void ResetProtocol();
   bool CheckChassisError();
 
+  
  private:
+  
   void SecurityDogThreadFunc();
   virtual bool CheckResponse(const int32_t flags, bool need_wait);
   void set_chassis_error_mask(const int32_t mask);
@@ -141,6 +143,7 @@ class DiamondController final : public VehicleController {
   // 变频器设备 485通信
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
+  std::unique_ptr<Uart> parking_brake = nullptr;
 
   float front_encoder_angle_realtime = 0;
   float rear_encoder_angle_realtime = 0;
