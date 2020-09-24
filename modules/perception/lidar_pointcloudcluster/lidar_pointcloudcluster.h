@@ -21,6 +21,7 @@
 
 #include "cyber/cyber.h"
 #include "modules/drivers/proto/pointcloud.pb.h"
+#include "modules/perception/proto/obst_box.pb.h"
 
 using namespace std;
 using apollo::cyber::Component;
@@ -56,13 +57,14 @@ class lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud> {
 	float z_max;
   };
 
-  float filterRes = 0.4;
+  float filterRes = 0.1;
   Eigen::Vector4f minpoint;
   Eigen::Vector4f maxpoint;
   int maxIterations = 40;
   float distanceThreshold = 0.2;
-  float clusterTolerance = 0.5;
-  int minsize = 10;
-  int maxsize = 140;
+  float clusterTolerance = 1.0;
+  int minsize = 7;
+  int maxsize = 300;
+  std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>> obst_writer;
 };
 CYBER_REGISTER_COMPONENT(lidar_pointcloudcluster)

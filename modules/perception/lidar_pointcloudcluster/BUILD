@@ -17,11 +17,11 @@ cc_library(
     deps = [
         "//cyber",
         "//modules/drivers/proto:pointcloud_cc_proto",
+        "//modules/perception/proto:obst_box_cc_proto",
         "@eigen",
 	    "@pcl",
 	    "@local_config_vtk//:vtk",
 	    "@boost",
-
     ],
 )
 
