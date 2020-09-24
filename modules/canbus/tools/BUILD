@@ -32,7 +32,7 @@ cc_binary(
 
 cc_binary(
     name = "motor_vol_down_node",
-    srcs = ["motor_vol_down_node.cc"],
+    srcs = ["motor_vol_down.cc"],
     deps = [
         "//cyber",
         "//modules/canbus/common:canbus_common",
@@ -47,7 +47,7 @@ cc_binary(
 
 cc_binary(
     name = "motor_vol_up_node",
-    srcs = ["motor_vol_up_node.cc"],
+    srcs = ["motor_vol_up.cc"],
     deps = [
         "//cyber",
         "//modules/canbus/common:canbus_common",

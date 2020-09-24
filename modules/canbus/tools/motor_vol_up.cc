@@ -3,55 +3,65 @@
 #include "modules/canbus/proto/chassis_detail.pb.h"
 #include "modules/common/adapters/adapter_gflags.h"
 
+static bool k2_on = false;
+
 void MessageCallback(
     const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
-  apollo::canbus::ChassisDetail chassis_detail;
-  chassis_detail = *msg;
+  auto diamond = msg->diamond();
 
-  if (chassis_detail.diamond().id_0x0c09a7f0().fmotvolt() > 625) {
-    AINFO << "in motor_vol_up function: motor_vol > 625";
-    std::cout << "in motor_vol_up function: motor_vol > 625" << std::endl;
+  if (!diamond.has_id_0x1818d0f3()) {
+    AINFO << "empty chassis detail, Skip this frame.";
+    return;
+  }
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 625) {
+    AINFO << "Motor voltage have been done. shutdown myself, "
+             "bye";
     apollo::cyber::AsyncShutdown();
     return;
   }
 
-  if (!chassis_detail.diamond().has_id_0x1818d0f3()) {
-    AINFO << "empty chassis detail, waiting.....";
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 620) {
+    k2_on = true;
   }
 
   // 1. check error flag
-  if (chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg() != 0) {
+  if (diamond.id_0x0c0ba7f0().dwmcuerrflg() != 0) {
     AERROR << "SetMotorVoltageUp flag check Error:"
-           << chassis_detail.diamond().id_0x0c0ba7f0().dwmcuerrflg();
+           << diamond.id_0x0c0ba7f0().dwmcuerrflg();
     return;
   }
   // 2. Tell BMS you can release voltage now
-  std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
-  const int ret1 = std::system(cmd1.c_str());
-  if (ret1 == 0) {
-    AINFO << "BMS message send SUCCESS: " << cmd1;
-  } else {
-    AERROR << "BMS message send FAILED(" << ret1 << "): " << cmd1;
+  if (!k2_on) {
+    std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
+    const int ret1 = std::system(cmd1.c_str());
+    if (ret1 == 0) {
+      AINFO << "BMS message send SUCCESS: " << cmd1;
+    } else {
+      AERROR << "BMS message send FAILED(" << ret1 << "): " << cmd1;
+    }
   }
 
-  if (chassis_detail.diamond().id_0x1818d0f3().has_bybatnegrlysts() != false or
-      chassis_detail.diamond().id_0x1818d0f3().bybatnegrlysts() == 1) {
-    if (chassis_detail.diamond().id_0x1818d0f3().bybatinsrerr() != 0) {
+  if (diamond.id_0x1818d0f3().has_bybatnegrlysts() != false or
+      diamond.id_0x1818d0f3().bybatnegrlysts() == 1) {
+    if (diamond.id_0x1818d0f3().bybatinsrerr() != 0) {
       AERROR << "1818d0f3 bybatinsrerr REEOR!!";
       return;
     }
     // 3. K2 up
-    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
-    const int ret2 = std::system(cmd2.c_str());
-    if (ret2 == 0) {
-      AINFO << "K2 up message send SUCCESS: " << cmd2;
-    } else {
-      AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
+    if (!k2_on) {
+      std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
+      const int ret2 = std::system(cmd2.c_str());
+      if (ret2 == 0) {
+        AINFO << "K2 up message send SUCCESS: " << cmd2;
+        k2_on = true;
+      } else {
+        AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
+      }
     }
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
-                 chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) < 25) {
+    return;
+    if (std::abs(diamond.id_0x1818d0f3().fbatvolt() -
+                 diamond.id_0x0c09a7f0().fmotvolt()) < 25) {
       // 4. K1 up
       std::string cmd3 = "cansend can0 00AA5701#1100000000000000";
       const int ret3 = std::system(cmd3.c_str());
@@ -71,9 +81,7 @@ void MessageCallback(
         AERROR << "K2 down message send FAILED(" << ret4 << "): " << cmd4;
       }
       // 6.Done
-    } else if (std::abs(chassis_detail.diamond().id_0x1818d0f3().fbatvolt() -
-                        chassis_detail.diamond().id_0x0c09a7f0().fmotvolt()) >
-               25) {
+    } else {
       AERROR << "diff > 25, K2 down";
       std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
       const int ret = std::system(cmd5.c_str());
