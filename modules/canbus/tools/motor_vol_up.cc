@@ -19,7 +19,7 @@ void MessageCallback(
     return;
   }
 
-  if (diamond.id_0x0c09a7f0().fmotvolt() > 620) {
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 618) {
     k2_on = true;
   }
 
@@ -31,9 +31,11 @@ void MessageCallback(
   }
 
   // 2. Tell BMS you can release voltage now
-  if (!k2_on) {
+  if (!k2_on && !diamond.id_0x1818d0f3().bybatinsrerr()) {
     std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
     const int ret1 = std::system(cmd1.c_str());
+    sleep(2);
+    return;
     if (ret1 == 0) {
       AINFO << "BMS message send SUCCESS: " << cmd1;
     } else {
@@ -41,22 +43,25 @@ void MessageCallback(
     }
   }
 
-  if (diamond.id_0x1818d0f3().bybatnegrlysts() != 1) {
-    AERROR << "Meet Error for field 1818d0f3 bybatnegrlysts";
-    return;
-  }
-
-  if (diamond.id_0x1818d0f3().bybatinsrerr() != 0) {
+  if (!diamond.id_0x1818d0f3().bybatinsrerr()) {
     AERROR << "Meet error for field 1818d0f3 bybatinsrerr";
     return;
   }
+
+  if (!diamond.id_0x1818d0f3().bybatnegrlysts()) {
+    AERROR << "Meet Error for field 1818d0f3 bybatnegrlysts";
+    return;
+  }
+  
   // 3. K2 up
   if (!k2_on) {
-    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
+   sleep(2);  
+   std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
     const int ret2 = std::system(cmd2.c_str());
     if (ret2 == 0) {
       AINFO << "K2 up message send SUCCESS: " << cmd2;
       k2_on = true;
+      std::this_thread::sleep_for(std::chrono::seconds(6));
       return;
     } else {
       AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
@@ -87,6 +92,7 @@ void MessageCallback(
     AERROR << "diff > 25, K2 down";
     std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
     const int ret = std::system(cmd5.c_str());
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     if (ret == 0) {
       AINFO << "K2 down message send SUCCESS: " << cmd5;
     } else {

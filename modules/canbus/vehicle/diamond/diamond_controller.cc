@@ -134,7 +134,9 @@ ErrorCode DiamondController::Init(
     thread_mangetic_ =
         std::thread(&apollo::drivers::magnetic::Magnetic::AsyncSend, magnetic);
   }
-
+  
+  //parking_result=std::async(std::launch::async,&DiamondController::Push_parking_brake,this);
+  //thread_parking_=std::thread(&DiamondController::Push_parking_brake,this);
   is_initialized_ = true;
   return ErrorCode::OK;
 }
@@ -181,7 +183,10 @@ Chassis DiamondController::chassis() {
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
-  Push_parking_brake();
+  
+  //double  barometric_pressure_result=parking_result.get();
+  //chassis_.set_barometric_pressure(barometric_pressure_result); 
+  
   chassis_.set_driving_mode(driving_mode());
   chassis_.set_error_code(chassis_error_code());
 
@@ -525,7 +530,7 @@ void DiamondController::RearSteerNegative() {
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
 }
-void DiamondController::Push_parking_brake() {
+double DiamondController::Push_parking_brake() {
   AINFO << "Parking_brake";
   unsigned char table[8] = {0x01, 0x03, 0x00, 0x04, 0x00, 0x01, 0xC5, 0xCB};
   int results = parking_brake->Write(table, 8);
@@ -535,6 +540,7 @@ void DiamondController::Push_parking_brake() {
   static char buf;
   int count = 0;
   double air_pump_pressure = 0.0;
+  while (!apollo::cyber::IsShutdown()) {
   for (count = 0; count < 7; count++) {
     int ret = parking_brake->Read(&buf, 1);
     ADEBUG << "READ RETURN :" << ret;
@@ -557,8 +563,11 @@ void DiamondController::Push_parking_brake() {
   } else if (air_pump_pressure > 0.77) {
     id_0x0c079aa7_->set_byeapcmd(0xAA);
   }
+  }
   can_sender_->Update();
-  chassis_.set_barometric_pressure(air_pump_pressure);
+  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(10));
+  //chassis_.set_barometric_pressure(air_pump_pressure);
+  return air_pump_pressure;
 }
 void DiamondController::SetBatCharging() {
   id_0x0c079aa7_->set_bydcdccmd(0x55);

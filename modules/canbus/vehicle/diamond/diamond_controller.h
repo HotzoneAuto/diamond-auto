@@ -98,7 +98,7 @@ class DiamondController final : public VehicleController {
   void RearSteerStop();
   void RearSteerPositive();
   void RearSteerNegative();
-  void Push_parking_brake();
+  double Push_parking_brake();
   void SetBatCharging();
 
   // set Electrical Park Brake
@@ -120,7 +120,8 @@ class DiamondController final : public VehicleController {
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
   Id0x0c0000a7* id_0x0c0000a7_ = nullptr;
-
+  
+  std::future<double> parking_result;
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
   bool is_chassis_error_ = false;
@@ -132,7 +133,7 @@ class DiamondController final : public VehicleController {
   int32_t chassis_error_mask_ = 0;
 
   std::thread thread_mangetic_;
-
+  std::thread thread_parking_;
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
   std::shared_ptr<apollo::cyber::Reader<WheelAngle>> front_wheel_angle_reader_;
