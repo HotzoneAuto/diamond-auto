@@ -535,9 +535,8 @@ void DiamondController::SetBatCharging() {
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
   if (command.parking_brake()) {
-    id_0x0c0000a7_->set_parking_mode_send(1);
+    id_0x0c0000a7_->set_parking_mode_send(command.parking_brake());
   } else {
-    // None
   }
 }
 
