@@ -1,15 +1,7 @@
-#include <chrono>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <thread>
-#include <utility>
-#include <vector>
-
-#include "cyber/common/macros.h"
 #include "cyber/cyber.h"
 
 #include "modules/canbus/proto/chassis_detail.pb.h"
+#include "modules/common/adapters/adapter_gflags.h"
 
 void MessageCallback(
     const std::shared_ptr<apollo::canbus::ChassisDetail>& msg) {
@@ -100,7 +92,7 @@ int main(int argc, char* argv[]) {
   auto listener_node = apollo::cyber::CreateNode("motor_vol_up_listener");
   // create listener
   auto listener = listener_node->CreateReader<apollo::canbus::ChassisDetail>(
-      "/diamond/canbus/chassis_detail", MessageCallback);
+      FLAGS_chassis_detail_topic, MessageCallback);
 
   apollo::cyber::WaitForShutdown();
 
