@@ -107,9 +107,7 @@ class DiamondController final : public VehicleController {
   void ResetProtocol();
   bool CheckChassisError();
 
-  
  private:
-  
   void SecurityDogThreadFunc();
   virtual bool CheckResponse(const int32_t flags, bool need_wait);
   void set_chassis_error_mask(const int32_t mask);

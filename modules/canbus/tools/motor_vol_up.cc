@@ -14,8 +14,7 @@ void MessageCallback(
     return;
   }
   if (diamond.id_0x0c09a7f0().fmotvolt() > 625) {
-    AINFO << "Motor voltage have been done. shutdown myself, "
-             "bye";
+    AINFO << "Motor voltage have been done. Shutdown myself, Bye.";
     apollo::cyber::AsyncShutdown();
     return;
   }
@@ -30,6 +29,7 @@ void MessageCallback(
            << diamond.id_0x0c0ba7f0().dwmcuerrflg();
     return;
   }
+
   // 2. Tell BMS you can release voltage now
   if (!k2_on) {
     std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
@@ -41,55 +41,58 @@ void MessageCallback(
     }
   }
 
-  if (diamond.id_0x1818d0f3().has_bybatnegrlysts() != false or
-      diamond.id_0x1818d0f3().bybatnegrlysts() == 1) {
-    if (diamond.id_0x1818d0f3().bybatinsrerr() != 0) {
-      AERROR << "1818d0f3 bybatinsrerr REEOR!!";
-      return;
-    }
-    // 3. K2 up
-    if (!k2_on) {
-      std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
-      const int ret2 = std::system(cmd2.c_str());
-      if (ret2 == 0) {
-        AINFO << "K2 up message send SUCCESS: " << cmd2;
-        k2_on = true;
-      } else {
-        AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
-      }
-    }
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+  if (diamond.id_0x1818d0f3().bybatnegrlysts() == 0) {
+    AERROR << "Meet Error for field 1818d0f3 bybatnegrlysts";
     return;
-    if (std::abs(diamond.id_0x1818d0f3().fbatvolt() -
-                 diamond.id_0x0c09a7f0().fmotvolt()) < 25) {
-      // 4. K1 up
-      std::string cmd3 = "cansend can0 00AA5701#1100000000000000";
-      const int ret3 = std::system(cmd3.c_str());
-      if (ret3 == 0) {
-        AINFO << "K1 up can message send SUCCESS: " << cmd3;
-      } else {
-        AERROR << "K1 up message send FAILED(" << ret3 << "): " << cmd3;
-      }
-      std::this_thread::sleep_for(std::chrono::seconds(3));
-      // 5. K2 down
-      std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
-      const int ret4 = std::system(cmd4.c_str());
-      std::this_thread::sleep_for(std::chrono::seconds(3));
-      if (ret4 == 0) {
-        AINFO << "K2 down message send SUCCESS: " << cmd4;
-      } else {
-        AERROR << "K2 down message send FAILED(" << ret4 << "): " << cmd4;
-      }
-      // 6.Done
+  }
+
+  if (diamond.id_0x1818d0f3().bybatinsrerr() != 0) {
+    AERROR << "Meet error for field 1818d0f3 bybatinsrerr";
+    return;
+  }
+  // 3. K2 up
+  if (!k2_on) {
+    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
+    const int ret2 = std::system(cmd2.c_str());
+    if (ret2 == 0) {
+      AINFO << "K2 up message send SUCCESS: " << cmd2;
+      k2_on = true;
+      std::this_thread::sleep_for(std::chrono::seconds(5));
+      return;
     } else {
-      AERROR << "diff > 25, K2 down";
-      std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
-      const int ret = std::system(cmd5.c_str());
-      if (ret == 0) {
-        AINFO << "K2 down message send SUCCESS: " << cmd5;
-      } else {
-        AERROR << "K2 down message send FAILED(" << ret << "): " << cmd5;
-      }
+      AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
+    }
+  }
+
+  if (std::abs(diamond.id_0x1818d0f3().fbatvolt() -
+               diamond.id_0x0c09a7f0().fmotvolt()) < 25) {
+    // 4. K1 up
+    std::string cmd3 = "cansend can0 00AA5701#1100000000000000";
+    const int ret3 = std::system(cmd3.c_str());
+    if (ret3 == 0) {
+      AINFO << "K1 up can message send SUCCESS: " << cmd3;
+    } else {
+      AERROR << "K1 up message send FAILED(" << ret3 << "): " << cmd3;
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    // 5. K2 down
+    std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
+    const int ret4 = std::system(cmd4.c_str());
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    if (ret4 == 0) {
+      AINFO << "K2 down message send SUCCESS: " << cmd4;
+    } else {
+      AERROR << "K2 down message send FAILED(" << ret4 << "): " << cmd4;
+    }
+    // 6.Done
+  } else {
+    AERROR << "diff > 25, K2 down";
+    std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
+    const int ret = std::system(cmd5.c_str());
+    if (ret == 0) {
+      AINFO << "K2 down message send SUCCESS: " << cmd5;
+    } else {
+      AERROR << "K2 down message send FAILED(" << ret << "): " << cmd5;
     }
   }
 }
