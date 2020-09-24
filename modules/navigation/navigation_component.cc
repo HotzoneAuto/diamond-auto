@@ -1,58 +1,40 @@
 
-#include "modules/drivers/rfid/rfid_component.h"
+#include "modules/navigation/navigation_component.h"
 
 #include "modules/common/adapters/adapter_gflags.h"
+#include "modules/common/util/message_util.h"
 
 namespace apollo {
 namespace navigation {
 
-float distance(int b) {
-  float c;
-  if (b == 0x0001)
-    c = 8.5;
-  else if (b == 0x8000)
-    c = -8.5;
-  else if (b == 0x0003)
-    c = 7.5;
-  else if (b == 0xC000)
-    c = -7.5;
-  else if (b == 0x0007)
-    c = 6.5;
-  else if (b == 0xE000)
-    c = -6.5;
-  else
-    c = 0;
-  return c;
-}
+std::string NavigationComponent::Name() const { return "Navigation"; }
 
 bool NavigationComponent::Init() {
-  // Init Reader
-  magnetic_reader_ = node_->CreateReader<Magnetic>(
-      FLAGS_magnetic_channel,
-      [this](const std::shared_ptr<Magnetic>& magnetic) {
-        ADEBUG << "Received Magnetic message. run callback.";
-        magnetic_.Clear();
-        magnetic_.CopyFrom(*magnetic);
+
+  // front rfid Reader
+  rfid_front_reader_ = node_->CreateReader<RFID>(
+      FLAGS_rfid_front_topic, [this](const std::shared_ptr<RFID>& rfid_front) {
+        rfid_front_.CopyFrom(*rfid_front);
       });
 
-  // Init Writer
-  navigation_writer_ = node_->CreateWriter<Distance>(FLAGS_navigation_channel);
-
-  // Async read
-  async_action_ = cyber::Async(&RfidComponent::Action, this);
+  // rear rfid Reader
+  rfid_rear_reader_ = node_->CreateReader<RFID>(
+      FLAGS_rfid_rear_topic, [this](const std::shared_ptr<RFID>& rfid_rear) {
+        rfid_rear_.CopyFrom(*rfid_rear);
+      });
 
   return true;
 }
 
 void NavigationComponent::Action() {
-  Distance distance;
-  auto header = distance.mutable_header();
-  header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
-  header->set_frame_id("rfid");
+  auto nav = std::make_shared<Navigation>();
+  // belef from apriltag or rfid
+  nav->set_start_point(49);
+  nav->set_end_point(50);
 
-  auto mag = magnetic_.channel();
+  common::util::FillHeader(node_->Name(), nav.get());
+  navigation_writer_->Write(nav);
 
-  distance.set_distance(distance(mag));
 }
 
 NavigationComponent::~NavigationComponent() { AINFO << "~NavigationComponent"; }

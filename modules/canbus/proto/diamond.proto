@@ -408,6 +408,26 @@ message Id_0x18fe0010 {
   optional int32 parking_mode = 8;
 }
 
+message Id_0x0c0000a7 {
+// Control Message
+  // [] [0|0]
+  optional int32 fmt0_send = 1;
+  // [] [0|0]
+  optional int32 fmt1_send = 2;
+  // [] [0|0]
+  optional int32 fmt2_send = 3;
+  // [] [0|0]
+  optional int32 fmt3_send = 4;
+  // [] [0|0]
+  optional int32 fmt4_send = 5;
+  // [] [0|0]
+  optional int32 fmt5_send = 6;
+  // [] [0|0]
+  optional int32 fmt6_send = 7;
+  // [] [0|1]
+  optional int32 parking_mode_send = 8;
+}
+
 message Diamond {
   optional Id_0x0c079aa7 id_0x0c079aa7 = 1; // control message
   optional Id_0x0c08a7f0 id_0x0c08a7f0 = 2; // report message
@@ -426,6 +446,7 @@ message Diamond {
   optional Id_0x18eba1a5 id_0x18eba1a5 = 16; // report message
   optional Id_0x00aa5701 id_0x00aa5701 = 20; // control message
   optional Id_0x18fe0010 id_0x18fe0010 = 21; // report message
+  optional Id_0x0c0000a7 id_0x0c0000a7 = 22; // control message
   optional Id_0x01 id_0x01 = 17; // report message
   optional Id_0x03 id_0x03 = 18; // report message
   optional Id_0x04 id_0x04 = 19; // report message

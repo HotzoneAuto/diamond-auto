@@ -31,6 +31,7 @@
 #include "modules/control/proto/control_cmd.pb.h"
 #include "modules/drivers/proto/wheelangle.pb.h"
 
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0c0000a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 
@@ -120,6 +121,7 @@ class DiamondController final : public VehicleController {
   // control protocol
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
+  Id0x0c0000a7* id_0x0c0000a7_ = nullptr;
 
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
