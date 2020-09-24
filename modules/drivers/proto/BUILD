@@ -163,3 +163,25 @@ py_proto_library(
     ],
 )
 
+cc_proto_library(
+    name = "parking_cc_proto",
+    deps = [
+        ":parking_proto",
+    ],
+)
+
+proto_library(
+    name = "parking_proto",
+    srcs = ["parking.proto"],
+    deps = [
+        "//modules/common/proto:header_proto",
+        "//modules/common/proto:geometry_proto",
+    ],
+)
+
+py_proto_library(
+    name = "parking_py_pb2",
+    deps = [
+        ":parking_proto",
+    ],
+)
