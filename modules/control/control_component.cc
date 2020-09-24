@@ -177,6 +177,7 @@ bool ControlComponent::Proc() {
       // set control cmd
       // check estop, ture: brake=10,torque=1, write
       if (is_destination) {
+        cmd->set_parking_brake(true);
         cmd->set_brake(control_conf_.soft_estop_brake());
         cmd->set_torque(1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
@@ -198,15 +199,14 @@ bool ControlComponent::Proc() {
         AINFO << "front_wheel_target = " << front_wheel_target;
         AINFO << "rear_wheel_target = " << rear_wheel_target;
 
+        cmd->set_parking_brake(false);
+        cmd->set_front_wheel_target(front_wheel_target);
+        cmd->set_rear_wheel_target(rear_wheel_target);
         if (cmd->pad_msg().action() != DrivingAction::START) {
-          AINFO << "not START, cmd set to 0";
+          AINFO << "not START, cmd torque set to 0";
           cmd->set_torque(0);
-          cmd->set_rear_wheel_target(0);
-          cmd->set_front_wheel_target(0);
         } else {
           cmd->set_torque(drivemotor_torque);
-          cmd->set_rear_wheel_target(rear_wheel_target);
-          cmd->set_front_wheel_target(front_wheel_target);
         }
       }
     }
