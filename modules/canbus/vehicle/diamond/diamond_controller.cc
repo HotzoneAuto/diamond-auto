@@ -105,6 +105,8 @@ ErrorCode DiamondController::Init(
   steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
   steer_front->SetOpt(38400, 8, 'N', 1);
   steer_rear->SetOpt(38400, 8, 'N', 1);
+  parking_brake = std::make_unique<Uart>(FLAGS_parking_brake_device.c_str());
+  parking_brake->SetOpt(38400, 8, 'N', 1);
 
   // wheel angle Reader
   // remove to canbus_component
@@ -171,7 +173,7 @@ Chassis DiamondController::chassis() {
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
-
+  Push_parking_brake();
   chassis_.set_driving_mode(driving_mode());
   chassis_.set_error_code(chassis_error_code());
 
@@ -516,7 +518,39 @@ void DiamondController::RearSteerNegative() {
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
 }
+void DiamondController::Push_parking_brake(){
 
+  AINFO << "Parking_brake";
+  unsigned char table[8]={0x01,0x03,0x00,0x04,0x00,0x01,0xC5,0xCB};
+  int results=parking_brake->Write(table,8);
+  AINFO << "results==" << results;
+  static char buffer[6];
+  std::memset(buffer, 0, 6);
+  static char buf;
+  int count=0;
+  double air_pump_pressure=0.0;
+  for (count = 0; count < 7; count++) {
+    int ret = parking_brake->Read(&buf, 1);
+    ADEBUG << "READ RETURN :" << ret;
+    if (ret == 1) {
+      buffer[count] = buf;
+    } else {
+      std::memset(buffer, 0, 6);
+      break;
+    }
+    if(count==6){
+        AINFO << "buffer[0]=" <<buffer[0];
+          air_pump_pressure=(static_cast<double>(buffer[3]) * 256 +static_cast<double>(buffer[4]))/100.0;
+          AINFO << "air_pump_pressure" << air_pump_pressure;
+  }
+  }
+  if(air_pump_pressure<0.6){
+    id_0x0c079aa7_->set_byeapcmd(0x55);
+  }else if(air_pump_pressure >0.8){
+    id_0x0c079aa7_->set_byeapcmd(0xAA);
+  }
+  chassis_.set_barometric_pressure(air_pump_pressure);
+}
 void DiamondController::SetBatCharging() {
   id_0x0c079aa7_->set_bydcdccmd(0x55);
   id_0x0c079aa7_->set_bydcaccmd(0xAA);
