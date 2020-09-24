@@ -96,8 +96,16 @@ ErrorCode DiamondController::Init(
     return ErrorCode::CANBUS_ERROR;
   }
 
+  id_0x0c0000a7_ = dynamic_cast<Id0x0c0000a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c0000a7::ID));
+  if (id_0x0c0000a7_ == nullptr) {
+    AERROR << "Id0x0c0000a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
+
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
+  can_sender_->AddMessage(Id0x0c0000a7::ID, id_0x0c0000a7_, false);
 
   AINFO << "DiamondController is initialized.";
 
@@ -389,7 +397,6 @@ void DiamondController::ReverseTorque(double torque) {
   auto speed = 0.006079 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
   AINFO << "speed:" << speed;
 
-
   // Fixed workmode switch bug for motor 1e-6
   if (torque < kEpsilon && speed > kEpsilon) {
     AWARN << "Skip speed error situation";
@@ -528,7 +535,7 @@ void DiamondController::SetBatCharging() {
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
   if (command.parking_brake()) {
-    // None
+    id_0x0c0000a7_->set_parking_mode_send(1);
   } else {
     // None
   }
