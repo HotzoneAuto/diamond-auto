@@ -552,11 +552,12 @@ void DiamondController::Push_parking_brake() {
       AINFO << "air_pump_pressure" << air_pump_pressure;
     }
   }
-  if (air_pump_pressure < 0.6) {
+  if (air_pump_pressure < 0.55) {
     id_0x0c079aa7_->set_byeapcmd(0x55);
-  } else if (air_pump_pressure > 0.8) {
+  } else if (air_pump_pressure > 0.77) {
     id_0x0c079aa7_->set_byeapcmd(0xAA);
   }
+  can_sender_->Update();
   chassis_.set_barometric_pressure(air_pump_pressure);
 }
 void DiamondController::SetBatCharging() {

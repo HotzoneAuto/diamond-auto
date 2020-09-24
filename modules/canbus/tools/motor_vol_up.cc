@@ -41,7 +41,7 @@ void MessageCallback(
     }
   }
 
-  if (diamond.id_0x1818d0f3().bybatnegrlysts() == 0) {
+  if (diamond.id_0x1818d0f3().bybatnegrlysts() != 1) {
     AERROR << "Meet Error for field 1818d0f3 bybatnegrlysts";
     return;
   }
@@ -57,7 +57,6 @@ void MessageCallback(
     if (ret2 == 0) {
       AINFO << "K2 up message send SUCCESS: " << cmd2;
       k2_on = true;
-      std::this_thread::sleep_for(std::chrono::seconds(5));
       return;
     } else {
       AERROR << "K2 up message send FAILED(" << ret2 << "): " << cmd2;
@@ -78,7 +77,6 @@ void MessageCallback(
     // 5. K2 down
     std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
     const int ret4 = std::system(cmd4.c_str());
-    std::this_thread::sleep_for(std::chrono::seconds(3));
     if (ret4 == 0) {
       AINFO << "K2 down message send SUCCESS: " << cmd4;
     } else {
