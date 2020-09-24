@@ -23,6 +23,11 @@ bool NavigationComponent::Init() {
         rfid_rear_.CopyFrom(*rfid_rear);
       });
 
+
+    // create Writer
+  navigation_writer_ =
+      node_->CreateWriter<Navigation>(FLAGS_routing_request_topic);
+
   return true;
 }
 

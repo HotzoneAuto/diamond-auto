@@ -32,7 +32,6 @@ class NavigationComponent : public Component<> {
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_front_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_rear_reader_;
 
-
   RFID rfid_front_;
   RFID rfid_rear_;
   std::future<void> async_action_;
