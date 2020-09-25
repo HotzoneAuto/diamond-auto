@@ -134,6 +134,7 @@ class DiamondController final : public VehicleController {
   std::mutex chassis_mask_mutex_;
   int32_t chassis_error_mask_ = 0;
   double times_=0.0;
+  double times_last_=0.0;
   std::thread thread_mangetic_;
   std::thread thread_parking_;
   WheelAngle front_wheel_angle_;
@@ -151,6 +152,7 @@ class DiamondController final : public VehicleController {
   float rear_encoder_angle_realtime = 0;
   // TODO(all): configration
   const float encoder_to_wheel_gear_ratio = 124.5;
+
 };
 
 }  // namespace diamond
