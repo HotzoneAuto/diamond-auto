@@ -79,8 +79,10 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   double rear_wheel_angle_value = 0.0;
   bool is_rear_received = false;
 
-  bool is_destination = false;
-
+  bool is_front_destination = false;
+  bool is_rear_destination=false;
+  bool limit_rear_wheel=true;
+  
   bool limit_front_wheel = true;
 };
 

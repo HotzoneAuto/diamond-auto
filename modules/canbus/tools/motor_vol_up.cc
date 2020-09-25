@@ -48,10 +48,11 @@ void MessageCallback(
   if (!diamond.id_0x1818d0f3().bybatnegrlysts()) {
     ADEBUG << "Meet Error for field 1818d0f3 bybatnegrlysts";
   }
-  
+
   // 3. K2 up
   if (!k2_on) {
-   std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
+    sleep(2);
+    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
     const int ret2 = std::system(cmd2.c_str());
     if (ret2 == 0) {
       AINFO << "K2 up message send SUCCESS: " << cmd2;

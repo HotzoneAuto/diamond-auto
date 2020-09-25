@@ -1,1 +1,2 @@
 device_id: "diamond_parking_brake"
+output_channel:"/diamond/sensor/parking"

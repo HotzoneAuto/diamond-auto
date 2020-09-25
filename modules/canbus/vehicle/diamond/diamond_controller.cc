@@ -128,15 +128,19 @@ ErrorCode DiamondController::Init(
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
         rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
       });
+  // /diamond/canbus/chassis
+  parking_reader_ = node->CreateReader<PARKING>(
+      "/diamond/sensor/parking",
+      [this](const std::shared_ptr<PARKING>& barometric_pressure) {
+        parking_.CopyFrom(*barometric_pressure);
+      });
 
   if (FLAGS_magnetic_enable) {
     apollo::drivers::magnetic::Magnetic magnetic;
     thread_mangetic_ =
         std::thread(&apollo::drivers::magnetic::Magnetic::AsyncSend, magnetic);
   }
-  
-  //parking_result=std::async(std::launch::async,&DiamondController::Push_parking_brake,this);
-  //thread_parking_=std::thread(&DiamondController::Push_parking_brake,this);
+  // parking_result=std::async(std::launch::async,&DiamondController::Push_parking_brake,this);
   is_initialized_ = true;
   return ErrorCode::OK;
 }
@@ -183,10 +187,10 @@ Chassis DiamondController::chassis() {
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
-  
-  //double  barometric_pressure_result=parking_result.get();
-  //chassis_.set_barometric_pressure(barometric_pressure_result); 
-  
+  Push_parking_brake();
+  // double  barometric_pressure_result=parking_result.get();
+  // chassis_.set_barometric_pressure(barometric_pressure_result);
+
   chassis_.set_driving_mode(driving_mode());
   chassis_.set_error_code(chassis_error_code());
 
@@ -530,44 +534,14 @@ void DiamondController::RearSteerNegative() {
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
 }
-double DiamondController::Push_parking_brake() {
-  AINFO << "Parking_brake";
-  unsigned char table[8] = {0x01, 0x03, 0x00, 0x04, 0x00, 0x01, 0xC5, 0xCB};
-  int results = parking_brake->Write(table, 8);
-  AINFO << "results==" << results;
-  static char buffer[6];
-  std::memset(buffer, 0, 6);
-  static char buf;
-  int count = 0;
-  double air_pump_pressure = 0.0;
-  while (!apollo::cyber::IsShutdown()) {
-  for (count = 0; count < 7; count++) {
-    int ret = parking_brake->Read(&buf, 1);
-    ADEBUG << "READ RETURN :" << ret;
-    if (ret == 1) {
-      buffer[count] = buf;
-    } else {
-      std::memset(buffer, 0, 6);
-      break;
-    }
-    if (count == 6) {
-      AINFO << "buffer[0]=" << buffer[0];
-      air_pump_pressure = (static_cast<double>(buffer[3]) * 256 +
-                           static_cast<double>(buffer[4])) /
-                          100.0;
-      AINFO << "air_pump_pressure" << air_pump_pressure;
-    }
-  }
-  if (air_pump_pressure < 0.55) {
+void DiamondController::Push_parking_brake() {
+  AINFO << "barometric_pressure=" << parking_.barometric_pressure();
+  if (parking_.barometric_pressure() < 0.55) {
     id_0x0c079aa7_->set_byeapcmd(0x55);
-  } else if (air_pump_pressure > 0.77) {
+  } else if (parking_.barometric_pressure() > 0.77) {
     id_0x0c079aa7_->set_byeapcmd(0xAA);
   }
-  }
   can_sender_->Update();
-  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(10));
-  //chassis_.set_barometric_pressure(air_pump_pressure);
-  return air_pump_pressure;
 }
 void DiamondController::SetBatCharging() {
   id_0x0c079aa7_->set_bydcdccmd(0x55);
