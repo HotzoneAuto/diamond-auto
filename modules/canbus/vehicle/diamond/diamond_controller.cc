@@ -193,8 +193,7 @@ Chassis DiamondController::chassis() {
   
   if (times_ - times_last_ > 2e9) {
     Push_parking_brake();
-    AINFO << "Activate Push_parking_brake().
-      time_last_ = " << time_last_;
+    AINFO << "Activate Push_parking_brake(). time_last_ = " << time_last_;
     times_last_ = times_;
   }
   // double  barometric_pressure_result=parking_result.get();
