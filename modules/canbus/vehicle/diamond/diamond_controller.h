@@ -100,7 +100,7 @@ class DiamondController final : public VehicleController {
   void RearSteerStop();
   void RearSteerPositive();
   void RearSteerNegative();
-  double Push_parking_brake();
+  void Push_parking_brake();
   void SetBatCharging();
 
   // set Electrical Park Brake
@@ -123,12 +123,10 @@ class DiamondController final : public VehicleController {
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
   Id0x0c0000a7* id_0x0c0000a7_ = nullptr;
 
-  std::future<double> parking_result;
+  // std::future<double> parking_result;
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
   bool is_chassis_error_ = false;
-
-  std::future<double> parking_result;
 
   std::mutex chassis_error_code_mutex_;
   Chassis::ErrorCode chassis_error_code_ = Chassis::NO_ERROR;
