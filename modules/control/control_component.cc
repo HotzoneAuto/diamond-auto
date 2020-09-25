@@ -176,13 +176,14 @@ bool ControlComponent::Proc() {
 
       // set control cmd
       // check estop, ture: brake=10,torque=1, write
-<<<<<<< HEAD
       if (is_front_destination) {
-        cmd->set_parking_brake(true);
         cmd->set_brake(control_conf_.soft_estop_brake());
         cmd->set_torque(1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
+        if(chassis_.speed_mps() < 1e-6){
+          cmd->set_parking_brake(true);
+        }
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
                                 ? drivemotor_torque
@@ -254,11 +255,10 @@ bool ControlComponent::Proc() {
       }
 
       // set control cmd
-      // check estop, ture: brake=10,torque=1, write
+      // check estop, ture: brake=10,torque=-1, write
       if (is_rear_destination) {
-        cmd->set_parking_brake(true);
         cmd->set_brake(control_conf_.soft_estop_brake());
-        cmd->set_torque(1);
+        cmd->set_torque(-1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
         if(chassis_.speed_mps() < 1e-6){
@@ -270,13 +270,13 @@ bool ControlComponent::Proc() {
                                 : control_conf_.max_torque();
         drivemotor_torque =
             (drivemotor_torque > 0.001) ? drivemotor_torque : 0.001;
-        if (limit_front_wheel) {
-          front_wheel_target =
-              (front_wheel_target < 30.0) ? front_wheel_target : 30.0;
-          front_wheel_target =
-              (front_wheel_target > -30.0) ? front_wheel_target : -30.0;
+        if (limit_rear_wheel) {
+          rear_wheel_target =
+              (rear_wheel_target < 30.0) ? rear_wheel_target : 30.0;
+          rear_wheel_target =
+              (rear_wheel_target > -30.0) ? rear_wheel_target : -30.0;
         }
-        rear_wheel_target = -front_wheel_target;
+        front_wheel_target = -rear_wheel_target;
 
         AINFO << "front_wheel_target = " << front_wheel_target;
         AINFO << "rear_wheel_target = " << rear_wheel_target;
@@ -288,7 +288,7 @@ bool ControlComponent::Proc() {
           AINFO << "not START, cmd torque set to 0";
           cmd->set_torque(0);
         } else {
-          cmd->set_torque(drivemotor_torque);
+          cmd->set_torque(-drivemotor_torque);
         }
       }
     }
