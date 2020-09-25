@@ -39,7 +39,7 @@ void ParkingComponet::Proc() {
   while (!apollo::cyber::IsShutdown()) {
     count = 0;
     std::memset(buffer, 0, 6);
-    // while(1){
+    //while(1){
     int results = device_->Write(table, 8);
     AINFO << "results==" << results;
     for (count = 0; count < 7; count++) {

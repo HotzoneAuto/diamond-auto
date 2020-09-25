@@ -22,7 +22,7 @@ source "${APOLLO_ROOT_DIR}/scripts/apollo.bashrc"
 
 VERSION_X86_64="diamond-auto-x86_64-18.04-20200719_1123"
 #VERSION_AARCH64="diamond-auto-aarch64-18.04-20200729_1004"
-VERSION_AARCH64="diamond-auto-aarch64-18.04-20200907_2117"
+VERSION_AARCH64="diamond-auto-aarch64-18.04-20200925_1309"
 VERSION_LOCAL_CYBER="local_cyber_dev"
 CYBER_CONTAINER="apollo_cyber_${USER}"
 CYBER_INSIDE="in_cyber_docker"

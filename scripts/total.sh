@@ -10,14 +10,16 @@
        bash "${APOLLO_ROOT_DIR}/scripts/lcd_display.sh"
        bash "${APOLLO_ROOT_DIR}/scripts/rfid.sh"
        bash "${APOLLO_ROOT_DIR}/scripts/wheel.sh"
+#       bash "${APOLLO_ROOT_DIR}/scripts/parking_brake.sh"
        bash "${APOLLO_ROOT_DIR}/scripts/canbus.sh"
     }
   
     function stop() {
-       eval " bash ${APOLLO_ROOT_DIR}/scripts/lcd_display.sh stop"
+       eval "bash ${APOLLO_ROOT_DIR}/scripts/lcd_display.sh stop"
        eval "bash ${APOLLO_ROOT_DIR}/scripts/rfid.sh stop"
        eval "bash ${APOLLO_ROOT_DIR}/scripts/wheel.sh stop"
-#       eval "bash ${APOLLO_ROOT_DIR}/scripts/canbus.sh stop"
+#       eval "bash ${APOLLO_ROOT_DIR}/scripts/parking_brake.sh stop"
+       eval "bash ${APOLLO_ROOT_DIR}/scripts/canbus.sh stop"
     }
   
   # run command_name module_name

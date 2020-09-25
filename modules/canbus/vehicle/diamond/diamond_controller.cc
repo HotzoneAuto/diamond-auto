@@ -32,11 +32,12 @@
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/drivers/magnetic/magnetic.h"
-
+#include "cyber/time/time.h"
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
+using apollo::cyber::Time;
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
 using ::apollo::drivers::canbus::ProtocolData;
@@ -131,8 +132,8 @@ ErrorCode DiamondController::Init(
   // /diamond/canbus/chassis
   parking_reader_ = node->CreateReader<PARKING>(
       "/diamond/sensor/parking",
-      [this](const std::shared_ptr<PARKING>& barometric_pressure) {
-        parking_.CopyFrom(*barometric_pressure);
+      [this](const std::shared_ptr<PARKING>& barometric) {
+        parking_.CopyFrom(*barometric);
       });
 
   if (FLAGS_magnetic_enable) {
@@ -187,6 +188,9 @@ Chassis DiamondController::chassis() {
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
+  times_=Time::Now().ToNanosecond();
+  AINFO << "Time::Now().ToNanosecond()="<< times_;
+  
   Push_parking_brake();
   // double  barometric_pressure_result=parking_result.get();
   // chassis_.set_barometric_pressure(barometric_pressure_result);
@@ -536,12 +540,21 @@ void DiamondController::RearSteerNegative() {
 }
 void DiamondController::Push_parking_brake() {
   AINFO << "barometric_pressure=" << parking_.barometric_pressure();
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+  auto diamond = chassis_detail.mutable_diamond();
+
+  AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()=" <<diamond->id_0x0c09a7f0().fmotvolt();
+  if(diamond->id_0x0c09a7f0().fmotvolt()>=630.0){
   if (parking_.barometric_pressure() < 0.55) {
     id_0x0c079aa7_->set_byeapcmd(0x55);
   } else if (parking_.barometric_pressure() > 0.77) {
     id_0x0c079aa7_->set_byeapcmd(0xAA);
   }
   can_sender_->Update();
+  }
+  sleep(3);
+  //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
 }
 void DiamondController::SetBatCharging() {
   id_0x0c079aa7_->set_bydcdccmd(0x55);

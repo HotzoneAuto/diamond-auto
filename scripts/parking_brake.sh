@@ -6,17 +6,17 @@
    
    source "${DIR}/apollo_base.sh"
    
-      function start() {
-       LOG="${APOLLO_ROOT_DIR}/data/log/lcd_display.out"
-       CMD="cyber_launch start /apollo/modules/lcd/launch/lcd_display.launch"
-      NUM_PROCESSES="$(pgrep -c -f "modules/lcd/dag/lcd_display.dag")"
+   function start() {
+      LOG="${APOLLO_ROOT_DIR}/data/log/parking_barke.out"
+      CMD="cyber_launch start /apollo/modules/drivers/parking/launch/parking_barke.launch"
+      NUM_PROCESSES="$(pgrep -c -f "modules/drivers/parking/launch/parking_brake.dag")"
       if [ "${NUM_PROCESSES}" -eq 0 ]; then
           eval "nohup ${CMD} </dev/null >${LOG} 2>&1 &"
       fi
   }
   
   function stop() {
-      eval "nohup cyber_launch stop /apollo/modules/lcd/launch/lcd_display.launch < /dev/null 2>&1 &"
+      eval "nohup cyber_launch stop /apollo/modules/drivers/parking/launch/parking_barke.launch < /dev/null 2>&1 &"
   }
   
   # run command_name module_name
@@ -35,4 +35,3 @@
   }
   
   run "$1"
-
