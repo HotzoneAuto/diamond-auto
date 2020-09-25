@@ -1,0 +1,10 @@
+syntax = "proto2";
+package apollo.drivers;
+
+import "modules/common/proto/header.proto";
+import "modules/common/proto/geometry.proto";
+
+message PARKING{
+  optional apollo.common.Header header = 1;
+  optional double barometric_pressure=2;
+}

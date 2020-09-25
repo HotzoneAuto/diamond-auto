@@ -58,6 +58,7 @@ cc_library(
         "//modules/drivers/proto:wheelangle_cc_proto",
         "//modules/canbus/vehicle:vehicle_controller_base",
         "//modules/canbus/vehicle/diamond/protocol:canbus_diamond_protocol",
+        "//modules/drivers/proto:parking_cc_proto",
     ],
 )
 
