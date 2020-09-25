@@ -11,5 +11,5 @@ def repo():
     native.new_local_repository(
         name = "pcl",
         build_file = clean_dep("//third_party/pcl:pcl.BUILD"),
-        path = "/opt/apollo/sysroot/include/pcl-1.10",
+        path = "/usr/include/pcl-1.8",
     )

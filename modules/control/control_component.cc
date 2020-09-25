@@ -137,7 +137,7 @@ bool ControlComponent::Proc() {
     if (control_conf_.drivemotor_flag() == 1) {
       // longitudinal control
       if (rfid_front_.id() == control_conf_.front_destnation()) {
-        is_destination = true;
+        is_front_destination = true;
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
           drivemotor_torque = PidSpeed();
@@ -157,7 +157,7 @@ bool ControlComponent::Proc() {
 
         // TODO: test wakeup with original mgs data
         if (!front_wheel_wakeup && is_front_received &&
-            cmd->pad_msg().action() == START) {
+            cmd->pad_msg().action() == DrivingAction::START) {
           front_target_last = front_wheel_angle_value;
           front_wheel_target = front_wheel_angle_value;
           limit_front_wheel = false;
@@ -176,7 +176,7 @@ bool ControlComponent::Proc() {
 
       // set control cmd
       // check estop, ture: brake=10,torque=1, write
-      if (is_destination) {
+      if (is_front_destination) {
         cmd->set_brake(control_conf_.soft_estop_brake());
         cmd->set_torque(1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
@@ -209,6 +209,86 @@ bool ControlComponent::Proc() {
           cmd->set_torque(0);
         } else {
           cmd->set_torque(drivemotor_torque);
+        }
+      }
+    }
+
+    // reverse mode
+    if (control_conf_.drivemotor_flag() == 2) {
+      // longitudinal control
+      if (rfid_rear_.id() == control_conf_.rear_destnation()) {
+        is_rear_destination = true;
+      } else {
+        if (cmd->pad_msg().action() == DrivingAction::START) {
+          drivemotor_torque = PidSpeed();
+        }
+      }
+
+      // lateral control
+      if (FLAGS_magnetic_enable) {
+        AINFO << "rear_wheel_angle_value = " << rear_wheel_angle_value;
+
+        float front_lat_dev_mgs = chassis_.front_lat_dev();
+        float rear_lat_dev_mgs = chassis_.rear_lat_dev();
+        AINFO << "front_lat_dev_mgs = " << front_lat_dev_mgs;
+        AINFO << "rear_lat_dev_mgs = " << rear_lat_dev_mgs;
+
+        // rear_wheel_target = 0;
+
+        // TODO: test wakeup with original mgs data
+        if (!rear_wheel_wakeup && is_rear_received &&
+            cmd->pad_msg().action() == DrivingAction::START) {
+          rear_target_last = rear_wheel_angle_value;
+          rear_wheel_target = rear_wheel_angle_value;
+          limit_rear_wheel = false;
+          rear_wheel_wakeup = true;
+          AINFO << "rear_target_last = " << rear_target_last;
+          AINFO << "rear wheel wake up.";
+        } else {
+          rear_wheel_target =
+              GetSteerTarget(rear_lat_dev_mgs, rear_target_last);
+          limit_rear_wheel = true;
+        }
+      } else {
+        // rear_wheel_target = 0;
+        rear_wheel_target = control_conf_.manual_rear_wheel_target();
+      }
+
+      // set control cmd
+      // check estop, ture: brake=10,torque=-1, write
+      if (is_rear_destination) {
+        cmd->set_brake(control_conf_.soft_estop_brake());
+        cmd->set_torque(-1);
+        cmd->set_rear_wheel_target(rear_wheel_angle_value);
+        cmd->set_front_wheel_target(front_wheel_angle_value);
+        if(chassis_.speed_mps() < 1e-6){
+          cmd->set_parking_brake(true);
+        }
+      } else {
+        drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
+                                ? drivemotor_torque
+                                : control_conf_.max_torque();
+        drivemotor_torque =
+            (drivemotor_torque > 0.001) ? drivemotor_torque : 0.001;
+        if (limit_rear_wheel) {
+          rear_wheel_target =
+              (rear_wheel_target < 30.0) ? rear_wheel_target : 30.0;
+          rear_wheel_target =
+              (rear_wheel_target > -30.0) ? rear_wheel_target : -30.0;
+        }
+        front_wheel_target = -rear_wheel_target;
+
+        AINFO << "front_wheel_target = " << front_wheel_target;
+        AINFO << "rear_wheel_target = " << rear_wheel_target;
+
+        cmd->set_parking_brake(false);
+        cmd->set_front_wheel_target(front_wheel_target);
+        cmd->set_rear_wheel_target(rear_wheel_target);
+        if (cmd->pad_msg().action() != DrivingAction::START) {
+          AINFO << "not START, cmd torque set to 0";
+          cmd->set_torque(0);
+        } else {
+          cmd->set_torque(-drivemotor_torque);
         }
       }
     }

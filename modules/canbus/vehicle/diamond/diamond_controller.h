@@ -40,8 +40,8 @@ namespace apollo {
 namespace canbus {
 namespace diamond {
 
-using apollo::drivers::WheelAngle;
 using apollo::drivers::PARKING;
+using apollo::drivers::WheelAngle;
 
 class DiamondController final : public VehicleController {
  public:
@@ -100,7 +100,7 @@ class DiamondController final : public VehicleController {
   void RearSteerStop();
   void RearSteerPositive();
   void RearSteerNegative();
-  void Push_parking_brake();
+  double Push_parking_brake();
   void SetBatCharging();
 
   // set Electrical Park Brake
@@ -109,9 +109,7 @@ class DiamondController final : public VehicleController {
   void ResetProtocol();
   bool CheckChassisError();
 
-  
  private:
-  
   void SecurityDogThreadFunc();
   virtual bool CheckResponse(const int32_t flags, bool need_wait);
   void set_chassis_error_mask(const int32_t mask);
@@ -125,6 +123,7 @@ class DiamondController final : public VehicleController {
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
   Id0x0c0000a7* id_0x0c0000a7_ = nullptr;
 
+  std::future<double> parking_result;
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
   bool is_chassis_error_ = false;
@@ -139,7 +138,6 @@ class DiamondController final : public VehicleController {
 
   std::thread thread_mangetic_;
   std::thread thread_parking_;
-
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
   std::shared_ptr<apollo::cyber::Reader<WheelAngle>> front_wheel_angle_reader_;

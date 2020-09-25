@@ -534,11 +534,11 @@ void DiamondController::RearSteerNegative() {
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
 }
-void DiamondController::Push_parking_brake(){
-  AINFO << "barometric_pressure=" <<parking_.barometric_pressure();
-  if(parking_.barometric_pressure()<0.55){
+void DiamondController::Push_parking_brake() {
+  AINFO << "barometric_pressure=" << parking_.barometric_pressure();
+  if (parking_.barometric_pressure() < 0.55) {
     id_0x0c079aa7_->set_byeapcmd(0x55);
-  }else if(parking_.barometric_pressure()>0.77){
+  } else if (parking_.barometric_pressure() > 0.77) {
     id_0x0c079aa7_->set_byeapcmd(0xAA);
   }
   can_sender_->Update();

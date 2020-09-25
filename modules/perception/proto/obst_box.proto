@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package apollo.perception;
+
+message Obst_box {
+  optional int32 box_id = 1;  
+  optional float x_min = 2;
+  optional float y_min = 3;
+  optional float z_min = 4;
+  optional float x_max = 5;
+  optional float y_max = 6;
+  optional float z_max = 7;
+};
+
+message Obstacles {
+    repeated Obst_box obstacles = 1;
+    optional int32 box_num = 2; 
+}
