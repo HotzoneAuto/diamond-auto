@@ -31,11 +31,9 @@ void MessageCallback(
   }
 
   // 2. Tell BMS you can release voltage now
-  if (!k2_on && !diamond.id_0x1818d0f3().bybatinsrerr()) {
+  if (!k2_on) {
     std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
     const int ret1 = std::system(cmd1.c_str());
-    sleep(2);
-    return;
     if (ret1 == 0) {
       AINFO << "BMS message send SUCCESS: " << cmd1;
     } else {
@@ -44,18 +42,15 @@ void MessageCallback(
   }
 
   if (!diamond.id_0x1818d0f3().bybatinsrerr()) {
-    AERROR << "Meet error for field 1818d0f3 bybatinsrerr";
-    return;
+    ADEBUG << "Meet error for field 1818d0f3 bybatinsrerr";
   }
 
   if (!diamond.id_0x1818d0f3().bybatnegrlysts()) {
-    AERROR << "Meet Error for field 1818d0f3 bybatnegrlysts";
-    return;
+    ADEBUG << "Meet Error for field 1818d0f3 bybatnegrlysts";
   }
   
   // 3. K2 up
   if (!k2_on) {
-   sleep(2);  
    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
     const int ret2 = std::system(cmd2.c_str());
     if (ret2 == 0) {
