@@ -176,6 +176,7 @@ bool ControlComponent::Proc() {
 
       // set control cmd
       // check estop, ture: brake=10,torque=1, write
+<<<<<<< HEAD
       if (is_front_destination) {
         cmd->set_parking_brake(true);
         cmd->set_brake(control_conf_.soft_estop_brake());
@@ -260,6 +261,9 @@ bool ControlComponent::Proc() {
         cmd->set_torque(1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
+        if(chassis_.speed_mps() < 1e-6){
+          cmd->set_parking_brake(true);
+        }
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
                                 ? drivemotor_torque
