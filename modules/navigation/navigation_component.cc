@@ -10,7 +10,6 @@ namespace navigation {
 std::string NavigationComponent::Name() const { return "Navigation"; }
 
 bool NavigationComponent::Init() {
-
   // front rfid Reader
   rfid_front_reader_ = node_->CreateReader<RFID>(
       FLAGS_rfid_front_topic, [this](const std::shared_ptr<RFID>& rfid_front) {
@@ -23,8 +22,7 @@ bool NavigationComponent::Init() {
         rfid_rear_.CopyFrom(*rfid_rear);
       });
 
-
-    // create Writer
+  // create Writer
   navigation_writer_ =
       node_->CreateWriter<Navigation>(FLAGS_routing_request_topic);
 
@@ -39,7 +37,6 @@ void NavigationComponent::Action() {
 
   common::util::FillHeader(node_->Name(), nav.get());
   navigation_writer_->Write(nav);
-
 }
 
 NavigationComponent::~NavigationComponent() { AINFO << "~NavigationComponent"; }

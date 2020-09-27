@@ -181,7 +181,7 @@ bool ControlComponent::Proc() {
         cmd->set_torque(1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
-        if(chassis_.speed_mps() < 1e-6){
+        if (chassis_.speed_mps() < 1e-6) {
           cmd->set_parking_brake(true);
         }
       } else {
@@ -261,7 +261,7 @@ bool ControlComponent::Proc() {
         cmd->set_torque(-1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
-        if(chassis_.speed_mps() < 1e-6){
+        if (chassis_.speed_mps() < 1e-6) {
           cmd->set_parking_brake(true);
         }
       } else {

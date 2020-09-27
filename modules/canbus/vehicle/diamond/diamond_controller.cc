@@ -22,6 +22,7 @@
 #include "cyber/common/log.h"
 #include "cyber/cyber.h"
 
+#include "cyber/time/time.h"
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/diamond/protocol/frequency_converter.h"
@@ -32,14 +33,13 @@
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/drivers/magnetic/magnetic.h"
-#include "cyber/time/time.h"
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
-using apollo::cyber::Time;
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
+using apollo::cyber::Time;
 using ::apollo::drivers::canbus::ProtocolData;
 using apollo::drivers::canbus::SenderMessage;
 using apollo::drivers::magnetic::Magnetic;
@@ -188,9 +188,9 @@ Chassis DiamondController::chassis() {
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
-  times_=Time::Now().ToNanosecond();
-  AINFO << "Time::Now().ToNanosecond()="<< times_;
-  
+  times_ = Time::Now().ToNanosecond();
+  AINFO << "Time::Now().ToNanosecond()=" << times_;
+
   if (times_ - times_last_ > 2e9) {
     Push_parking_brake();
     AINFO << "Activate Push_parking_brake(). times_last_ = " << times_last_;
@@ -548,17 +548,18 @@ void DiamondController::Push_parking_brake() {
   message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
 
-  AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()=" <<diamond->id_0x0c09a7f0().fmotvolt();
-  if(diamond->id_0x0c09a7f0().fmotvolt()>=630.0){
-  if (parking_.barometric_pressure() < 0.55) {
-    id_0x0c079aa7_->set_byeapcmd(0x55);
-  } else if (parking_.barometric_pressure() > 0.77) {
-    id_0x0c079aa7_->set_byeapcmd(0xAA);
-  }
-  can_sender_->Update();
+  AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
+        << diamond->id_0x0c09a7f0().fmotvolt();
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
+    if (parking_.barometric_pressure() < 0.55) {
+      id_0x0c079aa7_->set_byeapcmd(0x55);
+    } else if (parking_.barometric_pressure() > 0.77) {
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+    }
+    can_sender_->Update();
   }
   sleep(3);
-  //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
 }
 void DiamondController::SetBatCharging() {
   id_0x0c079aa7_->set_bydcdccmd(0x55);
