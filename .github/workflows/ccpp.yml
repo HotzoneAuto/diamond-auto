@@ -20,9 +20,5 @@ jobs:
       run: cp scripts/AGREEMENT.txt ${HOME}/.apollo_agreement.txt
     - name: Pull and Create Container
       run: bash docker/scripts/cyber_start.sh
-    # - name: cyber into 
-      # run: bash docker/scripts/cyber_into.sh
-    - name: docker stockpile
-      run: docker exec -u $USER apollo_cyber_$USER df
     - name: Build
       run: docker exec -u $USER apollo_cyber_$USER bash -c "./apollo.sh build"

@@ -40,7 +40,7 @@ DEFINE_string(front_wheel_angle_topic, "/diamond/sensor/wheel_angle/front",
 DEFINE_string(rear_wheel_angle_topic, "/diamond/sensor/wheel_angle/rear",
               "rear wheel angle topic name");
 DEFINE_string(parking_brake_topic, "/diamond/sensor/parking",
-              "parking brake topic name");            
+              "parking brake topic name");
 DEFINE_string(control_command_topic, "/diamond/control",
               "control command topic name");
 DEFINE_string(control_preprocessor_topic, "/diamond/control/preprocessor",
