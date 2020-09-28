@@ -62,9 +62,9 @@ class lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud> {
   Eigen::Vector4f maxpoint;
   int maxIterations = 40;
   float distanceThreshold = 0.2;
-  float clusterTolerance = 1.0;
+  float clusterTolerance = 0.7;
   int minsize = 7;
-  int maxsize = 300;
+  int maxsize = 400;
   std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>> obst_writer;
 };
 CYBER_REGISTER_COMPONENT(lidar_pointcloudcluster)
