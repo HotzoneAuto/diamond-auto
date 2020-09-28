@@ -131,7 +131,7 @@ ErrorCode DiamondController::Init(
       });
   // /diamond/canbus/chassis
   parking_reader_ = node->CreateReader<PARKING>(
-      "/diamond/sensor/parking",
+      FLAGS_parking_brake_topic,
       [this](const std::shared_ptr<PARKING>& barometric) {
         parking_.CopyFrom(*barometric);
       });
@@ -192,7 +192,7 @@ Chassis DiamondController::chassis() {
   AINFO << "Time::Now().ToNanosecond()=" << times_;
 
   if (times_ - times_last_ > 2e9) {
-    Push_parking_brake();
+    // Push_parking_brake();
     AINFO << "Activate Push_parking_brake(). times_last_ = " << times_last_;
     times_last_ = times_;
   }
