@@ -18,8 +18,8 @@ docker commit "$CONTAINER_ID" "$TAG"
 #docker stop "$CONTAINER_ID"
 
 # Please provide credential if you want to login automatically.
-#DOCKER_USER="mickeyouyou"
-#DOCKER_PASSWORD="1Q2W3e4r"
+#DOCKER_USER=""
+#DOCKER_PASSWORD=""
 #if [ ! -z "${DOCKER_PASSWORD}" ]; then
 #  docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 #fi
