@@ -117,5 +117,5 @@ message Chassis {
   // Magnetic sensor data
   optional float front_lat_dev = 42;
   optional float rear_lat_dev = 43;
-
+  optional double barometric=44;
 }

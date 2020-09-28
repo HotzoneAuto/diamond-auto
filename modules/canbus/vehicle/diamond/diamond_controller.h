@@ -31,13 +31,16 @@
 #include "modules/control/proto/control_cmd.pb.h"
 #include "modules/drivers/proto/wheelangle.pb.h"
 
+#include "modules/canbus/vehicle/diamond/protocol/id_0x0c0000a7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c079aa7.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c19f0a7.h"
 
+#include "modules/drivers/proto/parking.pb.h"
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
+using apollo::drivers::PARKING;
 using apollo::drivers::WheelAngle;
 
 class DiamondController final : public VehicleController {
@@ -97,7 +100,7 @@ class DiamondController final : public VehicleController {
   void RearSteerStop();
   void RearSteerPositive();
   void RearSteerNegative();
-
+  void Push_parking_brake();
   void SetBatCharging();
 
   // set Electrical Park Brake
@@ -118,7 +121,9 @@ class DiamondController final : public VehicleController {
   // control protocol
   Id0x0c079aa7* id_0x0c079aa7_ = nullptr;
   Id0x0c19f0a7* id_0x0c19f0a7_ = nullptr;
+  Id0x0c0000a7* id_0x0c0000a7_ = nullptr;
 
+  // std::future<double> parking_result;
   Chassis chassis_;
   std::unique_ptr<std::thread> thread_;
   bool is_chassis_error_ = false;
@@ -128,17 +133,20 @@ class DiamondController final : public VehicleController {
 
   std::mutex chassis_mask_mutex_;
   int32_t chassis_error_mask_ = 0;
-
+  double times_ = 0.0;
+  //double times_last_ = 0.0;
   std::thread thread_mangetic_;
-
+  std::thread thread_parking_;
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
   std::shared_ptr<apollo::cyber::Reader<WheelAngle>> front_wheel_angle_reader_;
   std::shared_ptr<apollo::cyber::Reader<WheelAngle>> rear_wheel_angle_reader_;
-
+  PARKING parking_;
+  std::shared_ptr<apollo::cyber::Reader<PARKING>> parking_reader_;
   // 变频器设备 485通信
   std::unique_ptr<Uart> steer_front = nullptr;
   std::unique_ptr<Uart> steer_rear = nullptr;
+  std::unique_ptr<Uart> parking_brake = nullptr;
 
   float front_encoder_angle_realtime = 0;
   float rear_encoder_angle_realtime = 0;

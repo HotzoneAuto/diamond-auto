@@ -32,22 +32,15 @@ const int32_t Id0x18fe0010::ID = 0x18FE0010;
 
 void Id0x18fe0010::Parse(const std::uint8_t* bytes, int32_t length,
                          ChassisDetail* chassis) const {
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt0(
-      fmt0(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt1(
-      fmt1(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt2(
-      fmt2(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt3(
-      fmt3(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt4(
-      fmt4(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt5(
-      fmt5(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_fmt6(
-      fmt6(bytes, length));
-  chassis->mutable_diamond()->mutable_id_0x18fe0010()->set_parking_mode(
-      parking_mode(bytes, length));
+  auto id = chassis->mutable_diamond()->mutable_id_0x18fe0010();
+  id->set_fmt0(fmt0(bytes, length));
+  id->set_fmt1(fmt1(bytes, length));
+  id->set_fmt2(fmt2(bytes, length));
+  id->set_fmt3(fmt3(bytes, length));
+  id->set_fmt4(fmt4(bytes, length));
+  id->set_fmt5(fmt5(bytes, length));
+  id->set_fmt6(fmt6(bytes, length));
+  id->set_parking_mode(parking_mode(bytes, length));
 }
 
 // config detail: {'bit': 0, 'is_signed_var': False, 'len': 8, 'name': 'fmt0',

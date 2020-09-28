@@ -4,7 +4,8 @@ package apollo.navigation;
 
 import "modules/common/proto/header.proto";
 
-message Distance {
+message Navigation {
   optional apollo.common.Header header = 1;
-  optional uint32 distance = 2;
+  optional uint32 start_point = 2;
+  optional uint32 end_point = 3;
 }

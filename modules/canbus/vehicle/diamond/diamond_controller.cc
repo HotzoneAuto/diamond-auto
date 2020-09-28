@@ -22,6 +22,7 @@
 #include "cyber/common/log.h"
 #include "cyber/cyber.h"
 
+#include "cyber/time/time.h"
 #include "modules/canbus/common/canbus_gflags.h"
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 #include "modules/canbus/vehicle/diamond/protocol/frequency_converter.h"
@@ -32,13 +33,13 @@
 #include "modules/drivers/canbus/can_comm/can_sender.h"
 #include "modules/drivers/canbus/can_comm/protocol_data.h"
 #include "modules/drivers/magnetic/magnetic.h"
-
 namespace apollo {
 namespace canbus {
 namespace diamond {
 
 using ::apollo::common::ErrorCode;
 using ::apollo::control::ControlCommand;
+using apollo::cyber::Time;
 using ::apollo::drivers::canbus::ProtocolData;
 using apollo::drivers::canbus::SenderMessage;
 using apollo::drivers::magnetic::Magnetic;
@@ -96,8 +97,16 @@ ErrorCode DiamondController::Init(
     return ErrorCode::CANBUS_ERROR;
   }
 
+  id_0x0c0000a7_ = dynamic_cast<Id0x0c0000a7*>(
+      message_manager_->GetMutableProtocolDataById(Id0x0c0000a7::ID));
+  if (id_0x0c0000a7_ == nullptr) {
+    AERROR << "Id0x0c0000a7 does not exist in the DiamondMessageManager!";
+    return ErrorCode::CANBUS_ERROR;
+  }
+
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
+  can_sender_->AddMessage(Id0x0c0000a7::ID, id_0x0c0000a7_, false);
 
   AINFO << "DiamondController is initialized.";
 
@@ -105,6 +114,8 @@ ErrorCode DiamondController::Init(
   steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
   steer_front->SetOpt(38400, 8, 'N', 1);
   steer_rear->SetOpt(38400, 8, 'N', 1);
+  parking_brake = std::make_unique<Uart>(FLAGS_parking_brake_device.c_str());
+  parking_brake->SetOpt(38400, 8, 'N', 1);
 
   // wheel angle Reader
   // remove to canbus_component
@@ -118,13 +129,19 @@ ErrorCode DiamondController::Init(
       [this](const std::shared_ptr<WheelAngle>& rear_wheel_angle) {
         rear_wheel_angle_.CopyFrom(*rear_wheel_angle);
       });
+  // /diamond/canbus/chassis
+  parking_reader_ = node->CreateReader<PARKING>(
+      FLAGS_parking_brake_topic,
+      [this](const std::shared_ptr<PARKING>& barometric) {
+        parking_.CopyFrom(*barometric);
+      });
 
   if (FLAGS_magnetic_enable) {
     apollo::drivers::magnetic::Magnetic magnetic;
     thread_mangetic_ =
         std::thread(&apollo::drivers::magnetic::Magnetic::AsyncSend, magnetic);
   }
-
+  // parking_result=std::async(std::launch::async,&DiamondController::Push_parking_brake,this);
   is_initialized_ = true;
   return ErrorCode::OK;
 }
@@ -171,6 +188,16 @@ Chassis DiamondController::chassis() {
   if (driving_mode() == Chassis::EMERGENCY_MODE) {
     set_chassis_error_code(Chassis::NO_ERROR);
   }
+  /*times_ = Time::Now().ToNanosecond();
+  AINFO << "Time::Now().ToNanosecond()=" << times_;
+
+  if (times_ - times_last_ > 2e9) {
+    // Push_parking_brake();
+    AINFO << "Activate Push_parking_brake(). times_last_ = " << times_last_;
+    times_last_ = times_;
+  }*/
+  // double  barometric_pressure_result=parking_result.get();
+  // chassis_.set_barometric_pressure(barometric_pressure_result);
 
   chassis_.set_driving_mode(driving_mode());
   chassis_.set_error_code(chassis_error_code());
@@ -389,7 +416,6 @@ void DiamondController::ReverseTorque(double torque) {
   auto speed = 0.006079 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
   AINFO << "speed:" << speed;
 
-
   // Fixed workmode switch bug for motor 1e-6
   if (torque < kEpsilon && speed > kEpsilon) {
     AWARN << "Skip speed error situation";
@@ -516,21 +542,52 @@ void DiamondController::RearSteerNegative() {
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
 }
+void DiamondController::Push_parking_brake() {
+  AINFO << "barometric_pressure=" << parking_.barometric_pressure();
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+  auto diamond = chassis_detail.mutable_diamond();
 
+  AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
+        << diamond->id_0x0c09a7f0().fmotvolt();
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
+    if (parking_.barometric_pressure() < 0.55) {
+      id_0x0c079aa7_->set_byeapcmd(0x55);
+    } else if (parking_.barometric_pressure() > 0.77) {
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+    }
+    can_sender_->Update();
+  }
+  sleep(3);
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
+}
 void DiamondController::SetBatCharging() {
+  ChassisDetail chassis_detail;
+  message_manager_->GetSensorData(&chassis_detail);
+  auto diamond = chassis_detail.mutable_diamond();
+
   id_0x0c079aa7_->set_bydcdccmd(0x55);
   id_0x0c079aa7_->set_bydcaccmd(0xAA);
   id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  id_0x0c079aa7_->set_byeapcmd(0xAA);
+  // id_0x0c079aa7_->set_byeapcmd(0xAA);
   id_0x0c079aa7_->set_bydcac2cmd(0xAA);
   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
+
+  AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
+        << diamond->id_0x0c09a7f0().fmotvolt();
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
+    if (parking_.barometric_pressure() < 0.55) {
+      id_0x0c079aa7_->set_byeapcmd(0x55);
+    } else if (parking_.barometric_pressure() > 0.77) {
+      id_0x0c079aa7_->set_byeapcmd(0xAA);
+    }
+  }
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
   if (command.parking_brake()) {
-    // None
+    id_0x0c0000a7_->set_parking_mode_send(command.parking_brake());
   } else {
-    // None
   }
 }
 
