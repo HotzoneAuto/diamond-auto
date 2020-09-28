@@ -581,7 +581,6 @@ void DiamondController::SetBatCharging() {
     } else if (parking_.barometric_pressure() > 0.77) {
       id_0x0c079aa7_->set_byeapcmd(0xAA);
     }
-    can_sender_->Update();
   }
 }
 
