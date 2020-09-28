@@ -466,7 +466,7 @@ function start_cyber_container() {
         --add-host "${CYBER_INSIDE}:172.0.0.1" \
         --add-host "${local_host}:127.0.0.1" \
         --hostname "${CYBER_INSIDE}" \
-        --shm-size 2G \
+        --shm-size 4G \
         --pid=host \
         "${image}" \
         /bin/bash

@@ -9,13 +9,15 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: Free disk space
-      run: |
-        sudo swapoff -a
-        sudo rm -f /swapfile
-        sudo apt clean
-        docker rmi $(docker image ls -aq)
-        df -h
+#     - name: Free disk space
+#       run: |
+#         sudo swapoff -a
+#         sudo rm -f /swapfile
+#         sudo apt clean
+#         docker rmi $(docker image ls -aq)
+#         df -h
+    - name: Docker Situation
+      run: docker system prune -a -f --volumes
     - name: Signed Diamond Agreement
       run: cp scripts/AGREEMENT.txt ${HOME}/.apollo_agreement.txt
     - name: Pull and Create Container
