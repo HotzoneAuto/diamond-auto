@@ -89,7 +89,6 @@ ErrorCode DiamondController::Init(
     AERROR << "Id0x0c079aa7 does not exist in the DiamondMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
-
   id_0x0c19f0a7_ = dynamic_cast<Id0x0c19f0a7*>(
       message_manager_->GetMutableProtocolDataById(Id0x0c19f0a7::ID));
   if (id_0x0c19f0a7_ == nullptr) {
@@ -103,7 +102,6 @@ ErrorCode DiamondController::Init(
     AERROR << "Id0x0c0000a7 does not exist in the DiamondMessageManager!";
     return ErrorCode::CANBUS_ERROR;
   }
-
   can_sender_->AddMessage(Id0x0c079aa7::ID, id_0x0c079aa7_, false);
   can_sender_->AddMessage(Id0x0c19f0a7::ID, id_0x0c19f0a7_, false);
   can_sender_->AddMessage(Id0x0c0000a7::ID, id_0x0c0000a7_, false);
@@ -451,6 +449,7 @@ void DiamondController::SteerFront(double front_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer front steering_switch = " << steering_switch;
+  SetBatCharging();
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
@@ -491,6 +490,7 @@ void DiamondController::SteerRear(double rear_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer rear steering_switch = " << steering_switch;
+  SetBatCharging();
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       RearSteerPositive();
@@ -508,37 +508,31 @@ void DiamondController::SteerRear(double rear_steering_target) {
 }
 
 void DiamondController::FrontSteerStop() {
-  SetBatCharging();
   int result = steer_front->Write(C2, 8);
   ADEBUG << "FrontSteerStop command send result:" << result;
 }
 
 void DiamondController::FrontSteerPositive() {
-  SetBatCharging();
   int result = steer_front->Write(C3, 8);
   ADEBUG << "FrontSteerPositive command send result:" << result;
 }
 
 void DiamondController::FrontSteerNegative() {
-  SetBatCharging();
   int result = steer_front->Write(C4, 8);
   ADEBUG << "FrontSteerNegative command send result:" << result;
 }
 
 void DiamondController::RearSteerStop() {
-  SetBatCharging();
   int result = steer_rear->Write(C6, 8);
   ADEBUG << "RearSteerStop command send result:" << result;
 }
 
 void DiamondController::RearSteerPositive() {
-  SetBatCharging();
   int result = steer_rear->Write(C7, 8);
   ADEBUG << "RearSteerPositive command send result:" << result;
 }
 
 void DiamondController::RearSteerNegative() {
-  SetBatCharging();
   int result = steer_rear->Write(C8, 8);
   ADEBUG << "RearSteerNegative command send result:" << result;
 }
@@ -576,7 +570,7 @@ void DiamondController::SetBatCharging() {
   AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
         << diamond->id_0x0c09a7f0().fmotvolt();
   if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
-    if (parking_.barometric_pressure() < 0.55) {
+    if (parking_.barometric_pressure() < 0.6) {
       id_0x0c079aa7_->set_byeapcmd(0x55);
     } else if (parking_.barometric_pressure() > 0.77) {
       id_0x0c079aa7_->set_byeapcmd(0xAA);
