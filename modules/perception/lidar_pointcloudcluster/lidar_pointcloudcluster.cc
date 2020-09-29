@@ -9,59 +9,73 @@ bool lidar_pointcloudcluster::Init() {
 
   // minpoint = Eigen::Vector4f(-10, -6.5, -2, 1);
   // maxpoint = Eigen::Vector4f(30, 6.5, 1, 1);
-  minpoint = Eigen::Vector4f(-10, -10, -2, 1);
-  maxpoint = Eigen::Vector4f(30, 10, 1, 1);
+  minpoint = Eigen::Vector4f(-42, -15, -2, 1);
+  maxpoint = Eigen::Vector4f(30, 15, 1, 1);
   return true;
 }
 
-bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg) {
+bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1, 
+                                   const std::shared_ptr<apollo::drivers::PointCloud>& msg2) {
 //init viewer
 //  viewer->initCameraParameters();
-  if (msg->point_size() == 0) {
+  if ((msg1->point_size() == 0) || (msg2->point_size() == 0)) {
     return false;
   }
 
   viewer->removeAllPointClouds();
   viewer->removeAllShapes();
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr pcloud(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointXYZ> cloud;
-  cloud.width = msg->point_size();
+//front point cloud
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::PointCloud<pcl::PointXYZI> cloud;
+  cloud.width = msg1->point_size() + msg2->point_size();
   cloud.height = 1;
   cloud.is_dense = false;
   cloud.points.resize(cloud.width * cloud.height);
-  for (size_t i = 0; i < cloud.points.size(); ++i) {
-    cloud.points[i].x = msg->point(i).x();
-    cloud.points[i].y = msg->point(i).y();
-    cloud.points[i].z = msg->point(i).z();
+  for (size_t i = 0; i < msg1->point_size(); ++i) {
+    cloud.points[i].x = msg1->point(i).x();
+    cloud.points[i].y = msg1->point(i).y();
+    cloud.points[i].z = msg1->point(i).z();
+    cloud.points[i].intensity = msg1->point(i).intensity();
   }
-  pcloud = cloud.makeShared();
+//  pcloud = cloud.makeShared();
 //  save point_cloud to pcd file 
 //  pcl::io::savePCDFileASCII("/apollo/write_pcd_test.pcd",*pcloud); 
 
+//rear point cloud
+  for (size_t i = 0; i < msg2->point_size(); ++i) {
+    cloud.points[i + msg1->point_size()].x = -(msg2->point(i).x()) - 12;
+    cloud.points[i + msg1->point_size()].y = -msg2->point(i).y();
+    cloud.points[i + msg1->point_size()].z = msg2->point(i).z();
+  }
+  pcloud = cloud.makeShared();
+
   vector<int> nan_cloud_inliers;
   pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers);
+
+//point cloud data fusion
+
 //voxel grid filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloudFiltered(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::VoxelGrid<pcl::PointXYZ> vg;
+  pcl::PointCloud<pcl::PointXYZI>::Ptr cloudFiltered(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::VoxelGrid<pcl::PointXYZI> vg;
   vg.setInputCloud(pcloud);
   vg.setLeafSize(filterRes, filterRes, filterRes);
   vg.filter(*cloudFiltered);
 
 //cropbox
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloudRegion(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::CropBox<pcl::PointXYZ> region(true);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr cloudRegion(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::CropBox<pcl::PointXYZI> region(true);
   region.setMin(minpoint);
   region.setMax(maxpoint);
   region.setInputCloud(cloudFiltered);
   region.filter(*cloudRegion);
 
   vector<int> indices;
-  pcl::CropBox<pcl::PointXYZ> roof(true);
+  pcl::CropBox<pcl::PointXYZI> roof(true);
   // roof.setMin(Eigen::Vector4f(-1.5, -1.7, -1, 1));
   // roof.setMax(Eigen::Vector4f(2.6, 1.7, -0.4, 1));
-  roof.setMin(Eigen::Vector4f(-4, -1.7, -1.0, 1));
-  roof.setMax(Eigen::Vector4f(0.0, 1.7, 1.0, 1));
+  roof.setMin(Eigen::Vector4f(-12, -4.7, -1.0, 1));
+  roof.setMax(Eigen::Vector4f(0.0, 4.7, 1.0, 1));
   roof.setInputCloud(cloudRegion);
   roof.filter(indices);
 
@@ -70,7 +84,7 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
     inliers->indices.push_back(point);
   }
 
-  pcl::ExtractIndices<pcl::PointXYZ> extract;
+  pcl::ExtractIndices<pcl::PointXYZI> extract;
   extract.setInputCloud(cloudRegion);
   extract.setIndices(inliers);
   extract.setNegative(true);
@@ -80,7 +94,7 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   auto cloud_points = cloudRegion->points;
   pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
   pcl::PointIndices::Ptr inliers_seg(new pcl::PointIndices);
-  pcl::SACSegmentation<pcl::PointXYZ>seg;
+  pcl::SACSegmentation<pcl::PointXYZI>seg;
   seg.setOptimizeCoefficients(true);
   seg.setModelType(pcl::SACMODEL_PLANE);
   seg.setMethodType(pcl::SAC_RANSAC);
@@ -89,36 +103,36 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   seg.setInputCloud(cloudRegion);
   seg.segment(*inliers_seg, *coefficients);
 //segment obstacles
-  pcl::PointCloud<pcl::PointXYZ>::Ptr obstCloud(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::Ptr planeCloud(new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::PointCloud<pcl::PointXYZI>::Ptr obstCloud(new pcl::PointCloud<pcl::PointXYZI>());
+  pcl::PointCloud<pcl::PointXYZI>::Ptr planeCloud(new pcl::PointCloud<pcl::PointXYZI>());
 
    for(int index : inliers_seg->indices) {
      planeCloud->points.push_back(cloudRegion->points[index]);
    }
 
-  pcl::ExtractIndices<pcl::PointXYZ> extract_obst;
+  pcl::ExtractIndices<pcl::PointXYZI> extract_obst;
   extract_obst.setInputCloud(cloudRegion);
   extract_obst.setIndices(inliers_seg);
   extract_obst.setNegative(true);
   extract_obst.filter(*obstCloud);
 
-  std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segResult(obstCloud, planeCloud);
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult(obstCloud, planeCloud);
 
-  viewer->addPointCloud<pcl::PointXYZ>(segResult.second, "plane");
+  viewer->addPointCloud<pcl::PointXYZI>(segResult.second, "plane");
   viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "plane");
   viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, Color(0, 1, 0).r, Color(0, 1, 0).g, Color(0, 1, 0).b, "plane");
 
-  viewer->addPointCloud<pcl::PointXYZ>(segResult.first, "obst");
+  viewer->addPointCloud<pcl::PointXYZI>(segResult.first, "obst");
   viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "obst");
   viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, Color(1, 0, 0).r, Color(1, 0, 0).g, Color(1, 0, 0).b, "obst");
 
 
 //cluster
-  vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>clusters;
-  typename pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+  vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>clusters;
+  typename pcl::search::KdTree<pcl::PointXYZI>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZI>);
   tree->setInputCloud(segResult.first);
   vector<pcl::PointIndices> clusterIndices;
-  pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+  pcl::EuclideanClusterExtraction<pcl::PointXYZI> ec;
   ec.setClusterTolerance(clusterTolerance);
   ec.setMinClusterSize(minsize);
   ec.setMaxClusterSize(maxsize);
@@ -127,7 +141,7 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   ec.extract(clusterIndices);
 
   for(pcl::PointIndices getIndices: clusterIndices){
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudCluster(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloudCluster(new pcl::PointCloud<pcl::PointXYZI>);
     for(int index:getIndices.indices) {
       cloudCluster->points.push_back(segResult.first->points[index]);
     } 
@@ -143,9 +157,9 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
 
   auto msg_obstacles = std::make_shared<apollo::perception::Obstacles>();
 
-  for(pcl::PointCloud<pcl::PointXYZ>::Ptr cluster_temp: clusters) {
-    viewer->addPointCloud<pcl::PointXYZ>(cluster_temp, "obstcloud" + std::to_string(clusterId)); 
-    pcl::PointXYZ minpoint_temp, maxpoint_temp;
+  for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster_temp: clusters) {
+    viewer->addPointCloud<pcl::PointXYZI>(cluster_temp, "obstcloud" + std::to_string(clusterId)); 
+    pcl::PointXYZI minpoint_temp, maxpoint_temp;
     pcl::getMinMax3D(*cluster_temp, minpoint_temp, maxpoint_temp);
 
     Box box;
@@ -182,7 +196,8 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   }
   msg_obstacles->set_box_num(clusterId);
   obst_writer->Write(msg_obstacles);  
-  viewer->addPointCloud(obstCloud, "init cloud");
+  viewer->addPointCloud<pcl::PointXYZI>(obstCloud, "init cloud");
+//  viewer->addPointCloud<pcl::PointXYZI>(pcloud, "init cloud");
   viewer->spinOnce();	
   return true;
 }
