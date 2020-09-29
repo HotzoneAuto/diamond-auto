@@ -9,56 +9,16 @@ bool lidar_pointcloudcluster::Init() {
 
   // minpoint = Eigen::Vector4f(-10, -6.5, -2, 1);
   // maxpoint = Eigen::Vector4f(30, 6.5, 1, 1);
-  minpoint = Eigen::Vector4f(-42, -15, -2, 1);
-  maxpoint = Eigen::Vector4f(30, 15, 1, 1);
+  minpoint = Eigen::Vector4f(-32, -15, -2, 1);
+  maxpoint = Eigen::Vector4f(20, 15, 2, 1);
   return true;
 }
 
-bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1, 
-                                   const std::shared_ptr<apollo::drivers::PointCloud>& msg2) {
-//init viewer
-//  viewer->initCameraParameters();
-  if ((msg1->point_size() == 0) || (msg2->point_size() == 0)) {
-    return false;
-  }
-
-  viewer->removeAllPointClouds();
-  viewer->removeAllShapes();
-
-//front point cloud
-  pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud(new pcl::PointCloud<pcl::PointXYZI>);
-  pcl::PointCloud<pcl::PointXYZI> cloud;
-  cloud.width = msg1->point_size() + msg2->point_size();
-  cloud.height = 1;
-  cloud.is_dense = false;
-  cloud.points.resize(cloud.width * cloud.height);
-  for (size_t i = 0; i < msg1->point_size(); ++i) {
-    cloud.points[i].x = msg1->point(i).x();
-    cloud.points[i].y = msg1->point(i).y();
-    cloud.points[i].z = msg1->point(i).z();
-    cloud.points[i].intensity = msg1->point(i).intensity();
-  }
-//  pcloud = cloud.makeShared();
-//  save point_cloud to pcd file 
-//  pcl::io::savePCDFileASCII("/apollo/write_pcd_test.pcd",*pcloud); 
-
-//rear point cloud
-  for (size_t i = 0; i < msg2->point_size(); ++i) {
-    cloud.points[i + msg1->point_size()].x = -(msg2->point(i).x()) - 12;
-    cloud.points[i + msg1->point_size()].y = -msg2->point(i).y();
-    cloud.points[i + msg1->point_size()].z = msg2->point(i).z();
-  }
-  pcloud = cloud.makeShared();
-
-  vector<int> nan_cloud_inliers;
-  pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers);
-
-//point cloud data fusion
-
+std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> lidar_pointcloudcluster::filter_and_segment(const pcl::PointCloud<pcl::PointXYZI>::Ptr origin_cloud) {
 //voxel grid filter
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloudFiltered(new pcl::PointCloud<pcl::PointXYZI>);
   pcl::VoxelGrid<pcl::PointXYZI> vg;
-  vg.setInputCloud(pcloud);
+  vg.setInputCloud(origin_cloud);
   vg.setLeafSize(filterRes, filterRes, filterRes);
   vg.filter(*cloudFiltered);
 
@@ -116,7 +76,72 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   extract_obst.setNegative(true);
   extract_obst.filter(*obstCloud);
 
-  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult(obstCloud, planeCloud);
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult_fun(obstCloud, planeCloud);
+  return segResult_fun;
+}
+
+bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1, 
+                                   const std::shared_ptr<apollo::drivers::PointCloud>& msg2) {
+//init viewer
+//  viewer->initCameraParameters();
+  if ((msg1->point_size() == 0) || (msg2->point_size() == 0)) {
+    return false;
+  }
+
+  viewer->removeAllPointClouds();
+  viewer->removeAllShapes();
+
+//front point cloud
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::PointCloud<pcl::PointXYZI> cloud;
+  cloud.width = msg1->point_size();
+  cloud.height = 1;
+  cloud.is_dense = false;
+  cloud.points.resize(cloud.width * cloud.height);
+  for (size_t i = 0; i < msg1->point_size(); ++i) {
+    cloud.points[i].x = msg1->point(i).x();
+    cloud.points[i].y = msg1->point(i).y();
+    cloud.points[i].z = msg1->point(i).z();
+    cloud.points[i].intensity = msg1->point(i).intensity();
+  }
+
+  vector<int> nan_cloud_inliers;
+  pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers);
+  pcloud = cloud.makeShared();
+//  save point_cloud to pcd file 
+//  pcl::io::savePCDFileASCII("/apollo/write_pcd_test.pcd",*pcloud); 
+
+//rear point cloud
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_rear(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::PointCloud<pcl::PointXYZI> cloud_rear;
+  cloud_rear.width = msg2->point_size();
+  cloud_rear.height = 1;
+  cloud_rear.is_dense = false;
+  cloud_rear.points.resize(cloud_rear.width * cloud_rear.height);  
+  for (size_t i = 0; i < msg2->point_size(); ++i) {
+    cloud_rear.points[i].x = -(msg2->point(i).x()) - 12;
+    cloud_rear.points[i].y = -msg2->point(i).y();
+    cloud_rear.points[i].z = msg2->point(i).z();
+    cloud_rear.points[i].intensity = msg2->point(i).intensity();
+  }
+
+  pcloud_rear = cloud_rear.makeShared();
+  vector<int> nan_cloud_inliers_rear;
+  pcl::removeNaNFromPointCloud(*pcloud_rear, *pcloud_rear, nan_cloud_inliers_rear);
+
+//point cloud data fusion
+
+//insert function
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult_front = filter_and_segment(pcloud);
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult_rear = filter_and_segment(pcloud_rear);
+
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_plane(new pcl::PointCloud<pcl::PointXYZI>);
+  pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_obst(new pcl::PointCloud<pcl::PointXYZI>);
+
+  *pcloud_obst = *(segResult_front.first) + *(segResult_rear.first);
+  *pcloud_plane = *(segResult_front.second) + *(segResult_rear.second);
+
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult(pcloud_obst, pcloud_plane);
 
   viewer->addPointCloud<pcl::PointXYZI>(segResult.second, "plane");
   viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "plane");
@@ -196,7 +221,7 @@ bool lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   }
   msg_obstacles->set_box_num(clusterId);
   obst_writer->Write(msg_obstacles);  
-  viewer->addPointCloud<pcl::PointXYZI>(obstCloud, "init cloud");
+  viewer->addPointCloud<pcl::PointXYZI>(pcloud_obst, "init cloud");
 //  viewer->addPointCloud<pcl::PointXYZI>(pcloud, "init cloud");
   viewer->spinOnce();	
   return true;
