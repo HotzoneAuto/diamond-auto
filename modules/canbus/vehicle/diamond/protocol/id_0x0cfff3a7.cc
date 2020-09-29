@@ -31,7 +31,7 @@ Id0x0cfff3a7::Id0x0cfff3a7() { Reset(); }
 
 uint32_t Id0x0cfff3a7::GetPeriod() const {
   // TODO(All) :  modify every protocol's period manually
-  static const uint32_t PERIOD = 20 * 1000;
+  static const uint32_t PERIOD = 50 * 1000;
   return PERIOD;
 }
 

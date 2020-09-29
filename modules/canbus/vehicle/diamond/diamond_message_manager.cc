@@ -16,7 +16,6 @@
 
 #include "modules/canbus/vehicle/diamond/diamond_message_manager.h"
 
-#include "modules/canbus/vehicle/diamond/protocol/id_0x01.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x03.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x04.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c0000a7.h"
@@ -27,6 +26,7 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c09a7f0.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x0c0ba7f0.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x1818d0f3.h"
+/*
 #include "modules/canbus/vehicle/diamond/protocol/id_0x1819d0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x181ad0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x181bd0f3.h"
@@ -36,8 +36,8 @@
 #include "modules/canbus/vehicle/diamond/protocol/id_0x181fd0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x1825d0f3.h"
 #include "modules/canbus/vehicle/diamond/protocol/id_0x18eba1a5.h"
+*/
 #include "modules/canbus/vehicle/diamond/protocol/id_0x18fe0010.h"
-
 namespace apollo {
 namespace canbus {
 namespace diamond {
@@ -49,13 +49,13 @@ DiamondMessageManager::DiamondMessageManager() {
   AddSendProtocolData<Id0x0c0000a7, true>();
 
   // Report Messages
-  AddRecvProtocolData<Id0x01, true>();
   AddRecvProtocolData<Id0x03, true>();
   AddRecvProtocolData<Id0x04, true>();
   AddRecvProtocolData<Id0x0c08a7f0, true>();
   AddRecvProtocolData<Id0x0c09a7f0, true>();
   AddRecvProtocolData<Id0x0c0ba7f0, true>();
   AddRecvProtocolData<Id0x1818d0f3, true>();
+  /*
   AddRecvProtocolData<Id0x1819d0f3, true>();
   AddRecvProtocolData<Id0x181ad0f3, true>();
   AddRecvProtocolData<Id0x181bd0f3, true>();
@@ -65,6 +65,7 @@ DiamondMessageManager::DiamondMessageManager() {
   AddRecvProtocolData<Id0x181fd0f3, true>();
   AddRecvProtocolData<Id0x1825d0f3, true>();
   AddRecvProtocolData<Id0x18eba1a5, true>();
+  */
   AddRecvProtocolData<Id0x18fe0010, true>();
 }
 
