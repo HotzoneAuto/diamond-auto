@@ -15,13 +15,13 @@ CONTAINER_ID=$(docker ps | grep apollo_cyber_${USER}| awk '{print $1}')
 
 docker commit "$CONTAINER_ID" "$TAG"
 # docker tag "$TAG" "$RELEASE_NAME"
-docker stop "$CONTAINER_ID"
+#docker stop "$CONTAINER_ID"
 
 # Please provide credential if you want to login automatically.
-DOCKER_USER="mickeyouyou"
-DOCKER_PASSWORD="1Q2W3e4r"
-if [ ! -z "${DOCKER_PASSWORD}" ]; then
-  docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
-fi
+#DOCKER_USER=""
+#DOCKER_PASSWORD=""
+#if [ ! -z "${DOCKER_PASSWORD}" ]; then
+#  docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
+#fi
 
-docker push ${TAG}
+#docker push ${TAG}

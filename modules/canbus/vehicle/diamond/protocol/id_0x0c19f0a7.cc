@@ -30,7 +30,7 @@ const int32_t Id0x0c19f0a7::ID = 0x0C19F0A7;
 Id0x0c19f0a7::Id0x0c19f0a7() { Reset(); }
 
 uint32_t Id0x0c19f0a7::GetPeriod() const {
-  static const uint32_t PERIOD = 20 * 1000;
+  static const uint32_t PERIOD = 50 * 1000;
   return PERIOD;
 }
 
