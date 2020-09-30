@@ -563,26 +563,24 @@ void DiamondController::SetBatCharging() {
   id_0x0c079aa7_->set_bydcdccmd(0x55);
   id_0x0c079aa7_->set_bydcaccmd(0xAA);
   id_0x0c079aa7_->set_bydcacwkst(0xAA);
-  // id_0x0c079aa7_->set_byeapcmd(0xAA);
+  id_0x0c079aa7_->set_byeapcmd(0xAA);
   id_0x0c079aa7_->set_bydcac2cmd(0xAA);
   id_0x0c079aa7_->set_bydcac2wkst(0xAA);
 
   AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
         << diamond->id_0x0c09a7f0().fmotvolt();
   if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
-    if (parking_.barometric_pressure() < 0.6) {
+    if (parking_.barometric_pressure() < 0.77) {
       id_0x0c079aa7_->set_byeapcmd(0x55);
-    } else if (parking_.barometric_pressure() > 0.77) {
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
+    }
+    if (parking_.barometric_pressure() > 0.77) {
+      // id_0x0c079aa7_->set_byeapcmd(0xAA);
     }
   }
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
-  if (command.parking_brake()) {
-    id_0x0c0000a7_->set_parking_mode_send(command.parking_brake());
-  } else {
-  }
+  id_0x0c0000a7_->set_parking_mode_send(command.parking_brake());
 }
 
 void DiamondController::ResetProtocol() {
