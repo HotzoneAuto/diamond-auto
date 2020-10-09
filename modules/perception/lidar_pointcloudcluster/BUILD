@@ -18,6 +18,7 @@ cc_library(
         "//cyber",
         "//modules/drivers/proto:pointcloud_cc_proto",
         "//modules/perception/proto:obst_box_cc_proto",
+        "//modules/perception/proto:lidar_pointcloud_conf_cc_proto",
         "@eigen",
         "@pcl",
         "@local_config_vtk//:vtk",

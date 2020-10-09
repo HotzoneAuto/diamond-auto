@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package apollo.perception;
+
+message LidarPointcloudConf {
+  optional string obst_output_channel = 1;  
+  optional bool save_pcd_file = 2 [default = false];
+  optional string save_pcd_path_front = 3;
+  optional string save_pcd_path_rear = 4;
+};
+

@@ -1,0 +1,4 @@
+obst_output_channel: "/diamond/perception/Obstacles"
+save_pcd_file: false
+save_pcd_path_front: "/apollo/modules/perception/data/lidar_front.pcd"
+save_pcd_path_rear: "/apollo/modules/perception/data/lidar_rear.pcd"

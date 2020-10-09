@@ -5,9 +5,12 @@ boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(
 
 bool Lidar_pointcloudcluster::Init() {
   AINFO << "Commontest component init";
+  if (!GetProtoConfig(&lidar_pointcloud_conf_)) {
+    AERROR << "Unable to load lidar pointcloud conf file: " << ConfigFilePath();
+    return false;
+  }
 
-  obst_writer = node_->CreateWriter<apollo::perception::Obstacles>(
-      "/diamond/perception/Obstacles");
+  obst_writer = node_->CreateWriter<apollo::perception::Obstacles>(lidar_pointcloud_conf_.obst_output_channel());
 
   minpoint = Eigen::Vector4f(-32, -15, -2, 1);
   maxpoint = Eigen::Vector4f(20, 15, 2, 1);
@@ -108,8 +111,6 @@ bool Lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   vector<int> nan_cloud_inliers;
   pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers);
   pcloud = cloud.makeShared();
-//  save point_cloud to pcd file 
-//  pcl::io::savePCDFileASCII("/apollo/write_pcd_test.pcd",*pcloud); 
 
 //rear point cloud
   pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_rear(new pcl::PointCloud<pcl::PointXYZI>);
@@ -128,6 +129,11 @@ bool Lidar_pointcloudcluster::Proc(const std::shared_ptr<apollo::drivers::PointC
   pcloud_rear = cloud_rear.makeShared();
   vector<int> nan_cloud_inliers_rear;
   pcl::removeNaNFromPointCloud(*pcloud_rear, *pcloud_rear, nan_cloud_inliers_rear);
+  
+  if(lidar_pointcloud_conf_.save_pcd_file()) {
+    pcl::io::savePCDFileASCII(lidar_pointcloud_conf_.save_pcd_path_front(),*pcloud);
+    pcl::io::savePCDFileASCII(lidar_pointcloud_conf_.save_pcd_path_rear(),*pcloud_rear);
+  } 
 
 //point cloud data fusion
   std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult_front = filter_and_segment(pcloud);

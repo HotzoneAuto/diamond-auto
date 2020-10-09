@@ -23,3 +23,22 @@ py_proto_library(
         ":obst_box_proto",
     ],
 )
+
+cc_proto_library(
+    name = "lidar_pointcloud_conf_cc_proto",
+    deps = [
+        ":lidar_pointcloud_conf_proto",
+    ],
+)
+
+proto_library(
+    name = "lidar_pointcloud_conf_proto",
+    srcs = ["lidar_pointcloud_conf.proto"],
+)
+
+py_proto_library(
+    name = "lidar_pointcloud_conf_py_pb2",
+    deps = [
+        ":lidar_pointcloud_conf_proto",
+    ],
+)

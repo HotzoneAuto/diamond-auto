@@ -1,7 +1,7 @@
 <cyber>
     <module>
         <name>common</name>
-        <dag_conf>/apollo/modules/perception/lidar_pointcloudcluster/lidar_pointcloudcluster.dag</dag_conf>
+        <dag_conf>/apollo/modules/perception/dag/lidar_pointcloudcluster.dag</dag_conf>
         <process_name>lidar_pointcloudcluster</process_name>
     </module>
 </cyber>
