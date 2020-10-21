@@ -113,7 +113,7 @@ ErrorCode DiamondController::Init(
   steer_front->SetOpt(38400, 8, 'N', 1);
   steer_rear->SetOpt(38400, 8, 'N', 1);
   parking_brake = std::make_unique<Uart>(FLAGS_parking_brake_device.c_str());
-  parking_brake->SetOpt(38400, 8, 'N', 1);
+  parking_brake->SetOpt(115200, 8, 'N', 1);
   // wheel angle Reader
   // remove to canbus_component
   front_wheel_angle_reader_ = node->CreateReader<WheelAngle>(
@@ -559,17 +559,19 @@ void DiamondController::SetBatCharging() {
   message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
   int result_parking_brake_frequency = parking_brake->Write(C9, 8);
-      ADEBUG << "result_parking_brake_frequency command send result::" << result_parking_brake_frequency;
+  AINFO << "result_parking_brake_frequency command send result::" << result_parking_brake_frequency;
   AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
         << diamond->id_0x0c09a7f0().fmotvolt();
-  if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
-    if (parking_.barometric_pressure() < 0.77) {
+  AINFO << "parking_.barometric_pressure=" << parking_.barometric_pressure();
+  sleep(1);
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 627.0) {
+    if (parking_.barometric_pressure() < 0.75) {
       int result_parking_brake_up = parking_brake->Write(C10, 8);
-      ADEBUG << "parking_brake_up command send result::" << result_parking_brake_up;
+      AINFO << "parking_brake_up command send result::" << result_parking_brake_up;
     }
-    if (parking_.barometric_pressure() > 0.77) {
+    if (parking_.barometric_pressure() > 0.75) {
       int result_parking_brake_close = parking_brake->Write(C11, 8);
-      ADEBUG << "parking_brake_close command send result::" << result_parking_brake_close;
+      AINFO << "parking_brake_close command send result::" << result_parking_brake_close;
     }
   }
 }
