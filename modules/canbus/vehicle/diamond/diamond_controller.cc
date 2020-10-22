@@ -112,13 +112,14 @@ ErrorCode DiamondController::Init(
   steer_rear = std::make_unique<Uart>(FLAGS_rear_steer_device.c_str());
   steer_front->SetOpt(38400, 8, 'N', 1);
   steer_rear->SetOpt(38400, 8, 'N', 1);
-  steer_front_fan = std::make_unique<Uart>(FLAGS_steer_front_fan_device.c_str());
+  steer_front_fan =
+      std::make_unique<Uart>(FLAGS_steer_front_fan_device.c_str());
   steer_rear_fan = std::make_unique<Uart>(FLAGS_steer_rear_fan_device.c_str());
   steer_front_fan->SetOpt(38400, 8, 'N', 1);
   steer_rear_fan->SetOpt(38400, 8, 'N', 1);
   parking_brake = std::make_unique<Uart>(FLAGS_parking_brake_device.c_str());
   parking_brake->SetOpt(115200, 8, 'N', 1);
-  
+
   // wheel angle Reader
   // remove to canbus_component
   front_wheel_angle_reader_ = node->CreateReader<WheelAngle>(
@@ -327,6 +328,17 @@ ErrorCode DiamondController::DisableAutoMode() {
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
+
+  for (int i = 0; i < 10; i++) {
+    int result_steer_front_fan_close = steer_front_fan->Write(C14, 8);
+    sleep(1);
+    AINFO << "result_steer_front_fan_close command send result::"
+          << result_steer_front_fan_close;
+    int result_steer_rear_fan_close = steer_rear_fan->Write(C17, 8);
+    sleep(1);
+    AINFO << "result_steer_rear_fan_close command send result::"
+          << result_steer_rear_fan_close;
+  }
   // Steering stop command for 485
   for (int i = 0; i < 1000; i++) {
     FrontSteerStop();
@@ -564,27 +576,34 @@ void DiamondController::SetBatCharging() {
   message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
   int result_parking_brake_frequency = parking_brake->Write(C9, 8);
-  int result_steer_front_fan=steer_front_fan->Write(C12,8);
-  int result_steer_rear_fan=steer_rear_fan->Write(C15,8);
-  AINFO << "result_parking_brake_frequency command send result::" << result_parking_brake_frequency;
-  AINFO << "result_steer_front_fan command send result::" << result_steer_front_fan;
-  AINFO << "result_steer_rear_fan command send result::" << result_steer_rear_fan;
+  int result_steer_front_fan = steer_front_fan->Write(C12, 8);
+  int result_steer_rear_fan = steer_rear_fan->Write(C15, 8);
+  AINFO << "result_parking_brake_frequency command send result::"
+        << result_parking_brake_frequency;
+  AINFO << "result_steer_front_fan command send result::"
+        << result_steer_front_fan;
+  AINFO << "result_steer_rear_fan command send result::"
+        << result_steer_rear_fan;
   AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
         << diamond->id_0x0c09a7f0().fmotvolt();
   AINFO << "parking_.barometric_pressure=" << parking_.barometric_pressure();
   sleep(1);
   if (diamond->id_0x0c09a7f0().fmotvolt() >= 627.0) {
-  int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
-  AINFO << "result_steer_front_fan_up command send result::" << result_steer_front_fan_up;
-  int result_steer_rear_fan_up = steer_rear_fan->Write(C14, 8);
-  AINFO << "result_steer_rear_fan_up command send result::" << result_steer_rear_fan_up;
-    if (parking_.barometric_pressure() < 0.75) {
+    int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
+    AINFO << "result_steer_front_fan_up command send result::"
+          << result_steer_front_fan_up;
+    int result_steer_rear_fan_up = steer_rear_fan->Write(C16, 8);
+    AINFO << "result_steer_rear_fan_up command send result::"
+          << result_steer_rear_fan_up;
+    if (parking_.barometric_pressure() < 0.78) {
       int result_parking_brake_up = parking_brake->Write(C10, 8);
-      AINFO << "parking_brake_up command send result::" << result_parking_brake_up;
+      AINFO << "parking_brake_up command send result::"
+            << result_parking_brake_up;
     }
-    if (parking_.barometric_pressure() > 0.75) {
+    if (parking_.barometric_pressure() > 0.78) {
       int result_parking_brake_close = parking_brake->Write(C11, 8);
-      AINFO << "parking_brake_close command send result::" << result_parking_brake_close;
+      AINFO << "parking_brake_close command send result::"
+            << result_parking_brake_close;
     }
   }
 }
