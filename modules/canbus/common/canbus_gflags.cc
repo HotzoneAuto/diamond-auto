@@ -53,3 +53,5 @@ DEFINE_string(front_steer_device, "ttyUSB0",
 DEFINE_string(rear_steer_device, "ttyUSB1", "device_rear_frequency_converter");
 
 DEFINE_string(parking_brake_device, "ttyUSB2", "parking_brake_device");
+DEFINE_string(steer_front_fan_device, "ttyUSB3", "steer_front_fan_device");
+DEFINE_string(steer_rear_fan_device, "ttyUSB4", "steer_rear_fan_device");
