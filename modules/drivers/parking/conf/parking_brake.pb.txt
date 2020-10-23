@@ -1,2 +1,2 @@
-device_id: "diamond_parking_brake"
+device_id: "rfid_rear"
 output_channel:"/diamond/sensor/parking"

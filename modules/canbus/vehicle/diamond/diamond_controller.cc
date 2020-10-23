@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+﻿/*
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,7 +118,7 @@ ErrorCode DiamondController::Init(
   steer_front_fan->SetOpt(38400, 8, 'N', 1);
   steer_rear_fan->SetOpt(38400, 8, 'N', 1);
   parking_brake = std::make_unique<Uart>(FLAGS_parking_brake_device.c_str());
-  parking_brake->SetOpt(115200, 8, 'N', 1);
+  parking_brake->SetOpt(38400, 8, 'N', 1);
 
   // wheel angle Reader
   // remove to canbus_component
@@ -328,23 +328,25 @@ ErrorCode DiamondController::DisableAutoMode() {
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
-
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 100; i++) {
+    FrontSteerStop();
+    RearSteerStop();
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+    int result_parking_brake_close = parking_brake->Write(C11, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+    AINFO << "parking_brake_close command send result::"
+         << result_parking_brake_close;
     int result_steer_front_fan_close = steer_front_fan->Write(C14, 8);
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
     AINFO << "result_steer_front_fan_close command send result::"
           << result_steer_front_fan_close;
     int result_steer_rear_fan_close = steer_rear_fan->Write(C17, 8);
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
     AINFO << "result_steer_rear_fan_close command send result::"
           << result_steer_rear_fan_close;
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
   }
   // Steering stop command for 485
-  for (int i = 0; i < 1000; i++) {
-    FrontSteerStop();
-    RearSteerStop();
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
-  }
   AINFO << "Switch to COMPLETE_MANUAL ok.";
   return ErrorCode::OK;
 }
@@ -576,7 +578,9 @@ void DiamondController::SetBatCharging() {
   message_manager_->GetSensorData(&chassis_detail);
   auto diamond = chassis_detail.mutable_diamond();
   int result_parking_brake_frequency = parking_brake->Write(C9, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
   int result_steer_front_fan = steer_front_fan->Write(C12, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
   int result_steer_rear_fan = steer_rear_fan->Write(C15, 8);
   AINFO << "result_parking_brake_frequency command send result::"
         << result_parking_brake_frequency;
@@ -588,20 +592,24 @@ void DiamondController::SetBatCharging() {
         << diamond->id_0x0c09a7f0().fmotvolt();
   AINFO << "parking_.barometric_pressure=" << parking_.barometric_pressure();
   sleep(1);
-  if (diamond->id_0x0c09a7f0().fmotvolt() >= 627.0) {
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 620.0) {
     int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
     AINFO << "result_steer_front_fan_up command send result::"
           << result_steer_front_fan_up;
     int result_steer_rear_fan_up = steer_rear_fan->Write(C16, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
     AINFO << "result_steer_rear_fan_up command send result::"
           << result_steer_rear_fan_up;
-    if (parking_.barometric_pressure() < 0.78) {
+    if (parking_.barometric_pressure() < 0.75) {
       int result_parking_brake_up = parking_brake->Write(C10, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
       AINFO << "parking_brake_up command send result::"
             << result_parking_brake_up;
     }
-    if (parking_.barometric_pressure() > 0.78) {
+    if (parking_.barometric_pressure() > 0.75) {
       int result_parking_brake_close = parking_brake->Write(C11, 8);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
       AINFO << "parking_brake_close command send result::"
             << result_parking_brake_close;
     }

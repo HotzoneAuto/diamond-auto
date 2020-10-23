@@ -29,26 +29,27 @@ bool ParkingComponet::Init() {
 }
 void ParkingComponet::Proc() {
   AINFO << "Parking Proc";
-  static char buffer[6];
+  static char buffer[7];
   static char buf;
   int count = 0;
   double air_pump_pressure = 0.0;
-  //    uint8_t station_id;
   unsigned char table[8] = {0x01, 0x03, 0x00, 0x04, 0x00, 0x01, 0xC5, 0xCB};
-  Rate rate(100.0);
+  Rate rate(50.0);
   while (!apollo::cyber::IsShutdown()) {
-    count = 0;
-    std::memset(buffer, 0, 6);
-    // while(1){
+    std::memset(buffer, 0, 7);
     int results = device_->Write(table, 8);
-    AINFO << "results==" << results;
+    AINFO << "Write results==" << results;
+    if(results < 0) {
+      AWARN << "Return not ok";
+      continue;
+    }
     for (count = 0; count < 7; count++) {
       int ret = device_->Read(&buf, 1);
-      ADEBUG << "READ RETURN :" << ret;
+      AINFO << "READ RETURN :" << ret;
       if (ret == 1) {
         buffer[count] = buf;
       } else {
-        std::memset(buffer, 0, 6);
+        std::memset(buffer, 0, 7);
         break;
       }
       if (count == 6) {
@@ -59,6 +60,7 @@ void ParkingComponet::Proc() {
         AINFO << "air_pump_pressure" << air_pump_pressure;
       }
     }
+    parking.Clear();
     auto header = parking.mutable_header();
     header->set_timestamp_sec(apollo::cyber::Time::Now().ToSecond());
     header->set_frame_id("parking");
