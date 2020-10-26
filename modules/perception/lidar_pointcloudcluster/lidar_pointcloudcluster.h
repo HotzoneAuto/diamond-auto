@@ -22,10 +22,15 @@ using namespace std;
 using apollo::cyber::Component;
 using apollo::cyber::ComponentBase;
 
-class Lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud, apollo::drivers::PointCloud> {
+class Lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud,
+                                                apollo::drivers::PointCloud> {
  public:
   bool Init() override;
-  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> filter_and_segment(const pcl::PointCloud<pcl::PointXYZI>::Ptr origin_cloud);
+  
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, 
+            pcl::PointCloud<pcl::PointXYZI>::Ptr>
+  filter_and_segment(const pcl::PointCloud<pcl::PointXYZI>::Ptr origin_cloud);
+
   bool Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1, 
             const std::shared_ptr<apollo::drivers::PointCloud>& msg2) override;
 

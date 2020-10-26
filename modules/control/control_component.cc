@@ -1,6 +1,7 @@
 ﻿#include "modules/control/control_component.h"
 
 #include <string>
+#include <iostream>
 #include "math.h"
 
 #include "cyber/cyber.h"
@@ -71,7 +72,36 @@ bool ControlComponent::Init() {
         AINFO << "rear_wheel_angle.value() = " << rear_wheel_angle->value();
         is_rear_received = true;
       });
+  
+  //lidar obst reader 
+  obst_reader = node_->CreateReader<apollo::perception::Obstacles>(
+      "/diamond/perception/Obstacles",
+      [this](const std::shared_ptr<apollo::perception::Obstacles>& obsts) {
+        for (int i = 0; i < obsts->obstacles_size(); i++) {
+          float xx_min = obsts->obstacles(i).x_min();
+          float yy_min = obsts->obstacles(i).y_min();
 
+          if(xx_min > 0 || yy_min > 4.7) {
+            if(xx_min > 5 || yy_min > 9.7) {
+              continue;
+            }
+            float dis = (abs(xx_min) > abs(yy_min - 4.7)) ? abs(xx_min) : abs(yy_min - 4.7);
+            distance_obst.push_back(dis);
+            continue;
+          }
+
+          float xx_max = obsts->obstacles(i).x_max();
+          float yy_max = obsts->obstacles(i).y_max(); 
+          if (xx_max < (-12) || yy_max < (-4.7)) {
+            if (xx_max < (-17) || yy_max < (-9.7) ) {
+              continue;
+            }
+            float dis = (abs(xx_max + 12) > abs(yy_max + 4.7)) ? abs(xx_max + 12) : abs(yy_max + 4.7);
+              distance_obst.push_back(dis);
+          }
+        }
+      }
+  );
   // TODO(tianchuang):Routing Reader
 
   AINFO << "Control default driving action is "
@@ -128,7 +158,6 @@ bool ControlComponent::Proc() {
     cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
 
     // TODO: add control strategy when emergency.
-
     // TODO(zongbao):how to know direction(reverse or forward)
     AINFO << "rfid_front_.id=" << rfid_front_.id();
     AINFO << "rfid_rear_.id=" << rfid_rear_.id();
@@ -175,6 +204,7 @@ bool ControlComponent::Proc() {
       }
 
       // set control cmd
+
       // check estop, ture: brake=10,torque=1, write
       if (is_front_destination) {
         cmd->set_brake(control_conf_.soft_estop_brake());
