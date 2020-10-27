@@ -77,29 +77,49 @@ bool ControlComponent::Init() {
   obst_reader = node_->CreateReader<apollo::perception::Obstacles>(
       "/diamond/perception/Obstacles",
       [this](const std::shared_ptr<apollo::perception::Obstacles>& obsts) {
+        for(int i = 0; i < sizeof(distance_obst)/sizeof(distance_obst[0]); i ++) {
+          distance_obst[i] = 0;
+        }
         for (int i = 0; i < obsts->obstacles_size(); i++) {
           float xx_min = obsts->obstacles(i).x_min();
           float yy_min = obsts->obstacles(i).y_min();
-
-          if(xx_min > 0 || yy_min > 4.7) {
-            if(xx_min > 5 || yy_min > 9.7) {
-              continue;
-            }
-            float dis = (abs(xx_min) > abs(yy_min - 4.7)) ? abs(xx_min) : abs(yy_min - 4.7);
-            distance_obst.push_back(dis);
+          float xx_max = obsts->obstacles(i).x_max();
+          float yy_max = obsts->obstacles(i).y_max();
+         
+          if(xx_min > 5 || xx_max < -17 || yy_min > 4 || yy_max < -4) {
             continue;
           }
+          
+          int xy_position = 0;
 
-          float xx_max = obsts->obstacles(i).x_max();
-          float yy_max = obsts->obstacles(i).y_max(); 
-          if (xx_max < (-12) || yy_max < (-4.7)) {
-            if (xx_max < (-17) || yy_max < (-9.7) ) {
-              continue;
+          if (xx_min > 0) {
+            if (yy_min > 1.9) {
+              xy_position = 3;
+            } else if (yy_max < -1.9) {
+              xy_position = 1;
+            } else {
+              xy_position = 2;
             }
-            float dis = (abs(xx_max + 12) > abs(yy_max + 4.7)) ? abs(xx_max + 12) : abs(yy_max + 4.7);
-              distance_obst.push_back(dis);
+          } else if (xx_max < -12){
+            if (yy_min > 1.9) {
+              xy_position = 8;
+            } else if (yy_max < -1.9) {
+              xy_position = 6;
+            } else {
+              xy_position = 7;
+            }
+          } else {
+            if (yy_min > 1.9) {
+              xy_position = 5;
+            } else if (yy_max < -1.9) {
+              xy_position = 4;
+            } else {
+
+            }
           }
-        }
+
+          distance_obst[xy_position-1] = 1;
+        } 
       }
   );
   // TODO(tianchuang):Routing Reader

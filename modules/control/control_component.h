@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "cyber/common/macros.h"
 #include "cyber/component/timer_component.h"
@@ -48,7 +47,7 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
   bool pad_received_ = false;
-  std::vector<float> distance_obst;
+  int distance_obst[8] = {0};
 
   std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_front_reader_;

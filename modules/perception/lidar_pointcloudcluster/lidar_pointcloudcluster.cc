@@ -41,8 +41,8 @@ Lidar_pointcloudcluster::filter_and_segment(
 
   vector<int> indices;
   pcl::CropBox<pcl::PointXYZI> roof(true);
-  roof.setMin(Eigen::Vector4f(-12, -4.7, -1.0, 1));
-  roof.setMax(Eigen::Vector4f(0.0, 4.7, 1.0, 1));
+  roof.setMin(Eigen::Vector4f(-12, -1.9, -1.0, 1));
+  roof.setMax(Eigen::Vector4f(0.0, 1.9, 1.0, 1));
   roof.setInputCloud(cloudRegion);
   roof.filter(indices);
 
