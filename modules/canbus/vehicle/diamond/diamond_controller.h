@@ -101,7 +101,6 @@ class DiamondController final : public VehicleController {
   void RearSteerPositive();
   void RearSteerNegative();
   void Push_parking_brake();
-  void SetBatCharging();
 
   // set Electrical Park Brake
   void SetEpbBreak(const ::apollo::control::ControlCommand& command) override;
