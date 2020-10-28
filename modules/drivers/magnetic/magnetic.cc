@@ -7,8 +7,8 @@ namespace drivers {
 namespace magnetic {
 
 void Magnetic::AsyncSend() {
-  std::vector<std::string> cmds = {"cansend can0 003#0102030405010000",
-                                   "cansend can0 004#0102030405010000"};
+  std::vector<std::string> cmds = {"cansend can1 003#0102030405010000",
+                                   "cansend can1 004#0102030405010000"};
   while (!apollo::cyber::IsShutdown()) {
     for (auto& cmd : cmds) {
       const int ret = std::system(cmd.c_str());
