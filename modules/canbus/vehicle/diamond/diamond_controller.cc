@@ -301,7 +301,7 @@ ErrorCode DiamondController::EnableAutoMode() {
   id_0x0c19f0a7_->set_bylife(0);
 
   // Steering Motor
-  SetBatCharging();
+  SetFanStart();
 
   // Steering const speed set
   int result_front = steer_front->Write(C1, 8);
@@ -484,7 +484,7 @@ void DiamondController::SteerFront(double front_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer front steering_switch = " << steering_switch;
-  SetBatCharging();
+  SetFanStart();
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
@@ -525,7 +525,7 @@ void DiamondController::SteerRear(double rear_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer rear steering_switch = " << steering_switch;
-  SetBatCharging();
+  SetFanStart();
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       RearSteerPositive();
@@ -593,7 +593,7 @@ void DiamondController::Push_parking_brake() {
   }
   // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
 }
-void DiamondController::SetBatCharging() {
+void DiamondController:: SetFanStart() {
   int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
   AINFO << "result_steer_front_fan_up command send result::"
         << result_steer_front_fan_up;
