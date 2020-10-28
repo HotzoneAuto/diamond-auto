@@ -291,7 +291,6 @@ ErrorCode DiamondController::EnableAutoMode() {
     AINFO << "already in COMPLETE_AUTO_DRIVE mode";
     return ErrorCode::OK;
   }
-  Push_parking_brake();
 
   // Driver Motor
   id_0x0c19f0a7_->set_fmot1targettq(0);
@@ -299,9 +298,6 @@ ErrorCode DiamondController::EnableAutoMode() {
   id_0x0c19f0a7_->set_fmot1lmtcur(250);
   id_0x0c19f0a7_->set_bymot1workmode(0);
   id_0x0c19f0a7_->set_bylife(0);
-
-  // Steering Motor
-  SetFanStart();
 
   // Steering const speed set
   int result_front = steer_front->Write(C1, 8);
@@ -320,6 +316,8 @@ ErrorCode DiamondController::EnableAutoMode() {
         << result_steer_front_fan;
   AINFO << "result_steer_rear_fan command send result::"
         << result_steer_rear_fan;
+
+  
 
   can_sender_->Update();
   const int32_t flag =
@@ -350,16 +348,6 @@ ErrorCode DiamondController::DisableAutoMode() {
     // std::milli>(200));
     AINFO << "parking_brake_close command send result::"
           << result_parking_brake_close;
-    int result_steer_front_fan_close = steer_front_fan->Write(C14, 8);
-    // std::this_thread::sleep_for(std::chrono::duration<double,
-    // std::milli>(200));
-    AINFO << "result_steer_front_fan_close command send result::"
-          << result_steer_front_fan_close;
-    int result_steer_rear_fan_close = steer_rear_fan->Write(C17, 8);
-    // std::this_thread::sleep_for(std::chrono::duration<double,
-    // std::milli>(200));
-    AINFO << "result_steer_rear_fan_close command send result::"
-          << result_steer_rear_fan_close;
     // std::this_thread::sleep_for(std::chrono::duration<double,
     // std::milli>(15));
   }
@@ -427,6 +415,9 @@ void DiamondController::Brake(double torque, double brake) {
 }
 
 void DiamondController::ForwardTorque(double torque) {
+  //Air pump motor starts
+  Push_parking_brake();
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
@@ -442,13 +433,15 @@ void DiamondController::ReverseTorque(double torque) {
     AINFO << "The current drive mode does not need to set throttle pedal.";
     return;
   }
-  AINFO << "entry reverse torque";
 
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
   auto speed = 0.006079 * chassis_detail.diamond().id_0x0c08a7f0().fmotspd();
   AINFO << "speed:" << speed;
-
+  
+  //Air pump motor starts
+  Push_parking_brake();
+  
   // Fixed workmode switch bug for motor 1e-6
   if (torque < kEpsilon && speed > kEpsilon) {
     AWARN << "Skip speed error situation";
@@ -484,7 +477,10 @@ void DiamondController::SteerFront(double front_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer front steering_switch = " << steering_switch;
-  SetFanStart();
+  // Front Fan motor 
+  int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
+  AINFO << "result_steer_front_fan_up command send result::"
+        << result_steer_front_fan_up;
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
@@ -525,7 +521,11 @@ void DiamondController::SteerRear(double rear_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer rear steering_switch = " << steering_switch;
-  SetFanStart();
+  //Rear Fan motor
+  int result_steer_rear_fan_up = steer_rear_fan->Write(C16, 8);
+  AINFO << "result_steer_rear_fan_up command send result::"
+        << result_steer_rear_fan_up;
+
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       RearSteerPositive();
@@ -545,6 +545,10 @@ void DiamondController::SteerRear(double rear_steering_target) {
 void DiamondController::FrontSteerStop() {
   int result = steer_front->Write(C2, 8);
   ADEBUG << "FrontSteerStop command send result:" << result;
+  //Front Fan send stop
+  int result_steer_front_fan_close = steer_front_fan->Write(C14, 8);
+  AINFO << "result_steer_front_fan_close command send result::"
+        << result_steer_front_fan_close;
 }
 
 void DiamondController::FrontSteerPositive() {
@@ -560,6 +564,10 @@ void DiamondController::FrontSteerNegative() {
 void DiamondController::RearSteerStop() {
   int result = steer_rear->Write(C6, 8);
   ADEBUG << "RearSteerStop command send result:" << result;
+  //Rear Fan send stop
+  int result_steer_rear_fan_close = steer_rear_fan->Write(C17, 8);
+  AINFO << "result_steer_rear_fan_close command send result::"
+        << result_steer_rear_fan_close;
 }
 
 void DiamondController::RearSteerPositive() {
@@ -592,14 +600,6 @@ void DiamondController::Push_parking_brake() {
     }
   }
   // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
-}
-void DiamondController:: SetFanStart() {
-  int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
-  AINFO << "result_steer_front_fan_up command send result::"
-        << result_steer_front_fan_up;
-  int result_steer_rear_fan_up = steer_rear_fan->Write(C16, 8);
-  AINFO << "result_steer_rear_fan_up command send result::"
-        << result_steer_rear_fan_up;
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
