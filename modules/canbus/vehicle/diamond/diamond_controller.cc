@@ -459,9 +459,9 @@ void DiamondController::SteerFront(double front_steering_target) {
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
-  if (front_steering_target - front_wheel_angle_.value() > 2) {
+  if (front_steering_target - front_wheel_angle_.value() > 3) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(front_steering_target - front_wheel_angle_.value()) < 2) {
+  } else if (std::abs(front_steering_target - front_wheel_angle_.value()) < 3) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
@@ -474,7 +474,7 @@ void DiamondController::SteerFront(double front_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer front steering_switch = " << steering_switch;
-  SetBatCharging();
+  // SetBatCharging();
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       FrontSteerPositive();
@@ -500,9 +500,9 @@ void DiamondController::SteerRear(double rear_steering_target) {
 
   auto steering_switch = Chassis::STEERINGSTOP;
   // set steering switch by target
-  if (rear_steering_target - rear_wheel_angle_.value() > 2) {
+  if (rear_steering_target - rear_wheel_angle_.value() > 3) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(rear_steering_target - rear_wheel_angle_.value()) < 2) {
+  } else if (std::abs(rear_steering_target - rear_wheel_angle_.value()) < 3) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
@@ -515,7 +515,7 @@ void DiamondController::SteerRear(double rear_steering_target) {
     steering_switch = Chassis::STEERINGPOSITIVE;
   }
   AINFO << "Steer rear steering_switch = " << steering_switch;
-  SetBatCharging();
+  // SetBatCharging();
   switch (steering_switch) {
     case Chassis::STEERINGPOSITIVE: {
       RearSteerPositive();
@@ -592,7 +592,7 @@ void DiamondController::SetBatCharging() {
         << diamond->id_0x0c09a7f0().fmotvolt();
   AINFO << "parking_.barometric_pressure=" << parking_.barometric_pressure();
   sleep(1);
-  if (diamond->id_0x0c09a7f0().fmotvolt() >= 620.0) {
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 600.0) {
     int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
     std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
     AINFO << "result_steer_front_fan_up command send result::"
