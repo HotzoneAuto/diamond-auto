@@ -338,7 +338,8 @@ ErrorCode DiamondController::DisableAutoMode() {
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
-  for (int i = 0; i < 20000; i++) {
+  for (int i = 0; i < 15; i++) {
+
     FrontSteerStop();
     RearSteerStop();
     // std::this_thread::sleep_for(std::chrono::duration<double,
@@ -350,6 +351,16 @@ ErrorCode DiamondController::DisableAutoMode() {
           << result_parking_brake_close;
     // std::this_thread::sleep_for(std::chrono::duration<double,
     // std::milli>(15));
+  //Front Fan send stop
+  int result_steer_front_fan_close = steer_front_fan->Write(C14, 8);
+  AINFO << "result_steer_front_fan_close command send result::"
+        << result_steer_front_fan_close;
+  std::this_thread::sleep_for(std::chrono::duration<double,
+    std::milli>(15));
+  //Rear Fan send stop
+  int result_steer_rear_fan_close = steer_rear_fan->Write(C17, 8);
+  AINFO << "result_steer_rear_fan_close command send result::"
+        << result_steer_rear_fan_close;
   }
   // Steering stop command for 485
   AINFO << "Switch to COMPLETE_MANUAL ok.";
@@ -443,10 +454,10 @@ void DiamondController::ReverseTorque(double torque) {
   Push_parking_brake();
   
   // Fixed workmode switch bug for motor 1e-6
-  if (torque < kEpsilon && speed > kEpsilon) {
-    AWARN << "Skip speed error situation";
-    return;
-  }
+  //if (torque < kEpsilon && speed > kEpsilon) {
+    //AWARN << "Skip speed error situation";
+    //return;
+  //}
 
   id_0x0c19f0a7_->set_fmot1targettq(std::abs(torque));
   id_0x0c19f0a7_->set_bymot1workmode(146);
