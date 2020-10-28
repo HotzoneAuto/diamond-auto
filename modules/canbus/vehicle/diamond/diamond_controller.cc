@@ -291,6 +291,7 @@ ErrorCode DiamondController::EnableAutoMode() {
     AINFO << "already in COMPLETE_AUTO_DRIVE mode";
     return ErrorCode::OK;
   }
+  Push_parking_brake();
 
   // Driver Motor
   id_0x0c19f0a7_->set_fmot1targettq(0);
@@ -308,14 +309,18 @@ ErrorCode DiamondController::EnableAutoMode() {
 
   int result_rear = steer_rear->Write(C5, 8);
   ADEBUG << "Rear Steer const speed command send result:" << result_rear;
-  
+
+  int result_parking_brake_frequency = parking_brake->Write(C9, 8);
+  AINFO << "result_parking_brake_frequency command send result::"
+        << result_parking_brake_frequency;
+
   int result_steer_front_fan = steer_front_fan->Write(C12, 8);
   int result_steer_rear_fan = steer_rear_fan->Write(C15, 8);
   AINFO << "result_steer_front_fan command send result::"
         << result_steer_front_fan;
   AINFO << "result_steer_rear_fan command send result::"
         << result_steer_rear_fan;
-  
+
   can_sender_->Update();
   const int32_t flag =
       CHECK_RESPONSE_STEER_UNIT_FLAG | CHECK_RESPONSE_SPEED_UNIT_FLAG;
@@ -335,23 +340,28 @@ ErrorCode DiamondController::DisableAutoMode() {
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
   set_chassis_error_code(Chassis::NO_ERROR);
-  for (int i = 0; i <20000; i++) {
+  for (int i = 0; i < 20000; i++) {
     FrontSteerStop();
     RearSteerStop();
-    //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+    // std::this_thread::sleep_for(std::chrono::duration<double,
+    // std::milli>(200));
     int result_parking_brake_close = parking_brake->Write(C11, 8);
-    //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+    // std::this_thread::sleep_for(std::chrono::duration<double,
+    // std::milli>(200));
     AINFO << "parking_brake_close command send result::"
-         << result_parking_brake_close;
+          << result_parking_brake_close;
     int result_steer_front_fan_close = steer_front_fan->Write(C14, 8);
-    //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+    // std::this_thread::sleep_for(std::chrono::duration<double,
+    // std::milli>(200));
     AINFO << "result_steer_front_fan_close command send result::"
           << result_steer_front_fan_close;
     int result_steer_rear_fan_close = steer_rear_fan->Write(C17, 8);
-    //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+    // std::this_thread::sleep_for(std::chrono::duration<double,
+    // std::milli>(200));
     AINFO << "result_steer_rear_fan_close command send result::"
           << result_steer_rear_fan_close;
-    //std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
+    // std::this_thread::sleep_for(std::chrono::duration<double,
+    // std::milli>(15));
   }
   // Steering stop command for 485
   AINFO << "Switch to COMPLETE_MANUAL ok.";
@@ -569,51 +579,27 @@ void DiamondController::Push_parking_brake() {
 
   AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
         << diamond->id_0x0c09a7f0().fmotvolt();
-  if (diamond->id_0x0c09a7f0().fmotvolt() >= 630.0) {
-    if (parking_.barometric_pressure() < 0.55) {
-      id_0x0c079aa7_->set_byeapcmd(0x55);
-    } else if (parking_.barometric_pressure() > 0.77) {
-      id_0x0c079aa7_->set_byeapcmd(0xAA);
-    }
-    can_sender_->Update();
-  }
-  sleep(3);
-  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
-}
-void DiamondController::SetBatCharging() {
-  ChassisDetail chassis_detail;
-  message_manager_->GetSensorData(&chassis_detail);
-  auto diamond = chassis_detail.mutable_diamond();
-  int result_parking_brake_frequency = parking_brake->Write(C9, 8);
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
-  AINFO << "result_parking_brake_frequency command send result::"
-        << result_parking_brake_frequency;
-  AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
-        << diamond->id_0x0c09a7f0().fmotvolt();
-  AINFO << "parking_.barometric_pressure=" << parking_.barometric_pressure();
-  sleep(1);
   if (diamond->id_0x0c09a7f0().fmotvolt() >= 620.0) {
-    int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
-    AINFO << "result_steer_front_fan_up command send result::"
-          << result_steer_front_fan_up;
-    int result_steer_rear_fan_up = steer_rear_fan->Write(C16, 8);
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
-    AINFO << "result_steer_rear_fan_up command send result::"
-          << result_steer_rear_fan_up;
     if (parking_.barometric_pressure() < 0.75) {
       int result_parking_brake_up = parking_brake->Write(C10, 8);
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
       AINFO << "parking_brake_up command send result::"
             << result_parking_brake_up;
     }
     if (parking_.barometric_pressure() > 0.75) {
       int result_parking_brake_close = parking_brake->Write(C11, 8);
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
       AINFO << "parking_brake_close command send result::"
             << result_parking_brake_close;
     }
   }
+  // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15));
+}
+void DiamondController::SetBatCharging() {
+  int result_steer_front_fan_up = steer_front_fan->Write(C13, 8);
+  AINFO << "result_steer_front_fan_up command send result::"
+        << result_steer_front_fan_up;
+  int result_steer_rear_fan_up = steer_rear_fan->Write(C16, 8);
+  AINFO << "result_steer_rear_fan_up command send result::"
+        << result_steer_rear_fan_up;
 }
 
 void DiamondController::SetEpbBreak(const ControlCommand& command) {
