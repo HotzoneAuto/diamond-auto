@@ -16,6 +16,7 @@
 #include "modules/control/proto/pad_msg.pb.h"
 #include "modules/drivers/proto/rfid.pb.h"
 #include "modules/drivers/proto/wheelangle.pb.h"
+#include "modules/drivers/proto/parking.pb.h"
 
 namespace apollo {
 namespace control {
@@ -26,6 +27,7 @@ using apollo::control::ControlConf;
 using apollo::control::PadMessage;
 using apollo::drivers::RFID;
 using apollo::drivers::WheelAngle;
+using apollo::drivers::PARKING;
 
 class ControlComponent final : public apollo::cyber::TimerComponent {
  public:
