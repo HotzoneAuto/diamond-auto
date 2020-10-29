@@ -99,7 +99,6 @@ double ControlComponent::PidSpeed() {
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
   ADEBUG << "pid_e:" << pid_e << " pid_int:" << pid_int;
-//pad_msg_.set_action(control_conf_.action());
   auto pid_conf = control_conf_.pid_conf();
   double torque = 0;
   torque = control_conf_.torque_deadzone() + pid_conf.kp() * pid_e +
