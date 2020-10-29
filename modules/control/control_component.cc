@@ -91,6 +91,7 @@ double ControlComponent::PidSpeed() {
   pid_int += std::isnan(pid_e) ? 0 : pid_e;
 
   ADEBUG << "pid_e:" << pid_e << " pid_int:" << pid_int;
+//pad_msg_.set_action(control_conf_.action());
   auto pid_conf = control_conf_.pid_conf();
   double torque = 0;
   torque = control_conf_.torque_deadzone() + pid_conf.kp() * pid_e +
@@ -140,6 +141,7 @@ bool ControlComponent::Proc() {
         is_front_destination = true;
       } else {
         if (cmd->pad_msg().action() == DrivingAction::START) {
+          // TODO: start air pump
           drivemotor_torque = PidSpeed();
         }
       }
@@ -182,7 +184,7 @@ bool ControlComponent::Proc() {
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
         if (chassis_.speed_mps() < 1e-6) {
-          cmd->set_parking_brake(true);
+          // cmd->set_parking_brake(true);
         }
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
@@ -201,7 +203,7 @@ bool ControlComponent::Proc() {
         AINFO << "front_wheel_target = " << front_wheel_target;
         AINFO << "rear_wheel_target = " << rear_wheel_target;
 
-        cmd->set_parking_brake(false);
+        // cmd->set_parking_brake(false);
         cmd->set_front_wheel_target(front_wheel_target);
         cmd->set_rear_wheel_target(rear_wheel_target);
         if (cmd->pad_msg().action() != DrivingAction::START) {
@@ -262,7 +264,7 @@ bool ControlComponent::Proc() {
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
         if (chassis_.speed_mps() < 1e-6) {
-          cmd->set_parking_brake(true);
+          // cmd->set_parking_brake(true);
         }
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
@@ -281,7 +283,7 @@ bool ControlComponent::Proc() {
         AINFO << "front_wheel_target = " << front_wheel_target;
         AINFO << "rear_wheel_target = " << rear_wheel_target;
 
-        cmd->set_parking_brake(false);
+        // cmd->set_parking_brake(false);
         cmd->set_front_wheel_target(front_wheel_target);
         cmd->set_rear_wheel_target(rear_wheel_target);
         if (cmd->pad_msg().action() != DrivingAction::START) {

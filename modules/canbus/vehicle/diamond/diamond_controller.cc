@@ -598,7 +598,7 @@ void DiamondController::Push_parking_brake() {
 
   AINFO << "chassis_detail.diamond().id_0x0c09a7f0().has_fmotvolt()="
         << diamond->id_0x0c09a7f0().fmotvolt();
-  if (diamond->id_0x0c09a7f0().fmotvolt() >= 620.0) {
+  if (diamond->id_0x0c09a7f0().fmotvolt() >= 600.0) {
     if (parking_.barometric_pressure() < 0.75) {
       int result_parking_brake_up = parking_brake->Write(C10, 8);
       AINFO << "parking_brake_up command send result::"

@@ -13,7 +13,7 @@ torque_deadzone: 18
 action: STOP
 front_destnation: 50
 rear_destnation: 49
-drivemotor_flag: 1
+drivemotor_flag: 2
 soft_estop_brake: 10.0
 
 control_test_duration: -1
