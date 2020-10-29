@@ -72,6 +72,14 @@ bool ControlComponent::Init() {
         is_rear_received = true;
       });
 
+  // parking Reader
+  parking_reader_ = node_->CreateReader<PARKING>(
+      FLAGS_parking_brake_topic,
+      [this](const std::shared_ptr<PARKING>& parking) {
+        parking_value = parking->barometric_pressure();
+        AINFO << "parking.value() = " << parking->barometric_pressure();
+      });
+
   // TODO(tianchuang):Routing Reader
 
   AINFO << "Control default driving action is "
@@ -183,9 +191,6 @@ bool ControlComponent::Proc() {
         cmd->set_torque(1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
-        if (chassis_.speed_mps() < 1e-6) {
-          // cmd->set_parking_brake(true);
-        }
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
                                 ? drivemotor_torque
@@ -203,7 +208,6 @@ bool ControlComponent::Proc() {
         AINFO << "front_wheel_target = " << front_wheel_target;
         AINFO << "rear_wheel_target = " << rear_wheel_target;
 
-        // cmd->set_parking_brake(false);
         cmd->set_front_wheel_target(front_wheel_target);
         cmd->set_rear_wheel_target(rear_wheel_target);
         if (cmd->pad_msg().action() != DrivingAction::START) {
@@ -263,9 +267,6 @@ bool ControlComponent::Proc() {
         cmd->set_torque(-1);
         cmd->set_rear_wheel_target(rear_wheel_angle_value);
         cmd->set_front_wheel_target(front_wheel_angle_value);
-        if (chassis_.speed_mps() < 1e-6) {
-          // cmd->set_parking_brake(true);
-        }
       } else {
         drivemotor_torque = (drivemotor_torque < control_conf_.max_torque())
                                 ? drivemotor_torque
@@ -283,7 +284,6 @@ bool ControlComponent::Proc() {
         AINFO << "front_wheel_target = " << front_wheel_target;
         AINFO << "rear_wheel_target = " << rear_wheel_target;
 
-        // cmd->set_parking_brake(false);
         cmd->set_front_wheel_target(front_wheel_target);
         cmd->set_rear_wheel_target(rear_wheel_target);
         if (cmd->pad_msg().action() != DrivingAction::START) {
@@ -293,6 +293,14 @@ bool ControlComponent::Proc() {
           cmd->set_torque(-drivemotor_torque);
         }
       }
+    }
+
+    // set parking brake
+    if (parking_value < 0.65) {
+      cmd->set_torque(0);
+    } else if (parking_value >= 0.65 && chassis_.parking_brake()) {
+      cmd->set_parking_brake(false);
+      cmd->set_torque(0);
     }
 
     common::util::FillHeader(node_->Name(), cmd.get());

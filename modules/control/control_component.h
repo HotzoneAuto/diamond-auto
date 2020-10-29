@@ -56,6 +56,8 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
       front_wheel_angle_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>>
       rear_wheel_angle_reader_;
+  std::shared_ptr<cyber::Reader<apollo::drivers::PARKING>>
+      parking_reader_;
 
   double manual_front_wheel_target = 0;
   double manual_rear_wheel_target = 0;
@@ -78,6 +80,8 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
 
   double rear_wheel_angle_value = 0.0;
   bool is_rear_received = false;
+
+  double parking_value = 0.0;
 
   bool is_front_destination = false;
   bool is_rear_destination = false;
