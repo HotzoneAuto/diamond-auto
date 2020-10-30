@@ -13,7 +13,7 @@ void MessageCallback(
 
   if (std::abs(msg->diamond().id_0x1818d0f3().fbatcur()) < 5 and
       std::abs(msg->diamond().id_0x0c08a7f0().fmotcur()) < 5) {
-    std::string cmd = "cansend can0 00AA5701#0000000000000000";
+    std::string cmd = "cansend can1 00AA5701#0000000000000000";
     const int ret = std::system(cmd.c_str());
     if (ret == 0) {
       AINFO << "Battery K1 down can message send SUCCESS: " << cmd;
@@ -22,7 +22,7 @@ void MessageCallback(
              << "): " << cmd;
     }
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::string cmd1 = "cansend can0 0CFFF3A7#0002000000000000";
+    std::string cmd1 = "cansend can1 0CFFF3A7#0002000000000000";
     const int ret1 = std::system(cmd1.c_str());
     if (ret1 == 0) {
       AINFO << "BMS message send SUCCESS: " << cmd1;

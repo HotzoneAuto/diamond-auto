@@ -28,6 +28,7 @@ cc_library(
         "//modules/drivers/proto:magnetic_cc_proto",
         "//modules/drivers/proto:rfid_cc_proto",
         "//modules/drivers/proto:wheelangle_cc_proto",
+        "//modules/drivers/proto:parking_cc_proto",
         "//modules/common/adapters:adapter_gflags",
         "@com_github_gflags_gflags//:gflags",
     ],
