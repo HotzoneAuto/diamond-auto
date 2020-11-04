@@ -406,10 +406,10 @@ class Teleop {
 
   double GetdriveCommand(double val, double inc) {
     val += inc;
-    if (val > 400.0) {
-      val = 400.0;
-    } else if (val < -400.0) {
-      val = -400.0;
+    if (val > 450.0) {
+      val = 450.0;
+    } else if (val < -450.0) {
+      val = -450.0;
     }
     return val;
   }

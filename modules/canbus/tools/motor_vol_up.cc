@@ -13,13 +13,13 @@ void MessageCallback(
     AINFO << "empty chassis detail, Skip this frame.";
     return;
   }
-  if (diamond.id_0x0c09a7f0().fmotvolt() > 620) {
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 615) {
     AINFO << "Motor voltage have been done. Shutdown myself, Bye.";
     apollo::cyber::AsyncShutdown();
     return;
   }
 
-  if (diamond.id_0x0c09a7f0().fmotvolt() > 615) {
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 610) {
     k2_on = true;
   }
 

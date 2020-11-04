@@ -116,9 +116,9 @@ double ControlComponent::GetSteerTarget(float lat_dev_mgs,
                                         double& target_last) {
   double wheel_target;
   if (lat_dev_mgs < -5) {
-    wheel_target = 10.0;
+    wheel_target = 15.0;
   } else if (lat_dev_mgs > 5) {
-    wheel_target = -10.0;
+    wheel_target = -15.0;
   } else if (std::abs(lat_dev_mgs) < 0.1) {
     wheel_target = target_last;
   } else if (std::abs(lat_dev_mgs) <= 5) {
