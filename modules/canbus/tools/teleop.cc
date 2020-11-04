@@ -179,7 +179,7 @@ class Teleop {
         case KEYCODE_UP2:
           // brake = control_command_.brake();
           torque = control_command_.torque();
-          torque = GetCommand(torque, FLAGS_throttle_inc_delta);
+          torque = GetdriveCommand(torque, FLAGS_throttle_inc_delta);
           // if (brake > 1e-6) {
           //   brake = GetCommand(brake, -FLAGS_brake_inc_delta);
           //   if (!FLAGS_use_acceleration) {
@@ -210,7 +210,7 @@ class Teleop {
           // brake = control_command_.brake();
           // throttle = control_command_.throttle();
           torque = control_command_.torque();
-          torque = GetCommand(torque, -FLAGS_throttle_inc_delta);
+          torque = GetdriveCommand(torque, -FLAGS_throttle_inc_delta);
           // if (throttle > 1e-6) {
           //   throttle = GetCommand(throttle, -FLAGS_throttle_inc_delta);
           //   if (!FLAGS_use_acceleration) {
@@ -403,6 +403,16 @@ class Teleop {
     return val;
   }
 
+
+  double GetdriveCommand(double val, double inc) {
+    val += inc;
+    if (val > 400.0) {
+      val = 400.0;
+    } else if (val < -400.0) {
+      val = -400.0;
+    }
+    return val;
+  }
   void Send() {
     apollo::common::util::FillHeader("control", &control_command_);
     control_command_writer_->Write(control_command_);

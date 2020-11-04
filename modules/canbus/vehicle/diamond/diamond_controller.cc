@@ -414,7 +414,9 @@ void DiamondController::Brake(double torque, double brake) {
     AINFO << "The current drive mode does not need to set brake pedal.";
     return;
   }
-
+   
+  Push_parking_brake();
+  
   // set Brake by tarque
   if (torque > kEpsilon) {
     id_0x0c19f0a7_->set_bymot1workmode(140);

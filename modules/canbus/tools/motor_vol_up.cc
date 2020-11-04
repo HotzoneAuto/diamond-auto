@@ -19,7 +19,7 @@ void MessageCallback(
     return;
   }
 
-  if (diamond.id_0x0c09a7f0().fmotvolt() > 618) {
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 615) {
     k2_on = true;
   }
 
