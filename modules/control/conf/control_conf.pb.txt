@@ -4,17 +4,19 @@ pid_conf {
   integrator_enable: false
   integrator_saturation_level: 0.3
   kp: 500
-  ki: 0.3
+  ki: 1
   kd: 0.0
 }
-desired_v: 0.1
-max_torque: 300.0
+desired_v: 0.08
+max_torque: 550.0
 torque_deadzone: 50
 action: STOP
 front_destnation: 50
 rear_destnation: 49
 drivemotor_flag: 2
 soft_estop_brake: 10.0
+mag_dev_threshold: 5.5
+wheel_target: 13
 
 control_test_duration: -1
 enable_csv_debug: false

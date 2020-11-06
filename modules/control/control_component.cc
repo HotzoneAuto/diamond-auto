@@ -115,13 +115,13 @@ double ControlComponent::PidSpeed() {
 double ControlComponent::GetSteerTarget(float lat_dev_mgs,
                                         double& target_last) {
   double wheel_target;
-  if (lat_dev_mgs < -5) {
-    wheel_target = 15.0;
-  } else if (lat_dev_mgs > 5) {
-    wheel_target = -15.0;
+  if (lat_dev_mgs < -control_conf_.mag_dev_threshold()) {
+    wheel_target = control_conf_.wheel_target();
+  } else if (lat_dev_mgs > control_conf_.mag_dev_threshold()) {
+    wheel_target = -control_conf_.wheel_target();
   } else if (std::abs(lat_dev_mgs) < 0.1) {
     wheel_target = target_last;
-  } else if (std::abs(lat_dev_mgs) <= 5) {
+  } else if (std::abs(lat_dev_mgs) <= control_conf_.mag_dev_threshold()) {
     wheel_target = 0;
   }
   target_last = wheel_target;
