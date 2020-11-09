@@ -45,20 +45,17 @@ class XboxOne {
     ResetControlCommand();
     node_ = CreateNode("xbox_one");
   }
-  static void PrintKeycode() {
-    // system("clear");
-    printf("=====================     Handle Mapping   ===================\n");
-  }
+
   void KeyboardLoopThreadFunc() {
-    // int b = 0;
+    // int a = 0;
     // bool d=false;
     // char c = 0;
     int32_t level = 0;
-    // // double brake = 0;
+    double brake = 0;
     // // double throttle = 0;
-    // double front_steering = 0;
-    // double rear_steering = 0;
-    // double torque = 0;
+    double front_steering = 0;
+    double rear_steering = 0;
+    double torque = 0;
     // struct termios cooked_;
     // struct termios raw_;
     // int32_t kfd_ = 0;
@@ -141,23 +138,33 @@ class XboxOne {
       // move to beginning of current line
       printf("\r");
       // display axis numbers and values
-      if (number_of_axes) {
-        printf("AXES: ");
+      if (number_of_axes and level) {
+        // printf("AXES: ");
         // for(int i = 0; i < number_of_axes; i++)
         // {
         // 	printf("%2d:%6d ", i, axis[i]);
         // }
-        // a=round(axis[2]*0.012207404);
-        // printf("\t|\t %f",round(axis[0]*0.00122074));//max 32767
-        // printf("\t|\t %f \t|\t",round(axis[3]*0.00122074));// -32767      1
-        // 32767 printf("\t|\t %f \t|\t",a);//  1        200      400
-        // -0.00003051850947599719
-        // printf("\t|\t %f \t|\t",round(axis[5]*0.012207404));
-
-        // if(a>0){
-        // 	printf("\t|\t %f \t|\t",a);
-        // }
+        front_steering = round(axis[0] * 0.00122074);
+        rear_steering = round(axis[3] * 0.00122074);
+        control_command_.set_front_wheel_target(front_steering);
+        control_command_.set_rear_wheel_target(rear_steering);
+        // printf("\t|\t %f",front_steering);//max 32767
+        // printf("\t|\t %f \t|\t",rear_steering);// -32767      1
+        brake = round(axis[2] * 0.012207404);
+        torque = round(axis[5] * 0.012207404);
+        if (torque > 0) {
+          // printf("\t|\t %f \t|\t",torque);
+          control_command_.set_torque(torque);
+        }
+        if (brake > 0) {
+          // printf("\t|\t %f \t|\t",-brake);
+          control_command_.set_torque(torque);
+        }
       }
+      AINFO << "front_steering" << front_steering;
+      AINFO << "rear_steering" << rear_steering;
+      AINFO << "brake" << brake;
+      AINFO << "torque" << torque;
       // display button numbers and values
       if (number_of_buttons) {
         printf("\nBUTTONS: ");
@@ -171,14 +178,18 @@ class XboxOne {
           level = 0;
         }
         if (level) {
-          printf("&&&&&&&&");
+          printf("START\n");
         } else if (!level) {
-          printf("^^^^^^^^^");
+          control_command_.set_front_wheel_target(0);
+          control_command_.set_rear_wheel_target(0);
+          control_command_.set_front_wheel_target(0);
+          control_command_.set_rear_wheel_target(0);
+          printf("RESET\n");
         }
         GetPadMessage(&pad_msg, level);
         control_command_.mutable_pad_msg()->CopyFrom(pad_msg);
         // sleep(1);
-        control_command_.clear_pad_msg();
+        // control_command_.clear_pad_msg();
       }
       // flush
       fflush(stdout);
@@ -274,7 +285,6 @@ int main(int32_t argc, char **argv) {
     AERROR << "xbox_one start failed.";
     return -1;
   }
-  XboxOne::PrintKeycode();
 
   apollo::cyber::WaitForShutdown();
   xboxone.Stop();
