@@ -61,4 +61,22 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name = "xbox_one",
+    srcs = ["xbox_one.cc"],
+    copts = ["-DMODULE_NAME=\\\"xbox_one\\\""],
+    deps = [
+        "//cyber",
+        "//modules/canbus/vehicle:vehicle_controller_base",
+        "//modules/common/adapters:adapter_gflags",
+        "//modules/control/proto:control_cmd_cc_proto",
+        "@com_github_gflags_gflags//:gflags",
+
+        "//modules/canbus/common:canbus_common",
+        "//modules/canbus/proto:chassis_cc_proto",
+        "//modules/common/configs:vehicle_config_helper",
+        "//modules/common/util:message_util",
+    ],
+)
+
 cpplint()
