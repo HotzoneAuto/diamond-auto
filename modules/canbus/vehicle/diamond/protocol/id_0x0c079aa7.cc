@@ -45,7 +45,7 @@ void Id0x0c079aa7::UpdateData(uint8_t* data) {
 }
 
 void Id0x0c079aa7::Reset() {
-  bydcdccmd_ = 0x55;
+  bydcdccmd_ = 0xAA;
   bydcaccmd_ = 0xAA;
   bydcacwkst_ = 0xAA;
   byeapcmd_ = 0xAA;

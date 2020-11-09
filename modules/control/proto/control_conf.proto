@@ -75,4 +75,6 @@ message ControlConf {
 
   optional double desired_v = 45 [default = 0.0];
   optional double max_torque = 46 [default = 46.0];
+  optional double mag_dev_threshold = 47 [default = 5.0];
+  optional double wheel_target = 48 [default = 15];
 }

@@ -414,7 +414,9 @@ void DiamondController::Brake(double torque, double brake) {
     AINFO << "The current drive mode does not need to set brake pedal.";
     return;
   }
-
+   
+  Push_parking_brake();
+  
   // set Brake by tarque
   if (torque > kEpsilon) {
     id_0x0c19f0a7_->set_bymot1workmode(140);
@@ -473,9 +475,9 @@ void DiamondController::SteerFront(double front_steering_target) {
   auto steering_switch = Chassis::STEERINGSTOP;
 
   // set steering switch by target
-  if (front_steering_target - front_wheel_angle_.value() > 3) {
+  if (front_steering_target - front_wheel_angle_.value() > 2) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(front_steering_target - front_wheel_angle_.value()) < 3) {
+  } else if (std::abs(front_steering_target - front_wheel_angle_.value()) < 2) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
@@ -517,9 +519,9 @@ void DiamondController::SteerRear(double rear_steering_target) {
 
   auto steering_switch = Chassis::STEERINGSTOP;
   // set steering switch by target
-  if (rear_steering_target - rear_wheel_angle_.value() > 3) {
+  if (rear_steering_target - rear_wheel_angle_.value() > 2) {
     steering_switch = Chassis::STEERINGPOSITIVE;
-  } else if (std::abs(rear_steering_target - rear_wheel_angle_.value()) < 3) {
+  } else if (std::abs(rear_steering_target - rear_wheel_angle_.value()) < 2) {
     steering_switch = Chassis::STEERINGSTOP;
   } else {
     steering_switch = Chassis::STEERINGNEGATIVE;
