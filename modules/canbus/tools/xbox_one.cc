@@ -13,11 +13,10 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <termios.h>
 #include <unistd.h>
 
-#include <termios.h>
 #include "cyber/cyber.h"
-
 #include "modules/canbus/proto/chassis.pb.h"
 #include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/control/proto/control_cmd.pb.h"
@@ -47,32 +46,20 @@ class XboxOne {
   }
 
   void KeyboardLoopThreadFunc() {
-    // int a = 0;
-    // bool d=false;
-    // char c = 0;
     int32_t level = 0;
     double brake = 0;
-    // // double throttle = 0;
     double front_steering = 0;
     double rear_steering = 0;
     double torque = 0;
-    // struct termios cooked_;
-    // struct termios raw_;
-    // int32_t kfd_ = 0;
-    // bool parking_brake = false;
-    // Chassis::GearPosition gear = Chassis::GEAR_INVALID;
     PadMessage pad_msg;
-    // AINFO << c ;
 
-    // INIT
-    // open device [in blocking mode]
-    // fd is file descriptor
+    // open device [in blocking mode] fd is file descriptor
     int fd = open("/dev/input/js0", O_RDONLY);
     if (fd < 0) {
       printf("Bluetooth not connected !\n");
       return;
     }
-    // IOCTLs
+
     // read number of axes
     char number_of_axes;
     ioctl(fd, JSIOCGAXES, &number_of_axes);
@@ -80,7 +67,6 @@ class XboxOne {
     char number_of_buttons;
     ioctl(fd, JSIOCGBUTTONS, &number_of_buttons);
 
-    // OTHER VARIABLES [NOT PART OF API DOC]
     // create pointers for axes and buttons
     int *axis;
     char *button;
@@ -88,40 +74,12 @@ class XboxOne {
     axis = (int *)calloc(number_of_axes, sizeof(int));
     button = (char *)calloc(number_of_buttons, sizeof(char));
 
-    // double a;
-    // WHILE LOOP
     // loop that will continue to run
     while (IsRunning()) {
       // EVENT READING
-      // creating a js_event struct called e
-      // (e is of type js_event)
-      // js_event is defined in joystick.h
       struct js_event e;
       // read data previously written to a file
-      // read sizeof(e) bytes from file descriptor fd into buffer pointed to by
-      // &e
       read(fd, &e, sizeof(e));
-
-      // JS_EVENT.TYPE
-      // possible values for type are defined in joystick.h
-      //		button pressed
-      //		joystick moves
-      //		init state of device
-
-      // JS_EVENT.NUMBER
-      // values of number correspond to axis or button that generated event
-      // values vary from one joystick to another
-
-      // JS_EVENT.VALUE
-      // for axis, value is position of joystick along axis
-      // axis values range from -32767 to 32767
-      // for buttons, value is state of button
-      // button values range from 0 to 1
-
-      // JS_EVENT.TIME
-      // values of time correspond to the time an event was generated
-
-      // DETERMINE AND ASSIGN [NOT PART OF API DOC]
       // determine if event is of type button or axis
       // assign value to corresponding button or axis
       switch (e.type & ~JS_EVENT_INIT) {
@@ -133,10 +91,8 @@ class XboxOne {
           axis[e.number] = e.value;
           break;
       }
-
       // DISPLAY VALUES
-      // move to beginning of current line
-      printf("\r");
+      // printf("\r");
       // display axis numbers and values
       if (number_of_axes and level) {
         // printf("AXES: ");
