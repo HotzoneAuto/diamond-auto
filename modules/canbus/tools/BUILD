@@ -67,14 +67,12 @@ cc_binary(
     copts = ["-DMODULE_NAME=\\\"xbox_one\\\""],
     deps = [
         "//cyber",
-        "//modules/canbus/vehicle:vehicle_controller_base",
-        "//modules/common/adapters:adapter_gflags",
         "//modules/control/proto:control_cmd_cc_proto",
         "//modules/canbus/common:canbus_common",
-        "//modules/canbus/proto:chassis_cc_proto",
         "//modules/common/configs:vehicle_config_helper",
+        "//modules/common/adapters:adapter_gflags",
         "//modules/common/util:message_util",
-	"@com_github_gflags_gflags//:gflags",
+	    "@com_github_gflags_gflags//:gflags",
     ],
 )
 

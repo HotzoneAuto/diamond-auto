@@ -17,8 +17,6 @@
 #include <unistd.h>
 
 #include "cyber/cyber.h"
-#include "modules/canbus/proto/chassis.pb.h"
-#include "modules/canbus/vehicle/vehicle_controller.h"
 #include "modules/control/proto/control_cmd.pb.h"
 
 #include "cyber/common/log.h"
@@ -30,7 +28,6 @@
 namespace {
 // WHILE LOOPce{
 using apollo::canbus::Chassis;
-using apollo::common::VehicleSignal;
 using apollo::common::time::Clock;
 using apollo::control::ControlCommand;
 using apollo::control::PadMessage;
@@ -187,10 +184,6 @@ class XboxOne {
     control_command_.set_speed(0.0);
     control_command_.set_acceleration(0.0);
     control_command_.set_engine_on_off(false);
-    // control_command_.set_driving_mode(Chassis::COMPLETE_MANUAL);
-    control_command_.set_gear_location(Chassis::GEAR_INVALID);
-    control_command_.mutable_signal()->set_turn_signal(
-        VehicleSignal::TURN_NONE);
   }
 
   void OnChassis(const Chassis &chassis) { Send(); }
@@ -225,8 +218,8 @@ class XboxOne {
 
  private:
   std::unique_ptr<std::thread> xbox_one_thread_;
-  std::shared_ptr<Reader<Chassis>> chassis_reader_;
-  std::shared_ptr<Writer<ControlCommand>> control_command_writer_;
+  std::shared_ptr<Reader<Chassis>> chassis_reader_=nullptr;
+  std::shared_ptr<Writer<ControlCommand>> control_command_writer_=nullptr;
   ControlCommand control_command_;
   bool is_running_ = false;
   std::shared_ptr<apollo::cyber::Node> node_;
