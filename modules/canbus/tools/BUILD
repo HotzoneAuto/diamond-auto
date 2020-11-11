@@ -72,7 +72,7 @@ cc_binary(
         "//modules/common/configs:vehicle_config_helper",
         "//modules/common/adapters:adapter_gflags",
         "//modules/common/util:message_util",
-	    "@com_github_gflags_gflags//:gflags",
+        "@com_github_gflags_gflags//:gflags",
     ],
 )
 
