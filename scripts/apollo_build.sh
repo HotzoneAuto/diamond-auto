@@ -16,7 +16,7 @@ function determine_disabled_bazel_targets() {
     local disabled=
     local compo="$1"
     if [[ "${ARCH}" != "x86_64" ]]; then
-      disabled="except //modules/tools/visualizer/... except //modules/common/math/... except //modules/drivers/camera/... except //modules/drivers/tools/image_decompress/..."
+      disabled="except //modules/tools/visualizer/... except //modules/common/math/... except //modules/drivers/camera/... except //modules/drivers/tools/image_decompress/... except //modules/perception/..."
     fi
     echo "${disabled}"
     # DISABLED_CYBER_MODULES="except //cyber/record:record_file_integration_test"

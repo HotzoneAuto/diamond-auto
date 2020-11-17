@@ -16,7 +16,11 @@
 #include "modules/control/proto/pad_msg.pb.h"
 #include "modules/drivers/proto/rfid.pb.h"
 #include "modules/drivers/proto/wheelangle.pb.h"
+<<<<<<< HEAD
 #include "modules/perception/proto/obst_box.pb.h"
+=======
+#include "modules/drivers/proto/parking.pb.h"
+>>>>>>> master
 
 namespace apollo {
 namespace control {
@@ -27,6 +31,7 @@ using apollo::control::ControlConf;
 using apollo::control::PadMessage;
 using apollo::drivers::RFID;
 using apollo::drivers::WheelAngle;
+using apollo::drivers::PARKING;
 
 class ControlComponent final : public apollo::cyber::TimerComponent {
  public:
@@ -58,7 +63,12 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
       front_wheel_angle_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>>
       rear_wheel_angle_reader_;
+<<<<<<< HEAD
   std::shared_ptr<cyber::Reader<apollo::perception::Obstacles>> obst_reader;
+=======
+  std::shared_ptr<cyber::Reader<apollo::drivers::PARKING>>
+      parking_reader_;
+>>>>>>> master
 
   double manual_front_wheel_target = 0;
   double manual_rear_wheel_target = 0;
@@ -81,6 +91,8 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
 
   double rear_wheel_angle_value = 0.0;
   bool is_rear_received = false;
+
+  double parking_value = 0.0;
 
   bool is_front_destination = false;
   bool is_rear_destination = false;

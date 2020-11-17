@@ -24,6 +24,7 @@ using apollo::cyber::Component;
 using apollo::cyber::ComponentBase;
 
 class Lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud,
+<<<<<<< HEAD
                                                 apollo::drivers::PointCloud> {
  public:
   bool Init() override;
@@ -33,6 +34,15 @@ class Lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud,
   filter_and_segment(const pcl::PointCloud<pcl::PointXYZI>::Ptr origin_cloud);
 
   bool Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1, 
+=======
+                                                 apollo::drivers::PointCloud> {
+ public:
+  bool Init() override;
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr,
+            pcl::PointCloud<pcl::PointXYZI>::Ptr>
+  filter_and_segment(const pcl::PointCloud<pcl::PointXYZI>::Ptr origin_cloud);
+  bool Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1,
+>>>>>>> master
             const std::shared_ptr<apollo::drivers::PointCloud>& msg2) override;
 
  private:
@@ -61,8 +71,13 @@ class Lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud,
   float clusterTolerance = 0.8;
   int minsize = 7;
   int maxsize = 800;
+<<<<<<< HEAD
   std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>> obst_writer;
   apollo::perception::LidarPointcloudConf lidar_pointcloud_conf_;
+=======
+  std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>>
+      obst_writer;
+>>>>>>> master
 };
 
 CYBER_REGISTER_COMPONENT(Lidar_pointcloudcluster)

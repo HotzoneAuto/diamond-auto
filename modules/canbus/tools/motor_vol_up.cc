@@ -13,13 +13,13 @@ void MessageCallback(
     AINFO << "empty chassis detail, Skip this frame.";
     return;
   }
-  if (diamond.id_0x0c09a7f0().fmotvolt() > 627) {
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 615) {
     AINFO << "Motor voltage have been done. Shutdown myself, Bye.";
     apollo::cyber::AsyncShutdown();
     return;
   }
 
-  if (diamond.id_0x0c09a7f0().fmotvolt() > 618) {
+  if (diamond.id_0x0c09a7f0().fmotvolt() > 610) {
     k2_on = true;
   }
 
@@ -32,7 +32,7 @@ void MessageCallback(
 
   // 2. Tell BMS you can release voltage now
   if (!k2_on) {
-    std::string cmd1 = "cansend can0 0CFFF3A7#0001000000000000";
+    std::string cmd1 = "cansend can1 0CFFF3A7#0001000000000000";
     const int ret1 = std::system(cmd1.c_str());
     if (ret1 == 0) {
       AINFO << "BMS message send SUCCESS: " << cmd1;
@@ -52,7 +52,7 @@ void MessageCallback(
   // 3. K2 up
   if (!k2_on) {
     sleep(2);
-    std::string cmd2 = "cansend can0 00AA5701#1000000000000000";
+    std::string cmd2 = "cansend can1 00AA5701#1000000000000000";
     const int ret2 = std::system(cmd2.c_str());
     if (ret2 == 0) {
       AINFO << "K2 up message send SUCCESS: " << cmd2;
@@ -67,7 +67,7 @@ void MessageCallback(
   if (std::abs(diamond.id_0x1818d0f3().fbatvolt() -
                diamond.id_0x0c09a7f0().fmotvolt()) < 25) {
     // 4. K1 up
-    std::string cmd3 = "cansend can0 00AA5701#1100000000000000";
+    std::string cmd3 = "cansend can1 00AA5701#1100000000000000";
     const int ret3 = std::system(cmd3.c_str());
     if (ret3 == 0) {
       AINFO << "K1 up can message send SUCCESS: " << cmd3;
@@ -76,7 +76,7 @@ void MessageCallback(
     }
     std::this_thread::sleep_for(std::chrono::seconds(3));
     // 5. K2 down
-    std::string cmd4 = "cansend can0 00AA5701#0100000000000000";
+    std::string cmd4 = "cansend can1 00AA5701#0100000000000000";
     const int ret4 = std::system(cmd4.c_str());
     if (ret4 == 0) {
       AINFO << "K2 down message send SUCCESS: " << cmd4;
@@ -86,7 +86,7 @@ void MessageCallback(
     // 6.Done
   } else {
     AERROR << "diff > 25, K2 down";
-    std::string cmd5 = "cansend can0 00AA5701#0000000000000000";
+    std::string cmd5 = "cansend can1 00AA5701#0000000000000000";
     const int ret = std::system(cmd5.c_str());
     std::this_thread::sleep_for(std::chrono::seconds(3));
     if (ret == 0) {
