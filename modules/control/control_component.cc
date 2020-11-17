@@ -118,12 +118,6 @@ bool ControlComponent::Init() {
             }
           }
 
-<<<<<<< HEAD
-          distance_obst[xy_position-1] = 1;
-        } 
-      }
-  );
-=======
   // parking Reader
   parking_reader_ = node_->CreateReader<PARKING>(
       FLAGS_parking_brake_topic,
@@ -132,7 +126,6 @@ bool ControlComponent::Init() {
         AINFO << "parking.value() = " << parking->barometric_pressure();
       });
 
->>>>>>> master
   // TODO(tianchuang):Routing Reader
 
   AINFO << "Control default driving action is "

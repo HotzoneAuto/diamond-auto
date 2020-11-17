@@ -24,16 +24,11 @@ cc_library(
         ":point_pillars",
         "//cyber",
         "//modules/drivers/proto:pointcloud_cc_proto",
-<<<<<<< HEAD
         "//modules/perception/proto:obst_box_cc_proto",
         "//modules/perception/proto:lidar_pointcloud_conf_cc_proto",
         "@eigen",
         "@pcl",
         "@local_config_vtk//:vtk",
-=======
-        "@eigen",
-        "@local_config_pcl//:pcl",
->>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
     ],
     alwayslink = True,
 )

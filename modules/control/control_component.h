@@ -16,11 +16,8 @@
 #include "modules/control/proto/pad_msg.pb.h"
 #include "modules/drivers/proto/rfid.pb.h"
 #include "modules/drivers/proto/wheelangle.pb.h"
-<<<<<<< HEAD
-#include "modules/perception/proto/obst_box.pb.h"
-=======
 #include "modules/drivers/proto/parking.pb.h"
->>>>>>> master
+
 
 namespace apollo {
 namespace control {
@@ -63,12 +60,9 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
       front_wheel_angle_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::WheelAngle>>
       rear_wheel_angle_reader_;
-<<<<<<< HEAD
-  std::shared_ptr<cyber::Reader<apollo::perception::Obstacles>> obst_reader;
-=======
   std::shared_ptr<cyber::Reader<apollo::drivers::PARKING>>
       parking_reader_;
->>>>>>> master
+
 
   double manual_front_wheel_target = 0;
   double manual_rear_wheel_target = 0;
