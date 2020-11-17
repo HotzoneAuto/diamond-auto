@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 cc_binary(
     name = "librobosense_driver_component.so",
     linkopts = ["-shared"],
+    linkshared = True,
     linkstatic = False,
     deps = [":driver"],
 )

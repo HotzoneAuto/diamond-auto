@@ -114,16 +114,16 @@ bool Lidar_pointcloudcluster::Proc(
   cloud.height = 1;
   cloud.is_dense = false;
   cloud.points.resize(cloud.width * cloud.height);
-  for (size_t i = 0; i < msg1->point_size(); ++i) {
+  for (int i = 0; i < msg1->point_size(); ++i) {
     cloud.points[i].x = msg1->point(i).x();
     cloud.points[i].y = msg1->point(i).y();
     cloud.points[i].z = msg1->point(i).z();
     cloud.points[i].intensity = msg1->point(i).intensity();
   }
 
-  vector<int> nan_cloud_inliers;
-  pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers);
   pcloud = cloud.makeShared();
+  vector<int> nan_cloud_inliers;
+  pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers); 
 
 //rear point cloud
   pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_rear(
@@ -133,7 +133,7 @@ bool Lidar_pointcloudcluster::Proc(
   cloud_rear.height = 1;
   cloud_rear.is_dense = false;
   cloud_rear.points.resize(cloud_rear.width * cloud_rear.height);  
-  for (size_t i = 0; i < msg2->point_size(); ++i) {
+  for (int i = 0; i < msg2->point_size(); ++i) {
     cloud_rear.points[i].x = -(msg2->point(i).x()) - 12;
     cloud_rear.points[i].y = -msg2->point(i).y();
     cloud_rear.points[i].z = msg2->point(i).z();

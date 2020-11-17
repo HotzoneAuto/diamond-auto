@@ -20,13 +20,18 @@ source "${APOLLO_ROOT_DIR}/scripts/apollo.bashrc"
 
 # CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
 
-VERSION_X86_64="diamond-auto-x86_64-18.04-20200925_1303"
+#VERSION_X86_64="diamond-auto-x86_64-18.04-20200925_1303"
+#VERSION_X86_64="dev-x86_64-18.04-20200926_1057"
+#VERSION_X86_64="diamond-auto-x86_64-18.04-20201022_1340"
+VERSION_X86_64="ubuntu18.04_1112"
 VERSION_AARCH64="diamond-auto-aarch64-18.04-20200925_1309"
 VERSION_LOCAL_CYBER="local_cyber_dev"
 CYBER_CONTAINER="apollo_cyber_${USER}"
 CYBER_INSIDE="in_cyber_docker"
 
-DOCKER_REPO="hotzoneauto2020/diamond-auto"
+#DOCKER_REPO="hotzoneauto2020/diamond-auto"
+DOCKER_REPO="sunzengpeng/ubuntu_docker"
+#DOCKER_REPO="apolloauto/apollo"
 DOCKER_RUN_CMD="docker run"
 DOCKER_PULL_CMD="docker pull"
 

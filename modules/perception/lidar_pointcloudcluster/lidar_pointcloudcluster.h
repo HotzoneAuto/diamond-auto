@@ -1,17 +1,18 @@
+#pragma once
 #include <iostream>
 #include <string>
 
-#include <pcl/common/common.h>
-#include <pcl/filters/crop_box.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/kdtree/kdtree.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/visualization/pcl_visualizer.h>
+#include "pcl/common/common.h"
+#include "pcl/filters/crop_box.h"
+#include "pcl/filters/extract_indices.h"
+#include "pcl/filters/voxel_grid.h"
+#include "pcl/io/pcd_io.h"
+#include "pcl/kdtree/kdtree.h"
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl/segmentation/extract_clusters.h"
+#include "pcl/segmentation/sac_segmentation.h"
+#include "pcl/visualization/pcl_visualizer.h"
 
 #include "cyber/cyber.h"
 #include "modules/drivers/proto/pointcloud.pb.h"
@@ -63,4 +64,5 @@ class Lidar_pointcloudcluster : public Component<apollo::drivers::PointCloud,
   std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>> obst_writer;
   apollo::perception::LidarPointcloudConf lidar_pointcloud_conf_;
 };
+
 CYBER_REGISTER_COMPONENT(Lidar_pointcloudcluster)

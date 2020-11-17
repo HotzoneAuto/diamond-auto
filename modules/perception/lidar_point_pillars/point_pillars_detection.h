@@ -5,18 +5,37 @@
 #include <vector>
 #include <algorithm>
 #include <exception>
+<<<<<<< HEAD
+#include <chrono>
+#include <thread>
+=======
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
 
 #include "pcl/common/common.h"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
+<<<<<<< HEAD
+#include "pcl/io/pcd_io.h"
 #include "pcl/filters/crop_box.h"
 #include "pcl/filters/extract_indices.h"
 #include "pcl/filters/voxel_grid.h"
+#include "pcl/visualization/pcl_visualizer.h"
+#include "pcl/visualization/cloud_viewer.h"
+=======
+#include "pcl/filters/crop_box.h"
+#include "pcl/filters/extract_indices.h"
+#include "pcl/filters/voxel_grid.h"
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
 #include "Eigen/Core"
 
 #include "cyber/cyber.h"
 #include "modules/drivers/proto/pointcloud.pb.h"
 #include "modules/perception/lidar_point_pillars/point_pillars.h"
+<<<<<<< HEAD
+#include "modules/perception/proto/obst_box.pb.h"
+#include "modules/perception/proto/lidar_pointcloud_conf.pb.h"
+=======
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
 
 using namespace std;
 using apollo::cyber::Component;
@@ -26,18 +45,34 @@ namespace apollo {
 namespace perception {
 namespace lidar {
 
+<<<<<<< HEAD
+class PointPillarsDetection: public Component<apollo::drivers::PointCloud, apollo::drivers::PointCloud>{
+ public:
+  bool Init() override;
+  bool Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg1, 
+            const std::shared_ptr<apollo::drivers::PointCloud>& msg2) override;
+
+ private:
+
+   pcl::PointCloud<pcl::PointXYZI>::Ptr receive_and_voxel(const std::shared_ptr<apollo::drivers::PointCloud>& msg);
+=======
 class PointPillarsDetection: public Component<apollo::drivers::PointCloud>{
  public:
   bool Init() override;
   bool Proc(const std::shared_ptr<apollo::drivers::PointCloud>& msg) override;
 
  private:
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
    void CloudToArray(const pcl::PointCloud<pcl::PointXYZI>::Ptr& pc_ptr, 
                      float* out_points_array, 
                      float normalizing_factor);
 //    void GetObjects(std::vector<std::shared_ptr<base::Object>>* objects,
 //                    const Eigen::Affine3d& pose, std::vector<float>* detections,
 //                    std::vector<int>* labels);
+<<<<<<< HEAD
+   // boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+=======
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
 
    std::unique_ptr<PointPillars> point_pillars_ptr_;
    std::vector<double> points_timestamp_;
@@ -72,6 +107,11 @@ class PointPillarsDetection: public Component<apollo::drivers::PointCloud>{
 
    Eigen::Vector4f minpoint;
    Eigen::Vector4f maxpoint;
+<<<<<<< HEAD
+   std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>> obst_writer;
+   apollo::perception::LidarPointcloudConf lidar_pointcloud_conf_;
+=======
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
 };  // class PointPillarsDetection
 CYBER_REGISTER_COMPONENT(PointPillarsDetection)
 }  // namespace lidar

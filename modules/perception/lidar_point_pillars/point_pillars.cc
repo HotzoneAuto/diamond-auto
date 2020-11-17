@@ -6,7 +6,11 @@
 
 // headers in local files
 #include "modules/perception/lidar_point_pillars/point_pillars.h"
+<<<<<<< HEAD
+using namespace std;
+=======
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
 namespace apollo {
 namespace perception {
 namespace lidar {
@@ -590,7 +594,10 @@ void PointPillars::DoInference(const float* in_points_array,
   }
 
   Preprocess(in_points_array, in_num_points);
+<<<<<<< HEAD
+=======
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   anchor_mask_cuda_ptr_->DoAnchorMaskCuda(
       dev_sparse_pillar_map_, dev_cumsum_along_x_, dev_cumsum_along_y_,
       dev_box_anchors_min_x_, dev_box_anchors_min_y_, dev_box_anchors_max_x_,
@@ -608,7 +615,10 @@ void PointPillars::DoInference(const float* in_points_array,
   GPU_CHECK(cudaMemcpyAsync(pfe_buffers_[2], dev_pillar_coors_,
                             kMaxNumPillars * 4 * sizeof(float),
                             cudaMemcpyDeviceToDevice, stream));
+<<<<<<< HEAD
+=======
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   torch::Tensor tensor_pillar_point_feature = torch::from_blob(pfe_buffers_[0],
       {kMaxNumPillars, kMaxNumPointsPerPillar, kNumPointFeature},
       torch::kCUDA);
@@ -616,28 +626,47 @@ void PointPillars::DoInference(const float* in_points_array,
       pfe_buffers_[1], {kMaxNumPillars}, torch::kCUDA);
   torch::Tensor tensor_pillar_coors = torch::from_blob(pfe_buffers_[2],
       {kMaxNumPillars, 4}, torch::kCUDA);
+<<<<<<< HEAD
+=======
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   torch::Device device(device_type_, device_id_);
   tensor_pillar_point_feature.to(device);
   tensor_num_points_per_pillar.to(device);
   tensor_pillar_coors.to(device);
+<<<<<<< HEAD
+//***********************************************************************
+//bug:operation failed in the TorchScript interpreter
+  auto pfe_output = pfe_net_.forward({tensor_pillar_point_feature,
+                                      tensor_num_points_per_pillar,
+                                      tensor_pillar_coors}).toTensor();
+=======
 
   auto pfe_output = pfe_net_.forward({tensor_pillar_point_feature,
                                       tensor_num_points_per_pillar,
                                       tensor_pillar_coors}).toTensor();
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   GPU_CHECK(
       cudaMemset(dev_scattered_feature_, 0, kRpnInputSize * sizeof(float)));
   scatter_cuda_ptr_->DoScatterCuda(
       host_pillar_count_[0], dev_x_coors_, dev_y_coors_,
       pfe_output.data_ptr<float>(), dev_scattered_feature_);
+<<<<<<< HEAD
+=======
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   GPU_CHECK(cudaMemcpyAsync(rpn_buffers_[0], dev_scattered_feature_,
                             kBatchSize * kRpnInputSize * sizeof(float),
                             cudaMemcpyDeviceToDevice, stream));
   rpn_context_->enqueueV2(rpn_buffers_, stream, nullptr);
+<<<<<<< HEAD
+  GPU_CHECK(cudaMemset(dev_filter_count_, 0, sizeof(int)));
+//bug:radix_sort: failed on 2nd step: cudaErrorInvalidValue: invalid argument
+=======
 
   GPU_CHECK(cudaMemset(dev_filter_count_, 0, sizeof(int)));
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   postprocess_cuda_ptr_->DoPostprocessCuda(
       reinterpret_cast<float*>(rpn_buffers_[1]),
       reinterpret_cast<float*>(rpn_buffers_[2]),
@@ -646,7 +675,11 @@ void PointPillars::DoInference(const float* in_points_array,
       dev_anchors_dy_, dev_anchors_dz_, dev_anchors_ro_, dev_filtered_box_,
       dev_filtered_score_, dev_filtered_label_, dev_filtered_dir_,
       dev_box_for_nms_, dev_filter_count_, out_detections, out_labels);
+<<<<<<< HEAD
+//***************************************************************************
+=======
 
+>>>>>>> 4acfaf4113dfc80c3b977d847eea5696e3b04a73
   // release the stream and the buffers
   cudaStreamDestroy(stream);
 }
