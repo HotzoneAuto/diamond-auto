@@ -18,7 +18,6 @@
 #include "modules/drivers/proto/wheelangle.pb.h"
 #include "modules/drivers/proto/parking.pb.h"
 
-
 namespace apollo {
 namespace control {
 
@@ -49,7 +48,6 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
   WheelAngle front_wheel_angle_;
   WheelAngle rear_wheel_angle_;
   bool pad_received_ = false;
-  int distance_obst[8] = {0};
 
   std::shared_ptr<cyber::Reader<apollo::canbus::Chassis>> chassis_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::RFID>> rfid_front_reader_;
@@ -62,7 +60,6 @@ class ControlComponent final : public apollo::cyber::TimerComponent {
       rear_wheel_angle_reader_;
   std::shared_ptr<cyber::Reader<apollo::drivers::PARKING>>
       parking_reader_;
-
 
   double manual_front_wheel_target = 0;
   double manual_rear_wheel_target = 0;

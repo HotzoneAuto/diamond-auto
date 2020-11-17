@@ -1,7 +1,6 @@
 ﻿#include "modules/control/control_component.h"
 
 #include <string>
-#include <iostream>
 #include "math.h"
 
 #include "cyber/cyber.h"
@@ -72,51 +71,6 @@ bool ControlComponent::Init() {
         AINFO << "rear_wheel_angle.value() = " << rear_wheel_angle->value();
         is_rear_received = true;
       });
-  
-  //lidar obst reader 
-  obst_reader = node_->CreateReader<apollo::perception::Obstacles>(
-      "/diamond/perception/Obstacles",
-      [this](const std::shared_ptr<apollo::perception::Obstacles>& obsts) {
-        for(int i = 0; i < sizeof(distance_obst)/sizeof(distance_obst[0]); i ++) {
-          distance_obst[i] = 0;
-        }
-        for (int i = 0; i < obsts->obstacles_size(); i++) {
-          float xx_min = obsts->obstacles(i).x_min();
-          float yy_min = obsts->obstacles(i).y_min();
-          float xx_max = obsts->obstacles(i).x_max();
-          float yy_max = obsts->obstacles(i).y_max();
-         
-          if(xx_min > 5 || xx_max < -17 || yy_min > 4 || yy_max < -4) {
-            continue;
-          }
-          
-          int xy_position = 0;
-
-          if (xx_min > 0) {
-            if (yy_min > 1.9) {
-              xy_position = 3;
-            } else if (yy_max < -1.9) {
-              xy_position = 1;
-            } else {
-              xy_position = 2;
-            }
-          } else if (xx_max < -12){
-            if (yy_min > 1.9) {
-              xy_position = 8;
-            } else if (yy_max < -1.9) {
-              xy_position = 6;
-            } else {
-              xy_position = 7;
-            }
-          } else {
-            if (yy_min > 1.9) {
-              xy_position = 5;
-            } else if (yy_max < -1.9) {
-              xy_position = 4;
-            } else {
-
-            }
-          }
 
   // parking Reader
   parking_reader_ = node_->CreateReader<PARKING>(
@@ -182,6 +136,7 @@ bool ControlComponent::Proc() {
     cmd->mutable_pad_msg()->CopyFrom(pad_msg_);
 
     // TODO: add control strategy when emergency.
+
     // TODO(zongbao):how to know direction(reverse or forward)
     AINFO << "rfid_front_.id=" << rfid_front_.id();
     AINFO << "rfid_rear_.id=" << rfid_rear_.id();
@@ -229,7 +184,6 @@ bool ControlComponent::Proc() {
       }
 
       // set control cmd
-
       // check estop, ture: brake=10,torque=1, write
       if (is_front_destination) {
         cmd->set_brake(control_conf_.soft_estop_brake());
