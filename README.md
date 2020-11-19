@@ -1,6 +1,12 @@
 # Diamond Auto: An Autonomous Application Based On Cyber RT
 
 ![Action Status](https://github.com/HotzoneAuto/diamond-auto/workflows/Diamond/badge.svg)
+
+### On site commissioning
+![20201117175018](https://user-images.githubusercontent.com/45028297/99381225-e811fb80-2905-11eb-9c0c-180431737ad0.jpg)
+<!--![20201117175036](https://user-images.githubusercontent.com/45028297/99381315-04159d00-2906-11eb-98b2-9d95c7cc4ab6.jpg)-->
+![20201117175058](https://user-images.githubusercontent.com/45028297/99381331-07a92400-2906-11eb-99d5-4226330cc1d9.png)
+
 ## Environment Setup
 
 ### Code Clone
