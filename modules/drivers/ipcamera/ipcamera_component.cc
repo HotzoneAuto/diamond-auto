@@ -1,17 +1,16 @@
-
-#include "modules/drivers/ipcamera/ipcompress_component.h"
+#include "modules/drivers/ipcamera/ipcamera_component.h"
 namespace apollo {
 namespace drivers {
 namespace ipcamera {
-    bool IpComressComponent::Init(){
+    bool IpCameraComponent::Init(){
         AINFO << "Init";
         return false;
     }
     void IpCameraComponent::run(){
         AINFO << "run";
-        return false;
+        // return false;
     }
-CameraComponent::~CameraComponent() {
+IpCameraComponent::~IpCameraComponent() {
   if (running_.load()) {
     running_.exchange(false);
     async_result_.wait();

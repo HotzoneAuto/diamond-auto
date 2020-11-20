@@ -5,7 +5,6 @@
 
 #include "cyber/cyber.h"
 
-
 namespace apollo {
 namespace drivers {
 namespace ipcamera {
@@ -16,7 +15,7 @@ using apollo::cyber::Writer;
 class IpCameraComponent : public Component<> {
   public:
     bool Init() override;
-    ~CameraComponent();
+    ~IpCameraComponent();
   private:
     void run();
     std::future<void> async_result_;

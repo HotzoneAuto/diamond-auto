@@ -1,8 +1,8 @@
-#include "modules/drivers/ipcamera/include/Infra/Thread.h"
-#include "modules/drivers/ipcamera/include/GenICam/StreamSource.h"
-#include "modules/drivers/ipcamera/include/GenICam/Frame.h"
-#include "modules/drivers/ipcamera/include/Media/RecordVideo.h"
-#include "modules/drivers/ipcamera/include/Media/ImageConvert.h"
+#include "Infra/Thread.h"
+#include "GenICam/StreamSource.h"
+#include "GenICam/Frame.h"
+#include "Media/RecordVideo.h"
+#include "Media/ImageConvert.h"
 
 using namespace Dahua::GenICam;
 using namespace Dahua::Infra;

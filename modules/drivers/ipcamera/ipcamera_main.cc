@@ -939,48 +939,48 @@ static int32_t getTriggerDelay(ICameraPtr& cameraSptr, double &dDelayTime)
 
 // 设置外触发模式（上升沿触发、下降沿触发）
 // Set external trigger mode (rising edge trigger, falling edge trigger)
-static int32_t setLineTriggerMode(ICameraPtr& cameraSptr, bool bRisingEdge)
-{
-    bool bRet;
-    IAcquisitionControlPtr sptAcquisitionControl = CSystem::getInstance().createAcquisitionControl(cameraSptr);
-    if (NULL == sptAcquisitionControl)
-    {
-        return -1;
-    }
+// static int32_t setLineTriggerMode(ICameraPtr& cameraSptr, bool bRisingEdge)
+// {
+//     bool bRet;
+//     IAcquisitionControlPtr sptAcquisitionControl = CSystem::getInstance().createAcquisitionControl(cameraSptr);
+//     if (NULL == sptAcquisitionControl)
+//     {
+//         return -1;
+//     }
 
-    CEnumNode enumNode = sptAcquisitionControl->triggerSelector();
-    if (false == enumNode.setValueBySymbol("FrameStart"))
-    {
-        printf("set triggerSelector fail.\n");
-        return -1;
-    }
+//     CEnumNode enumNode = sptAcquisitionControl->triggerSelector();
+//     if (false == enumNode.setValueBySymbol("FrameStart"))
+//     {
+//         printf("set triggerSelector fail.\n");
+//         return -1;
+//     }
 
-    enumNode = sptAcquisitionControl->triggerMode();
-    if (false == enumNode.setValueBySymbol("On"))
-    {
-        printf("set triggerMode fail.\n");
-        return -1;
-    }
+//     enumNode = sptAcquisitionControl->triggerMode();
+//     if (false == enumNode.setValueBySymbol("On"))
+//     {
+//         printf("set triggerMode fail.\n");
+//         return -1;
+//     }
 
-    enumNode = sptAcquisitionControl->triggerSource();
-    if (false == enumNode.setValueBySymbol("Line1"))
-    {
-        printf("set triggerSource fail.\n");
-        return -1;
-    }
+//     enumNode = sptAcquisitionControl->triggerSource();
+//     if (false == enumNode.setValueBySymbol("Line1"))
+//     {
+//         printf("set triggerSource fail.\n");
+//         return -1;
+//     }
 
-    enumNode = sptAcquisitionControl->triggerActivation();
-    if (true == bRisingEdge)
-    {
-        bRet = enumNode.setValueBySymbol("RisingEdge");
-    }
-    else
-    {
-        bRet = enumNode.setValueBySymbol("FallingEdge");
-    }
+//     enumNode = sptAcquisitionControl->triggerActivation();
+//     if (true == bRisingEdge)
+//     {
+//         bRet = enumNode.setValueBySymbol("RisingEdge");
+//     }
+//     else
+//     {
+//         bRet = enumNode.setValueBySymbol("FallingEdge");
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
 // 获取外触发模式（上升沿触发、下降沿触发）
 // Get external trigger mode (rising edge trigger, falling edge trigger)
@@ -1404,7 +1404,7 @@ static char* trim(char* pStr)
 {
 	char* pDst = pStr;
 	char* pTemStr = NULL;
-	int ret = -1;
+	// int ret = -1;
 
 	if (pDst != NULL)
 	{
@@ -1504,16 +1504,7 @@ static int selectDevice(int cameraCnt)
 // *** This part of the processing is independent of the SDK operation camera and is used to display the device list**
 int main()
 {
- #if 0
-    PrintOptions printOptions = {0};
-    printOptions.color = 1;
-    setPrintOptions(printOptions);
-
-    LogPrinterProc procFun = LogPrinterFunc;
-    setLogPrinter(procFun);
-#endif
     ICameraPtr cameraSptr;
-
 	// 发现设备
 	// discovery device
     CSystem &systemObj = CSystem::getInstance();
@@ -1532,9 +1523,9 @@ int main()
     }
 	// 打印相机基本信息（序号,类型,制造商信息,型号,序列号,用户自定义ID,IP地址）
 	// print camera info (index,Type,vendor name, model,serial number,DeviceUserID,IP Address)
-	displayDeviceInfo(vCameraPtrList);
-	int cameraIndex = selectDevice(vCameraPtrList.size());
-	cameraSptr = vCameraPtrList[cameraIndex];
+	// displayDeviceInfo(vCameraPtrList);
+	// int cameraIndex = selectDevice(vCameraPtrList.size());
+	cameraSptr = vCameraPtrList[0];
 
 	
 	// GigE相机时，连接前设置相机Ip与网卡处于同一网段上
@@ -1559,84 +1550,6 @@ int main()
 	// set camera to continue grab mode
 	setGrabMode(cameraSptr, true);
     
-#if 0
-    setGrabMode(cameraSptr, true);
-    setGrabMode(cameraSptr, false);
-    bool bContious = false;
-    getGrabMode(cameraSptr, bContious);
-    triggerSoftware(cameraSptr);
-
-    int64_t nWidth, nHeight;
-    setResolution(cameraSptr, 640, 480);
-    getResolution(cameraSptr, nWidth, nHeight);
-
-    setBinning(cameraSptr);
-
-    getMaxResolution(cameraSptr, nWidth, nHeight);
-
-    int64_t nX, nY, nROIWidth, nROIHeight;
-    setROI(cameraSptr, 120, 120, 640, 480);
-    getROI(cameraSptr, nX, nY, nROIWidth, nROIHeight);
-
-    getWidth(cameraSptr, nWidth);
-    getHeight(cameraSptr, nHeight);
-
-    double dExposureTime = 0;
-    setExposureTime(cameraSptr, 100, true);
-    setExposureTime(cameraSptr, 10000, false);
-    getExposureTime(cameraSptr, dExposureTime);
-
-    double dMinExposure, dMaxExposure;
-    getExposureTimeMinMaxValue(cameraSptr, dMinExposure, dMaxExposure);
-
-    double dGainRaw = 0;
-    double dGainRawMin = 0;
-    double dGainRawMax = 0;
-    setGainRaw(cameraSptr, 1.2);
-    getGainRaw(cameraSptr, dGainRaw);
-    getGainRawMinMaxValue(cameraSptr, dGainRawMin, dGainRawMax);
-
-    double dGamma = 0;
-    double dGammaMin = 0;
-    double dGammaMax = 0;
-    setGamma(cameraSptr, 0.8);
-    getGamma(cameraSptr, dGamma);
-    getGammaMinMaxValue(cameraSptr, dGammaMin, dGammaMax);
-
-    double dRedBalanceRatio = 0;
-    double dGreenBalanceRatio = 0;
-    double dBlueBalanceRatio = 0;
-    double dMinBalanceRatio = 0;
-    double dMaxBalanceRatio = 0;
-    setBalanceRatio(cameraSptr, 1.5, 1.5, 1.5);
-    getBalanceRatio(cameraSptr, dRedBalanceRatio, dGreenBalanceRatio, dBlueBalanceRatio);
-    getBalanceRatioMinMaxValue(cameraSptr, dMinBalanceRatio, dMaxBalanceRatio);
-
-    double dFrameRate = 0;
-    setAcquisitionFrameRate(cameraSptr, 20);
-    getAcquisitionFrameRate(cameraSptr, dFrameRate);
-
-    userSetSave(cameraSptr);
-    loadUserSet(cameraSptr);
-
-    double dDelayTime = 0;
-    setTriggerDelay(cameraSptr, 20);
-    getTriggerDelay(cameraSptr, dDelayTime);
-
-    bool bRisingEdge = true;
-    setLineTriggerMode(cameraSptr, bRisingEdge);
-    getLineTriggerMode(cameraSptr, bRisingEdge);
-
-    double dLineDebouncerTimeAbs = 0;
-    setLineDebouncerTimeAbs(cameraSptr, 20);
-    getLineDebouncerTimeAbs(cameraSptr, dLineDebouncerTimeAbs);
-
-    setOutputTime(cameraSptr, 1000);
-
-    setReverseX(cameraSptr, false);
-    setReverseY(cameraSptr, false);
-#endif
-
 	// 创建流对象
 	// create acquisitioncontrol object
     IStreamSourcePtr streamPtr = systemObj.createStreamSource(cameraSptr);
@@ -1669,8 +1582,14 @@ int main()
 
 	 // 取图2秒
 	 // get frame 2 seconds
-    CThread::sleep(2000);
+     while (true)
+     {
+         /* code */
+        CThread::sleep(2000);
 
+     }
+     
+   
 	// 停止拉流线程
 	// Stop streaming thread
 	streamThreadSptr->stop();

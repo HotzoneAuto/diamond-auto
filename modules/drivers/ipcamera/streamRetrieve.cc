@@ -1,7 +1,7 @@
 #include "modules/drivers/ipcamera/StreamRetrieve.h"
 
-// #include "opencv2/highgui.hpp"
-// using namespace cv;
+#include "opencv2/highgui.hpp"
+using namespace cv;
 StreamRetrieve::StreamRetrieve(IStreamSourcePtr& streamSptr)
 	: CThread("streamRetrieve")
 	, m_isLoop(false)
@@ -49,15 +49,15 @@ void StreamRetrieve::threadProc()
 			printf("getFrame  fail.\n");
 			continue;
 		}
-		// int nBGRBufferSize = frame.getImageWidth() * frame.getImageHeight() * 3;
-		// 	uint8_t *pBGRbuffer = new uint8_t[nBGRBufferSize];
-		// cv::Mat image = cv::Mat(frame.getImageHeight(),
-		// 	frame.getImageWidth(),
-		// 	CV_8UC3,
-		// 	(uint8_t*)pBGRbuffer);
+		int nBGRBufferSize = frame.getImageWidth() * frame.getImageHeight() * 3;
+			uint8_t *pBGRbuffer = new uint8_t[nBGRBufferSize];
+		cv::Mat image = cv::Mat(frame.getImageHeight(),
+			frame.getImageWidth(),
+			CV_8UC3,
+			(uint8_t*)pBGRbuffer);
 		// std::cout <<"====="<< (uint8_t*)pBGRbuffer << "\n";
-		// imshow("output",image);
-		// cv::waitKey(1);
+		imshow("output",image);
+		cv::waitKey(1);
 		// 判断帧的有效性
 		// Judge the validity of frame
 		bool isValid = frame.valid();
