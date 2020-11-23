@@ -24,7 +24,7 @@ bool PointPillarsDetection::Init() {
   point_pillars_ptr_.reset(new PointPillars(reproduce_result_mode, score_threshold, 
                                             nms_overlap_threshold, pfe_torch_file, 
                                             rpn_onnx_file));
-  // viewer.reset(new pcl::visualization::PCLVisualizer("viewer test"));
+  viewer.reset(new pcl::visualization::PCLVisualizer("viewer test"));
   minpoint = Eigen::Vector4f(-32, -15, -2, 1);
   maxpoint = Eigen::Vector4f(20, 15, 2, 1);
   cout << "------------------point pillars init finish------------------------" << endl;
@@ -43,8 +43,8 @@ bool PointPillarsDetection::Proc(const std::shared_ptr<apollo::drivers::PointClo
     return false;
   }
 
-  // viewer->removeAllPointClouds();
-  // viewer->removeAllShapes();
+  viewer->removeAllPointClouds();
+  viewer->removeAllShapes();
   if (cudaSetDevice(gpu_id) != cudaSuccess) {
     AERROR << "Failed to set device to gpu " << gpu_id;
     return false;
@@ -129,8 +129,8 @@ bool PointPillarsDetection::Proc(const std::shared_ptr<apollo::drivers::PointClo
     z_min_ = std::max(z_min_, static_cast<float>(ground_removal_height));
   }
 
-  // viewer->addPointCloud<pcl::PointXYZI>(cloudRegion, "init cloud");
-  // viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud");
+  viewer->addPointCloud<pcl::PointXYZI>(cloudRegion, "init cloud");
+  viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud");
   int num_points = cloudRegion->points.size();
   num_points = std::min(num_points, max_num_points);
   float* points_array = new float[num_points * num_point_feature];
@@ -151,7 +151,7 @@ bool PointPillarsDetection::Proc(const std::shared_ptr<apollo::drivers::PointClo
     // cout << e.what() << endl;
     cout << "-----------------exception occured:core dumped----------------" << endl;
     delete[] points_array;
-    // viewer->spinOnce();
+    viewer->spinOnce();
     return false;
   }
   
@@ -186,14 +186,48 @@ bool PointPillarsDetection::Proc(const std::shared_ptr<apollo::drivers::PointClo
 
     int label = out_labels.at(j);
 
+    float point_x_min = x - dx / 2;
+    float point_y_min = y - dy / 2;
+    float point_z_min = z - dz / 2;
+    float point_x_max = x + dx / 2;
+    float point_y_max = y + dy / 2;
+    float point_z_max = z + dz / 2;
+
     auto* msg_box = msg_obstacles->add_obstacles();
     msg_box->set_box_id(label);
-    msg_box->set_x_min(x - dx / 2);
-    msg_box->set_y_min(y - dy / 2);
-    msg_box->set_z_min(z - dz / 2);
-    msg_box->set_x_max(x + dx / 2);
-    msg_box->set_y_max(y + dy / 2);
-    msg_box->set_z_max(z + dz / 2);
+    msg_box->set_x_min(point_x_min);
+    msg_box->set_y_min(point_y_min);
+    msg_box->set_z_min(point_z_min);
+    msg_box->set_x_max(point_x_max);
+    msg_box->set_y_max(point_y_max);
+    msg_box->set_z_max(point_z_max);
+
+    string cube = "box" + std::to_string(label);
+    string cubeFill = "boxFill" + std::to_string(label);
+
+    viewer->addCube(point_x_min, point_x_max, point_y_min, point_y_max, point_z_min,
+                    point_z_max, Color(1, 0, 0).r, Color(1, 0, 0).g,
+                    Color(1, 0, 0).b, cube);
+    viewer->setShapeRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_REPRESENTATION,
+        pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, cube);
+    viewer->setShapeRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_COLOR, Color(1, 0, 0).r,
+        Color(1, 0, 0).g, Color(1, 0, 0).b, cube);
+    viewer->setShapeRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_OPACITY, 1.0, cube);
+
+    viewer->addCube(point_x_min, point_x_max, point_y_min, point_y_max, point_z_min,
+                    point_z_max, Color(1, 0, 0).r, Color(1, 0, 0).g,
+                    Color(1, 0, 0).b, cubeFill);
+    viewer->setShapeRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_REPRESENTATION,
+        pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cubeFill);
+    viewer->setShapeRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_COLOR, Color(1, 0, 0).r,
+        Color(1, 0, 0).g, Color(1, 0, 0).b, cubeFill);
+    viewer->setShapeRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_OPACITY, 0.3, cubeFill);
 
     std::cout << "object id: " << j << ", x: " << x << ", y: " << y
               << ", z: " << z << ", dx: " << dx << ", dy: " << dy
@@ -203,7 +237,7 @@ bool PointPillarsDetection::Proc(const std::shared_ptr<apollo::drivers::PointClo
 
   msg_obstacles->set_box_num(num_objects);
   obst_writer->Write(msg_obstacles);
-  // viewer->spinOnce();	
+  viewer->spinOnce();	
   delete[] points_array;
   return true;
 }

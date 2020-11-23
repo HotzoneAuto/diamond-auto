@@ -48,7 +48,7 @@ class PointPillarsDetection: public Component<apollo::drivers::PointCloud, apoll
 //    void GetObjects(std::vector<std::shared_ptr<base::Object>>* objects,
 //                    const Eigen::Affine3d& pose, std::vector<float>* detections,
 //                    std::vector<int>* labels);
-   // boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 
    std::unique_ptr<PointPillars> point_pillars_ptr_;
    std::vector<double> points_timestamp_;
@@ -80,6 +80,21 @@ class PointPillarsDetection: public Component<apollo::drivers::PointCloud, apoll
    float downsample_voxel_size_x = 0.1;
    float downsample_voxel_size_y = 0.1;
    float downsample_voxel_size_z = 0.1;
+
+   struct Color {
+     float r, g, b;
+
+     Color(float setR, float setG, float setB) : r(setR), g(setG), b(setB) {}
+   };
+
+   struct Box {
+     float x_min;
+     float y_min;
+     float z_min;
+     float x_max;
+     float y_max;
+     float z_max;
+   };
 
    Eigen::Vector4f minpoint;
    Eigen::Vector4f maxpoint;
