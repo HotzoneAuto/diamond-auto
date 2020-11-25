@@ -6,23 +6,20 @@ licenses(["notice"])
 
 cc_library(
     name = "ipcamera",
-    #hdrs = [
-    #    "GenICam/Defs.h",
-    #    "GenICam/AcquisitionControl.h"
-    #    "GenICam/Camera.h"
-    #    "GenICam/DeviceControl.h"
-    #    "GenICam/EventSubscribe.h"
-    #    "GenICam/ISPControl.h"
-    #    "Infra/PrintLog.h",
-    #    "Infra/Thread.h",
-    #    "Media/ImageConvert.h",
-    #    "Media/RecordVideo.h",
-    #    "Media/VideoRender.h",
-    #    "Memory/ScopedPtr.h",
-    #],
-    hdrs = glob(["*"]),
+    hdrs = glob(["**/*"]),
     includes = [
         ".",
+        "GenICam/*",
+        "Infra/*",
+        "Memory/*",
+        "Media/*",
+    ],
+    copts = [
+        "-I/opt/apollo/pkgs/ipcamera/include",
+        "-c",
+        "-Wall",
+        "-g",
+        "-m64",
     ],
     linkopts = [
         "-L/opt/apollo/pkgs/ipcamera/lib",

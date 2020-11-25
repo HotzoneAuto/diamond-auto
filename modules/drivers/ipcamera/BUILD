@@ -3,32 +3,25 @@ load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
 
-cc_library(
-    name = "streamRetrieve_lib",
-    srcs = ["streamRetrieve.cc"],
-    hdrs = ["StreamRetrieve.h"],
-    deps = [
-        "@opencv",
-        "@ipcamera",
-    ],
-)
-
 cc_binary(
-    name = "ipcamera_main",
-    srcs = ["ipcamera_main.cc"],
-    deps = [
-        ":streamRetrieve_lib",
-        #"@ipcamera",
-    ],
+    name = "ipcamera_component.so",
+    linkshared = True,
+    linkstatic = False,
+    deps = [":ipcamera_component_lib"],
 )
 
 cc_library(
     name = "ipcamera_component_lib",
     srcs = ["ipcamera_component.cc"],
-    hdrs = ["ipcamera_component.h"],
-    copts = ['-DMODULE_NAME=\\"ipcamera\\"'],
+    hdrs = ["ipcamera_component.h",
+            "ipcamera_main.h"],
     deps = [
         "//cyber",
+        "//modules/drivers/ipcamera/proto:ipcamera_conf_cc_proto",
+        "//modules/drivers/proto:sensor_image_cc_proto",
+        "//cyber/examples/proto:examples_cc_proto",
+        "@ipcamera",
+        "@opencv",
     ],
 )
 

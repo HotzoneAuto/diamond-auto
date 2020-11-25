@@ -1,10 +1,9 @@
 module_config{
-    module_library : "/apollo/bazel-bin/modules/drivers/ipcamera/ipcamera_main"
+    module_library : "/apollo/bazel-bin/modules/drivers/ipcamera/ipcamera_component.so"
     components {
-        class_name : "Ipcamera"
+        class_name : "IpCameraComponent"
         config {
             name: "Ipcamera_front"
-            #config_file_path : "/apollo/modules/drivers/rfid/conf/rfid_front.pb.txt"
         }
     }
 }
