@@ -3,10 +3,10 @@ namespace apollo {
 namespace drivers {
 namespace ipcamera {
 bool IpCameraComponent::Init() {
-  // if (!GetProtoConfig(&device_conf_)) {
-  //   AERROR << "Unable to load rfid conf file: " << ConfigFilePath();
-  //   return false;
-  // }
+  if (!GetProtoConfig(&device_conf_)) {
+    AERROR << "Unable to load rfid conf file: " << ConfigFilePath();
+    return false;
+  }
   // 发现设备
   // discovery device
   CSystem &systemObj = CSystem::getInstance();
@@ -60,7 +60,7 @@ bool IpCameraComponent::Init() {
   if (!isStartGrabbingSuccess) {
     AINFO "StartGrabbing  fail.\n";
   }
-  parking_writer_ = node_->CreateWriter<Image>("ipcamera/front");
+  parking_writer_ = node_->CreateWriter<Image>(device_conf_.output_channel());
   async_result_ = cyber::Async(&IpCameraComponent::run, this);
   return true;
 }
@@ -70,7 +70,7 @@ void IpCameraComponent::run() {
   while (!cyber::IsShutdown()) {
     isSuccess = streamPtr->getFrame(frame, 300);
     // AINFO "frame.getImageWidth()=%d",frame.getImageWidth());
-    nBGRBufferSize = frame.getImageWidth() * frame.getImageHeight() * 3;
+    int nBGRBufferSize = frame.getImageWidth() * frame.getImageHeight() * 3;
     uint8_t *pBGRbuffer = new uint8_t[nBGRBufferSize];
     cv::Mat image = cv::Mat(frame.getImageHeight(), frame.getImageWidth(),
                             CV_8UC3, (uint8_t *)pBGRbuffer);

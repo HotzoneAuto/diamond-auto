@@ -17,7 +17,7 @@
 #include "modules/drivers/ipcamera/ipcamera_main.h"
 #include "modules/drivers/proto/sensor_image.pb.h"
 
-// #include "modules/drivers/ipcamera/proto/ipcamera_conf.pd.h"
+#include "modules/drivers/ipcamera/proto/ipcamera_conf.pb.h"
 
 namespace apollo {
 namespace drivers {
@@ -36,13 +36,12 @@ class IpCameraComponent : public Component<> {
   ~IpCameraComponent();
 
  private:
-  // IpcameraDeviceConf device_conf_;
+  bool isSuccess=false;
+  IpcameraDeviceConf device_conf_;
   IStreamSourcePtr m_streamSptr;
   CFrame frame;
   ICameraPtr cameraSptr;
   IStreamSourcePtr streamPtr;
-  bool isSuccess;
-  int nBGRBufferSize;
   std::future<void> async_result_;
   std::shared_ptr<Writer<Image>> parking_writer_ = nullptr;
   std::atomic<bool> running_ = {false};
