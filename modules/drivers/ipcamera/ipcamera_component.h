@@ -36,7 +36,11 @@ class IpCameraComponent : public Component<> {
   ~IpCameraComponent();
 
  private:
-  bool isSuccess=false;
+  bool isSuccess = false;
+  int nBGRBufferSize;
+  IMGCNV_EErr status;
+  // 设置转换配置参数
+  IMGCNV_SOpenParam openParam;
   IpcameraDeviceConf device_conf_;
   IStreamSourcePtr m_streamSptr;
   CFrame frame;

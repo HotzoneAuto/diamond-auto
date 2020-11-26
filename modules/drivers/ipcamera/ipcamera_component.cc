@@ -2,6 +2,7 @@
 namespace apollo {
 namespace drivers {
 namespace ipcamera {
+
 bool IpCameraComponent::Init() {
   if (!GetProtoConfig(&device_conf_)) {
     AERROR << "Unable to load rfid conf file: " << ConfigFilePath();
@@ -31,7 +32,7 @@ bool IpCameraComponent::Init() {
   // When a GigE camera is connected, set the camera IP to be on the same
   // network segment as the network card
   if (ICamera::typeGige == cameraSptr->getType()) {
-    if (autoSetCameraIP(cameraSptr) != 0) {
+    if (Ipcamera::autoSetCameraIP(cameraSptr) != 0) {
       AINFO "set camera Ip failed.\n";
     }
   }
@@ -45,7 +46,7 @@ bool IpCameraComponent::Init() {
 
   // 设置相机为连续取流模式
   // set camera to continue grab mode
-  setGrabMode(cameraSptr, true);
+  Ipcamera::setGrabMode(cameraSptr, true);
 
   // 创建流对象
   // create acquisitioncontrol object
@@ -69,11 +70,40 @@ void IpCameraComponent::run() {
   running_.exchange(true);
   while (!cyber::IsShutdown()) {
     isSuccess = streamPtr->getFrame(frame, 300);
-    // AINFO "frame.getImageWidth()=%d",frame.getImageWidth());
+    if (!isSuccess) {
+      AERROR << "getFrame  fail";
+    }
+
+    // 判断帧的有效性
+    // Judge the validity of frame
+    bool isValid = frame.valid();
+    if (!isValid) {
+      AERROR << "frame is invalid!";
+    }
+    // 7.EN:convert to BRG24(Color Camera)    CN:转换为BRG24格式(彩色相机)
     int nBGRBufferSize = frame.getImageWidth() * frame.getImageHeight() * 3;
     uint8_t *pBGRbuffer = new uint8_t[nBGRBufferSize];
+
+    // 7-1.EN:set param     CN:转换参数
+    openParam.width = frame.getImageWidth();
+    openParam.height = frame.getImageHeight();
+    openParam.paddingX = frame.getImagePadddingX();
+    openParam.paddingY = frame.getImagePadddingY();
+    openParam.dataSize = frame.getImageSize();
+    openParam.pixelForamt = frame.getImagePixelFormat();
+
+    // 7-2.EN:convert to BRG24    CN:转换为BRG24格式
+    const void *pImage = frame.getImage();
+    status = IMGCNV_ConvertToBGR24((unsigned char *)pImage, &openParam,
+                                   pBGRbuffer, &nBGRBufferSize);
+
+    // 7-3.EN:convert to Opencv   CN:转换到Opencv格式
     cv::Mat image = cv::Mat(frame.getImageHeight(), frame.getImageWidth(),
                             CV_8UC3, (uint8_t *)pBGRbuffer);
+
+    // 7-4.EN:display       CN:显示
+    // cv::imshow("test", image);
+    // cv::waitKey(1);
     auto pb_image = std::make_shared<Image>();
     pb_image->set_width(frame.getImageWidth());
     pb_image->set_height(frame.getImageHeight());
