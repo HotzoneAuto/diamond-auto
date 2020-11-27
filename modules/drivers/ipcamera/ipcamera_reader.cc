@@ -6,30 +6,33 @@ namespace drivers {
 namespace ipcamera {
 
 bool IpcameraReader::Init() {
-  // if (!GetProtoConfig(&device_conf_)) {
-  //   AERROR << "Unable to load rfid conf file: " << ConfigFilePath();
-  //   return false;
-  // }
-  // Publish rfid station data
-  // rfid_writer_ = node_->CreateReader<Image>(device_conf_.output_channel());
+  if (!GetProtoConfig(&device_conf_)) {
+    AERROR << "Unable to load IpcameraReader conf file: " << ConfigFilePath();
+    return false;
+  }
+  // Publish IpcameraReader station data
   ipcamera_writer_ = node_->CreateReader<Image>(
-      "/diamond/sensor/ipcamera/front",
-      [this](const std::shared_ptr<Image>& ipcamera_front) {
-        ipcamera_front_.CopyFrom(*ipcamera_front);
-      });
+      device_conf_.output_channel(),
+      [this](const std::shared_ptr<Image>& image) { this->Proc(image); });
   // Async read
-  async_action_ = cyber::Async(&IpcameraReader::Proc, this);
+  // async_action_ = cyber::Async(&IpcameraReader::Proc, this);
   return true;
 }
 
-void IpcameraReader::Proc() {
-  while (!apollo::cyber::IsShutdown()) {
-    AINFO << "ipcamera_front_.width=" << ipcamera_front_.width();
-    AINFO << "ipcamera_front_.height=" << ipcamera_front_.height();
-    cv::Mat img(1280 * 1080, 3, CV_8UC3);
+void IpcameraReader::Proc(const std::shared_ptr<Image>& image) {
+  cv::Mat new_image;
+  running_.exchange(true);
+  new_image = cv::Mat(static_cast<int>(image->height()),
+                      static_cast<int>(image->width()), CV_8UC3,
+                      (uint8_t*)image->data().c_str());
+  cv::imshow("test", new_image);
+  cv::waitKey(1);
+}
 
-    // cv::imshow("test",img);
-    // cv::waitKey(1);
+IpcameraReader::~IpcameraReader() {
+  if (running_.load()) {
+    running_.exchange(false);
+    // async_result_.wait();
   }
 }
 

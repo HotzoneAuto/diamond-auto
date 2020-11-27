@@ -1,6 +1,6 @@
 <cyber>
     <module>
-        <name>ipcamera</name>
+        <name>ipcamera_front</name>
         <dag_conf>/apollo/modules/drivers/ipcamera/dag/ipcamera.dag</dag_conf>
         <process_name>ipcamera_front</process_name>
     </module>

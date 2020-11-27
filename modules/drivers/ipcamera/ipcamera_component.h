@@ -15,9 +15,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include "modules/drivers/ipcamera/ipcamera_main.h"
-#include "modules/drivers/proto/sensor_image.pb.h"
-
 #include "modules/drivers/ipcamera/proto/ipcamera_conf.pb.h"
+#include "modules/drivers/proto/sensor_image.pb.h"
 
 namespace apollo {
 namespace drivers {
@@ -52,6 +51,7 @@ class IpCameraComponent : public Component<> {
 };
 
 CYBER_REGISTER_COMPONENT(IpCameraComponent)
+
 }  // namespace ipcamera
 }  // namespace drivers
 }  // namespace apollo

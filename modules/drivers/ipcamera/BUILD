@@ -3,33 +3,13 @@ load("//tools:cpplint.bzl", "cpplint")
 
 package(default_visibility = ["//visibility:public"])
 
-#cc_binary(
-#    name = "ipcamera_component.so",
-#    linkshared = True,
-#    linkstatic = False,
-#    deps = [":ipcamera_component_lib"],
-#)
-#
-#cc_library(
-#    name = "ipcamera_component_lib",
-#    srcs = ["ipcamera_component.cc"],
-#    hdrs = ["ipcamera_component.h",
-#            "ipcamera_main.h"],
-#    deps = [
-#        "//cyber",
-#        "//modules/drivers/proto:sensor_image_cc_proto",
-#        "//modules/drivers/ipcamera/proto:ipcamera_conf_cc_proto",
-#        "@ipcamera",
-#        "@opencv",
-#    ],
-#)
-
 cc_binary(
     name = "ipcamera_component.so",
     linkshared = True,
     linkstatic = False,
     deps = [":ipcamera_component_lib"],
 )
+
 cc_library(
     name = "ipcamera_component_lib",
     srcs = ["ipcamera_component.cc"],
@@ -40,7 +20,6 @@ cc_library(
         "//cyber",
         "//modules/drivers/proto:sensor_image_cc_proto",
         "//modules/drivers/ipcamera/proto:ipcamera_conf_cc_proto",
-        "@ipcamera",
         "@opencv",
     ],
 )
@@ -49,10 +28,10 @@ cc_library(
     srcs = ["ipcamera_main.cc"],
     hdrs = ["ipcamera_main.h"],
     deps = [
-        #"//cyber",
         "@ipcamera",
     ],
 )
+
 cc_binary(
     name = "ipcamera_reader.so",
     linkopts = ["-shared"],
@@ -71,6 +50,7 @@ cc_library(
     deps = [
         "//cyber",
         "//modules/drivers/proto:sensor_image_cc_proto",
+        "//modules/drivers/ipcamera/proto:ipcamera_conf_cc_proto",
         "@opencv",
     ],
 )
