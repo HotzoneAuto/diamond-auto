@@ -1,0 +1,3 @@
+device_id: "ipcamera_front"
+output_channel:"/diamond/sensor/ipcamera/front"
+enable_log: true
