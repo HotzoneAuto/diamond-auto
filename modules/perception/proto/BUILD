@@ -42,3 +42,22 @@ py_proto_library(
         ":lidar_pointcloud_conf_proto",
     ],
 )
+
+cc_proto_library(
+    name = "tracker_config_cc_proto",
+    deps = [
+        ":tracker_config_proto",
+    ],
+)
+
+proto_library(
+    name = "tracker_config_proto",
+    srcs = ["tracker_config.proto"],
+)
+
+py_proto_library(
+    name = "tracker_config_py_pb2",
+    deps = [
+        ":tracker_config_proto",
+    ],
+)

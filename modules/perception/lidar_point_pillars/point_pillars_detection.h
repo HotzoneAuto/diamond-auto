@@ -16,18 +16,26 @@
 #include "pcl/filters/extract_indices.h"
 #include "pcl/filters/voxel_grid.h"
 #include "pcl/visualization/pcl_visualizer.h"
-#include "pcl/visualization/cloud_viewer.h"
+#include "pcl/segmentation/sac_segmentation.h"
+// #include "pcl/visualization/cloud_viewer.h"
 #include "Eigen/Core"
 
 #include "cyber/cyber.h"
+#include "cyber/timer/timer.h"
+#include "modules/common/time/time.h"
+
 #include "modules/drivers/proto/pointcloud.pb.h"
 #include "modules/perception/lidar_point_pillars/point_pillars.h"
 #include "modules/perception/proto/obst_box.pb.h"
 #include "modules/perception/proto/lidar_pointcloud_conf.pb.h"
+#include "modules/perception/lidar_pointcloud_tracking/hm_tracker.h"
+#include "modules/perception/lidar_pointcloud_tracking/common/object.h"
+#include "modules/perception/lidar_pointcloud_tracking/min_box.h"
 
 using namespace std;
 using apollo::cyber::Component;
 using apollo::cyber::ComponentBase;
+using apollo::common::time::Clock;
 
 namespace apollo {
 namespace perception {
@@ -80,6 +88,7 @@ class PointPillarsDetection: public Component<apollo::drivers::PointCloud, apoll
    float downsample_voxel_size_x = 0.1;
    float downsample_voxel_size_y = 0.1;
    float downsample_voxel_size_z = 0.1;
+   float distanceThreshold = 0.2;
 
    struct Color {
      float r, g, b;
@@ -96,10 +105,22 @@ class PointPillarsDetection: public Component<apollo::drivers::PointCloud, apoll
      float z_max;
    };
 
+  struct Point {
+     float x;
+     float y;
+     float z;
+  };
+
    Eigen::Vector4f minpoint;
    Eigen::Vector4f maxpoint;
    std::shared_ptr<apollo::cyber::Writer<apollo::perception::Obstacles>> obst_writer;
    apollo::perception::LidarPointcloudConf lidar_pointcloud_conf_;
+
+   //tracker
+   std::unique_ptr<apollo::perception::MinBoxObjectBuilder> object_builder_;
+   std::unique_ptr<apollo::perception::HmObjectTracker> tracker_;
+   double timestamp_;  
+   apollo::perception::SeqId seq_num_;
 };  // class PointPillarsDetection
 CYBER_REGISTER_COMPONENT(PointPillarsDetection)
 }  // namespace lidar

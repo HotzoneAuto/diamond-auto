@@ -235,6 +235,7 @@ bool Lidar_pointcloudcluster::Proc(
     msg_box->set_x_max(box.x_max);
     msg_box->set_y_max(box.y_max);
     msg_box->set_z_max(box.z_max);
+    msg_box->set_yaw(0.0);
 
     string cube = "box" + std::to_string(clusterId);
     string cubeFill = "boxFill" + std::to_string(clusterId);
@@ -265,7 +266,6 @@ bool Lidar_pointcloudcluster::Proc(
 
     ++clusterId;
   }
-  msg_obstacles->set_box_num(clusterId);
   obst_writer->Write(msg_obstacles);
   viewer->addPointCloud<pcl::PointXYZI>(pcloud_obst, "init cloud");
   viewer->spinOnce();
