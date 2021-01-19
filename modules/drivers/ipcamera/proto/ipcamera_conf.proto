@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+message IpcameraDeviceConf {
+  optional string device_id = 1;
+  optional string output_channel = 2;
+  optional bool enable_log = 3 [default = false];
+  optional uint32 width = 4;
+  optional uint32 height = 5;
+  optional bool monochrome = 6 [default = false];
+  optional uint32 exposure = 7;
+  optional uint32 frame_rate = 8;
+}

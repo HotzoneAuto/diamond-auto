@@ -1,0 +1,10 @@
+module_config{
+    module_library : "/apollo/bazel-bin/modules/drivers/ipcamera/ipcamera_reader.so"
+    components {
+        class_name : "IpcameraReader"
+        config {
+            name: "Ipcamera_front_reader"
+            config_file_path:"/apollo/modules/drivers/ipcamera/conf/ipcamera_front.pb.txt"
+        }
+    }
+}
