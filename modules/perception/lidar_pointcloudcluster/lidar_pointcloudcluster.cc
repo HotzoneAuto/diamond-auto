@@ -5,9 +5,13 @@ boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(
 
 bool Lidar_pointcloudcluster::Init() {
   AINFO << "Commontest component init";
+  if (!GetProtoConfig(&lidar_pointcloud_conf_)) {
+    AERROR << "Unable to load lidar pointcloud conf file: " << ConfigFilePath();
+    return false;
+  }
 
   obst_writer = node_->CreateWriter<apollo::perception::Obstacles>(
-      "/diamond/perception/Obstacles");
+    lidar_pointcloud_conf_.obst_output_channel());
 
   minpoint = Eigen::Vector4f(-32, -15, -2, 1);
   maxpoint = Eigen::Vector4f(20, 15, 2, 1);
@@ -37,8 +41,8 @@ Lidar_pointcloudcluster::filter_and_segment(
 
   vector<int> indices;
   pcl::CropBox<pcl::PointXYZI> roof(true);
-  roof.setMin(Eigen::Vector4f(-12, -4.7, -1.0, 1));
-  roof.setMax(Eigen::Vector4f(0.0, 4.7, 1.0, 1));
+  roof.setMin(Eigen::Vector4f(-12, -1.9, -1.0, 1));
+  roof.setMax(Eigen::Vector4f(0.0, 1.9, 1.0, 1));
   roof.setInputCloud(cloudRegion);
   roof.filter(indices);
 
@@ -66,6 +70,7 @@ Lidar_pointcloudcluster::filter_and_segment(
   seg.setDistanceThreshold(distanceThreshold);
   seg.setInputCloud(cloudRegion);
   seg.segment(*inliers_seg, *coefficients);
+
   // segment obstacles
   pcl::PointCloud<pcl::PointXYZI>::Ptr obstCloud(
       new pcl::PointCloud<pcl::PointXYZI>());
@@ -108,28 +113,26 @@ bool Lidar_pointcloudcluster::Proc(
   cloud.height = 1;
   cloud.is_dense = false;
   cloud.points.resize(cloud.width * cloud.height);
-  for (size_t i = 0; i < msg1->point_size(); ++i) {
+  for (int i = 0; i < msg1->point_size(); ++i) {
     cloud.points[i].x = msg1->point(i).x();
     cloud.points[i].y = msg1->point(i).y();
     cloud.points[i].z = msg1->point(i).z();
     cloud.points[i].intensity = msg1->point(i).intensity();
   }
 
-  vector<int> nan_cloud_inliers;
-  pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers);
   pcloud = cloud.makeShared();
-  //  save point_cloud to pcd file
-  //  pcl::io::savePCDFileASCII("/apollo/write_pcd_test.pcd",*pcloud);
+  vector<int> nan_cloud_inliers;
+  pcl::removeNaNFromPointCloud(*pcloud, *pcloud, nan_cloud_inliers); 
 
-  // rear point cloud
+//rear point cloud
   pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_rear(
       new pcl::PointCloud<pcl::PointXYZI>);
   pcl::PointCloud<pcl::PointXYZI> cloud_rear;
   cloud_rear.width = msg2->point_size();
   cloud_rear.height = 1;
   cloud_rear.is_dense = false;
-  cloud_rear.points.resize(cloud_rear.width * cloud_rear.height);
-  for (size_t i = 0; i < msg2->point_size(); ++i) {
+  cloud_rear.points.resize(cloud_rear.width * cloud_rear.height);  
+  for (int i = 0; i < msg2->point_size(); ++i) {
     cloud_rear.points[i].x = -(msg2->point(i).x()) - 12;
     cloud_rear.points[i].y = -msg2->point(i).y();
     cloud_rear.points[i].z = msg2->point(i).z();
@@ -138,15 +141,20 @@ bool Lidar_pointcloudcluster::Proc(
 
   pcloud_rear = cloud_rear.makeShared();
   vector<int> nan_cloud_inliers_rear;
-  pcl::removeNaNFromPointCloud(*pcloud_rear, *pcloud_rear,
-                               nan_cloud_inliers_rear);
+  pcl::removeNaNFromPointCloud(*pcloud_rear, *pcloud_rear, nan_cloud_inliers_rear);
+  
+  if(lidar_pointcloud_conf_.save_pcd_file()) {
+    pcl::io::savePCDFileASCII(lidar_pointcloud_conf_.save_pcd_path_front(),*pcloud);
+    pcl::io::savePCDFileASCII(lidar_pointcloud_conf_.save_pcd_path_rear(),*pcloud_rear);
+  } 
 
-  // point cloud data fusion
-  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr,
-            pcl::PointCloud<pcl::PointXYZI>::Ptr>
+//point cloud data fusion
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, 
+            pcl::PointCloud<pcl::PointXYZI>::Ptr> 
       segResult_front = filter_and_segment(pcloud);
-  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr,
-            pcl::PointCloud<pcl::PointXYZI>::Ptr>
+
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, 
+            pcl::PointCloud<pcl::PointXYZI>::Ptr> 
       segResult_rear = filter_and_segment(pcloud_rear);
 
   pcl::PointCloud<pcl::PointXYZI>::Ptr pcloud_plane(
@@ -227,6 +235,7 @@ bool Lidar_pointcloudcluster::Proc(
     msg_box->set_x_max(box.x_max);
     msg_box->set_y_max(box.y_max);
     msg_box->set_z_max(box.z_max);
+    msg_box->set_yaw(0.0);
 
     string cube = "box" + std::to_string(clusterId);
     string cubeFill = "boxFill" + std::to_string(clusterId);
@@ -257,7 +266,6 @@ bool Lidar_pointcloudcluster::Proc(
 
     ++clusterId;
   }
-  msg_obstacles->set_box_num(clusterId);
   obst_writer->Write(msg_obstacles);
   viewer->addPointCloud<pcl::PointXYZI>(pcloud_obst, "init cloud");
   viewer->spinOnce();

@@ -36,7 +36,7 @@ build all modules
 
 
 ```bash
-bash apollo.sh build
+bash apollo.sh build_gpu
 ```
 
 

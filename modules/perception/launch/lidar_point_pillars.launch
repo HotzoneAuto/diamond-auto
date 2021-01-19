@@ -1,0 +1,7 @@
+<cyber>
+    <module>
+        <name>common</name>
+        <dag_conf>/apollo/modules/perception/dag/lidar_point_pillars.dag</dag_conf>
+        <process_name>lidar_point_pillars</process_name>
+    </module>
+</cyber>

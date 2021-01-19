@@ -1,0 +1,17 @@
+# Define all coms in DAG streaming.
+module_config {
+    module_library : "/apollo/bazel-bin/modules/perception/lidar_pointcloudcluster/lidar_pointcloudcluster.so"
+    components {
+        class_name : "Lidar_pointcloudcluster"
+        config {
+            name : "lidar_front"
+            config_file_path: "/apollo/modules/perception/conf/lidar_poindcloud_conf.pb.txt"
+            readers {
+                channel: "/diamond/sensor/lidar/front/PointCloud2"
+            }
+            readers {
+                channel: "/diamond/sensor/lidar/rear/PointCloud2"
+            }
+        }
+    }
+}

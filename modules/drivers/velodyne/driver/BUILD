@@ -6,6 +6,7 @@ package(default_visibility = ["//visibility:public"])
 cc_binary(
     name = "libvelodyne_driver_component.so",
     linkopts = ["-shared"],
+    linkshared = True,
     linkstatic = False,
     deps = [":velodyne_driver_component_lib"],
 )

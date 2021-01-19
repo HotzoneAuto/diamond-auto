@@ -30,6 +30,7 @@ cc_library(
         "//modules/drivers/proto:wheelangle_cc_proto",
         "//modules/drivers/proto:parking_cc_proto",
         "//modules/common/adapters:adapter_gflags",
+        "//modules/perception/proto:obst_box_cc_proto",
         "@com_github_gflags_gflags//:gflags",
     ],
 )

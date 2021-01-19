@@ -10,9 +10,9 @@ message Obst_box {
   optional float x_max = 5;
   optional float y_max = 6;
   optional float z_max = 7;
+  optional float yaw = 8;
 };
 
 message Obstacles {
     repeated Obst_box obstacles = 1;
-    optional int32 box_num = 2; 
 }
